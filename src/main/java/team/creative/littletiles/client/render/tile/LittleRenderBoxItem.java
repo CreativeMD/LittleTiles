@@ -125,7 +125,7 @@ public class LittleRenderBoxItem extends LittleRenderBox {
         List<BakedQuad> quads = new ArrayList<>();
         for (int i = 0; i < blockQuads.size(); i++) {
             int[] originalData = blockQuads.get(i).getVertices();
-            CreativeBakedQuad quad = new CreativeBakedQuad(blockQuads.get(i), this, defaultColor, overrideTint);
+            int[] vertices = originalData.clone();
             
             for (int k = 0; k < 4; k++) {
                 int index = k * VertexFormatUtils.blockFormatIntSize();
@@ -155,13 +155,14 @@ public class LittleRenderBoxItem extends LittleRenderBox {
                 int newIndex = index;
                 if (reverse)
                     newIndex = (3 - k) * VertexFormatUtils.blockFormatIntSize();
-                quad.getVertices()[newIndex] = Float.floatToIntBits(vec.x);
-                quad.getVertices()[newIndex + 1] = Float.floatToIntBits(vec.y);
-                quad.getVertices()[newIndex + 2] = Float.floatToIntBits(vec.z);
+                vertices[newIndex] = Float.floatToIntBits(vec.x);
+                vertices[newIndex + 1] = Float.floatToIntBits(vec.y);
+                vertices[newIndex + 2] = Float.floatToIntBits(vec.z);
                 if (reverse)
                     for (int j = 3; j < VertexFormatUtils.blockFormatIntSize(); j++)
-                        quad.getVertices()[newIndex + j] = originalData[index + j];
+                        vertices[newIndex + j] = originalData[index + j];
             }
+            CreativeBakedQuad quad = new CreativeBakedQuad(vertices, blockQuads.get(i), this, defaultColor, overrideTint);
             quads.add(quad);
         }
         return quads;
