@@ -96,7 +96,7 @@ dependencies {
 }
 
 modDependencies = [
-    [ modId: "creativecore", mandatory: true, ordering: "NONE", side: "BOTH", versionRange: creativecore_version ]
+    [ modId: "creativecore", mandatory: true, ordering: "NONE", side: "BOTH", versionRange: "[" + creativecore_version + ",)" ]
 ]
 
 jar {
