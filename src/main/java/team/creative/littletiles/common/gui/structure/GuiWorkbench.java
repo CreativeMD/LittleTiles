@@ -22,6 +22,7 @@ import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.text.content.ContentItemStack;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.common.action.LittleAction;
@@ -122,8 +123,7 @@ public class GuiWorkbench extends GuiLayer {
     @Override
     public void closed() {
         super.closed();
-        for (int i = 0; i < crafting.getContainerSize(); i++)
-            getPlayer().drop(crafting.getItem(i), false);
+        PlayerUtils.addOrDrop(getPlayer(), crafting);
     }
     
     public class CraftingGrid extends GuiParent implements IGuiInventory {

@@ -14,6 +14,7 @@ import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInvento
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.client.export.LittleExportType;
 import team.creative.littletiles.common.placement.PlacementHelper;
@@ -39,8 +40,8 @@ public class GuiExport extends GuiLayer {
                 textfield.setText("");
         }));
         
-        add(new GuiComboBoxMapped<LittleExportType>("type", new TextMapBuilder<LittleExportType>()
-                .addEntrySet(LittleExportType.REGISTRY.entrySet(), x -> Component.translatable("gui.export." + x.getKey()))));
+        add(new GuiComboBoxMapped<LittleExportType>("type", new TextMapBuilder<LittleExportType>().addEntrySet(LittleExportType.REGISTRY.entrySet(), x -> Component.translatable(
+            "gui.export." + x.getKey()))));
         
         GuiParent row = new GuiParent(GuiFlow.STACK_X);
         add(row);
@@ -53,5 +54,11 @@ public class GuiExport extends GuiLayer {
         
         add(new GuiPlayerInventoryGrid(getPlayer()).setUnexpandableX());
         
+    }
+    
+    @Override
+    public void closed() {
+        super.closed();
+        PlayerUtils.addOrDrop(getPlayer(), exportSlot);
     }
 }

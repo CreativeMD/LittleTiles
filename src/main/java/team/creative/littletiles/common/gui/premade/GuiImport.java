@@ -25,6 +25,7 @@ import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
 import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -84,6 +85,12 @@ public class GuiImport extends GuiLayer {
     }
     
     @Override
+    public void closed() {
+        super.closed();
+        PlayerUtils.addOrDrop(getPlayer(), importSlot);
+    }
+    
+    @Override
     public void create() {
         add(textfield = new GuiTextfield("import_textfield"));
         textfield.setMaxStringLength(Integer.MAX_VALUE);
@@ -130,4 +137,5 @@ public class GuiImport extends GuiLayer {
         
         add(new GuiPlayerInventoryGrid(getPlayer()).setUnexpandableX());
     }
+    
 }

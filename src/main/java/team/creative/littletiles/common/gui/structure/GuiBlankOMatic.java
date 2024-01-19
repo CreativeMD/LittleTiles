@@ -35,6 +35,7 @@ import team.creative.creativecore.common.gui.style.display.StyleDisplay;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.common.recipe.BlankOMaticRecipeRegistry;
@@ -102,6 +103,12 @@ public class GuiBlankOMatic extends GuiLayer {
         super.init();
         if (!isClient())
             VOLUME.send(IntTag.valueOf(whitener.whiteColor));
+    }
+    
+    @Override
+    public void closed() {
+        super.closed();
+        PlayerUtils.addOrDrop(getPlayer(), whiteInput);
     }
     
     @Override
