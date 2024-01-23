@@ -116,6 +116,7 @@
     "gui.recipe.test.overlap.move": "Move structures",
     "gui.recipe.test.signal.title": "Invalid signal equation for \u00A7e%s",
     "gui.recipe.test.signal.desc": "Could not find \u00A72%s",
+    "gui.recipe.storage.invisible": "Storage tiles invisible",
     "gui.door.play_place_sound": "Play place sounds",
     "gui.door.stay_animated.tooltip": "Whether the door should go back to block form if possible.",
     "gui.door.rightclick.tooltip": "Whether the can be opened or closed by right click.",

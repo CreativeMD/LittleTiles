@@ -38,7 +38,7 @@ public class LittleStorageGui extends LittleStructureGuiControl {
         
         for (LittleTile tile : item.group)
             if (tile.getBlock().is(LittleTiles.STORAGE_BLOCKS))
-                tile.color = ColorUtils.setAlpha(tile.color, 0);
+                tile.color = ColorUtils.setAlpha(tile.color, storage.invisibleStorageTiles ? 0 : 255);
             
         storage.inventorySize = LittleStorage.getSizeOfInventory(item.group);
         storage.stackSizeLimit = LittleStorage.maxSlotStackSize;
