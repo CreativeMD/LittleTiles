@@ -218,6 +218,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public int entityCacheBuildThreads = 1;
         
+        @CreativeConfig
+        public int connectedShapeBlocksLimit = 128;
+        
         @Override
         public void configured(Side side) {
             if (side.isClient())

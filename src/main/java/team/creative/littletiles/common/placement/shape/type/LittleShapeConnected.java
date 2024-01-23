@@ -18,6 +18,7 @@ import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -102,6 +103,8 @@ public class LittleShapeConnected extends LittleShapeSelectable {
             this.pos.move(facing.toVanilla());
             ConnectedBlock block = blocks.get(this.pos);
             if (block == null) {
+                if (blocks.size() > LittleTiles.CONFIG.rendering.connectedShapeBlocksLimit)
+                    return EMPTY;
                 BlockEntity be = origin.parent.getLevel().getBlockEntity(this.pos);
                 if (be instanceof BETiles t)
                     block = new ConnectedBlock(t, this);
