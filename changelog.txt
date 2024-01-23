@@ -1,3 +1,8 @@
+1.6.0-pre089
+Added connectedShapeBlocksLimit config (default is 128)
+Fixed invisible storage tiles not working properly
+Fixed not dropping item in gui of importer, exporter, blancomatic, workbench
+
 1.6.0-pre088
 Fixed weird lighting issues with embeddium in regards to items
 
