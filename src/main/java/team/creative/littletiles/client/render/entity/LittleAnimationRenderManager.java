@@ -39,6 +39,7 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
@@ -52,11 +53,17 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 @OnlyIn(Dist.CLIENT)
 public class LittleAnimationRenderManager extends LittleEntityRenderManager<LittleAnimationEntity> implements RenderChunkExtender {
     
-    private final ChunkLayerMap<VertexBuffer> buffers = new ChunkLayerMap<>();
-    private final Set<RenderType> hasBlocks = new ObjectArraySet<>(RenderType.chunkBufferLayers().size());
-    private List<BlockEntity> renderableBlockEntities = new ArrayList<>();
-    private BufferBuilder.SortState transparencyState;
-    private boolean needsUpdate = false;
+    public static LittleEntityRenderManager of(LittleAnimationEntity entity) {
+        if (RubidiumManager.installed())
+            return RubidiumManager.createRenderManager(entity);
+        return new LittleAnimationRenderManager(entity);
+    }
+    
+    protected final ChunkLayerMap<VertexBuffer> buffers = new ChunkLayerMap<>();
+    protected final Set<RenderType> hasBlocks = new ObjectArraySet<>(RenderType.chunkBufferLayers().size());
+    protected List<BlockEntity> renderableBlockEntities = new ArrayList<>();
+    protected BufferBuilder.SortState transparencyState;
+    protected boolean needsUpdate = false;
     
     public ChunkLayerMap<BufferCollection> lastUploaded;
     private volatile int queued;
@@ -247,7 +254,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
         }
     }
     
-    private class RebuildTask implements RebuildTaskExtender {
+    protected class RebuildTask implements RebuildTaskExtender {
         
         private ChunkLayerMap<BufferCollection> caches;
         private ChunkBufferBuilderPack pack;

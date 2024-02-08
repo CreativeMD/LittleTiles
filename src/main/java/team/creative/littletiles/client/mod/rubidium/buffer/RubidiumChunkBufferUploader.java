@@ -28,17 +28,19 @@ public class RubidiumChunkBufferUploader implements ChunkBufferUploader {
         
         int currentOffset = 0;
         for (int i = 0; i < buffers.length; i++) {
-            int start = (SectionRenderDataUnsafe.getVertexOffset(data, i) - offset) * format.getStride();
-            int length = SectionRenderDataUnsafe.getElementCount(data, i) / 6 * 4 * format.getStride();
+            int originalStart = (SectionRenderDataUnsafe.getVertexOffset(data, i) - offset) * format.getStride();
+            int originalLength = SectionRenderDataUnsafe.getElementCount(data, i) / 6 * 4 * format.getStride();
             
-            start += currentOffset;
-            buffers[i] = buffer.slice(start + currentOffset, length + extraLengthFacing[i]);
+            int newStart = originalStart + currentOffset;
+            int newLength = originalLength + extraLengthFacing[i];
             
-            buffers[i].put(0, exisitingData, start, length);
-            buffers[i].position(length);
+            buffers[i] = buffer.slice(newStart, newLength);
+            
+            buffers[i].put(0, exisitingData, originalStart, originalLength);
+            buffers[i].position(originalLength);
             
             currentOffset += extraLengthFacing[i];
-            ranges[i] = new VertexRange((start + currentOffset) / format.getStride(), (length + extraLengthFacing[i]) / format.getStride());
+            ranges[i] = new VertexRange(newStart / format.getStride(), newLength / format.getStride());
         }
         
         if (existing != null) {

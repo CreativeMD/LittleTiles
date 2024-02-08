@@ -75,7 +75,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     
     protected void beforeInitalPlacement() {
         if (level().isClientSide)
-            getSubLevel().renderManager = new LittleAnimationRenderManager(this);
+            getSubLevel().renderManager = LittleAnimationRenderManager.of(this);
     }
     
     @Override
@@ -192,7 +192,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         }
         setSubLevel(new LittleAnimationLevel(level()), absolute.rotationCenter);
         setCenter(absolute);
-        ((LittleAnimationLevel) subLevel).renderManager = new LittleAnimationRenderManager(this);
+        ((LittleAnimationLevel) subLevel).renderManager = LittleAnimationRenderManager.of(this);
         loadBlocks(extraData);
         physic.load(extraData.getCompound("physic"));
         this.structure = new StructureConnection((Level) subLevel, extraData.getCompound("st"));

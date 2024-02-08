@@ -65,10 +65,6 @@ public class RenderUploader {
         }
     }
     
-    public static void uploadRenderData(RenderChunkExtender chunk, Iterable<? extends LayeredBufferCache> blocks) {
-        
-    }
-    
     public static class RenderDataLevel {
         
         public final Level level;

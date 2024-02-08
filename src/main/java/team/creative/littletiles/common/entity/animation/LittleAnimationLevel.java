@@ -60,7 +60,6 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.BlockStatePredictionHandlerExtender;
 import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.client.level.little.LittleAnimationLevelClientCallback;
-import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.level.little.LevelBlockChangeListener;
@@ -79,7 +78,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     public LittleAnimationChunkCache chunks;
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     @OnlyIn(Dist.CLIENT)
-    public LittleAnimationRenderManager renderManager;
+    public LittleEntityRenderManager renderManager;
     private HashSet<BlockPos> trackedChanges;
     @OnlyIn(Dist.CLIENT)
     private BlockStatePredictionHandler blockStatePredictionHandler;

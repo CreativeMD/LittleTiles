@@ -33,8 +33,8 @@ import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeli
 public interface RenderChunkExtender {
     
     public static Vec3 offsetCorrection(Vec3i to, Vec3i from) {
-        if (to == from)
-            return Vec3.ZERO;
+        if (to == from || to.equals(from))
+            return null;
         return new Vec3(from.getX() - to.getX(), from.getY() - to.getY(), from.getZ() - to.getZ());
     }
     

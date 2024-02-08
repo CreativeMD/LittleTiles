@@ -207,12 +207,12 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             for (int i = 0; i < indexes.length; i++) {
                 ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
                 if (v.getCount() > 0) {
-                    ByteBuffer buffer = MemoryUtil.memRealloc((ByteBuffer) null, v.getStride() * v.getCount());
+                    ByteBuffer buffer = ByteBuffer.allocateDirect(v.getStride() * v.getCount());
                     ByteBuffer threadBuffer = v.getBuffer();
                     threadBuffer.limit(buffer.capacity());
                     MemoryUtil.memCopy(v.getBuffer(), buffer);
                     threadBuffer.limit(threadBuffer.capacity());
-                    holders[i] = new BufferHolder(buffer, v.getStride() * v.getCount(), v.getCount(), indexes[i].toIntArray());
+                    holders[i] = new BufferHolder(buffer, buffer.limit(), v.getCount(), indexes[i].toIntArray());
                     indexes[i].clear();
                 }
             }

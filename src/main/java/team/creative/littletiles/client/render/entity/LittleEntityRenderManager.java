@@ -148,8 +148,8 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
             int j1 = sortedset.last().getProgress();
             if (j1 >= 0) {
                 PoseStack.Pose posestack$pose1 = pose.last();
-                VertexConsumer vertexconsumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource()
-                        .getBuffer(ModelBakery.DESTROY_TYPES.get(j1)), posestack$pose1.pose(), posestack$pose1.normal(), 1.0F);
+                VertexConsumer vertexconsumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(
+                    j1)), posestack$pose1.pose(), posestack$pose1.normal(), 1.0F);
                 
                 newSource = (type) -> type.affectsCrumbling() ? VertexMultiConsumer.create(vertexconsumer, bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
             }

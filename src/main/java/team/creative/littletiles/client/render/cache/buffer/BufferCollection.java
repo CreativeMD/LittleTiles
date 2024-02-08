@@ -6,11 +6,17 @@ import java.util.List;
 public class BufferCollection {
     
     private List<BufferCache> buffers = new ArrayList<>();
+    private int length = 0;
     
     public BufferCollection() {}
     
     public void queueForUpload(BufferCache cache) {
         buffers.add(cache);
+        length += cache.lengthToUpload();
+    }
+    
+    public int length() {
+        return length;
     }
     
     public void discard() {
@@ -35,6 +41,10 @@ public class BufferCollection {
     @Override
     public String toString() {
         return buffers.toString();
+    }
+    
+    public Iterable<BufferCache> buffers() {
+        return buffers;
     }
     
 }

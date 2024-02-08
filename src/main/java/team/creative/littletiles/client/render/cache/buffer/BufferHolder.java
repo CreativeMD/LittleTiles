@@ -140,8 +140,8 @@ public class BufferHolder implements BufferCache {
     
     public boolean download(ByteBuffer buffer) {
         if (buffer.capacity() >= uploadIndex + length()) {
-            ByteBuffer downloaded = ByteBuffer.allocateDirect(length());
-            downloaded.put(0, buffer, uploadIndex, length());
+            ByteBuffer downloaded = ByteBuffer.allocateDirect(length);
+            downloaded.put(0, buffer, uploadIndex, length);
             downloaded.rewind();
             this.buffer = downloaded;
             uploadIndex = -1;

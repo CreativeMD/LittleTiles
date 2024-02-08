@@ -103,11 +103,9 @@ public class RubidiumBufferCache implements BufferCache {
     
     @Override
     public int lengthToUpload(int facing) {
-        int length = 0;
-        for (int i = 0; i < buffers.length; i++)
-            if (buffers[i] != null && buffers[i].isAvailable())
-                length += buffers[i].lengthToUpload(facing);
-        return length;
+        if (buffers[facing] != null && buffers[facing].isAvailable())
+            return buffers[facing].lengthToUpload();
+        return 0;
     }
     
     @Override

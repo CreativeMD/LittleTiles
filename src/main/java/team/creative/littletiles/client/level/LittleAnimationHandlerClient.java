@@ -351,6 +351,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     @SubscribeEvent
     public void renderChunkLayer(RenderLevelStageEvent event) {
+        if (RubidiumManager.installed())
+            return;
+        
         RenderType layer = null;
         
         if (event.getStage() == Stage.AFTER_SOLID_BLOCKS)
@@ -366,9 +369,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         if (layer == null)
             return;
-        
-        if (RubidiumManager.installed())
-            layer.setupRenderState();
         
         PoseStack pose = event.getPoseStack();
         Matrix4f projectionMatrix = event.getProjectionMatrix();
@@ -426,8 +426,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             pose.popPose();
         }
         
-        if (RubidiumManager.installed())
-            layer.clearRenderState();
         shaderinstance.clear();
     }
     

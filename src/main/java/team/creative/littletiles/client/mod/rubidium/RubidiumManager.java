@@ -1,6 +1,8 @@
 package team.creative.littletiles.client.mod.rubidium;
 
 import net.minecraftforge.fml.ModList;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
+import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 
 public class RubidiumManager {
     
@@ -22,6 +24,10 @@ public class RubidiumManager {
     public static void init() {
         if (installed())
             RubidiumInteractor.init();
+    }
+    
+    public static LittleEntityRenderManager createRenderManager(LittleAnimationEntity entity) {
+        return RubidiumInteractor.createRenderManager(entity);
     }
     
 }

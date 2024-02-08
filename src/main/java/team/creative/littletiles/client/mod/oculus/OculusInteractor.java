@@ -2,6 +2,7 @@ package team.creative.littletiles.client.mod.oculus;
 
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.coderbot.iris.compat.sodium.impl.block_context.ChunkBuildBuffersExt;
+import net.coderbot.iris.compat.sodium.impl.shader_overrides.ShaderChunkRendererExt;
 import net.coderbot.iris.vertices.ExtendedDataHelper;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.minecraft.core.BlockPos;
@@ -38,6 +39,12 @@ public class OculusInteractor {
     public static void setMid(ChunkMeshBufferBuilderAccessor vertexBuffer, Vec3d center) {
         if (vertexBuffer.getEncoder() instanceof XHFPTerrainVertexExtender ex)
             ex.setCenter(center);
+    }
+    
+    public static Object getShader(Object object) {
+        if (object instanceof ShaderChunkRendererExt ex)
+            return ex.iris$getOverride().getInterface();
+        return null;
     }
     
 }

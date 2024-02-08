@@ -187,8 +187,8 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
                 if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.PLAYER_AFFECTED)
                     immediate = chunk.isDirtyFromPlayer();
                 else if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.NEARBY) {
-                    immediate = !ForgeConfig.CLIENT.alwaysSetupTerrainOffThread
-                            .get() && (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk.isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
+                    immediate = !ForgeConfig.CLIENT.alwaysSetupTerrainOffThread.get() && (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk
+                            .isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
                 }
                 
                 if (immediate) {
