@@ -461,7 +461,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         for (LittleBox box : boxes)
             if (!box.isSolid())
                 return false;
-        return block.canBeConvertedToVanilla();
+        return block.canBeConvertedToVanilla() && ColorUtils.isDefault(color);
     }
     
     // ================Collision================
