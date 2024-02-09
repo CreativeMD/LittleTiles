@@ -1,3 +1,12 @@
+1.6.0-pre090
+Added interaction hand to use method in tile and structure (closes #938)
+Fixed premade structures ingredient issue (required tiles instead of the actual structure item)
+Potential fix for broken transformable box inventory rendering
+Reworked door rendering to make use of sodium renderer to allow for smooth transitions (also fixes weird artifacts caused by opening/ closing a door)
+Fixed a few memory leaks
+Updated to Embeddium 3.1.0
+Updated to Oculus 1.6.15
+
 1.6.0-pre089
 Added connectedShapeBlocksLimit config (default is 128)
 Fixed invisible storage tiles not working properly
