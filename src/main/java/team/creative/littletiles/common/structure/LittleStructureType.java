@@ -133,6 +133,10 @@ public class LittleStructureType {
         return false;
     }
     
+    public boolean tileCountAsIngredient(LittleGroup group) {
+        return true;
+    }
+    
     public void addIngredients(LittleGroup group, LittleIngredients ingredients) {
         if (ingredientRules != null)
             for (IStructureIngredientRule rule : ingredientRules)

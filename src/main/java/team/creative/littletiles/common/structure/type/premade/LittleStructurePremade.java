@@ -8,6 +8,8 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
+import team.creative.littletiles.common.ingredient.LittleIngredients;
+import team.creative.littletiles.common.ingredient.StackIngredient;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
@@ -89,6 +91,17 @@ public abstract class LittleStructurePremade extends LittleStructure {
         
         public boolean canSnapToGrid() {
             return true;
+        }
+        
+        @Override
+        public boolean tileCountAsIngredient(LittleGroup group) {
+            return false;
+        }
+        
+        @Override
+        public void addIngredients(LittleGroup group, LittleIngredients ingredients) {
+            super.addIngredients(group, ingredients);
+            ingredients.add(new StackIngredient(createItemStack()));
         }
         
     }
