@@ -5,6 +5,7 @@ import org.joml.Vector3d;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -111,7 +112,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
         if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingLava) {
             BlockState newState;
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
@@ -130,7 +131,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
             });
             return InteractionResult.SUCCESS;
         }
-        return ILittleMCBlock.super.use(parent, tile, box, player, result);
+        return ILittleMCBlock.super.use(parent, tile, box, player, result, hand);
     }
     
     @Override

@@ -60,7 +60,7 @@ public class LittleBlocks {
             }
             
             @Override
-            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
+            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
                 ItemStack heldItem = player.getMainHandItem();
                 if (heldItem.is(Items.FLINT_AND_STEEL) || heldItem.is(Items.FIRE_CHARGE)) {
                     if (!parent.isClient())
@@ -88,14 +88,14 @@ public class LittleBlocks {
                 LittleVec size = box.getSize();
                 LittleVec min = box.getMinVec();
                 LittleGrid grid = parent.getGrid();
-                PrimedSizedTnt entitytntprimed = new PrimedSizedTnt(parent
-                        .getLevel(), pos.getX() + min.getPosX(grid) + size.getPosX(grid) / 2, pos.getY() + min.getPosY(grid) + size.getPosY(grid) / 2, pos.getZ() + min
-                                .getPosZ(grid) + size.getPosZ(grid) / 2, entity instanceof LivingEntity ? (LivingEntity) entity : null, grid, size);
+                PrimedSizedTnt entitytntprimed = new PrimedSizedTnt(parent.getLevel(), pos.getX() + min.getPosX(grid) + size.getPosX(grid) / 2, pos.getY() + min.getPosY(
+                    grid) + size.getPosY(grid) / 2, pos.getZ() + min.getPosZ(grid) + size.getPosZ(
+                        grid) / 2, entity instanceof LivingEntity ? (LivingEntity) entity : null, grid, size);
                 if (randomFuse)
                     entitytntprimed.setFuse((short) (parent.getLevel().random.nextInt(entitytntprimed.getFuse() / 4) + entitytntprimed.getFuse() / 8));
                 parent.getLevel().addFreshEntity(entitytntprimed);
-                parent.getLevel()
-                        .playSound((Player) null, entitytntprimed.getX(), entitytntprimed.getY(), entitytntprimed.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F, 1.0F);
+                parent.getLevel().playSound((Player) null, entitytntprimed.getX(), entitytntprimed.getY(), entitytntprimed.getZ(), SoundEvents.TNT_PRIMED, SoundSource.BLOCKS, 1.0F,
+                    1.0F);
                 parent.getLevel().gameEvent(entity, GameEvent.PRIME_FUSE, parent.getPos());
             }
             
@@ -109,7 +109,7 @@ public class LittleBlocks {
             }
             
             @Override
-            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
+            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
                 if (parent.isClient())
                     return InteractionResult.SUCCESS;
                 

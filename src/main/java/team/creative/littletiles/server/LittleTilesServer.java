@@ -1,6 +1,7 @@
 package team.creative.littletiles.server;
 
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
@@ -40,6 +41,19 @@ public class LittleTilesServer {
      *            end of the player ray
      * @return whether something has been activated or not */
     public static boolean playerRightClickServer(ServerPlayer player, Vec3 pos, Vec3 look) {
+        return playerRightClickServer(player, pos, look, InteractionHand.MAIN_HAND);
+    }
+    
+    /** activates blocks and animations from littletiles on server side
+     * 
+     * @param player
+     *            entity performing the action
+     * @param pos
+     *            start of the player ray
+     * @param look
+     *            end of the player ray
+     * @return whether something has been activated or not */
+    public static boolean playerRightClickServer(ServerPlayer player, Vec3 pos, Vec3 look, InteractionHand hand) {
         AABB box = new AABB(pos, look);
         Level level = player.level();
         
@@ -65,11 +79,11 @@ public class LittleTilesServer {
             if (result instanceof BlockHitResult) {
                 BlockState state = level.getBlockState(result.getBlockPos());
                 if (state.getBlock() instanceof BlockTile)
-                    return LittleActionHandlerServer.execute(player, new LittleActionActivated(level, result.getBlockPos(), pos, look, false)).consumesAction();
+                    return LittleActionHandlerServer.execute(player, new LittleActionActivated(level, result.getBlockPos(), pos, look, false, hand)).consumesAction();
                 return false;
             }
         } else
-            return LittleActionHandlerServer.execute(player, new LittleActionActivated((Level) pointedEntity.getSubLevel(), result.getBlockPos(), pos, look, false))
+            return LittleActionHandlerServer.execute(player, new LittleActionActivated((Level) pointedEntity.getSubLevel(), result.getBlockPos(), pos, look, false, hand))
                     .consumesAction();
         
         return false;

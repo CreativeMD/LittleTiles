@@ -4,6 +4,7 @@ import java.util.function.BiFunction;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -101,14 +102,14 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
         if (canRightClick()) {
             if (!isClient()) {
                 if (activateParent && getParent() != null) {
                     try {
                         LittleStructure parentStructure = getParent().getStructure();
                         if (parentStructure instanceof LittleDoor door)
-                            return door.use(level, context, pos, player, result);
+                            return door.use(level, context, pos, player, result, hand);
                         throw new LittleActionException("Invalid parent");
                     } catch (LittleActionException e) {
                         LittleTilesClient.displayActionMessage(e.getActionMessage());
@@ -120,7 +121,7 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
             }
             return InteractionResult.SUCCESS;
         }
-        return super.use(level, context, pos, player, result);
+        return super.use(level, context, pos, player, result, hand);
     }
     
     @Override

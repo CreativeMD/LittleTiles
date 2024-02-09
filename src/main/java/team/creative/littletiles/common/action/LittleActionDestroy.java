@@ -2,6 +2,7 @@ package team.creative.littletiles.common.action;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -34,7 +35,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     public transient StructurePreview structurePreview;
     
     public LittleActionDestroy(Level level, BlockPos blockPos, Player player) {
-        super(level, blockPos, player);
+        super(level, blockPos, player, InteractionHand.MAIN_HAND);
     }
     
     public LittleActionDestroy() {}
@@ -58,7 +59,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     }
     
     @Override
-    protected Boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException {
+    protected Boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode, InteractionHand hand) throws LittleActionException {
         if (context.parent.isStructure()) {
             try {
                 LittleStructure structure = context.parent.getStructure();
@@ -92,8 +93,8 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
             }
         }
         
-        level.playSound((Player) null, pos, context.tile.getSound()
-                .getBreakSound(), SoundSource.BLOCKS, (context.tile.getSound().getVolume() + 1.0F) / 2.0F, context.tile.getSound().getPitch() * 0.8F);
+        level.playSound((Player) null, pos, context.tile.getSound().getBreakSound(), SoundSource.BLOCKS, (context.tile.getSound().getVolume() + 1.0F) / 2.0F, context.tile
+                .getSound().getPitch() * 0.8F);
         
         return true;
     }
@@ -152,8 +153,8 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
         }
         
         public LittleAction getPlaceAction() {
-            return new LittleActionPlace(requiresItemStack ? PlaceAction.PREMADE : PlaceAction.ABSOLUTE, PlacementPreview
-                    .absolute(structure.getStructureLevel(), PlacementMode.ALL, previews, Facing.EAST));
+            return new LittleActionPlace(requiresItemStack ? PlaceAction.PREMADE : PlaceAction.ABSOLUTE, PlacementPreview.absolute(structure.getStructureLevel(), PlacementMode.ALL,
+                previews, Facing.EAST));
         }
         
         @Override

@@ -5,6 +5,7 @@ import org.joml.Vector3d;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
@@ -48,7 +49,7 @@ public class BlockWater extends Block implements ILittleMCBlock, IFakeRenderingB
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
         if (player.getMainHandItem().getItem() instanceof BucketItem && !parent.isStructure() && LittleTiles.CONFIG.general.allowFlowingWater) {
             BlockState newState = LittleTilesRegistry.FLOWING_WATER.get().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]);
             parent.getBE().updateTiles(x -> {
@@ -59,7 +60,7 @@ public class BlockWater extends Block implements ILittleMCBlock, IFakeRenderingB
             
             return InteractionResult.SUCCESS;
         }
-        return ILittleMCBlock.super.use(parent, tile, box, player, result);
+        return ILittleMCBlock.super.use(parent, tile, box, player, result, hand);
     }
     
     @Override

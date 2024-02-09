@@ -7,6 +7,7 @@ import org.joml.Vector3d;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -65,7 +66,7 @@ public interface LittleBlock {
     
     public boolean canInteract();
     
-    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result);
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand);
     
     public int getLightValue();
     

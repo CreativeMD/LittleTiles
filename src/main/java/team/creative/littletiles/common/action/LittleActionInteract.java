@@ -3,6 +3,7 @@ package team.creative.littletiles.common.action;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -37,8 +38,10 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
     
     public boolean transformedCoordinates = false;
     
+    public InteractionHand hand;
+    
     @OnlyIn(Dist.CLIENT)
-    public LittleActionInteract(Level level, BlockPos blockPos, Player player) {
+    public LittleActionInteract(Level level, BlockPos blockPos, Player player, InteractionHand hand) {
         super();
         this.blockPos = blockPos;
         this.pos = player.getEyePosition(TickUtils.getFrameTime(level));
@@ -48,9 +51,10 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
         this.secondMode = LittleActionHandlerClient.isUsingSecondMode();
         if (level instanceof ISubLevel)
             uuid = ((ISubLevel) level).getHolder().getUUID();
+        this.hand = hand;
     }
     
-    public LittleActionInteract(Level level, BlockPos blockPos, Vec3 pos, Vec3 look, boolean secondMode) {
+    public LittleActionInteract(Level level, BlockPos blockPos, Vec3 pos, Vec3 look, boolean secondMode, InteractionHand hand) {
         super();
         this.blockPos = blockPos;
         this.pos = pos;
@@ -58,6 +62,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
         this.secondMode = secondMode;
         if (level instanceof ISubLevel)
             uuid = ((ISubLevel) level).getHolder().getUUID();
+        this.hand = hand;
     }
     
     public LittleActionInteract() {
@@ -68,7 +73,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
     
     protected abstract boolean isRightClick();
     
-    protected abstract T action(Level level, BETiles te, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException;
+    protected abstract T action(Level level, BETiles te, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode, InteractionHand hand) throws LittleActionException;
     
     protected abstract T ignored();
     
@@ -112,7 +117,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
                 ItemStack stack = player.getMainHandItem();
                 BlockHitResult moving = rayTrace(be, context, transformedPos, transformedLook);
                 if (moving != null)
-                    return action(level, be, context, stack, player, moving, blockPos, secondMode);
+                    return action(level, be, context, stack, player, moving, blockPos, secondMode, hand);
             } else
                 onTileNotFound();
         } else

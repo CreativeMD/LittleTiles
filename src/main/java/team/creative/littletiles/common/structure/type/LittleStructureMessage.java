@@ -4,6 +4,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerChunkCache;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -30,12 +31,12 @@ public class LittleStructureMessage extends LittleStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
         if (allowRightClick) {
             player.displayClientMessage(Component.literal(text), true);
             return InteractionResult.SUCCESS;
         }
-        return super.use(level, context, pos, player, result);
+        return super.use(level, context, pos, player, result, hand);
     }
     
     @Override

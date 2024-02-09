@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -432,8 +433,8 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.canInteract();
     }
     
-    public InteractionResult use(IParentCollection parent, LittleBox box, BlockPos pos, Player player, BlockHitResult result) {
-        return block.use(parent, this, box, player, result);
+    public InteractionResult use(IParentCollection parent, LittleBox box, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
+        return block.use(parent, this, box, player, result, hand);
     }
     
     public int getLightValue() {

@@ -468,7 +468,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     public InteractionResult useClient(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
         if (context.isComplete() && !(player.getItemInHand(hand).getItem() instanceof ItemLittleWrench) && LittleTilesClient.INTERACTION.can()) {
-            InteractionResult inter = LittleTilesClient.ACTION_HANDLER.execute(new LittleActionActivated(level, pos, player));
+            InteractionResult inter = LittleTilesClient.ACTION_HANDLER.execute(new LittleActionActivated(level, pos, player, hand));
             if (inter != InteractionResult.PASS && LittleTilesClient.INTERACTION.start(true))
                 return inter;
         }
