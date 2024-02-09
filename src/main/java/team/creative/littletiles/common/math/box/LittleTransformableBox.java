@@ -249,7 +249,7 @@ public class LittleTransformableBox extends LittleBox {
             for (int j = 0; j < index; j++)
                 if (vec[corners[i].ordinal()].epsilonEquals(coords[j], VectorFan.EPSILON))
                     continue outer;
-            coords[index] = vec[corners[i].ordinal()];
+            coords[index] = vec[corners[i].ordinal()].copy();
             index++;
         }
         if (index < coords.length)
