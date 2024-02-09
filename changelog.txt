@@ -1,3 +1,8 @@
+1.6.0-pre091
+Updated to newest c&b version
+Fixed converting tile to vanilla block ignoring color
+Fixed replace, overwrite and overwrite_all mode undo not working properly
+
 1.6.0-pre090
 Added interaction hand to use method in tile and structure (closes #938)
 Fixed premade structures ingredient issue (required tiles instead of the actual structure item)
