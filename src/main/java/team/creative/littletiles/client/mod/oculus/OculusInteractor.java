@@ -42,7 +42,7 @@ public class OculusInteractor {
     }
     
     public static Object getShader(Object object) {
-        if (object instanceof ShaderChunkRendererExt ex)
+        if (object instanceof ShaderChunkRendererExt ex && ex.iris$getOverride() != null)
             return ex.iris$getOverride().getInterface();
         return null;
     }
