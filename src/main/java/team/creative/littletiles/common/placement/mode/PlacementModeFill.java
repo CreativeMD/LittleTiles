@@ -42,7 +42,7 @@ public class PlacementModeFill extends PlacementMode {
             boxes.addAll(context.getBE().cutOut(context.block.getGrid(), tileBox, cutout, volume));
         if (!cutout.isEmpty())
             for (LittleBox box : boxes)
-                context.addUnplaceable(tile, box);
+                context.addUnplaceable(tile, box.copy());
             
         if (volume.has())
             context.placement.addRemovedIngredient(context.block, tile, volume);
