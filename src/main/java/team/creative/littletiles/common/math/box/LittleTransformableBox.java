@@ -624,7 +624,7 @@ public class LittleTransformableBox extends LittleBox {
     protected boolean intersectsWith(LittleBox box) {
         if (super.intersectsWith(box)) {
             if (box instanceof LittleTransformableBox t)
-                return intersectsWith(t.requestCache()) || t.intersectsWith(this.requestCache());
+                return t.requestCache().intersectsWith(t, this.requestCache()) || this.requestCache().intersectsWith(this, t.requestCache());
             
             VectorFanCache ownCache = requestCache();
             for (int i = 0; i < ownCache.faces.length; i++)
@@ -642,80 +642,9 @@ public class LittleTransformableBox extends LittleBox {
                 faceCache.axisStrips.add(new VectorFan(box.getVecArray(face.corners)));
                 newCache.faces[i] = faceCache;
             }
-            return intersectsWith(newCache);
+            return newCache.intersectsWith(box, this.requestCache()) || this.requestCache().intersectsWith(this, newCache);
         }
         return false;
-    }
-    
-    protected boolean intersectsWith(VectorFanCache cache) {
-        VectorFanCache ownCache = requestCache();
-        for (int i = 0; i < ownCache.faces.length; i++) {
-            VectorFanFaceCache face = ownCache.faces[i];
-            VectorFanFaceCache otherFace = cache.faces[i];
-            
-            if (face.hasAxisStrip() && otherFace.hasAxisStrip()) {
-                Facing facing = Facing.values()[i];
-                Axis axis = facing.axis;
-                Axis one = facing.one();
-                Axis two = facing.two();
-                
-                for (VectorFan fan : face.axisStrips)
-                    for (VectorFan fan2 : otherFace.axisStrips)
-                        if (fan.get(0).get(axis) == fan2.get(0).get(axis) && fan.intersect2d(fan2, one, two, facing.positive, 0.001F))
-                            return true;
-            }
-        }
-        
-        List<List<NormalPlaneF>> shapes = new ArrayList<>();
-        shapes.add(new ArrayList<>());
-        
-        // Build all possible shapes
-        for (int i = 0; i < ownCache.faces.length; i++) {
-            VectorFanFaceCache face = ownCache.faces[i];
-            
-            if (face.hasTiltedStrip()) {
-                NormalPlaneF plane1 = face.tiltedStrip1 != null ? face.tiltedStrip1.createPlane() : null;
-                NormalPlaneF plane2 = face.tiltedStrip2 != null ? face.tiltedStrip2.createPlane() : null;
-                
-                if (face.convex) {
-                    for (int j = 0; j < shapes.size(); j++) {
-                        if (plane1 != null)
-                            shapes.get(j).add(plane1);
-                        if (plane2 != null)
-                            shapes.get(j).add(plane2);
-                    }
-                } else { // concave requires two separate shapes
-                    int sizeBefore = shapes.size();
-                    for (int j = 0; j < sizeBefore; j++) {
-                        if (plane1 != null && plane2 != null) {
-                            List<NormalPlaneF> newList = new ArrayList<>(shapes.get(j));
-                            shapes.get(j).add(plane1);
-                            newList.add(plane2);
-                            shapes.add(newList);
-                        } else if (plane1 != null)
-                            shapes.get(j).add(plane1);
-                        else if (plane2 != null)
-                            shapes.get(j).add(plane2);
-                    }
-                }
-            }
-            
-            if (face.hasAxisStrip()) {
-                for (int j = 0; j < shapes.size(); j++) {
-                    Facing facing = Facing.values()[i];
-                    NormalPlaneF plane = new NormalPlaneF(new Vec3f(), new Vec3f());
-                    plane.origin.set(0, 0, 0);
-                    plane.origin.set(facing.axis, get(facing));
-                    
-                    plane.normal.set(0, 0, 0);
-                    plane.normal.set(facing.axis, facing.offset());
-                    
-                    shapes.get(j).add(plane);
-                }
-            }
-        }
-        
-        return cache.isInside(shapes);
     }
     
     @Override
@@ -901,7 +830,7 @@ public class LittleTransformableBox extends LittleBox {
             if (box.requestCache().isCompletelyFilled())
                 return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
             else {
-                box.requestCache().setBounds(minX, minY, minZ, maxX, maxY, maxZ, grid);
+                box.requestCache().setBounds(this, minX, minY, minZ, maxX, maxY, maxZ, grid);
                 box.data = cache.getData();
                 if (volume != null)
                     volume.addDifBox(box, minX, minY, minZ, maxX, maxY, maxZ);
@@ -1413,7 +1342,7 @@ public class LittleTransformableBox extends LittleBox {
         }
     }
     
-    public class VectorFanCache {
+    public static class VectorFanCache {
         
         VectorFanFaceCache[] faces = new VectorFanFaceCache[6];
         
@@ -1487,7 +1416,7 @@ public class LittleTransformableBox extends LittleBox {
             return true;
         }
         
-        protected void setBounds(int oldMinX, int oldMinY, int oldMinZ, int oldMaxX, int oldMaxY, int oldMaxZ, LittleGrid grid) {
+        protected void setBounds(LittleTransformableBox box, int oldMinX, int oldMinY, int oldMinZ, int oldMaxX, int oldMaxY, int oldMaxZ, LittleGrid grid) {
             int minX = Integer.MAX_VALUE;
             int minY = Integer.MAX_VALUE;
             int minZ = Integer.MAX_VALUE;
@@ -1507,7 +1436,7 @@ public class LittleTransformableBox extends LittleBox {
                         maxZ = Math.max(maxZ, (int) Math.ceil(vec.z));
                     }
                 
-            int smallest = getSmallestOfPoints(grid);
+            int smallest = box.getSmallestOfPoints(grid);
             if (smallest < grid.count) { // Rather make the box larger where possible to make it work with a smaller grid
                 for (int i = 0; i < faces.length; i++) {
                     Facing facing = Facing.VALUES[i];
@@ -1517,7 +1446,7 @@ public class LittleTransformableBox extends LittleBox {
                     else
                         value = facing.positive ? Math.min(value, facing.get(oldMinX, oldMinY, oldMinZ, oldMaxX, oldMaxY, oldMaxZ)) : Math.max(value, facing.get(oldMinX, oldMinY,
                             oldMinZ, oldMaxX, oldMaxY, oldMaxZ));
-                    setSecretly(facing, value);
+                    setSecretly(box, facing, value);
                 }
             } else {
                 minX = Math.max(minX, oldMinX);
@@ -1527,18 +1456,18 @@ public class LittleTransformableBox extends LittleBox {
                 maxY = Math.min(maxY, oldMaxY);
                 maxZ = Math.min(maxZ, oldMaxZ);
                 
-                set(minX, minY, minZ, maxX, maxY, maxZ);
+                box.set(minX, minY, minZ, maxX, maxY, maxZ);
             }
         }
         
-        private void setSecretly(Facing facing, int value) {
+        private void setSecretly(LittleTransformableBox box, Facing facing, int value) {
             switch (facing) {
-                case WEST -> minX = value;
-                case EAST -> maxX = value;
-                case DOWN -> minY = value;
-                case UP -> maxY = value;
-                case NORTH -> minZ = value;
-                case SOUTH -> maxZ = value;
+                case WEST -> box.minX = value;
+                case EAST -> box.maxX = value;
+                case DOWN -> box.minY = value;
+                case UP -> box.maxY = value;
+                case NORTH -> box.minZ = value;
+                case SOUTH -> box.maxZ = value;
             }
         }
         
@@ -1547,6 +1476,76 @@ public class LittleTransformableBox extends LittleBox {
                 return originalValue;
             newValue = grid.findNextValue(newValue, smallest, positive);
             return positive ? Math.min(newValue, originalValue) : Math.max(newValue, originalValue);
+        }
+        
+        public boolean intersectsWith(LittleBox box, VectorFanCache cache) {
+            for (int i = 0; i < faces.length; i++) {
+                VectorFanFaceCache face = faces[i];
+                VectorFanFaceCache otherFace = cache.faces[i];
+                
+                if (face.hasAxisStrip() && otherFace.hasAxisStrip()) {
+                    Facing facing = Facing.values()[i];
+                    Axis axis = facing.axis;
+                    Axis one = facing.one();
+                    Axis two = facing.two();
+                    
+                    for (VectorFan fan : face.axisStrips)
+                        for (VectorFan fan2 : otherFace.axisStrips)
+                            if (fan.get(0).get(axis) == fan2.get(0).get(axis) && fan.intersect2d(fan2, one, two, facing.positive, 0.001F))
+                                return true;
+                }
+            }
+            
+            List<List<NormalPlaneF>> shapes = new ArrayList<>();
+            shapes.add(new ArrayList<>());
+            
+            // Build all possible shapes
+            for (int i = 0; i < faces.length; i++) {
+                VectorFanFaceCache face = faces[i];
+                
+                if (face.hasTiltedStrip()) {
+                    NormalPlaneF plane1 = face.tiltedStrip1 != null ? face.tiltedStrip1.createPlane() : null;
+                    NormalPlaneF plane2 = face.tiltedStrip2 != null ? face.tiltedStrip2.createPlane() : null;
+                    
+                    if (face.convex) {
+                        for (int j = 0; j < shapes.size(); j++) {
+                            if (plane1 != null)
+                                shapes.get(j).add(plane1);
+                            if (plane2 != null)
+                                shapes.get(j).add(plane2);
+                        }
+                    } else { // concave requires two separate shapes
+                        int sizeBefore = shapes.size();
+                        for (int j = 0; j < sizeBefore; j++) {
+                            if (plane1 != null && plane2 != null) {
+                                List<NormalPlaneF> newList = new ArrayList<>(shapes.get(j));
+                                shapes.get(j).add(plane1);
+                                newList.add(plane2);
+                                shapes.add(newList);
+                            } else if (plane1 != null)
+                                shapes.get(j).add(plane1);
+                            else if (plane2 != null)
+                                shapes.get(j).add(plane2);
+                        }
+                    }
+                }
+                
+                if (face.hasAxisStrip()) {
+                    for (int j = 0; j < shapes.size(); j++) {
+                        Facing facing = Facing.values()[i];
+                        NormalPlaneF plane = new NormalPlaneF(new Vec3f(), new Vec3f());
+                        plane.origin.set(0, 0, 0);
+                        plane.origin.set(facing.axis, box.get(facing));
+                        
+                        plane.normal.set(0, 0, 0);
+                        plane.normal.set(facing.axis, facing.offset());
+                        
+                        shapes.get(j).add(plane);
+                    }
+                }
+            }
+            
+            return cache.isInside(shapes);
         }
     }
     
