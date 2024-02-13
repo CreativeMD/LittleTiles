@@ -1,3 +1,7 @@
+1.6.0-pre093
+Fixed issue of tiles randomly changing grid size when picked or being displayed by the one probe or jade
+Fixed intersection between normal and transformable box not working in all cases
+
 1.6.0-pre092
 Fixed fill mode sometimes causing weird grid size issues
 Fixed placement check if there is enough space having troubles with different grids
