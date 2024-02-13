@@ -598,7 +598,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
                 ItemStack drop = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
                 LittleGroup group = new LittleGroup();
                 for (LittleTile tile : result.parent)
-                    group.add(result.parent.getGrid(), tile, tile);
+                    group.add(result.parent.getGrid(), tile, tile.copy());
                 drop.setTag(LittleGroup.save(group));
                 return drop;
             }
@@ -606,7 +606,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
                 try {
                     return result.parent.getStructure().getStructureDrop();
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-            return ItemMultiTiles.of(result.tile, result.parent.getGrid(), result.box);
+            return ItemMultiTiles.of(result.tile, result.parent.getGrid(), result.box.copy());
         }
         return ItemStack.EMPTY;
     }
