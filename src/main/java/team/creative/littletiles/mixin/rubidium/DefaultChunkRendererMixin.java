@@ -20,10 +20,8 @@ import me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderListIterab
 import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkMeshAttribute;
 import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.viewport.CameraTransform;
-import net.coderbot.iris.compat.sodium.impl.vertex_format.IrisChunkMeshAttributes;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
@@ -60,16 +58,8 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
             remap = false), method = "render", remap = false)
     public void render(ChunkRenderMatrices matrices, CommandList commandList, ChunkRenderListIterable renderLists, TerrainRenderPass renderPass, CameraTransform camera, CallbackInfo info) {
         var bindings = vertexAttributeBindings;
-        if (bindings == null) {
-            bindings = new GlVertexAttributeBinding[] { new GlVertexAttributeBinding(1, vertexFormat.getAttribute(
-                ChunkMeshAttribute.POSITION_MATERIAL_MESH)), new GlVertexAttributeBinding(2, vertexFormat.getAttribute(
-                    ChunkMeshAttribute.COLOR_SHADE)), new GlVertexAttributeBinding(3, vertexFormat.getAttribute(
-                        ChunkMeshAttribute.BLOCK_TEXTURE)), new GlVertexAttributeBinding(4, vertexFormat.getAttribute(
-                            ChunkMeshAttribute.LIGHT_TEXTURE)), new GlVertexAttributeBinding(14, vertexFormat.getAttribute(
-                                IrisChunkMeshAttributes.MID_BLOCK)), new GlVertexAttributeBinding(11, vertexFormat.getAttribute(
-                                    IrisChunkMeshAttributes.BLOCK_ID)), new GlVertexAttributeBinding(12, vertexFormat.getAttribute(
-                                        IrisChunkMeshAttributes.MID_TEX_COORD)), new GlVertexAttributeBinding(13, vertexFormat.getAttribute(
-                                            IrisChunkMeshAttributes.TANGENT)), new GlVertexAttributeBinding(10, vertexFormat.getAttribute(IrisChunkMeshAttributes.NORMAL)) };
+        if (bindings == null && OculusManager.installed()) {
+            bindings = (GlVertexAttributeBinding[]) OculusManager.createVertexFormat(vertexFormat);
         }
         
         PoseStack pose = new PoseStack();

@@ -43,7 +43,9 @@ public class OculusManager {
     public static void setMid(Object vertexBuffer, Vec3d center) {
         if (isShaders())
             OculusInteractor.setMid((ChunkMeshBufferBuilderAccessor) vertexBuffer, center);
-        
     }
     
+    public static Object createVertexFormat(Object format) {
+        return OculusInteractor.createVertexFormat(format);
+    }
 }
