@@ -45,6 +45,7 @@
         "client.render.ParticleEngineAccessor",
         "client.render.LightTextureAccessor",
         "client.render.GameRendererAccessor",
+        "client.render.GameRendererMixin",
         "rubidium.BlockRenderContextAccessor",
         "rubidium.BlockRendererAccessor",
         "rubidium.BlockRendererMixin",

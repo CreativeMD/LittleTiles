@@ -4,6 +4,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -40,4 +41,9 @@ public class LittleHitResult extends EntityHitResult {
             return (LittleEntity) ((ISubLevel) level).getHolder();
         return null;
     }
+    
+    public Vec3 getRealLocation() {
+        return level.getOrigin().transformPointToWorld(hit.getLocation());
+    }
+    
 }
