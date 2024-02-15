@@ -39,7 +39,7 @@ public abstract class PlayerBedMixin extends LivingEntity implements ILittleBedP
     public Direction getBedOrientation() {
         LittleBed bed = getBed();
         if (bed != null)
-            return bed.direction.toVanilla();
+            return bed.getBedDirection();
         return super.getBedOrientation();
     }
     

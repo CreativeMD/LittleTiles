@@ -50,9 +50,6 @@ public class LittleBed extends LittleStructure {
     @StructureDirectional
     public Facing direction;
     
-    @OnlyIn(Dist.CLIENT)
-    public boolean hasBeenActivated;
-    
     @Override
     protected void loadExtra(CompoundTag nbt) {}
     
@@ -80,14 +77,24 @@ public class LittleBed extends LittleStructure {
         return sleepingPlayer;
     }
     
-    public void setSleepingPlayer(Player player) {
+    public void wakeUp() {
+        setSleepingPlayer(null);
+        broadcastPacket(new BedUpdate(getStructureLocation()));
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public void setSleepingPlayerClient(Player player) {
+        this.sleepingPlayer = player;
+    }
+    
+    private void setSleepingPlayer(Player player) {
         this.sleepingPlayer = player;
         if (!isClient())
             getInput(0).updateState(SignalState.of(player != null));
     }
     
     public Player.BedSleepingProblem trySleep(Player player, Vec3d highest) {
-        Player.BedSleepingProblem ret = ForgeEventFactory.onPlayerSleepInBed(player, Optional.empty());
+        BedSleepingProblem ret = ForgeEventFactory.onPlayerSleepInBed(player, Optional.of(getStructurePos()));
         if (ret != null)
             return ret;
         
@@ -118,10 +125,11 @@ public class LittleBed extends LittleStructure {
             
             setSleepingPlayer(player);
             ((ILittleBedPlayerExtension) player).setBed(this);
+            broadcastPacket(new BedUpdate(getStructureLocation(), player));
             
             player.setPose(Pose.SLEEPING);
             
-            player.setPos(highest.x - 0.5, highest.y, highest.z - 0.5F);
+            player.setPos(highest.x, highest.y, highest.z);
             player.setSleepingPos(getStructurePos());
             player.setDeltaMovement(Vec3.ZERO);
             player.hasImpulse = true;
@@ -161,10 +169,9 @@ public class LittleBed extends LittleStructure {
             if (!LittleTiles.CONFIG.general.enableBed)
                 return InteractionResult.PASS;
             
-            if (level.isClientSide) {
-                hasBeenActivated = true;
+            if (level.isClientSide)
                 return InteractionResult.CONSUME;
-            }
+            
             if (level.dimensionType().bedWorks()) {
                 
                 Vec3d vec = getHighestCenterVec();
@@ -177,10 +184,6 @@ public class LittleBed extends LittleStructure {
                 
                 if (problem != null)
                     player.displayClientMessage(problem.getMessage(), true);
-                else {
-                    LittleTiles.NETWORK.sendToClient(new BedUpdate(getStructureLocation()), (ServerPlayer) player);
-                    LittleTiles.NETWORK.sendToClientTracking(new BedUpdate(getStructureLocation(), player), player);
-                }
                 return InteractionResult.SUCCESS;
             }
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}

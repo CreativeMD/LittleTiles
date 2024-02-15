@@ -4,8 +4,7 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
-import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.type.bed.ILittleBedPlayerExtension;
 import team.creative.littletiles.common.structure.type.bed.LittleBed;
 
 public class BedUpdate extends StructurePacket {
@@ -29,14 +28,9 @@ public class BedUpdate extends StructurePacket {
         requiresClient(player);
         
         Entity entity = playerID == -1 ? player : player.level().getEntity(playerID);
-        if (entity instanceof Player) {
-            if (structure instanceof LittleBed bed)
-                try {
-                    bed.trySleep((Player) entity, structure.getHighestCenterVec());
-                } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                    e.printStackTrace();
-                }
-            
+        if (entity instanceof ILittleBedPlayerExtension p && structure instanceof LittleBed bed) {
+            bed.setSleepingPlayerClient((Player) p);
+            p.setBed(bed);
         }
     }
     
