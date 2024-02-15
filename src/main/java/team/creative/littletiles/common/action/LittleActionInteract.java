@@ -82,8 +82,10 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
         
         Level level = player.level();
         
-        transformedPos = this.pos;
-        transformedLook = this.look;
+        if (!transformedCoordinates) {
+            transformedPos = this.pos;
+            transformedLook = this.look;
+        }
         
         if (uuid != null) {
             LittleEntity animation = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide, uuid);
@@ -97,6 +99,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             if (!transformedCoordinates) {
                 transformedPos = animation.getOrigin().transformPointToFakeWorld(transformedPos);
                 transformedLook = animation.getOrigin().transformPointToFakeWorld(transformedLook);
+                transformedCoordinates = true;
             }
         }
         
