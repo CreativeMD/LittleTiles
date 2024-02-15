@@ -376,7 +376,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     public boolean isLadder(BlockState state, LevelReader level, BlockPos pos, LivingEntity entity) {
         BETiles be = loadBE(level, pos);
         if (be != null && entity != null && entity.getBoundingBox() != null) {
-            AABB bb = entity.getBoundingBox().inflate(0.001);
+            AABB bb = entity.getBoundingBox().move(-pos.getX(), -pos.getY(), -pos.getZ()).inflate(0.001);
             for (IStructureParentCollection structure : be.structures())
                 if (LittleStructureAttribute.ladder(structure.getAttribute()))
                     for (LittleTile tile : structure)
