@@ -934,6 +934,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return new StructureUpdate(getStructureLocation(), nbt, notifyNeighbours);
     }
     
+    public void broadcastPacket(CreativePacket packet) {
+        LittleTiles.NETWORK.sendToClient(packet, getStructureLevel(), getStructurePos());
+    }
+    
     // ====================Extra====================
     
     public ItemStack getStructureDrop() throws CorruptedConnectionException, NotYetConnectedException {
