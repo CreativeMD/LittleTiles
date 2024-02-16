@@ -1,6 +1,7 @@
 package team.creative.littletiles.client.render.block;
 
 import java.util.Map.Entry;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
@@ -53,7 +54,8 @@ public class BERenderManager {
     
     private BETiles be;
     
-    private int requestedIndex = -1;
+    private volatile AtomicInteger blocked = new AtomicInteger(0);
+    private volatile byte requestedIndex = -1;
     private int renderState = -1;
     
     private boolean queued = false;
@@ -95,6 +97,18 @@ public class BERenderManager {
             if (doesNeedUpdate)
                 queue(eraseBoxCache, chunk);
         }
+    }
+    
+    public boolean isBlocked() {
+        return blocked.get() > 0;
+    }
+    
+    public boolean getAndSetBlocked() {
+        return blocked.getAndIncrement() > 0;
+    }
+    
+    public void unsetBlocked() {
+        blocked.decrementAndGet();
     }
     
     public void tilesChanged() {
@@ -171,6 +185,7 @@ public class BERenderManager {
                 boxCache.clear();
                 eraseBoxCache = false;
             }
+            blocked.incrementAndGet();
             return requestedIndex;
         }
         

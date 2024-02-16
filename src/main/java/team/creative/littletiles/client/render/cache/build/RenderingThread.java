@@ -149,7 +149,6 @@ public class RenderingThread extends Thread {
     @Override
     public void run() {
         try {
-            
             quadContext = new QuadGeneratorContext();
             while (active) {
                 if (requiresReload) {
@@ -175,11 +174,10 @@ public class RenderingThread extends Thread {
                             duration = System.nanoTime();
                         
                         data.checkRemoved();
+                        data.checkLoaded();
                         
                         data.index = data.be.render.startBuildingCache();
                         BlockPos pos = data.be.getBlockPos();
-                        
-                        data.checkLoaded();
                         
                         data.beforeBuilding();
                         
@@ -252,6 +250,7 @@ public class RenderingThread extends Thread {
                         error.printStackTrace();
                     } finally {
                         buffers.clear();
+                        data.unsetBlocked();
                     }
                     data = null;
                 } else if (level == null || QUEUE.isEmpty())

@@ -429,6 +429,10 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (tiles == null)
             init();
         
+        boolean rendering = false;
+        if (level != null && level.isClientSide)
+            rendering = render.getAndSetBlocked();
+        
         grid = LittleGrid.getOrThrow(nbt);
         
         tiles.load(nbt.getCompound("content"));
@@ -437,6 +441,12 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (level != null && !level.isClientSide) {
             level.setBlocksDirty(worldPosition, getBlockState(), getBlockState());
             customTilesUpdate();
+        }
+        
+        if (level != null && level.isClientSide) {
+            render.unsetBlocked();
+            if (rendering) // Fixes incorrect rendering when receiving an update while render cache is building
+                render.queue(true, null);
         }
     }
     

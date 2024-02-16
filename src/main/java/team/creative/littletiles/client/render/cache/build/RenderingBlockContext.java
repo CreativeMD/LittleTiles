@@ -32,7 +32,9 @@ public class RenderingBlockContext {
     
     public void checkLoaded() throws RenderingException {
         if (be.getLevel() == null || !be.hasLoaded())
-            throw new RenderingException("Tileentity is not loaded yet");
+            throw new RenderingException("BlockEntity is not loaded yet");
+        if (be.render.isBlocked())
+            throw new RenderingException("BlockEntity is recieving an update");
     }
     
     public void beforeBuilding() {
@@ -52,5 +54,9 @@ public class RenderingBlockContext {
         BETiles result = be instanceof BETiles ? (BETiles) be : null;
         neighboursBEs.put(facing, result);
         return result;
+    }
+    
+    public void unsetBlocked() {
+        be.render.unsetBlocked();
     }
 }
