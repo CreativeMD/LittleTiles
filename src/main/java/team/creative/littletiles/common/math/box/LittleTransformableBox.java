@@ -830,7 +830,7 @@ public class LittleTransformableBox extends LittleBox {
             if (box.requestCache().isCompletelyFilled())
                 return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
             else {
-                box.requestCache().setBounds(this, minX, minY, minZ, maxX, maxY, maxZ, grid);
+                box.requestCache().setBounds(box, minX, minY, minZ, maxX, maxY, maxZ, grid);
                 box.data = cache.getData();
                 if (volume != null)
                     volume.addDifBox(box, minX, minY, minZ, maxX, maxY, maxZ);
