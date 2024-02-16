@@ -73,6 +73,7 @@ import net.minecraftforge.common.util.ForgeSoundType;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
+import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -556,7 +557,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     
     @OnlyIn(Dist.CLIENT)
     public boolean removedByPlayerClient(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
-        LittleTileContext result = LittleTileContext.selectFocused(level, pos, player, 1.0F);
+        LittleTileContext result = LittleTileContext.selectFocused(level, pos, player, TickUtils.getFrameTime(level));
         if (result.isComplete())
             return LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroy(level, pos, player));
         return false;
