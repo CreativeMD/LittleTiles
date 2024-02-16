@@ -1,3 +1,10 @@
+1.6.0-pre095
+Fixed issue when placing transformable box over a block edge
+Fixed ladders not working
+Fixed bed not working
+Fixed inaccuracy when interacting with tiles of they are a part of an animation (causing tile nod found error)
+Fixed animations sometimes being unhittable
+
 1.6.0-pre094
 Fixed not rendering animation preview in blueprint gui
 Fixed crash if Embeddium is installed but not Oculus
