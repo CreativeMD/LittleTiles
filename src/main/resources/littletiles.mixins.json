@@ -60,6 +60,7 @@
         "rubidium.GlBufferMixin",
         "rubidium.GlBufferSegmentAccessor",
         "rubidium.GLRenderDeviceAccessor",
+        "rubidium.ModelQuadFlagsMixin",
         "rubidium.PendingSectionUploadAccessor",
         "rubidium.RenderRegionManagerMixin",
         "rubidium.RenderSectionManagerAccessor",
