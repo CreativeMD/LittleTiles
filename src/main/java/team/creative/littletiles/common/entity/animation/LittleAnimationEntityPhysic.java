@@ -34,7 +34,7 @@ public class LittleAnimationEntityPhysic extends LittleEntityPhysic<LittleAnimat
             maxX = -Double.MAX_VALUE;
             maxY = -Double.MAX_VALUE;
             maxZ = -Double.MAX_VALUE;
-            
+            boolean found = false;
             for (BETiles block : parent.getSubLevel()) {
                 if (block.isEmpty() || isWithinBoundsNoEdge(block.getBlockPos()))
                     continue;
@@ -45,9 +45,13 @@ public class LittleAnimationEntityPhysic extends LittleEntityPhysic<LittleAnimat
                 maxX = Math.max(maxX, bb.maxX);
                 maxY = Math.max(maxY, bb.maxY);
                 maxZ = Math.max(maxZ, bb.maxZ);
+                found = true;
             }
-            setBB(new ABB(minX, minY, minZ, maxX, maxY, maxZ));
-            blocksChanged = false;
+            
+            if (found) {
+                setBB(new ABB(minX, minY, minZ, maxX, maxY, maxZ));
+                blocksChanged = false;
+            } // Do not update box if level is empty, the animation will soon be killed
         }
     }
     
