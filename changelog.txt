@@ -1,3 +1,7 @@
+1.6.0-pre097
+Fixed Embeddium not handling triangle shading correctly
+Fixed animation computing new bounding box even when it is empty which caused a crash
+
 1.6.0-pre096
 Fixed issue when downloading buffers while still uploading (happens if animation/ block is destroyed shortly after placing)
 Fixed rendering block while receiving block update (either should trigger a requeue or skip the block for the moment)
