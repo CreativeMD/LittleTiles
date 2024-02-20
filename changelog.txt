@@ -1,3 +1,8 @@
+1.6.0-pre098
+Fixed rendering issue caused by convert block to new grid
+Fixed replace mode of glove not working as intended (replaced all tiles not just the ones out of the same type)
+Fixed not queuing new rendering update when it got blocked at first
+
 1.6.0-pre097
 Fixed Embeddium not handling triangle shading correctly
 Fixed animation computing new bounding box even when it is empty which caused a crash
