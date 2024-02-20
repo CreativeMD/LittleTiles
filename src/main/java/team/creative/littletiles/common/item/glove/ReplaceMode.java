@@ -6,20 +6,27 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
 import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
 import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.filter.TileFilters;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.tool.GuiGlove;
 import team.creative.littletiles.common.level.LittleLevelScanner;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
+import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -56,10 +63,22 @@ public class ReplaceMode extends ElementGloveMode {
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public boolean rightClickBlock(Level level, Player player, ItemStack stack, BlockHitResult result) {
-        if (PlacementHelper.canBlockBeUsed(level, result.getBlockPos()))
-            return LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.absolute(level, PlacementMode.REPLACE,
-                new LittleGroupAbsolute(LittleLevelScanner.scan(level, result.getBlockPos(), null), getElement(stack)), Facing.get(result.getDirection()))));
+        if (PlacementHelper.canBlockBeUsed(level, result.getBlockPos())) {
+            LittleTileContext context = LittleTileContext.selectFocused(level, result.getBlockPos(), player);
+            if (context.isComplete()) {
+                LittleBoxes boxes;
+                if (LittleActionHandlerClient.isUsingSecondMode())
+                    boxes = LittleLevelScanner.scan(level, result.getBlockPos(), TileFilters.of(context.tile));
+                else {
+                    boxes = new LittleBoxesSimple(result.getBlockPos(), context.parent.getGrid());
+                    boxes.add(context.box.copy());
+                }
+                return LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.absolute(level, PlacementMode.REPLACE,
+                    new LittleGroupAbsolute(boxes, getElement(stack)), Facing.get(result.getDirection()))));
+            }
+        }
         return false;
     }
     

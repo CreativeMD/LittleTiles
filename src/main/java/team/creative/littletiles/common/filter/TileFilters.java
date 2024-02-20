@@ -8,6 +8,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.CompoundSerializer;
 import team.creative.creativecore.common.util.filter.BiFilter;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 
@@ -44,6 +45,10 @@ public class TileFilters {
     
     public static BiFilter<IParentCollection, LittleTile> not(BiFilter<IParentCollection, LittleTile> filter) {
         return BiFilter.not(filter);
+    }
+    
+    public static BiFilter<IParentCollection, LittleTile> of(LittleElement element) {
+        return and(block(element.getState().getBlock()), color(element.color));
     }
     
     public static class TileBlockFilter implements BiFilter<IParentCollection, LittleTile>, CompoundSerializer {
