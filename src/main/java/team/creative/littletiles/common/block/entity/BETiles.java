@@ -121,10 +121,20 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     
     @Override
     public void convertTo(LittleGrid to) {
+        boolean rendering = false;
+        if (level != null && level.isClientSide)
+            rendering = render.getAndSetBlocked();
+        
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
             pair.value.convertTo(grid, to);
         
         this.grid = to;
+        
+        if (level != null && level.isClientSide) {
+            render.unsetBlocked();
+            if (rendering) // Fixes incorrect rendering when receiving an update while render cache is building
+                render.queue(true, null);
+        }
     }
     
     @Override
