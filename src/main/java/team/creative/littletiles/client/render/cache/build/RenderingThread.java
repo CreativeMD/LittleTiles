@@ -242,9 +242,12 @@ public class RenderingThread extends Thread {
                         }
                     } catch (RemovedBlockEntityException e) {
                         finish(data, EMPTY_HOLDERS, -1, true);
+                    } catch (RenderingBlockedException e) {
+                        QUEUE.add(data);
                     } catch (Exception e) {
                         if (!(e instanceof RenderingException))
                             e.printStackTrace();
+                        finish(data, EMPTY_HOLDERS, -1, true);
                     } catch (OutOfMemoryError error) {
                         QUEUE.add(data);
                         error.printStackTrace();
@@ -300,6 +303,13 @@ public class RenderingThread extends Thread {
         
         public RenderingException(String arg0) {
             super(arg0);
+        }
+    }
+    
+    public static class RenderingBlockedException extends RenderingException {
+        
+        public RenderingBlockedException() {
+            super("");
         }
     }
 }
