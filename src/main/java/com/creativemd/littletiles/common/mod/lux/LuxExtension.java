@@ -27,6 +27,9 @@ public class LuxExtension {
             TileEntity tileEntity = world.getTileEntity(pos);
             if (tileEntity instanceof TileEntityLittleTiles) {
                 TileEntityLittleTiles te = (TileEntityLittleTiles) tileEntity;
+
+                if (!te.hasLoaded())
+                    return;
                 
                 for (Pair<IParentTileList, LittleTile> pair : te.allTiles()) {
                     LittleTile tile = pair.value;
