@@ -378,12 +378,12 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof ShapeSelectPos) {
-                if (!pos.equals(((ShapeSelectPos) obj).pos))
+            if (obj instanceof ShapeSelectPos s) {
+                if (!pos.equals(s.pos))
                     return false;
-                if (result.parent != ((ShapeSelectPos) obj).result.parent)
+                if (result.parent != s.result.parent)
                     return false;
-                if (result.tile != ((ShapeSelectPos) obj).result.tile)
+                if (result.tile != s.result.tile)
                     return false;
                 return true;
             }

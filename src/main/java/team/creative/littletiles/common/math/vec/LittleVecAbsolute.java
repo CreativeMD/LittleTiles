@@ -30,8 +30,8 @@ public class LittleVecAbsolute implements IGridBased {
         long y = grid.toGridAccurate(result.getLocation().y);
         long z = grid.toGridAccurate(result.getLocation().z);
         this.pos = new BlockPos((int) Math.floor(grid.toVanillaGrid(x)), (int) Math.floor(grid.toVanillaGrid(y)), (int) Math.floor(grid.toVanillaGrid(z)));
-        this.gridVec = new LittleVecGrid(new LittleVec((int) (x - grid.toGridAccurate(pos.getX())), (int) (y - grid.toGridAccurate(pos.getY())), (int) (z - grid
-                .toGridAccurate(pos.getZ()))), grid);
+        this.gridVec = new LittleVecGrid(new LittleVec((int) (x - grid.toGridAccurate(pos.getX())), (int) (y - grid.toGridAccurate(pos.getY())), (int) (z - grid.toGridAccurate(pos
+                .getZ()))), grid);
     }
     
     public LittleVecAbsolute(BlockPos pos, LittleGrid context) {
@@ -217,8 +217,7 @@ public class LittleVecAbsolute implements IGridBased {
     
     @Override
     public boolean equals(Object paramObject) {
-        if (paramObject instanceof LittleVecAbsolute) {
-            LittleVecAbsolute pos = (LittleVecAbsolute) paramObject;
+        if (paramObject instanceof LittleVecAbsolute pos) {
             LittleGrid newContext = LittleGrid.max(getGrid(), pos.getGrid());
             
             int multiplier = newContext.count / getGrid().count;
