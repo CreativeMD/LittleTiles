@@ -46,20 +46,8 @@ public class LittleShapePillar extends LittleShape {
         originalMax.convertTo(boxes.getGrid());
         
         LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[1]);
+        
         Axis axis = box.getSize().getLongestAxis();
-        
-        CornerCache cache = box.new CornerCache(false);
-        
-        LittleVec originalMinVec = originalMin.getRelative(boxes.pos);
-        LittleVec originalMaxVec = originalMax.getRelative(boxes.pos);
-        
-        LittleBox minBox = new LittleBox(originalMinVec);
-        LittleBox maxBox = new LittleBox(originalMaxVec);
-        
-        boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
-        
-        Axis one = axis.one();
-        Axis two = axis.two();
         
         Facing minFacing = originalMin.facing;
         Facing maxFacing = originalMax.facing;
@@ -74,14 +62,27 @@ public class LittleShapePillar extends LittleShape {
                 maxFacing = null;
         }
         
+        if (minFacing != null && minFacing.axis != axis)
+            axis = minFacing.axis;
+        else if (maxFacing != null && maxFacing.axis != axis)
+            axis = maxFacing.axis;
+        
+        CornerCache cache = box.new CornerCache(false);
+        
+        LittleVec originalMinVec = originalMin.getRelative(boxes.pos);
+        LittleVec originalMaxVec = originalMax.getRelative(boxes.pos);
+        
+        LittleBox minBox = new LittleBox(originalMinVec);
+        LittleBox maxBox = new LittleBox(originalMaxVec);
+        
+        boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
+        
+        Axis one = axis.one();
+        Axis two = axis.two();
+        
         if (minFacing != null && minFacing == maxFacing) {
-            if (originalMinVec.get(axis) <= originalMaxVec.get(axis)) {
-                minFacing = Facing.get(axis, false);
-                maxFacing = minFacing.opposite();
-            } else {
-                minFacing = Facing.get(axis, true);
-                maxFacing = minFacing.opposite();
-            }
+            minFacing = Facing.get(axis, originalMinVec.get(axis) > originalMaxVec.get(axis));
+            maxFacing = minFacing.opposite();
         }
         
         minBox.growAway(thickness, originalMin.facing);
@@ -103,17 +104,25 @@ public class LittleShapePillar extends LittleShape {
             targetFace = facing;
         else if (targetFace == facing.opposite())
             targetFace = facing;
-        Axis targetAxis = targetFace.axis;
+        
         BoxCorner[] corners = BoxCorner.faceCorners(facing);
-        for (int i = 0; i < corners.length; i++) {
-            BoxCorner corner = corners[i];
-            cache.setAbsolute(corner, one, corner.isFacingPositive(one) ? box.getMax(one) : box.getMin(one));
-            cache.setAbsolute(corner, two, corner.isFacingPositive(two) ? box.getMax(two) : box.getMin(two));
-            if (facing != targetFace) {
-                if (corner.isFacingPositive(targetAxis) != (targetFace.positive))
-                    cache.setAbsolute(corner, axis, positive ? box.getMin(axis) : box.getMax(axis));
-                else
-                    cache.setAbsolute(corner, targetAxis, (targetFace.positive) ? box.getMin(targetAxis) : box.getMax(targetAxis));
+        
+        if (facing == targetFace) {
+            for (int i = 0; i < corners.length; i++) {
+                BoxCorner corner = corners[i];
+                cache.setAbsolute(corner, one, corner.isFacingPositive(one) ? box.getMax(one) : box.getMin(one));
+                cache.setAbsolute(corner, two, corner.isFacingPositive(two) ? box.getMax(two) : box.getMin(two));
+            }
+        } else {
+            Axis targetAxis = targetFace.axis;
+            Axis third = Axis.third(axis, targetAxis);
+            for (int i = 0; i < corners.length; i++) {
+                BoxCorner corner = corners[i];
+                BoxCorner newCorner = BoxCorner.getCornerUnsorted(targetFace, axis.facing(!corner.isFacingPositive(targetAxis)), corner.getFacing(third));
+                
+                cache.setAbsolute(corner, axis, box.get(newCorner, axis));
+                cache.setAbsolute(corner, one, box.get(newCorner, one));
+                cache.setAbsolute(corner, two, box.get(newCorner, two));
             }
         }
     }

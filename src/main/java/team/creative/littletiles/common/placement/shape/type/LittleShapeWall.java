@@ -47,17 +47,25 @@ public class LittleShapeWall extends LittleShape {
             targetFace = facing;
         else if (targetFace == facing.opposite())
             targetFace = facing;
-        Axis targetAxis = targetFace.axis;
+        
         BoxCorner[] corners = BoxCorner.faceCorners(facing);
-        for (int i = 0; i < corners.length; i++) {
-            BoxCorner corner = corners[i];
-            cache.setAbsolute(corner, one, corner.isFacingPositive(one) ? box.getMax(one) : box.getMin(one));
-            cache.setAbsolute(corner, two, corner.isFacingPositive(two) ? box.getMax(two) : box.getMin(two));
-            if (facing != targetFace) {
-                if (corner.isFacingPositive(targetAxis) != targetFace.positive)
-                    cache.setAbsolute(corner, axis, positive ? box.getMin(axis) : box.getMax(axis));
-                else
-                    cache.setAbsolute(corner, targetAxis, targetFace.positive ? box.getMin(targetAxis) : box.getMax(targetAxis));
+        
+        if (facing == targetFace) {
+            for (int i = 0; i < corners.length; i++) {
+                BoxCorner corner = corners[i];
+                cache.setAbsolute(corner, one, corner.isFacingPositive(one) ? box.getMax(one) : box.getMin(one));
+                cache.setAbsolute(corner, two, corner.isFacingPositive(two) ? box.getMax(two) : box.getMin(two));
+            }
+        } else {
+            Axis targetAxis = targetFace.axis;
+            Axis third = Axis.third(axis, targetAxis);
+            for (int i = 0; i < corners.length; i++) {
+                BoxCorner corner = corners[i];
+                BoxCorner newCorner = BoxCorner.getCornerUnsorted(targetFace, axis.facing(!corner.isFacingPositive(targetAxis)), corner.getFacing(third));
+                
+                cache.setAbsolute(corner, axis, box.get(newCorner, axis));
+                cache.setAbsolute(corner, one, box.get(newCorner, one));
+                cache.setAbsolute(corner, two, box.get(newCorner, two));
             }
         }
     }
@@ -77,6 +85,16 @@ public class LittleShapeWall extends LittleShape {
         Axis oneIgnore = toIgnore.one();
         Axis twoIgnore = toIgnore.two();
         Axis axis = box.getSize(oneIgnore) > box.getSize(twoIgnore) ? oneIgnore : twoIgnore;
+        Facing minFacing = originalMin.facing;
+        Facing maxFacing = originalMax.facing;
+        
+        if (minFacing.axis == toIgnore || box.getSize(minFacing.axis) == 1)
+            minFacing = null;
+        if (maxFacing.axis == toIgnore || box.getSize(maxFacing.axis) == 1)
+            maxFacing = null;
+        
+        if (minFacing != null && minFacing.axis != axis)
+            axis = minFacing.axis;
         
         CornerCache cache = box.new CornerCache(false);
         LittleVec originalMinVec = originalMin.getRelative(boxes.pos);
@@ -88,22 +106,9 @@ public class LittleShapeWall extends LittleShape {
         LittleBox minBox = new LittleBox(originalMinVec);
         LittleBox maxBox = new LittleBox(originalMaxVec);
         
-        Facing minFacing = originalMin.facing;
-        Facing maxFacing = originalMax.facing;
-        
-        if (minFacing.axis == toIgnore || box.getSize(minFacing.axis) == 1)
-            minFacing = null;
-        if (maxFacing.axis == toIgnore || box.getSize(maxFacing.axis) == 1)
-            maxFacing = null;
-        
         if (minFacing != null && minFacing == maxFacing) {
-            if (originalMinVec.get(axis) <= originalMaxVec.get(axis)) {
-                minFacing = Facing.get(axis, false);
-                maxFacing = minFacing.opposite();
-            } else {
-                minFacing = Facing.get(axis, true);
-                maxFacing = minFacing.opposite();
-            }
+            minFacing = Facing.get(axis, originalMinVec.get(axis) > originalMaxVec.get(axis));
+            maxFacing = minFacing.opposite();
         }
         
         minBox.growAway(thickness, originalMin.facing);
