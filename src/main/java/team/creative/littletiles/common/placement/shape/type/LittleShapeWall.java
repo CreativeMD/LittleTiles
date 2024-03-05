@@ -41,7 +41,7 @@ public class LittleShapeWall extends LittleShape {
         }
     }
     
-    public void shrinkEdge(CornerCache cache, Axis axis, Axis one, Axis two, boolean positive, Facing targetFace, LittleBox box) {
+    public void shrinkEdge(CornerCache cache, Axis axis, Axis one, Axis two, boolean positive, Facing targetFace, LittleBox box, boolean inside) {
         Facing facing = Facing.get(axis, positive);
         if (targetFace == null)
             targetFace = facing;
@@ -61,7 +61,8 @@ public class LittleShapeWall extends LittleShape {
             Axis third = Axis.third(axis, targetAxis);
             for (int i = 0; i < corners.length; i++) {
                 BoxCorner corner = corners[i];
-                BoxCorner newCorner = BoxCorner.getCornerUnsorted(targetFace, axis.facing(!corner.isFacingPositive(targetAxis)), corner.getFacing(third));
+                BoxCorner newCorner = BoxCorner.getCornerUnsorted(inside ? targetFace : targetFace.opposite(), axis.facing(inside != corner.isFacingPositive(targetAxis)), corner
+                        .getFacing(third));
                 
                 cache.setAbsolute(corner, axis, box.get(newCorner, axis));
                 cache.setAbsolute(corner, one, box.get(newCorner, one));
@@ -124,8 +125,8 @@ public class LittleShapeWall extends LittleShape {
         
         boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
         
-        shrinkEdge(cache, axis, one, two, facingPositive, minFacing, minBox);
-        shrinkEdge(cache, axis, one, two, !facingPositive, maxFacing, maxBox);
+        shrinkEdge(cache, axis, one, two, facingPositive, minFacing, minBox, selection.inside);
+        shrinkEdge(cache, axis, one, two, !facingPositive, maxFacing, maxBox, selection.inside);
         
         box.setData(cache.getData());
         boxes.add(box);
