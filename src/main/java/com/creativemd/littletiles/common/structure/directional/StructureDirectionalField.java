@@ -46,7 +46,7 @@ public class StructureDirectionalField {
     }
     
     public Object createAndSet(LittleStructure structure, NBTTagCompound nbt) {
-        Object relative = create(nbt);
+        Object relative = create(structure, nbt);
         set(structure, relative);
         return relative;
     }
@@ -55,34 +55,35 @@ public class StructureDirectionalField {
         this.defaultValue = value;
     }
     
-    public Object create(NBTTagCompound nbt) {
-        Object value = type.read(nbt.getTag(saveKey));
+    public Object create(LittleStructure structure, NBTTagCompound nbt) {
+        Object value = type.read(this, structure, nbt.getTag(saveKey));
         if (value == null)
-            if (defaultValue != null)
-                return defaultValue;
-            else
-                return type.getDefault();
+            return getDefault(structure);
         return value;
     }
     
+    public Object createTemporary(NBTTagCompound nbt) {
+        return create(null, nbt);
+    }
+    
     public void save(NBTTagCompound nbt, Object value) {
-        nbt.setTag(saveKey, type.write(value));
+        nbt.setTag(saveKey, type.write(this, value));
     }
     
     public Object move(Object value, LittleGridContext context, LittleVec offset) {
-        return type.move(value, context, offset);
+        return type.move(this, value, context, offset);
     }
     
     public Object flip(Object value, LittleGridContext context, Axis axis, LittleVec doubledCenter) {
-        return type.flip(value, context, axis, doubledCenter);
+        return type.mirror(this, value, context, axis, doubledCenter);
     }
     
     public Object rotate(Object value, LittleGridContext context, Rotation rotation, LittleVec doubledCenter) {
-        return type.rotate(value, context, rotation, doubledCenter);
+        return type.rotate(this, value, context, rotation, doubledCenter);
     }
     
     public LittleGridContext getContext(Object value) {
-        return type.getContext(value);
+        return type.getContext(this, value);
     }
     
     public void convertToSmallest(Object value) {
@@ -97,7 +98,7 @@ public class StructureDirectionalField {
         return type.getPlacePreview(value, previews, this);
     }
     
-    public Object getDefault() {
-        return defaultValue != null ? defaultValue : type.getDefault();
+    public Object getDefault(LittleStructure structure) {
+        return type.getDefault(this, structure, defaultValue);
     }
 }

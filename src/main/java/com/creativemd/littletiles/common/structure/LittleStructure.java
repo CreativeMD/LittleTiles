@@ -586,7 +586,7 @@ public abstract class LittleStructure implements ISignalSchedulable, IWorldPosit
     }
     
     protected Object failedLoadingRelative(NBTTagCompound nbt, StructureDirectionalField field) {
-        return field.getDefault();
+        return field.getDefault(this);
     }
     
     protected abstract void loadFromNBTExtra(NBTTagCompound nbt);

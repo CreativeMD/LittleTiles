@@ -1,6 +1,7 @@
 package com.creativemd.littletiles.common.tile.parent;
 
 import java.util.BitSet;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
