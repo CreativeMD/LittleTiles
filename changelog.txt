@@ -1,3 +1,7 @@
+1.6.0-pre100
+Fixed pillar & wall inside shape not working correctly
+Fixed pillar shape side being weird at time
+
 1.6.0-pre099
 Reworked pillar & wall shape to work in all circumstances
 Reimplemented entity collision (performance improvement for big animations in comparison to 1.12)
