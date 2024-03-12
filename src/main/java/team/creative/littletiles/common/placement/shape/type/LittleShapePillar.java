@@ -27,7 +27,7 @@ import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
 public class LittleShapePillar extends LittleShape {
     
-    public static void setStartAndEndBox(CornerCache cache, Facing facing, Facing startFace, Facing endFace, LittleBox start, LittleBox end) {
+    public static void setStartAndEndBox(CornerCache cache, Facing facing, Facing startFace, Facing endFace, LittleBox start, LittleBox end, boolean inside) {
         Axis axis = facing.axis; // startFace.axis is always the same or null in which case it will be the same
         Axis one = facing.one();
         Axis two = facing.two();
@@ -60,8 +60,8 @@ public class LittleShapePillar extends LittleShape {
         Axis third = Axis.third(axis, targetAxis);
         for (int i = 0; i < corners.length; i++) {
             BoxCorner corner = corners[i];
-            BoxCorner newCorner = BoxCorner.getCornerUnsorted(endFace.opposite(), axis.facing(facing.positive == endFace.positive != corner.isFacingPositive(targetAxis)), corner
-                    .getFacing(third));
+            BoxCorner newCorner = BoxCorner.getCornerUnsorted(inside ? endFace : endFace.opposite(), axis.facing(inside != facing.positive == endFace.positive != corner
+                    .isFacingPositive(targetAxis)), corner.getFacing(third));
             
             cache.setAbsolute(corner, axis, end.get(newCorner, axis));
             cache.setAbsolute(corner, one, end.get(newCorner, one));
@@ -133,7 +133,7 @@ public class LittleShapePillar extends LittleShape {
         box.growToInclude(minBox);
         box.growToInclude(maxBox);
         
-        setStartAndEndBox(cache, axis.facing(facingPositive), minFacing, maxFacing, minBox, maxBox);
+        setStartAndEndBox(cache, axis.facing(facingPositive), minFacing, maxFacing, minBox, maxBox, selection.inside);
         
         box.setData(cache.getData());
         

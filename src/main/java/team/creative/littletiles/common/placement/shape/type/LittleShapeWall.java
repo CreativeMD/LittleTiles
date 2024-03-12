@@ -81,7 +81,7 @@ public class LittleShapeWall extends LittleShape {
         
         boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
         
-        LittleShapePillar.setStartAndEndBox(cache, axis.facing(facingPositive), minFacing, maxFacing, minBox, maxBox);
+        LittleShapePillar.setStartAndEndBox(cache, axis.facing(facingPositive), minFacing, maxFacing, minBox, maxBox, selection.inside);
         
         box.setData(cache.getData());
         
