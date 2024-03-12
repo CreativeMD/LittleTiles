@@ -58,12 +58,10 @@ public class LittleShapePillar extends LittleShape {
         corners = BoxCorner.faceCorners(facing.opposite());
         Axis targetAxis = endFace.axis;
         Axis third = Axis.third(axis, targetAxis);
-        System.out.println("Start" + facing + " " + targetAxis + " " + third);
         for (int i = 0; i < corners.length; i++) {
             BoxCorner corner = corners[i];
             BoxCorner newCorner = BoxCorner.getCornerUnsorted(endFace.opposite(), axis.facing(facing.positive == endFace.positive != corner.isFacingPositive(targetAxis)), corner
                     .getFacing(third));
-            System.out.println(corner + "->" + newCorner);
             
             cache.setAbsolute(corner, axis, end.get(newCorner, axis));
             cache.setAbsolute(corner, one, end.get(newCorner, one));
@@ -138,6 +136,44 @@ public class LittleShapePillar extends LittleShape {
         setStartAndEndBox(cache, axis.facing(facingPositive), minFacing, maxFacing, minBox, maxBox);
         
         box.setData(cache.getData());
+        
+        if (maxFacing == null)
+            maxFacing = axis.facing(!facingPositive);
+        
+        Axis one = axis.one();
+        Axis two = axis.two();
+        switch (axis) {
+            case X -> {
+                if (maxFacing.positive != facingPositive == originalMinVec.get(one) < originalMaxVec.get(one)) {
+                    box.setFlipped(one.facing(true), true);
+                    box.setFlipped(one.facing(false), true);
+                }
+                if (maxFacing.positive == facingPositive == (originalMinVec.get(two) < originalMaxVec.get(two))) {
+                    box.setFlipped(two.facing(true), true);
+                    box.setFlipped(two.facing(false), true);
+                }
+            }
+            case Y -> {
+                if (maxFacing.positive == facingPositive == originalMinVec.get(one) < originalMaxVec.get(one)) {
+                    box.setFlipped(one.facing(true), true);
+                    box.setFlipped(one.facing(false), true);
+                }
+                if (maxFacing.positive != facingPositive == (originalMinVec.get(two) < originalMaxVec.get(two))) {
+                    box.setFlipped(two.facing(true), true);
+                    box.setFlipped(two.facing(false), true);
+                }
+            }
+            case Z -> {
+                if (maxFacing.positive != facingPositive == originalMinVec.get(one) < originalMaxVec.get(one)) {
+                    box.setFlipped(one.facing(true), true);
+                    box.setFlipped(one.facing(false), true);
+                }
+                if (maxFacing.positive != facingPositive == (originalMinVec.get(two) < originalMaxVec.get(two))) {
+                    box.setFlipped(two.facing(true), true);
+                    box.setFlipped(two.facing(false), true);
+                }
+            }
+        }
         boxes.add(box);
     }
     
