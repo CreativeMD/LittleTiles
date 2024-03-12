@@ -13,7 +13,6 @@ import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -29,46 +28,6 @@ public class LittleShapeWall extends LittleShape {
     
     public LittleShapeWall() {
         super(2);
-    }
-    
-    public void shrinkEdge(CornerCache cache, Axis axis, Axis one, Axis two, boolean positive, LittleBox box) {
-        Facing facing = Facing.get(axis, positive);
-        BoxCorner[] corners = BoxCorner.faceCorners(facing);
-        for (int i = 0; i < corners.length; i++) {
-            BoxCorner corner = corners[i];
-            cache.setAbsolute(corner, one, corner.isFacingPositive(one) ? box.getMax(one) : box.getMin(one));
-            cache.setAbsolute(corner, two, corner.isFacingPositive(two) ? box.getMax(two) : box.getMin(two));
-        }
-    }
-    
-    public void shrinkEdge(CornerCache cache, Axis axis, Axis one, Axis two, boolean positive, Facing targetFace, LittleBox box, boolean inside) {
-        Facing facing = Facing.get(axis, positive);
-        if (targetFace == null)
-            targetFace = facing;
-        else if (targetFace == facing.opposite())
-            targetFace = facing;
-        
-        BoxCorner[] corners = BoxCorner.faceCorners(facing);
-        
-        if (facing == targetFace) {
-            for (int i = 0; i < corners.length; i++) {
-                BoxCorner corner = corners[i];
-                cache.setAbsolute(corner, one, corner.isFacingPositive(one) ? box.getMax(one) : box.getMin(one));
-                cache.setAbsolute(corner, two, corner.isFacingPositive(two) ? box.getMax(two) : box.getMin(two));
-            }
-        } else {
-            Axis targetAxis = targetFace.axis;
-            Axis third = Axis.third(axis, targetAxis);
-            for (int i = 0; i < corners.length; i++) {
-                BoxCorner corner = corners[i];
-                BoxCorner newCorner = BoxCorner.getCornerUnsorted(inside ? targetFace : targetFace.opposite(), axis.facing(inside != corner.isFacingPositive(targetAxis)), corner
-                        .getFacing(third));
-                
-                cache.setAbsolute(corner, axis, box.get(newCorner, axis));
-                cache.setAbsolute(corner, one, box.get(newCorner, one));
-                cache.setAbsolute(corner, two, box.get(newCorner, two));
-            }
-        }
     }
     
     @Override
@@ -101,9 +60,6 @@ public class LittleShapeWall extends LittleShape {
         LittleVec originalMinVec = originalMin.getRelative(boxes.pos);
         LittleVec originalMaxVec = originalMax.getRelative(boxes.pos);
         
-        Axis one = axis.one();
-        Axis two = axis.two();
-        
         LittleBox minBox = new LittleBox(originalMinVec);
         LittleBox maxBox = new LittleBox(originalMaxVec);
         
@@ -125,10 +81,10 @@ public class LittleShapeWall extends LittleShape {
         
         boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
         
-        shrinkEdge(cache, axis, one, two, facingPositive, minFacing, minBox, selection.inside);
-        shrinkEdge(cache, axis, one, two, !facingPositive, maxFacing, maxBox, selection.inside);
+        LittleShapePillar.setStartAndEndBox(cache, axis.facing(facingPositive), minFacing, maxFacing, minBox, maxBox);
         
         box.setData(cache.getData());
+        
         boxes.add(box);
         
         return;

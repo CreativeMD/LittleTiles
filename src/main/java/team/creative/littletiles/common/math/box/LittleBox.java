@@ -311,6 +311,22 @@ public class LittleBox {
         return corners;
     }
     
+    public LittleVec[] getCorners(BoxCorner[] corners) {
+        LittleVec[] vecs = new LittleVec[corners.length];
+        
+        for (int i = 0; i < corners.length; i++)
+            vecs[i] = new LittleVec(get(corners[i].x), get(corners[i].y), get(corners[i].z));
+        
+        return vecs;
+    }
+    
+    public LittleVec[] fillCorners(BoxCorner[] corners, LittleVec[] vecs) {
+        for (int i = 0; i < corners.length; i++)
+            vecs[i] = new LittleVec(get(corners[i].x), get(corners[i].y), get(corners[i].z));
+        
+        return vecs;
+    }
+    
     // ================Block Integration================
     
     public boolean isValidBox() {

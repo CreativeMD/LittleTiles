@@ -199,6 +199,10 @@ public class LittleVec {
         return Math.sqrt(Math.pow(vec.x - this.x, 2) + Math.pow(vec.y - this.y, 2) + Math.pow(vec.z - this.z, 2));
     }
     
+    public double distanceToSqr(LittleVec vec) {
+        return Math.pow(vec.x - this.x, 2) + Math.pow(vec.y - this.y, 2) + Math.pow(vec.z - this.z, 2);
+    }
+    
     @Override
     public boolean equals(Object object) {
         if (object instanceof LittleVec vec)
