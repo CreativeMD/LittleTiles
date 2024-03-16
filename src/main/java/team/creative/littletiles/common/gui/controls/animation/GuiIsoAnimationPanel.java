@@ -2,9 +2,9 @@ package team.creative.littletiles.common.gui.controls.animation;
 
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.gui.style.GuiIcon;
+import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -18,9 +18,9 @@ public class GuiIsoAnimationPanel extends GuiParent {
         add(viewer);
         GuiParent buttons = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
         add(buttons);
-        buttons.add(new GuiIconButton("reset", GuiIcon.HOUSE, x -> viewer.resetView()));
-        buttons.add(new GuiIconButton("axis", GuiIcon.COORDS, x -> viewer.nextAxis()));
-        buttons.add(new GuiIconButton("flip", GuiIcon.MIRROR, x -> viewer.mirrorView()));
+        buttons.add(new GuiButtonIcon("reset", Icon.HOUSE, x -> viewer.resetView()));
+        buttons.add(new GuiButtonIcon("axis", Icon.COORDS, x -> viewer.nextAxis()));
+        buttons.add(new GuiButtonIcon("flip", Icon.MIRROR, x -> viewer.mirrorView()));
     }
     
     public GuiIsoAnimationPanel setVisibleAxis(boolean visible) {

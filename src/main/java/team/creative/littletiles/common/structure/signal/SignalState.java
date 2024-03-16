@@ -35,7 +35,7 @@ public abstract class SignalState {
         if (tag instanceof NumericTag number) {
             if (tag instanceof LongTag)
                 throw new UnsupportedOperationException();
-            if (tag instanceof ByteTag byteT)
+            if (tag instanceof ByteTag)
                 return of(number.getAsByte() != 0);
             return of(number.getAsInt());
         }
@@ -256,7 +256,7 @@ public abstract class SignalState {
         
         @Override
         public boolean equals(Object object) {
-            if (object instanceof PrimitveState prim)
+            if (object instanceof PrimitveState)
                 return this == object;
             else if (object instanceof IntegerState integer)
                 return integer.number() == number();

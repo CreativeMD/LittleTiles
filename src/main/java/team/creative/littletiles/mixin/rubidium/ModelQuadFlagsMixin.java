@@ -15,7 +15,7 @@ public class ModelQuadFlagsMixin {
     
     @Inject(method = "getQuadFlags", at = @At("RETURN"), cancellable = true, remap = false)
     private static void getQuadFlags(ModelQuadView quad, Direction face, CallbackInfoReturnable<Integer> info) {
-        if (quad instanceof CreativeBakedQuad c && quad.getX(2) == quad.getX(3) && quad.getY(2) == quad.getY(3) && quad.getZ(2) == quad.getZ(3))
+        if (quad instanceof CreativeBakedQuad && quad.getX(2) == quad.getX(3) && quad.getY(2) == quad.getY(3) && quad.getZ(2) == quad.getZ(3))
             info.setReturnValue(info.getReturnValueI() | ModelQuadFlags.IS_PARTIAL);
     }
     

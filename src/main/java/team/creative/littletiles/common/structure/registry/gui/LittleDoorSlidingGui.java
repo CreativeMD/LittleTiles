@@ -30,7 +30,7 @@ public class LittleDoorSlidingGui extends LittleDoorBaseGui {
         super(gui, item);
         
         registerEventChanged(x -> {
-            if (x instanceof GuiAnimationViewChangedEvent event || x.control.is("facing")) {
+            if (x instanceof GuiAnimationViewChangedEvent || x.control.is("facing")) {
                 GuiIsoAnimationViewer viewer = LittleDoorSlidingGui.this.get("viewer");
                 GuiStateButtonMapped<Facing> direction = LittleDoorSlidingGui.this.get("facing");
                 Facing facing = direction.getSelected();

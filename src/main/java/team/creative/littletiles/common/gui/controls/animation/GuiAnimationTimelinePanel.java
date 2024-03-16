@@ -12,14 +12,14 @@ import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
 import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineKey;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.gui.style.GuiIcon;
+import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.list.Pair;
@@ -131,10 +131,10 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
                     editKey.add(distance);
                 } else
                     editKey.add(new GuiTextfield("value", "" + x.control.value).setFloatOnly());
-            else if (x.control.channel instanceof GuiChildTimelineChannel c) {
+            else if (x.control.channel instanceof GuiChildTimelineChannel) {
                 edited = null;
                 reflow();
-            } else if (x.control.channel instanceof GuiSoundTimelineChannel c) {
+            } else if (x.control.channel instanceof GuiSoundTimelineChannel) {
                 PlaySoundEvent value = (PlaySoundEvent) x.control.value;
                 var box = new GuiComboBoxMapped<ResourceLocation>("sound", new TextMapBuilder<ResourceLocation>().addComponent(BuiltInRegistries.SOUND_EVENT.keySet(), y -> {
                     if (y.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE))
@@ -146,7 +146,7 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
                 GuiParent other = new GuiParent().setVAlign(VAlign.CENTER);
                 other.add(new GuiLabeledControl(GuiControl.translatable("gui.volume").append(":"), new GuiSlider("volume", value.volume, 0, 1).setDim(40, 10)));
                 other.add(new GuiLabeledControl(GuiControl.translatable("gui.pitch").append(":"), new GuiSlider("pitch", value.pitch, 0.5, 2).setDim(40, 10)));
-                other.add(new GuiIconButton("play", GuiIcon.PLAY, y -> {
+                other.add(new GuiButtonIcon("play", Icon.PLAY, y -> {
                     GuiSlider volume = other.get("volume");
                     GuiSlider pitch = other.get("pitch");
                     GuiControl.playSound(PlaySoundEvent.get(box.getSelected()), (float) volume.value, (float) pitch.value);

@@ -600,7 +600,7 @@ public class LittleBox {
         SplitRangeBoxes ranges;
         if ((ranges = split(boxes)) != null) {
             for (SplitRangeBox range : ranges) {
-                LittleBox box = extractBox(grid, range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, volume);
+                LittleBox box = extractBox(grid, range.x.min(), range.y.min(), range.z.min(), range.x.max(), range.y.max(), range.z.max(), volume);
                 
                 if (box != null) {
                     boolean cutted = false;
@@ -677,7 +677,7 @@ public class LittleBox {
                 splitting.add(box);
                 
                 for (SplitRangeBox range : split(splitting)) {
-                    LittleBox tempBox = extractBox(grid, range.x.min, range.y.min, range.z.min, range.x.max, range.y.max, range.z.max, volume);
+                    LittleBox tempBox = extractBox(grid, range.x.min(), range.y.min(), range.z.min(), range.x.max(), range.y.max(), range.z.max(), volume);
                     
                     boolean cutted = false;
                     if (tempBox != null) {

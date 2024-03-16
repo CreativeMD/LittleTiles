@@ -30,7 +30,7 @@ import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
-import team.creative.creativecore.common.gui.style.GuiIcon;
+import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
@@ -332,7 +332,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
             
             graphics.drawString(font, view.xAxis.axis.name(), (int) rect.getWidth() / 2 - axisWidth / 2, (int) rect.getHeight() - axisHeight + font.lineHeight / 2,
                 ColorUtils.WHITE);
-            GuiIcon icon = view.xAxis.positive ? GuiIcon.ARROW_RIGHT : GuiIcon.ARROW_LEFT;
+            Icon icon = view.xAxis.positive ? Icon.ARROW_RIGHT : Icon.ARROW_LEFT;
             
             pose.translate(rect.getWidth() / 2 - axisWidth / 2, rect.getHeight() - axisHeight, 0);
             RenderSystem.setShaderTexture(0, icon.location());
@@ -346,7 +346,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
             RenderSystem.applyModelViewMatrix();
             
             graphics.drawString(font, view.yAxis.axis.name(), 5, (int) rect.getHeight() / 2 - axisHeight / 2, ColorUtils.WHITE);
-            icon = view.yAxis.positive ? GuiIcon.ARROW_UP : GuiIcon.ARROW_DOWN;
+            icon = view.yAxis.positive ? Icon.ARROW_UP : Icon.ARROW_DOWN;
             
             pose.translate(0, (int) rect.getHeight() / 2 - axisHeight - 2, 0);
             RenderSystem.setShaderTexture(0, icon.location());

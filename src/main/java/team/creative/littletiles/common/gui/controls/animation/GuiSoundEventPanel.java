@@ -15,7 +15,7 @@ import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
 import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
+import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
@@ -23,7 +23,7 @@ import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineChanne
 import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineKey;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.gui.style.GuiIcon;
+import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
@@ -80,7 +80,7 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
         add(editKey.setExpandableX());
         registerEvent(GuiTimeline.KeySelectedEvent.class, x -> {
             editKey.clear();
-            if (x.control.channel instanceof GuiSoundTimelineChannel c) {
+            if (x.control.channel instanceof GuiSoundTimelineChannel) {
                 PlaySoundEvent value = (PlaySoundEvent) x.control.value;
                 var box = new GuiComboBoxMapped<ResourceLocation>("sound", new TextMapBuilder<ResourceLocation>().addComponent(BuiltInRegistries.SOUND_EVENT.keySet(), y -> {
                     if (y.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE))
@@ -92,7 +92,7 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
                 GuiParent other = new GuiParent().setVAlign(VAlign.CENTER);
                 other.add(new GuiLabeledControl(GuiControl.translatable("gui.volume").append(":"), new GuiSlider("volume", value.volume, 0, 1).setDim(40, 10)));
                 other.add(new GuiLabeledControl(GuiControl.translatable("gui.pitch").append(":"), new GuiSlider("pitch", value.pitch, 0.5, 2).setDim(40, 10)));
-                other.add(new GuiIconButton("play", GuiIcon.PLAY, y -> {
+                other.add(new GuiButtonIcon("play", Icon.PLAY, y -> {
                     GuiSlider volume = other.get("volume");
                     GuiSlider pitch = other.get("pitch");
                     GuiControl.playSound(PlaySoundEvent.get(box.getSelected()), (float) volume.value, (float) pitch.value);

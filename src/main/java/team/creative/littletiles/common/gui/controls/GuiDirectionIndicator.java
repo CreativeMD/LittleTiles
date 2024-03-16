@@ -1,16 +1,16 @@
 package team.creative.littletiles.common.gui.controls;
 
-import team.creative.creativecore.common.gui.controls.simple.GuiIconButton;
-import team.creative.creativecore.common.gui.style.GuiIcon;
+import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
+import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.text.TextBuilder;
 
-public class GuiDirectionIndicator extends GuiIconButton {
+public class GuiDirectionIndicator extends GuiButtonIcon {
     
     private Facing facing;
     
     public GuiDirectionIndicator(String name, Facing facing) {
-        super(name, GuiIcon.EMPTY, x -> {});
+        super(name, Icon.EMPTY, x -> {});
         setFacing(facing);
     }
     
@@ -24,14 +24,14 @@ public class GuiDirectionIndicator extends GuiIconButton {
         this.setTooltip(new TextBuilder().translate("gui.points." + facing.name).build());
     }
     
-    public static GuiIcon toIcon(Facing facing) {
+    public static Icon toIcon(Facing facing) {
         return switch (facing) {
-            case EAST -> GuiIcon.ARROW_RIGHT;
-            case WEST -> GuiIcon.ARROW_LEFT;
-            case UP -> GuiIcon.ARROW_UP;
-            case DOWN -> GuiIcon.ARROW_DOWN;
-            case SOUTH -> GuiIcon.ARROW_IN;
-            case NORTH -> GuiIcon.ARROW_OUT;
+            case EAST -> Icon.ARROW_RIGHT;
+            case WEST -> Icon.ARROW_LEFT;
+            case UP -> Icon.ARROW_UP;
+            case DOWN -> Icon.ARROW_DOWN;
+            case SOUTH -> Icon.ARROW_IN;
+            case NORTH -> Icon.ARROW_OUT;
         };
     }
     

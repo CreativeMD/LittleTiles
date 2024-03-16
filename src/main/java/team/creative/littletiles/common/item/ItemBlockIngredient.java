@@ -51,7 +51,7 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
     
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack me, ItemStack other, Slot slot, ClickAction action, Player player, SlotAccess otherSlot) {
-        if (other.getItem() instanceof ItemBlockIngredient ingredient) {
+        if (other.getItem() instanceof ItemBlockIngredient) {
             BlockIngredientEntry meEntry = loadIngredient(me);
             BlockIngredientEntry otherEntry = loadIngredient(other);
             if (meEntry.equals(otherEntry)) {
