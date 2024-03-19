@@ -15,6 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.ai.village.poi.PoiManager;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -223,5 +224,10 @@ public class SubServerLevel extends LittleServerLevel implements LittleSubLevel 
     @Override
     public FeatureFlagSet enabledFeatures() {
         return getParent().enabledFeatures();
+    }
+    
+    @Override
+    public PoiManager getPoiManager() {
+        return getRealLevel().getPoiManager();
     }
 }
