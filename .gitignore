@@ -1,0 +1,13 @@
+# IntelliJ Idea
+out
+*.ipr
+*.iws
+*.iml
+.idea
+
+# Gradle
+build
+.gradle
+
+# Minecraft
+run
