@@ -207,7 +207,9 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
             if (selected == holder)
                 continue;
             NBTTagCompound nbt = holder.previews.structureNBT;
-            if (nbt.hasKey("id"))
+            if (nbt == null)
+                continue;
+            if (!nbt.hasKey("id"))
                 continue;
             String id = nbt.getString("id");
             LittleStructureType type = LittleStructureRegistry.getStructureType(id);
