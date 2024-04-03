@@ -24,6 +24,8 @@ import com.creativemd.littletiles.common.structure.LittleStructure;
 import com.creativemd.littletiles.common.structure.animation.AnimationGuiHandler;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureGuiParser;
 import com.creativemd.littletiles.common.structure.registry.LittleStructureRegistry;
+import com.creativemd.littletiles.common.structure.registry.LittleStructureType;
+import com.creativemd.littletiles.common.structure.type.door.LittleDoorBase.LittleDoorBaseType;
 import com.creativemd.littletiles.common.tile.parent.StructureTileList;
 import com.creativemd.littletiles.common.tile.preview.LittlePreview;
 import com.creativemd.littletiles.common.tile.preview.LittlePreviews;
@@ -181,6 +183,7 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
         controls.add(new GuiButton("save", 150, 176, 40) {
             @Override
             public void onClicked(int x, int y, int button) {
+                clearOpenedDoors();
                 savePreview();
                 finializePreview(previews);
                 
@@ -197,6 +200,16 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
         controls.add(new GuiTextfield("name", "", 2, 176, 95, 14).setCustomTooltip(translate("selection.structure.name")));
         
         loadStack(hierarchy.get(0));
+    }
+    
+    private void clearOpenedDoors() {
+        for (StructureHolder holder : hierarchy) {
+            NBTTagCompound nbt = holder.previews.structureNBT;
+            String id = nbt.getString("id");
+            LittleStructureType type = LittleStructureRegistry.getStructureType(id);
+            if (type instanceof LittleDoorBaseType && nbt.hasKey("opened"))
+                nbt.setBoolean("opened", false);
+        }
     }
     
     public void loadStack(StructureHolder holder) {
