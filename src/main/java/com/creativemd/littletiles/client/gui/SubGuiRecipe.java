@@ -204,6 +204,8 @@ public class SubGuiRecipe extends SubGuiConfigure implements IAnimationControl {
     
     private void clearOpenedDoors() {
         for (StructureHolder holder : hierarchy) {
+            if (selected == holder)
+                continue;
             NBTTagCompound nbt = holder.previews.structureNBT;
             String id = nbt.getString("id");
             LittleStructureType type = LittleStructureRegistry.getStructureType(id);
