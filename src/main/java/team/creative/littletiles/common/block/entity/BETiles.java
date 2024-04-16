@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.BiPredicate;
@@ -704,10 +705,14 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public Iterable<LittleStructure> loadedStructures() {
+        if (tiles == null)
+            return Collections.EMPTY_LIST;
         return tiles.loadedStructures();
     }
     
     public Iterable<LittleStructure> loadedStructures(int attribute) {
+        if (tiles == null)
+            return Collections.EMPTY_LIST;
         return tiles.loadedStructures(attribute);
     }
     
