@@ -1,3 +1,16 @@
+1.6.0-pre101
+Fixed crash when looking at a block before it has been loaded
+Fixed bed spawn positions not working
+Fixed bed gui (readded direction preview)
+Fixed several gui issues (specially missing shape setting description and missing translations)
+Fixed storage gui
+Fixed mark mode up and down keybind not working
+Fixed axis door preview when using lines (axis box is now as large as the structure itself)
+Fixed crashing if only oculus is installed
+Fixed crash with Create (caused by creating level off-thread)
+Fixed crash with sub level due to missing poimanager
+Added toVanillaGridF for float precision
+
 1.6.0-pre100
 Fixed pillar & wall inside shape not working correctly
 Fixed pillar shape side being weird at time
