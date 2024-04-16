@@ -1,18 +1,15 @@
 package team.creative.littletiles.client.mod.oculus;
 
-import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexAttributeBinding;
-import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexFormat;
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkMeshAttribute;
 import net.coderbot.iris.compat.sodium.impl.block_context.ChunkBuildBuffersExt;
 import net.coderbot.iris.compat.sodium.impl.shader_overrides.ShaderChunkRendererExt;
-import net.coderbot.iris.compat.sodium.impl.vertex_format.IrisChunkMeshAttributes;
 import net.coderbot.iris.vertices.ExtendedDataHelper;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.mixin.rubidium.ChunkMeshBufferBuilderAccessor;
 
 public class OculusInteractor {
@@ -52,16 +49,9 @@ public class OculusInteractor {
     }
     
     public static Object createVertexFormat(Object format) {
-        GlVertexFormat vertexFormat = (GlVertexFormat) format;
-        return new GlVertexAttributeBinding[] { new GlVertexAttributeBinding(1, vertexFormat.getAttribute(
-            ChunkMeshAttribute.POSITION_MATERIAL_MESH)), new GlVertexAttributeBinding(2, vertexFormat.getAttribute(
-                ChunkMeshAttribute.COLOR_SHADE)), new GlVertexAttributeBinding(3, vertexFormat.getAttribute(
-                    ChunkMeshAttribute.BLOCK_TEXTURE)), new GlVertexAttributeBinding(4, vertexFormat.getAttribute(
-                        ChunkMeshAttribute.LIGHT_TEXTURE)), new GlVertexAttributeBinding(14, vertexFormat.getAttribute(
-                            IrisChunkMeshAttributes.MID_BLOCK)), new GlVertexAttributeBinding(11, vertexFormat.getAttribute(
-                                IrisChunkMeshAttributes.BLOCK_ID)), new GlVertexAttributeBinding(12, vertexFormat.getAttribute(
-                                    IrisChunkMeshAttributes.MID_TEX_COORD)), new GlVertexAttributeBinding(13, vertexFormat.getAttribute(
-                                        IrisChunkMeshAttributes.TANGENT)), new GlVertexAttributeBinding(10, vertexFormat.getAttribute(IrisChunkMeshAttributes.NORMAL)) };
+        if (RubidiumManager.installed())
+            return OculusSodiumInteractor.createVertexFormatEmbeddium(format);
+        return null;
     }
     
 }
