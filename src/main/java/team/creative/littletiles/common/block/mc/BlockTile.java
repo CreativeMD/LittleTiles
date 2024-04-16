@@ -349,12 +349,12 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     }
     
     public LittleStructure getBed(BlockGetter level, BlockPos pos, @Nullable Entity entity) {
-        if (!(entity instanceof Player))
+        if (entity != null && !(entity instanceof Player))
             return null;
         BETiles be = loadBE(level, pos);
         if (be != null)
             for (LittleStructure structure : be.loadedStructures())
-                if (structure == ((ILittleBedPlayerExtension) entity).getBed())
+                if (entity == null || structure == ((ILittleBedPlayerExtension) entity).getBed())
                     return structure;
         return null;
     }
