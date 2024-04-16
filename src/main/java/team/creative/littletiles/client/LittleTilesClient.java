@@ -7,6 +7,7 @@ import java.util.List;
 import org.jetbrains.annotations.NotNull;
 
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.platform.InputConstants.Key;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 
@@ -162,10 +163,10 @@ public class LittleTilesClient {
     }
     
     private static void registerKeys(RegisterKeyMappingsEvent event) {
-        up = new LittleKeyMapping("key.rotateup", LITTLE_KEY_CONTEXT, InputConstants.KEY_UP, "key.categories.littletiles");
-        down = new LittleKeyMapping("key.rotatedown", LITTLE_KEY_CONTEXT, InputConstants.KEY_DOWN, "key.categories.littletiles");
-        right = new LittleKeyMapping("key.rotateright", LITTLE_KEY_CONTEXT, InputConstants.KEY_RIGHT, "key.categories.littletiles");
-        left = new LittleKeyMapping("key.rotateleft", LITTLE_KEY_CONTEXT, InputConstants.KEY_LEFT, "key.categories.littletiles");
+        up = new LittleKeyMapping("key.rotateup", LITTLE_KEY_CONTEXT, InputConstants.KEY_UP, "key.categories.littletiles").ignoreModifier();
+        down = new LittleKeyMapping("key.rotatedown", LITTLE_KEY_CONTEXT, InputConstants.KEY_DOWN, "key.categories.littletiles").ignoreModifier();
+        right = new LittleKeyMapping("key.rotateright", LITTLE_KEY_CONTEXT, InputConstants.KEY_RIGHT, "key.categories.littletiles").ignoreModifier();
+        left = new LittleKeyMapping("key.rotateleft", LITTLE_KEY_CONTEXT, InputConstants.KEY_LEFT, "key.categories.littletiles").ignoreModifier();
         
         mirror = new LittleKeyMapping("key.little.mirror", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles");
         mark = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles");
@@ -382,12 +383,26 @@ public class LittleTilesClient {
     
     public static class LittleKeyMapping extends KeyMapping {
         
+        private boolean ignoreModifier = false;
+        
         public LittleKeyMapping(String description, IKeyConflictContext keyConflictContext, int keyCode, String category) {
             super(description, keyConflictContext, KeyModifier.NONE, InputConstants.Type.KEYSYM, keyCode, category);
         }
         
         public LittleKeyMapping(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, int keyCode, String category) {
             super(description, keyConflictContext, keyModifier, InputConstants.Type.KEYSYM, keyCode, category);
+        }
+        
+        public LittleKeyMapping ignoreModifier() {
+            ignoreModifier = true;
+            return this;
+        }
+        
+        @Override
+        public boolean isActiveAndMatches(Key keyCode) {
+            if (ignoreModifier)
+                return keyCode != InputConstants.UNKNOWN && keyCode.equals(getKey());
+            return super.isActiveAndMatches(keyCode);
         }
         
         @Override
