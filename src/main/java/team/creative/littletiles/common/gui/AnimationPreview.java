@@ -9,19 +9,20 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
-import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
@@ -31,7 +32,6 @@ import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.type.LittleFixedStructure;
-import team.creative.littletiles.server.level.little.FakeServerLevel;
 
 public class AnimationPreview {
     
@@ -41,13 +41,13 @@ public class AnimationPreview {
     public final LittleGrid grid;
     public final AABB box;
     
-    public AnimationPreview(LittleStructure structure, LittleGroup previews) throws LittleActionException {
+    public AnimationPreview(LittleLevel fakeLevel, LittleStructure structure, LittleGroup previews) throws LittleActionException {
         this.previews = previews;
         this.grid = previews.getGrid();
         BlockPos pos = new BlockPos(0, 0, 0);
-        FakeClientLevel fakeWorld = FakeServerLevel.createClient("animationViewer");
-        fakeWorld.setOrigin(new Vec3d());
-        LittleAnimationLevel subLevel = new LittleAnimationLevel(fakeWorld);
+        
+        fakeLevel.setOrigin(new Vec3d());
+        LittleAnimationLevel subLevel = new LittleAnimationLevel((Level) fakeLevel);
         
         if (!previews.hasStructure()) {
             CompoundTag nbt = new CompoundTag();
@@ -67,7 +67,7 @@ public class AnimationPreview {
             absolute = new StructureAbsolute(pos, entireBox, previews.getGrid());
         Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.ALL, new LittleGroupAbsolute(pos, previews), Facing.EAST));
         
-        animation = new LittleAnimationEntity(fakeWorld, subLevel, absolute, placement);
+        animation = new LittleAnimationEntity((Level) fakeLevel, subLevel, absolute, placement);
     }
     
     @OnlyIn(Dist.CLIENT)

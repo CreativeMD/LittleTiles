@@ -39,12 +39,14 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.controls.animation.GuiAnimationViewerStorage;
 import team.creative.littletiles.common.structure.LittleStructureType;
+import team.creative.littletiles.server.level.little.FakeServerLevel;
 
 public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage {
     
@@ -134,9 +136,10 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
                 requestedPreview++;
             }
             final int request = requestedPreview;
+            FakeClientLevel fakeLevel = FakeServerLevel.createClient("animationViewer");
             CompletableFuture.supplyAsync(() -> {
                 try {
-                    return new AnimationPreview(null, group);
+                    return new AnimationPreview(fakeLevel, null, group);
                 } catch (LittleActionException e) {
                     throw new RuntimeException(e);
                 }

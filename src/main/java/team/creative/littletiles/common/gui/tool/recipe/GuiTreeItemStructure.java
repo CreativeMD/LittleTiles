@@ -27,6 +27,7 @@ import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.LittleTilesGuiRegistry;
+import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.AnimationPreview;
@@ -44,6 +45,7 @@ import team.creative.littletiles.common.structure.registry.gui.LittleStructureGu
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
+import team.creative.littletiles.server.level.little.FakeServerLevel;
 
 public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContext {
     
@@ -208,8 +210,8 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         GuiParent info = new GuiParent("infoStructure", GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         recipe.config.add(info);
         
-        info.add(new GuiLabel("info").setTitle(Component
-                .literal(group.totalTiles() + " " + LanguageUtils.translate("gui.tile.count") + " " + group.totalBoxes() + " " + LanguageUtils.translate("gui.box.count"))));
+        info.add(new GuiLabel("info").setTitle(Component.literal(group.totalTiles() + " " + LanguageUtils.translate("gui.tile.count") + " " + group
+                .totalBoxes() + " " + LanguageUtils.translate("gui.box.count"))));
         
         GuiParent parent = new GuiParent("bottomStructure", GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
         recipe.config.add(parent);
@@ -221,8 +223,8 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         else
             text.setText("");
         parent.add(text.setEnabled(gui.supportsName()).setDim(100, 7));
-        parent.add(new GuiButton("signal", x -> LittleTilesGuiRegistry.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this))
-                .setTranslate("gui.signal.events").setEnabled(gui.type() != null));
+        parent.add(new GuiButton("signal", x -> LittleTilesGuiRegistry.SIGNAL_EVENTS_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(this)).setTranslate(
+            "gui.signal.events").setEnabled(gui.type() != null));
         updateSignalOutputs();
         
         onNameChanged(text);
@@ -312,9 +314,10 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     
     @OnlyIn(Dist.CLIENT)
     public void refreshAnimation() {
+        FakeClientLevel fakeLevel = FakeServerLevel.createClient("animationViewer");
         CompletableFuture.supplyAsync(() -> {
             try {
-                return new AnimationPreview(structure, group);
+                return new AnimationPreview(fakeLevel, structure, group);
             } catch (LittleActionException e) {
                 throw new RuntimeException(e);
             }
