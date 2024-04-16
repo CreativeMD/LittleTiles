@@ -57,8 +57,8 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
         viewer.setView(Facing.get(axis, true));
         GuiTabsMapped<Function<GuiParent, LittleAxisDoorRotation>> tabs = new GuiTabsMapped<>("tabs");
         tabs.createTab(x -> new LittleAxisDoorRotationDirection(viewer.axis(), x.get("direction", GuiStateButton.class).getState() == 0), Component.translatable(
-            "gui.door.rotation.direction")).add(
-                new GuiStateButton("direction", rotation instanceof LittleAxisDoorRotationDirection d && !d.clockwise ? 1 : 0, "gui.clockwise", "gui.counterclockwise"));
+            "gui.door.rotation.direction")).add(new GuiStateButton("direction", rotation instanceof LittleAxisDoorRotationDirection d && !d.clockwise ? 1 : 0, translate(
+                "gui.clockwise"), translate("gui.counterclockwise")));
         
         GuiTextfield angle = new GuiTextfield("angle").setFloatOnly();
         angle.setText(rotation instanceof LittleAxisDoorRotationFixed d ? "" + d.degree : "90");

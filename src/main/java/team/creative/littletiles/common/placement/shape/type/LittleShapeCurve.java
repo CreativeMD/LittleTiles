@@ -9,6 +9,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -98,8 +99,8 @@ public class LittleShapeCurve extends LittleShape {
     @OnlyIn(Dist.CLIENT)
     public List<GuiControl> getCustomSettings(CompoundTag nbt, LittleGrid grid) {
         List<GuiControl> controls = new ArrayList<>();
+        controls.add(new GuiLabel("label").setTranslate("gui.thickness"));
         controls.add(new GuiSteppedSlider("thickness", nbt.getInt("thickness"), 1, grid.count));
-        
         controls.add(new GuiStateButton("interpolation", nbt.getInt("interpolation"), interpolationTypes));
         return controls;
     }

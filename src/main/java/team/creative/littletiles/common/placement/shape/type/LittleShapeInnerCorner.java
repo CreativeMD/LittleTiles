@@ -91,7 +91,7 @@ public class LittleShapeInnerCorner extends LittleShape {
     @OnlyIn(Dist.CLIENT)
     public List<GuiControl> getCustomSettings(CompoundTag nbt, LittleGrid grid) {
         List<GuiControl> controls = new ArrayList<>();
-        controls.add(new GuiCheckBox("second-type", nbt.getBoolean("second")));
+        controls.add(new GuiCheckBox("second-type", nbt.getBoolean("second")).setTranslate("gui.second_type"));
         return controls;
     }
     

@@ -71,9 +71,9 @@ public class LittleShapeBox extends LittleShape {
     @OnlyIn(Dist.CLIENT)
     public void saveCustomSettings(GuiParent gui, CompoundTag nbt, LittleGrid grid) {
         
-        GuiCheckBox box = (GuiCheckBox) gui.get("hollow");
+        GuiCheckBox box = gui.get("hollow");
         nbt.putBoolean("hollow", box.value);
-        GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
+        GuiSteppedSlider slider = gui.get("thickness");
         nbt.putInt("thickness", (int) slider.value);
     }
     
