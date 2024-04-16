@@ -86,17 +86,17 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, IndexedCollector<LittleRenderBox> cubes) {
         super.renderFace(facing, grid, renderBox.copy(), distance, axis, one, two, positive, oneSidedRenderer, cubes);
         
-        LittleRenderBox cube = renderBox
-                .getRenderingBox(grid, LittleTilesRegistry.OUTPUT_ARROW.get().defaultBlockState().setValue(BlockStateProperties.FACING, facing.toVanilla()));
+        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.OUTPUT_ARROW.get().defaultBlockState().setValue(BlockStateProperties.FACING, facing
+                .toVanilla()));
         cube.keepVU = true;
         cube.allowOverlap = true;
         
         if (positive) {
             cube.setMin(axis, cube.getMax(axis));
-            cube.setMax(axis, cube.getMax(axis) + (float) grid.toVanillaGrid(renderBox.getSize(axis)) * 0.7F);
+            cube.setMax(axis, cube.getMax(axis) + grid.toVanillaGridF(renderBox.getSize(axis)) * 0.7F);
         } else {
             cube.setMax(axis, cube.getMin(axis));
-            cube.setMin(axis, cube.getMin(axis) - (float) grid.toVanillaGrid(renderBox.getSize(axis)) * 0.7F);
+            cube.setMin(axis, cube.getMin(axis) - grid.toVanillaGridF(renderBox.getSize(axis)) * 0.7F);
         }
         float shrink = 0.14F;
         float shrinkOne = cube.getSize(one) * shrink;

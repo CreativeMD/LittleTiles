@@ -128,6 +128,7 @@ public class LittleGrid {
     public final long count2d;
     public final long count3d;
     public final double pixelLength;
+    public final float pixelLengthF;
     public final double halfPixelLength;
     public final double pixelVolume;
     protected final int index;
@@ -142,6 +143,7 @@ public class LittleGrid {
         this.index = index;
         this.count = gridSize;
         this.pixelLength = 1D / gridSize;
+        this.pixelLengthF = (float) pixelLength;
         this.halfPixelLength = pixelLength * 0.5;
         this.count2d = (long) gridSize * gridSize;
         this.count3d = gridSize * count2d;
@@ -178,16 +180,24 @@ public class LittleGrid {
         return grid * pixelLength;
     }
     
-    public float toVanillaGrid(float grid) {
-        return (float) (grid * pixelLength);
-    }
-    
     public double toVanillaGrid(long grid) {
         return grid * pixelLength;
     }
     
     public double toVanillaGrid(int grid) {
         return grid * pixelLength;
+    }
+    
+    public float toVanillaGridF(float grid) {
+        return grid * pixelLengthF;
+    }
+    
+    public float toVanillaGridF(long grid) {
+        return grid * pixelLengthF;
+    }
+    
+    public float toVanillaGridF(int grid) {
+        return grid * pixelLengthF;
     }
     
     public int toBlockOffset(long grid) {

@@ -97,10 +97,10 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         
         if (positive) {
             cube.setMin(axis, cube.getMax(axis));
-            cube.setMax(axis, cube.getMax(axis) + (float) grid.toVanillaGrid(renderBox.getSize(axis)) * 0.7F);
+            cube.setMax(axis, cube.getMax(axis) + grid.toVanillaGridF(renderBox.getSize(axis)) * 0.7F);
         } else {
             cube.setMax(axis, cube.getMin(axis));
-            cube.setMin(axis, cube.getMin(axis) - (float) grid.toVanillaGrid(renderBox.getSize(axis)) * 0.7F);
+            cube.setMin(axis, cube.getMin(axis) - grid.toVanillaGridF(renderBox.getSize(axis)) * 0.7F);
         }
         float shrink = 0.14F;
         float shrinkOne = cube.getSize(one) * shrink;

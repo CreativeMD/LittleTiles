@@ -21,22 +21,22 @@ public class LittleRenderBox extends RenderBox {
     }
     
     public LittleRenderBox(LittleGrid grid, LittleBox box) {
-        super((float) grid.toVanillaGrid(box.minX), (float) grid.toVanillaGrid(box.minY), (float) grid.toVanillaGrid(box.minZ), (float) grid.toVanillaGrid(box.maxX), (float) grid
-                .toVanillaGrid(box.maxY), (float) grid.toVanillaGrid(box.maxZ), (BlockState) null);
+        super(grid.toVanillaGridF(box.minX), grid.toVanillaGridF(box.minY), grid.toVanillaGridF(box.minZ), grid.toVanillaGridF(box.maxX), grid.toVanillaGridF(box.maxY), grid
+                .toVanillaGridF(box.maxZ), (BlockState) null);
         this.color = ColorUtils.WHITE;
         this.box = box;
     }
     
     public LittleRenderBox(LittleGrid grid, LittleBox box, BlockState state) {
-        super((float) grid.toVanillaGrid(box.minX), (float) grid.toVanillaGrid(box.minY), (float) grid.toVanillaGrid(box.minZ), (float) grid.toVanillaGrid(box.maxX), (float) grid
-                .toVanillaGrid(box.maxY), (float) grid.toVanillaGrid(box.maxZ), state);
+        super(grid.toVanillaGridF(box.minX), grid.toVanillaGridF(box.minY), grid.toVanillaGridF(box.minZ), grid.toVanillaGridF(box.maxX), grid.toVanillaGridF(box.maxY), grid
+                .toVanillaGridF(box.maxZ), state);
         this.color = ColorUtils.WHITE;
         this.box = box;
     }
     
     public LittleRenderBox(LittleGrid grid, LittleBox box, LittleElement element) {
-        super((float) grid.toVanillaGrid(box.minX), (float) grid.toVanillaGrid(box.minY), (float) grid.toVanillaGrid(box.minZ), (float) grid.toVanillaGrid(box.maxX), (float) grid
-                .toVanillaGrid(box.maxY), (float) grid.toVanillaGrid(box.maxZ), element.getState());
+        super(grid.toVanillaGridF(box.minX), grid.toVanillaGridF(box.minY), grid.toVanillaGridF(box.minZ), grid.toVanillaGridF(box.maxX), grid.toVanillaGridF(box.maxY), grid
+                .toVanillaGridF(box.maxZ), element.getState());
         this.color = element.color;
         this.box = box;
     }
