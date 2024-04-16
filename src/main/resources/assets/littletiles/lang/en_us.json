@@ -53,6 +53,7 @@
     "gui.clear": "Clear",
     "gui.okay": "Okay",
     "gui.reload": "Reload",
+    "gui.sort": "Sort",
     "gui.points.east": "points right",
     "gui.points.west": "points left",
     "gui.points.up": "points upwards",

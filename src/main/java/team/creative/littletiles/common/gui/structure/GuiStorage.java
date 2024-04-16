@@ -26,8 +26,10 @@ public class GuiStorage extends GuiLayer {
     });
     
     public GuiStorage(LittleStorage storage, Player player) {
-        super("little_storage", 250, 250);
+        super("little_storage");
         this.size = StorageSize.getSizeFromInventory(storage.inventory);
+        if (size.expanded)
+            setDim(size.guiWidth, size.guiHeight);
         this.storage = storage;
         if (!player.level().isClientSide)
             this.storage.openContainer(this);
@@ -41,7 +43,9 @@ public class GuiStorage extends GuiLayer {
         GuiParent parent = this;
         if (size.scrollbox) {
             parent = new GuiScrollY();
-            add(parent.setExpandableX());
+            if (size.expanded)
+                parent.setExpandableX();
+            add(parent);
         }
         
         GuiInventoryGrid inv = new GuiInventoryGrid("storage", storage.inventory, size.cols, (int) Math.ceil(storage.inventory.getContainerSize() / (double) size.cols), (c, i) -> {
@@ -59,9 +63,14 @@ public class GuiStorage extends GuiLayer {
         parent.add(inv);
         inv.setChanged();
         
-        add(new GuiPlayerInventoryGrid(getPlayer()));
+        if (size.sort)
+            add(new GuiButton("sort", x -> SORT.send(EndTag.INSTANCE)).setTranslate("gui.sort"));
         
-        add(new GuiButton("sort", x -> SORT.send(EndTag.INSTANCE)));
+        GuiPlayerInventoryGrid playerGrid = new GuiPlayerInventoryGrid(getPlayer());
+        if (!size.expanded)
+            playerGrid.setUnexpandableX();
+        add(playerGrid);
+        
     }
     
     public void inventoryChanged() {
@@ -78,23 +87,31 @@ public class GuiStorage extends GuiLayer {
     
     public static enum StorageSize {
         
-        SMALL(9, false),
-        Large(13, false),
-        INFINITE(13, true);
+        SMALL(9, 0, 0, false, false),
+        LARGE(13, 250, 250, true, false),
+        INFINITE(13, 250, 250, true, true);
         
         public final boolean scrollbox;
         public final int cols;
+        public final boolean sort;
+        public final int guiWidth;
+        public final int guiHeight;
+        public final boolean expanded;
         
-        StorageSize(int cols, boolean scrollbox) {
+        StorageSize(int cols, int guiWidth, int guiHeight, boolean sort, boolean scrollbox) {
             this.cols = cols;
+            this.guiWidth = guiWidth;
+            this.guiHeight = guiHeight;
             this.scrollbox = scrollbox;
+            this.sort = sort;
+            this.expanded = guiWidth > 0;
         }
         
         public static StorageSize getSizeFromInventory(Container inventory) {
             if (inventory.getContainerSize() <= 27)
                 return StorageSize.SMALL;
             else if (inventory.getContainerSize() <= 117)
-                return Large;
+                return LARGE;
             return StorageSize.INFINITE;
         }
         
