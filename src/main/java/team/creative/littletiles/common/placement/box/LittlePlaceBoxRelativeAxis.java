@@ -13,34 +13,22 @@ import team.creative.littletiles.common.structure.relative.StructureRelative;
 public class LittlePlaceBoxRelativeAxis extends LittlePlaceBoxRelative {
     
     public Axis axis;
+    public int min;
+    public int max;
     
-    public LittlePlaceBoxRelativeAxis(LittleBox box, StructureRelative relative, StructureDirectionalField relativeType, Axis axis) {
+    public LittlePlaceBoxRelativeAxis(LittleBox box, StructureRelative relative, StructureDirectionalField relativeType, Axis axis, int min, int max) {
         super(box, relative, relativeType);
         this.axis = axis;
+        this.min = min - box.getMin(axis);
+        this.max = max - box.getMax(axis);
     }
     
     @Override
     @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderBox(LittleGrid grid, LittleVec vec) {
         LittleRenderBox cube = super.getRenderBox(grid, vec);
-        int max = 40 * grid.count;
-        int min = -max;
-        switch (axis) {
-            case X:
-                cube.minX = min;
-                cube.maxX = max;
-                break;
-            case Y:
-                cube.minY = min;
-                cube.maxY = max;
-                break;
-            case Z:
-                cube.minZ = min;
-                cube.maxZ = max;
-                break;
-            default:
-                break;
-        }
+        cube.setMin(axis, cube.getMin(axis) + grid.toVanillaGridF(min));
+        cube.setMax(axis, cube.getMax(axis) + grid.toVanillaGridF(max));
         return cube;
     }
 }

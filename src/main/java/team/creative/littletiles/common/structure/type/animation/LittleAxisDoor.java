@@ -9,6 +9,7 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
@@ -160,9 +161,11 @@ public class LittleAxisDoor extends LittleDoor {
         
         @Override
         protected LittlePlaceBoxRelative getPlaceBox(Object value, StructureDirectionalField type, LittleGroup previews) {
-            if (type.key.equals("center"))
-                return new LittlePlaceBoxRelativeAxis(((StructureRelative) value).getBox(), (StructureRelative) value, type, Axis.values()[previews.getStructureTag().getCompound(
-                    "rotation").getInt("a")]);
+            if (type.key.equals("center")) {
+                LittleBox box = previews.getSurroundingBox();
+                Axis axis = Axis.values()[previews.getStructureTag().getCompound("rotation").getInt("a")];
+                return new LittlePlaceBoxRelativeAxis(((StructureRelative) value).getBox(), (StructureRelative) value, type, axis, box.getMin(axis), box.getMax(axis));
+            }
             return super.getPlaceBox(value, type, previews);
         }
     }
