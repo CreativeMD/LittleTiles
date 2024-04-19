@@ -8,9 +8,11 @@ import team.creative.creativecore.common.util.math.Maths;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
+import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.creativecore.common.util.math.box.BoxUtils;
 import team.creative.creativecore.common.util.math.geo.NormalPlaneD;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.VectorFanCache;
@@ -138,6 +140,29 @@ public class TransformableABB extends ABB {
             return offset;
         }
         return offset;
+    }
+    
+    @Override
+    public boolean intersectsPrecise(AABB bb) {
+        //Vec3d offset = new Vec3d(minX - Math.floor(minX), minY - Math.floor(minY), minZ - Math.floor(minZ));
+        Vec3d offset = new Vec3d(Math.floor(minX), Math.floor(minY), Math.floor(minZ));
+        Vec3d[] corners = BoxUtils.getCorners(bb);
+        for (int i = 0; i < corners.length; i++) {
+            corners[i].sub(offset);
+            corners[i].scale(grid.count);
+        }
+        VectorFanCache cache = new VectorFanCache();
+        for (int i = 0; i < cache.faces.length; i++) {
+            VectorFanFaceCache face = new VectorFanFaceCache();
+            BoxFace boxFace = BoxFace.values()[i];
+            Vec3f[] coords = new Vec3f[boxFace.corners.length];
+            for (int j = 0; j < coords.length; j++)
+                coords[j] = new Vec3f(corners[boxFace.corners[j].ordinal()]);
+            face.axisStrips.add(new VectorFan(coords));
+            cache.faces[i] = face;
+        }
+        return box.requestCache().intersectsWith(x -> grid.count * (float) (this.get((Facing) x) - offset.get(((Facing) x).axis)), cache) && cache.intersectsWith(x -> box.get(
+            (Facing) x), box.requestCache());
     }
     
     @Override

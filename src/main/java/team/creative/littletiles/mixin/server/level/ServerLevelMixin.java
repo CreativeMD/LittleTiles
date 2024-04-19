@@ -3,8 +3,6 @@ package team.creative.littletiles.mixin.server.level;
 import java.util.concurrent.Executor;
 import java.util.function.Supplier;
 
-import javax.annotation.Nullable;
-
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -19,9 +17,7 @@ import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.util.profiling.ProfilerFiller;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -30,11 +26,6 @@ import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemp
 import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.minecraft.world.level.storage.LevelStorageSource.LevelStorageAccess;
 import net.minecraft.world.level.storage.WritableLevelData;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.shapes.BooleanOp;
-import net.minecraft.world.phys.shapes.Shapes;
-import net.minecraft.world.phys.shapes.VoxelShape;
-import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
 import team.creative.littletiles.server.level.little.LittleServerChunkCache;
 import team.creative.littletiles.server.level.little.LittleServerLevel;
 
@@ -64,22 +55,4 @@ public abstract class ServerLevelMixin extends Level {
         state.ensureStructuresGenerated();
     }
     
-    @Override
-    public boolean noCollision(@Nullable Entity entity, AABB bb) {
-        for (VoxelShape voxelshape : this.getBlockCollisions(entity, bb))
-            if (!(voxelshape instanceof BoxesVoxelShape) && !voxelshape.isEmpty())
-                return false;
-            
-        if (!this.getEntityCollisions(entity, bb).isEmpty())
-            return false;
-        else if (entity == null)
-            return true;
-        VoxelShape voxelshape1 = this.borderCollision(entity, bb);
-        return voxelshape1 == null || !Shapes.joinIsNotEmpty(voxelshape1, Shapes.create(bb), BooleanOp.AND);
-    }
-    
-    public VoxelShape borderCollision(Entity entity, AABB bb) {
-        WorldBorder worldborder = getWorldBorder();
-        return worldborder.isInsideCloseToBorder(entity, bb) ? worldborder.getCollisionShape() : null;
-    }
 }

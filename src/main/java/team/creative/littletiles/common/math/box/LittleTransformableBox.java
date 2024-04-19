@@ -11,6 +11,7 @@ import java.util.NoSuchElementException;
 
 import javax.annotation.Nullable;
 
+import it.unimi.dsi.fastutil.objects.Object2FloatFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
@@ -624,7 +625,8 @@ public class LittleTransformableBox extends LittleBox {
     protected boolean intersectsWith(LittleBox box) {
         if (super.intersectsWith(box)) {
             if (box instanceof LittleTransformableBox t)
-                return t.requestCache().intersectsWith(t, this.requestCache()) || this.requestCache().intersectsWith(this, t.requestCache());
+                return t.requestCache().intersectsWith(x -> t.get((Facing) x), this.requestCache()) || this.requestCache().intersectsWith(x -> this.get((Facing) x), t
+                        .requestCache());
             
             VectorFanCache ownCache = requestCache();
             for (int i = 0; i < ownCache.faces.length; i++)
@@ -642,7 +644,7 @@ public class LittleTransformableBox extends LittleBox {
                 faceCache.axisStrips.add(new VectorFan(box.getVecArray(face.corners)));
                 newCache.faces[i] = faceCache;
             }
-            return newCache.intersectsWith(box, this.requestCache()) || this.requestCache().intersectsWith(this, newCache);
+            return newCache.intersectsWith(x -> box.get((Facing) x), this.requestCache()) || this.requestCache().intersectsWith(x -> this.get((Facing) x), newCache);
         }
         return false;
     }
@@ -1478,7 +1480,7 @@ public class LittleTransformableBox extends LittleBox {
             return positive ? Math.min(newValue, originalValue) : Math.max(newValue, originalValue);
         }
         
-        public boolean intersectsWith(LittleBox box, VectorFanCache cache) {
+        public boolean intersectsWith(Object2FloatFunction<Facing> edgeGetter, VectorFanCache cache) {
             for (int i = 0; i < faces.length; i++) {
                 VectorFanFaceCache face = faces[i];
                 VectorFanFaceCache otherFace = cache.faces[i];
@@ -1535,7 +1537,7 @@ public class LittleTransformableBox extends LittleBox {
                         Facing facing = Facing.values()[i];
                         NormalPlaneF plane = new NormalPlaneF(new Vec3f(), new Vec3f());
                         plane.origin.set(0, 0, 0);
-                        plane.origin.set(facing.axis, box.get(facing));
+                        plane.origin.set(facing.axis, edgeGetter.apply(facing));
                         
                         plane.normal.set(0, 0, 0);
                         plane.normal.set(facing.axis, facing.offset());

@@ -13,6 +13,7 @@
         "common.entity.PrimedTntAccessor",
         "common.level.BlockBehaviourAccessor",
         "common.level.LevelAccessor",
+        "common.level.LevelMixin",
         "common.item.BlockPlaceContextMixin",
         "common.network.FriendlyByteBufMixin",
         "server.level.ChunkSerializerAccessor",
