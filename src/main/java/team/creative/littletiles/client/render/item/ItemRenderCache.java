@@ -66,6 +66,13 @@ public class ItemRenderCache implements LevelAwareHandler {
         }
     }
     
+    public void clearCache() {
+        synchronized (caches) {
+            caches.clear();
+            THREAD.items.clear();
+        }
+    }
+    
     @Override
     public void unload() {
         caches.clear();

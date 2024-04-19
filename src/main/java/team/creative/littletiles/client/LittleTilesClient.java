@@ -217,6 +217,7 @@ public class LittleTilesClient {
             public void onResourceManagerReload(ResourceManager manager) {
                 RenderingThread.CURRENT_RENDERING_INDEX++;
                 LittleBlockClientRegistry.clearCache();
+                ITEM_RENDER_CACHE.clearCache();
             }
         });
         
