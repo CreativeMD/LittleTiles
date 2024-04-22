@@ -180,7 +180,7 @@ modrinth {
 tasks.curseforge.enabled = System.getenv("CURSEFORGE_TOKEN") != null
 tasks.curseforge.group = 'publishing'
 curseforge {
-    apiKey = System.getenv("CURSEFORGE_TOKEN")
+    apiKey = System.getenv("CURSEFORGE_TOKEN") != null ? System.getenv("CURSEFORGE_TOKEN") : "empty"
     project {
         id = project.curse_id
         changelog = getChangelogText()
