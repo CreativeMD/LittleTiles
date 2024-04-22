@@ -109,7 +109,7 @@ public class LittleShapeCurve extends LittleShape {
     @OnlyIn(Dist.CLIENT)
     public void saveCustomSettings(GuiParent gui, CompoundTag nbt, LittleGrid grid) {
         GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
-        nbt.putInt("thickness", (int) slider.value);
+        nbt.putInt("thickness", (int) slider.getValue());
         
         nbt.putInt("interpolation", ((GuiStateButton) gui.get("interpolation")).getState());
     }

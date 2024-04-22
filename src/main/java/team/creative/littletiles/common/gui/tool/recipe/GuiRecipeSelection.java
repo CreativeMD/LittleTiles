@@ -169,7 +169,7 @@ public class GuiRecipeSelection extends GuiConfigure {
                 minRequired = LittleGrid.max(minRequired, result.minCBGrid);
             if (nbt.getBoolean("includeLT") && result.minLtGrid != null)
                 minRequired = LittleGrid.max(minRequired, result.minLtGrid);
-            LittleGrid selected = LittleGrid.gridByIndex(LittleGrid.gridCount() - 1 - ((GuiArraySlider) get("scale")).getValue());
+            LittleGrid selected = LittleGrid.gridByIndex(LittleGrid.gridCount() - 1 - ((GuiArraySlider) get("scale")).getIntValue());
             if (minRequired != selected) {
                 nbt.putInt("grid", minRequired.count);
                 nbt.putInt("aimedGrid", selected.count);

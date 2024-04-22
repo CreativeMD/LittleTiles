@@ -141,7 +141,7 @@ public class GuiWorkbench extends GuiLayer {
         
         public GuiChildControl addSlot(GuiSlot slot) {
             slots.add(slot);
-            return add(slot);
+            return addControl(slot);
         }
         
         @Override

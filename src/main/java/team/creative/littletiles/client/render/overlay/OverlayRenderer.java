@@ -45,7 +45,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         }
         
         public void addOverlayControl(GuiControl control, OverlayPosition position) {
-            positions.add(super.add(control), position);
+            positions.add(super.addControl(control), position);
         }
         
         @Override

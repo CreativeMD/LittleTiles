@@ -149,7 +149,7 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
                 other.add(new GuiButtonIcon("play", Icon.PLAY, y -> {
                     GuiSlider volume = other.get("volume");
                     GuiSlider pitch = other.get("pitch");
-                    GuiControl.playSound(PlaySoundEvent.get(box.getSelected()), (float) volume.value, (float) pitch.value);
+                    GuiControl.playSound(PlaySoundEvent.get(box.getSelected()), (float) volume.getValue(), (float) pitch.getValue());
                 }));
                 editKey.add(other);
             }
@@ -174,9 +174,9 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
                 if (x.control.is("sound") && x.control instanceof GuiComboBoxMapped box)
                     value.sound = PlaySoundEvent.get((ResourceLocation) box.getSelected());
                 else if (x.control.is("volume") && x.control instanceof GuiSlider slider)
-                    value.volume = (float) slider.value;
+                    value.volume = (float) slider.getValue();
                 else if (x.control.is("pitch") && x.control instanceof GuiSlider slider)
-                    value.pitch = (float) slider.value;
+                    value.pitch = (float) slider.getValue();
                 time.raiseEvent(new GuiControlChangedEvent(time));
             }
         });

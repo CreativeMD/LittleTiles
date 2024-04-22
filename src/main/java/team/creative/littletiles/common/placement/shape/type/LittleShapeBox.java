@@ -74,7 +74,7 @@ public class LittleShapeBox extends LittleShape {
         GuiCheckBox box = gui.get("hollow");
         nbt.putBoolean("hollow", box.value);
         GuiSteppedSlider slider = gui.get("thickness");
-        nbt.putInt("thickness", (int) slider.value);
+        nbt.putInt("thickness", (int) slider.getValue());
     }
     
     @Override

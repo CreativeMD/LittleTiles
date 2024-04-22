@@ -126,7 +126,7 @@ public class LittleShapeWall extends LittleShape {
     public void saveCustomSettings(GuiParent gui, CompoundTag nbt, LittleGrid grid) {
         
         GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
-        nbt.putInt("thickness", (int) slider.value);
+        nbt.putInt("thickness", (int) slider.getValue());
         
         GuiStateButton state = (GuiStateButton) gui.get("direction");
         nbt.putInt("direction", state.getState());

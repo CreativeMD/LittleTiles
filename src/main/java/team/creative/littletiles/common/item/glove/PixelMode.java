@@ -79,16 +79,16 @@ public class PixelMode extends ElementGloveMode {
         right.add(new GuiSteppedSlider("sizeZ", size.z, 1, grid.count));
         right.add(new GuiGridConfig("grid", gui.getPlayer(), grid, x -> {
             GuiSteppedSlider sizeX = gui.get("sizeX");
-            sizeX.maxValue = x.count;
-            sizeX.value = Mth.clamp(sizeX.value, sizeX.minValue, sizeX.maxValue);
+            sizeX.setMaxValue(x.count);
+            sizeX.setValue(Mth.clamp(sizeX.getValue(), sizeX.getMinValue(), sizeX.getMaxValue()));
             
             GuiSteppedSlider sizeY = gui.get("sizeY");
-            sizeY.maxValue = x.count;
-            sizeY.value = Mth.clamp(sizeY.value, sizeY.minValue, sizeY.maxValue);
+            sizeY.setMaxValue(x.count);
+            sizeY.setValue(Mth.clamp(sizeY.getValue(), sizeY.getMinValue(), sizeY.getMaxValue()));
             
             GuiSteppedSlider sizeZ = gui.get("sizeZ");
-            sizeZ.maxValue = x.count;
-            sizeZ.value = Mth.clamp(sizeZ.value, sizeZ.minValue, sizeZ.maxValue);
+            sizeZ.setMaxValue(x.count);
+            sizeZ.setValue(Mth.clamp(sizeZ.getValue(), sizeZ.getMinValue(), sizeZ.getMaxValue()));
         }));
         
         gui.add(new GuiColorPicker("picker", new Color(element.color), LittleTiles.CONFIG.isTransparencyEnabled(player), LittleTiles.CONFIG.getMinimumTransparency(player)));
@@ -112,9 +112,9 @@ public class PixelMode extends ElementGloveMode {
     }
     
     protected LittleBox getBox(GuiGlove gui) {
-        int sizeX = gui.get("sizeX", GuiSteppedSlider.class).getValue();
-        int sizeY = gui.get("sizeY", GuiSteppedSlider.class).getValue();
-        int sizeZ = gui.get("sizeZ", GuiSteppedSlider.class).getValue();
+        int sizeX = gui.get("sizeX", GuiSteppedSlider.class).getIntValue();
+        int sizeY = gui.get("sizeY", GuiSteppedSlider.class).getIntValue();
+        int sizeZ = gui.get("sizeZ", GuiSteppedSlider.class).getIntValue();
         return new LittleBox(0, 0, 0, sizeX, sizeY, sizeZ);
     }
     

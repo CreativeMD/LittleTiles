@@ -26,7 +26,7 @@ public class LittleLightGui extends LittleStructureGuiControl {
     @Override
     public LittleStructure save(LittleStructure structure) {
         LittleLight light = (LittleLight) structure;
-        light.level = (int) get("level", GuiSteppedSlider.class).value;
+        light.level = (int) get("level", GuiSteppedSlider.class).getValue();
         light.allowRightClick = get("rightclick", GuiCheckBox.class).value;
         return structure;
     }

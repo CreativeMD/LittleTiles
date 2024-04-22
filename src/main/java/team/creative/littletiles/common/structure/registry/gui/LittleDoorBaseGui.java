@@ -89,9 +89,9 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         GuiParent settings = new GuiParent(GuiFlow.FIT_X).setVAlign(VAlign.CENTER);
         add(settings);
         
-        settings.add(new GuiLabeledControl(Component.translatable("gui.interpolation")
-                .append(":"), new GuiStateButtonMapped<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>()
-                        .addComponent(ValueInterpolation.values(), x -> x.translate()))));
+        settings.add(new GuiLabeledControl(Component.translatable("gui.interpolation").append(
+            ":"), new GuiStateButtonMapped<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>().addComponent(ValueInterpolation.values(), x -> x
+                    .translate()))));
         
         settings.add(new GuiLabeledControl(Component.translatable("gui.duration").append(":"), new GuiSteppedSlider("duration", duration, 1, 500)));
         
@@ -119,8 +119,8 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         registerEventChanged(x -> {
             if (x.control.is("duration")) {
                 updateTimeline();
-                soundPanel.durationChanged(((GuiSteppedSlider) x.control).getValue());
-                childPanel.durationChanged(((GuiSteppedSlider) x.control).getValue());
+                soundPanel.durationChanged(((GuiSteppedSlider) x.control).getIntValue());
+                childPanel.durationChanged(((GuiSteppedSlider) x.control).getIntValue());
             } else if (x.control.is("inter"))
                 updateTimeline();
             if (x.control instanceof GuiTimeline)
@@ -137,7 +137,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
         door.interpolation = inter.getSelected();
         
-        door.duration = get("duration", GuiSteppedSlider.class).getValue();
+        door.duration = get("duration", GuiSteppedSlider.class).getIntValue();
         door.stayAnimated = get("stayAnimated", GuiCheckBox.class).value;
         door.rightClick = get("rightClick", GuiCheckBox.class).value;
         door.noClip = get("noClip", GuiCheckBox.class).value;
@@ -178,7 +178,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     protected abstract void save(PhysicalState state);
     
     public void updateTimeline() {
-        int duration = get("duration", GuiSteppedSlider.class).getValue();
+        int duration = get("duration", GuiSteppedSlider.class).getIntValue();
         AnimationTimeline timeline = saveEventTimeline(duration, true);
         if (timeline == null)
             timeline = new AnimationTimeline(duration);

@@ -195,7 +195,7 @@ public class LittleShapePillar extends LittleShape {
     @OnlyIn(Dist.CLIENT)
     public void saveCustomSettings(GuiParent gui, CompoundTag nbt, LittleGrid grid) {
         GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
-        nbt.putInt("thickness", (int) slider.value);
+        nbt.putInt("thickness", (int) slider.getValue());
         nbt.putBoolean("simple", gui.get("simple", GuiCheckBox.class).value);
     }
     

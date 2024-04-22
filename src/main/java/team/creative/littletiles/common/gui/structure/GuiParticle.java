@@ -227,10 +227,10 @@ public class GuiParticle extends GuiLayer {
             newSettings.randomColor = randomColor.value;
             newSettings.collision = collision.value;
             newSettings.texture = textureBox.getSelected();
-            newSettings.lifetime = age.getValue();
+            newSettings.lifetime = age.getIntValue();
             newSettings.lifetimeDeviation = ageDiv.getValue();
             newSettings.color = color.color.toInt();
-            newSettings.gravity = (float) gravity.value;
+            newSettings.gravity = (float) gravity.getValue();
             newSettings.startSize = (float) sizeStart.getValue();
             newSettings.endSize = (float) sizeEnd.getValue();
             newSettings.sizeDeviation = (float) sizeDiv.getValue();
