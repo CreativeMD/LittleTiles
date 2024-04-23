@@ -1,3 +1,10 @@
+1.6.0-pre102
+Fixed curseforge gradle task causing crash when not token is provided
+Fixed not being able to sneak on slopes
+Fixed no collision checks not working on client side
+Fixed not clearing item cache when reloading resourcepack
+Adapted CreativeCore gui changes 2.11.27
+
 1.6.0-pre101
 Fixed crash when looking at a block before it has been loaded
 Fixed bed spawn positions not working
