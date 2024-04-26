@@ -1,3 +1,6 @@
+1.6.0-pre103
+Fixed not loading animations correctly on server side
+
 1.6.0-pre102
 Fixed curseforge gradle task causing crash when not token is provided
 Fixed not being able to sneak on slopes
