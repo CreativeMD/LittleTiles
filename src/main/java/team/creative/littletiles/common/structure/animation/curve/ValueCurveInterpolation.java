@@ -60,8 +60,10 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
     
     @Override
     public void start(T start, T end, int duration) { // used to add start and end state
-        points.add(0, new Pair<>(0, start));
-        points.add(new Pair<>(duration, end));
+        if (!points.containsKey(0))
+            points.add(0, new Pair<>(0, start));
+        if (!points.containsKey(duration))
+            points.add(new Pair<>(duration, end));
     }
     
     @Override
