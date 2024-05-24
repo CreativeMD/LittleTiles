@@ -1,9 +1,9 @@
 package team.creative.littletiles.client.mod.oculus;
 
 import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
-import net.coderbot.iris.compat.sodium.impl.block_context.ChunkBuildBuffersExt;
-import net.coderbot.iris.compat.sodium.impl.shader_overrides.ShaderChunkRendererExt;
-import net.coderbot.iris.vertices.ExtendedDataHelper;
+import net.irisshaders.iris.compat.sodium.impl.block_context.ChunkBuildBuffersExt;
+import net.irisshaders.iris.compat.sodium.impl.shader_overrides.ShaderChunkRendererExt;
+import net.irisshaders.iris.vertices.ExtendedDataHelper;
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
@@ -29,7 +29,7 @@ public class OculusInteractor {
     
     public static void setMaterialId(ChunkBuildBuffers buffers, BlockState state) {
         if (buffers instanceof ChunkBuildBuffersExt ext)
-            ext.iris$setMaterialId(state, ExtendedDataHelper.BLOCK_RENDER_TYPE);
+            ext.iris$setMaterialId(state, ExtendedDataHelper.BLOCK_RENDER_TYPE, (byte) 0);
     }
     
     public static void resetBlockContext(ChunkBuildBuffers buffers) {

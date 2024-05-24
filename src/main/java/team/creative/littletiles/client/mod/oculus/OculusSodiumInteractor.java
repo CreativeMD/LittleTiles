@@ -3,7 +3,7 @@ package team.creative.littletiles.client.mod.oculus;
 import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexAttributeBinding;
 import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexFormat;
 import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkMeshAttribute;
-import net.coderbot.iris.compat.sodium.impl.vertex_format.IrisChunkMeshAttributes;
+import net.irisshaders.iris.compat.sodium.impl.vertex_format.IrisChunkMeshAttributes;
 
 public class OculusSodiumInteractor {
     

@@ -85,7 +85,7 @@ minecraft {
 }
 
 dependencies {
-    implementation fg.deobf("curse.maven:oculus-581495:5108615")
+    implementation fg.deobf("curse.maven:oculus-581495:5299671")
     implementation fg.deobf("org.embeddedt:embeddium-1.20.1:0.3.9-git.f603a93+mc1.20.1")
     
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
