@@ -105,4 +105,9 @@ public class RubidiumChunkBufferUploader implements ChunkBufferUploader {
         return buffer;
     }
     
+    @Override
+    public boolean isSorted() {
+        return false;
+    }
+    
 }

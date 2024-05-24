@@ -40,4 +40,9 @@ public class BufferBuilderMixin implements ChunkBufferUploader {
     
     @Override
     public void addSprite(TextureAtlasSprite texture) {}
+    
+    @Override
+    public boolean isSorted() {
+        return false;
+    }
 }

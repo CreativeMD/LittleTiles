@@ -10,7 +10,7 @@ import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 
-public abstract class LittleRenderPipelineType {
+public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
     
     private static final List<LittleRenderPipelineType> TYPES = new ArrayList<>();
     public static final LittleRenderPipelineTypeForge FORGE = new LittleRenderPipelineTypeForge();
@@ -44,16 +44,16 @@ public abstract class LittleRenderPipelineType {
         chunk.endBuilding(task);
     }
     
-    public final Supplier<LittleRenderPipeline> factory;
+    public final Supplier<T> factory;
     public final int id;
     
-    protected LittleRenderPipelineType(Supplier<LittleRenderPipeline> factory) {
+    protected LittleRenderPipelineType(Supplier<T> factory) {
         this.factory = factory;
         id = TYPES.size();
         TYPES.add(this);
     }
     
-    public static class LittleRenderPipelineTypeForge extends LittleRenderPipelineType {
+    public static class LittleRenderPipelineTypeForge extends LittleRenderPipelineType<LittleRenderPipelineForge> {
         
         private LittleRenderPipelineTypeForge() {
             super(LittleRenderPipelineForge::new);

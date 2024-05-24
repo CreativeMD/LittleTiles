@@ -121,6 +121,13 @@ public class RenderingThread extends Thread {
         unload();
     }
     
+    public static <T extends LittleRenderPipeline> T getOrCreate(LittleRenderPipelineType<T> type) {
+        for (RenderingThread thread : THREADS)
+            if (thread.pipelines[type.id] != null)
+                return (T) thread.pipelines[type.id];
+        return THREADS.get(0).get(type);
+    }
+    
     static {
         initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
     }
@@ -137,8 +144,8 @@ public class RenderingThread extends Thread {
     private LittleRenderPipeline[] pipelines = new LittleRenderPipeline[LittleRenderPipelineType.typeCount()];
     private QuadGeneratorContext quadContext;
     
-    public LittleRenderPipeline get(LittleRenderPipelineType type) {
-        LittleRenderPipeline pipeline = pipelines[type.id];
+    public <T extends LittleRenderPipeline> T get(LittleRenderPipelineType<T> type) {
+        T pipeline = (T) pipelines[type.id];
         if (pipeline == null) {
             pipelines[type.id] = pipeline = type.factory.get();
             pipeline.reload();

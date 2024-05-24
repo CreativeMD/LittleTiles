@@ -18,4 +18,6 @@ public interface ChunkBufferUploader {
     
     public void addSprite(TextureAtlasSprite texture);
     
+    public boolean isSorted();
+    
 }

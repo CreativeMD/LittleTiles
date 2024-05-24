@@ -2,6 +2,7 @@ package team.creative.littletiles.mixin.rubidium;
 
 import java.nio.ByteBuffer;
 
+import org.embeddedt.embeddium.render.chunk.sorting.TranslucentQuadAnalyzer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
@@ -32,5 +33,8 @@ public interface ChunkMeshBufferBuilderAccessor {
     
     @Accessor(remap = false)
     public ChunkVertexEncoder getEncoder();
+    
+    @Accessor(remap = false)
+    public TranslucentQuadAnalyzer getAnalyzer();
     
 }

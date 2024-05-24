@@ -56,4 +56,9 @@ public interface ChunkModelBuilderMixin extends ChunkBufferUploader {
         ((ChunkModelBuilder) this).addSprite(texture);
     }
     
+    @Override
+    public default boolean isSorted() {
+        return !((BakedChunkModelBuilderAccessor) (ChunkModelBuilder) this).getSplitBySide();
+    }
+    
 }

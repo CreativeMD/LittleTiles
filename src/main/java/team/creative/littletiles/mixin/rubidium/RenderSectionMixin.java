@@ -309,7 +309,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             if (bufferChanged)
                 region.refresh(commandList);
             
-            storage.setMeshes(sectionIndex, upload.getResult(), uploader.ranges());
+            storage.setMeshes(sectionIndex, upload.getResult(), null, uploader.ranges());
             
             if (!active)
                 RenderDevice.exitManagedCode();

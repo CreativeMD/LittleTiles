@@ -75,4 +75,8 @@ public class RenderedBufferRubidium implements AutoCloseable, ChunkBufferUploade
         MemoryUtil.memFree(buffer);
     }
     
+    @Override
+    public boolean isSorted() {
+        return false;
+    }
 }

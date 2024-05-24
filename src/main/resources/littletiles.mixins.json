@@ -48,6 +48,7 @@
         "client.render.LightTextureAccessor",
         "client.render.GameRendererAccessor",
         "client.render.GameRendererMixin",
+        "rubidium.BakedChunkModelBuilderAccessor",
         "rubidium.BlockRenderContextAccessor",
         "rubidium.BlockRendererAccessor",
         "rubidium.BlockRendererMixin",
@@ -69,7 +70,7 @@
         "rubidium.SectionRenderDataStorageAccessor",
         "rubidium.SodiumWorldRendererAccessor",
         "rubidium.TerrainRenderPassAccessor",
-        "oculus.XHFPTerrainVertexMixin"
+        "rubidium.TranslucentQuadAnalyzerAccessor"
     ],
     "minVersion": "0.8"
 }

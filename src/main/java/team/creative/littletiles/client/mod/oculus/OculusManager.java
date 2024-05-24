@@ -4,8 +4,6 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.fml.ModList;
-import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.mixin.rubidium.ChunkMeshBufferBuilderAccessor;
 
 public class OculusManager {
     
@@ -38,11 +36,6 @@ public class OculusManager {
     public static void resetBlockContext(Object buffers) {
         if (isShaders())
             OculusInteractor.resetBlockContext((ChunkBuildBuffers) buffers);
-    }
-    
-    public static void setMid(Object vertexBuffer, Vec3d center) {
-        if (isShaders())
-            OculusInteractor.setMid((ChunkMeshBufferBuilderAccessor) vertexBuffer, center);
     }
     
     public static Object createVertexFormat(Object format) {

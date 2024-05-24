@@ -31,6 +31,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRende
 import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
+import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import me.jellysquid.mods.sodium.client.render.texture.SpriteUtil;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.minecraft.client.Minecraft;
@@ -55,11 +56,13 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.mod.oculus.OculusManager;
+import team.creative.littletiles.client.mod.rubidium.RubidiumInteractor;
 import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumBufferCache;
 import team.creative.littletiles.client.mod.rubidium.level.LittleWorldSlice;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
@@ -71,6 +74,7 @@ import team.creative.littletiles.mixin.rubidium.ChunkBuilderAccessor;
 import team.creative.littletiles.mixin.rubidium.ChunkMeshBufferBuilderAccessor;
 import team.creative.littletiles.mixin.rubidium.RenderSectionManagerAccessor;
 import team.creative.littletiles.mixin.rubidium.SodiumWorldRendererAccessor;
+import team.creative.littletiles.mixin.rubidium.TranslucentQuadAnalyzerAccessor;
 
 public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     
@@ -79,7 +83,12 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getY()), SectionPos.blockToSectionCoord(pos.getZ()));
     }
     
+    public static ChunkVertexType getType() {
+        return RenderingThread.getOrCreate(RubidiumInteractor.PIPELINE).type;
+    }
+    
     private ChunkBuildBuffers buildBuffers;
+    private ChunkVertexType type;
     private LittleWorldSlice slice = LittleWorldSlice.createEmptySlice();
     private BlockRenderer renderer;
     private LittleLightDataAccess lightAccess;
@@ -149,7 +158,6 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 context.update(pos, modelOffset, state, null, 0, ModelData.EMPTY, entry.key);
                 OculusManager.setLocalPos(buildBuffers, pos);
                 cubeCenter.set((cube.maxX + cube.minX) * 0.5, (cube.maxY + cube.minY) * 0.5, (cube.maxZ + cube.minZ) * 0.5);
-                //OculusManager.setMid(vertexBuffer, cubeCenter);
                 
                 ColorProvider<BlockState> colorizer = null;
                 
@@ -205,6 +213,8 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             BufferHolder[] holders = new BufferHolder[ModelQuadFacing.COUNT];
             int count = indexes[0].size() / 2;
             for (int i = 0; i < indexes.length; i++) {
+                if (material.pass.isSorted() && i != ModelQuadFacing.UNASSIGNED.ordinal())
+                    continue;
                 ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
                 if (v.getCount() > 0) {
                     ByteBuffer buffer = ByteBuffer.allocateDirect(v.getStride() * v.getCount());
@@ -214,6 +224,16 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                     threadBuffer.limit(threadBuffer.capacity());
                     holders[i] = new BufferHolder(buffer, buffer.limit(), v.getCount(), indexes[i].toIntArray());
                     indexes[i].clear();
+                    
+                    if (material.pass.isSorted()) {
+                        var centers = ((TranslucentQuadAnalyzerAccessor) v.getAnalyzer()).getQuadCenters();
+                        ByteBuffer centerBuffer = ByteBuffer.allocateDirect(centers.size() * 4);
+                        for (int j = 0; j < centers.size(); j++)
+                            centerBuffer.putFloat(centers.getFloat(j));
+                        centerBuffer.rewind();
+                        holders[0] = new BufferHolder(centerBuffer, 0, 0, null);
+                        centers.clear(); // Reset for next renderer
+                    }
                 }
             }
             
@@ -233,7 +253,8 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             return;
         }
         ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
-        buildBuffers = new ChunkBuildBuffers(((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType());
+        type = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType();
+        buildBuffers = new ChunkBuildBuffers(type);
         buildBuffers.init(null, 0);
         renderer = new BlockRenderer(new ColorProviderRegistry(Minecraft.getInstance()
                 .getBlockColors()), lighters = new LightPipelineProvider(lightAccess = new LittleLightDataAccess()));
@@ -243,4 +264,5 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     public void release() {
         buildBuffers.destroy();
     }
+    
 }

@@ -95,7 +95,8 @@ public class ChunkBuilderMeshingTaskMixin implements RebuildTaskExtender {
     
     @Override
     public BufferCache upload(RenderType layer, BufferCache cache) {
-        if (cache.upload((ChunkBufferUploader) buildContext.buffers.get(DefaultMaterials.forRenderLayer(layer)))) {
+        var mat = DefaultMaterials.forRenderLayer(layer);
+        if (cache.upload((ChunkBufferUploader) buildContext.buffers.get(mat))) {
             getOrCreateBuffers(layer).queueForUpload(cache);
             return cache;
         }
