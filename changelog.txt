@@ -1,3 +1,9 @@
+1.6.0-pre105
+Updated Embeddium & Oculus support
+Added support for translucentSorting from Embeddium
+Fixed random freeze which could occur if embeddium is installed (during chunk update)
+Fixed crash when curve has points longer or exactly as long as the duration is
+
 1.6.0-pre103
 Fixed not loading animations correctly on server side
 
