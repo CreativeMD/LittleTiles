@@ -7,6 +7,7 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.Redirect;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
@@ -19,6 +20,7 @@ import me.jellysquid.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import me.jellysquid.mods.sodium.client.util.task.CancellationToken;
 import me.jellysquid.mods.sodium.client.world.WorldSlice;
+import me.jellysquid.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -45,10 +47,15 @@ public class ChunkBuilderMeshingTaskMixin implements RebuildTaskExtender {
     @Unique
     public ChunkBuildContext buildContext;
     
+    @Inject(at = @At("TAIL"), remap = false, require = 1,
+            method = "<init>(Lme/jellysquid/mods/sodium/client/render/chunk/RenderSection;Lme/jellysquid/mods/sodium/client/world/cloned/ChunkRenderContext;I)V")
+    public void onCreated(RenderSection render, ChunkRenderContext renderContext, int time, CallbackInfo info) {
+        LittleRenderPipelineType.startCompile((RenderChunkExtender) render, this);
+    }
+    
     @Inject(at = @At("HEAD"), remap = false, require = 1,
             method = "execute(Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lme/jellysquid/mods/sodium/client/util/task/CancellationToken;)Lme/jellysquid/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;")
     public void performBuildStart(ChunkBuildContext buildContext, CancellationToken cancellationSource, CallbackInfoReturnable<ChunkBuildOutput> info) {
-        LittleRenderPipelineType.startCompile((RenderChunkExtender) render, this);
         this.buildContext = buildContext;
     }
     
