@@ -85,11 +85,8 @@ minecraft {
 }
 
 dependencies {
-    implementation fg.deobf("curse.maven:oculus-581495:5299671")
-    implementation fg.deobf("org.embeddedt:embeddium-1.20.1:0.3.19-git-fe6272a+mc1.20.1")
-    
-    runtimeOnly("io.github.llamalad7:mixinextras-common:0.3.5")
-    runtimeOnly("io.github.llamalad7:mixinextras-forge:0.3.5")
+    minecraftLibrary fg.deobf("curse.maven:oculus-581495:5299671")
+    implementation fg.deobf("org.embeddedt:embeddium-1.20.1:0.3.20-git-b21cfd8+mc1.20.1")
     
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
