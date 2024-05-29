@@ -40,7 +40,6 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
-import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
@@ -55,8 +54,6 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 public class LittleAnimationRenderManager extends LittleEntityRenderManager<LittleAnimationEntity> implements RenderChunkExtender {
     
     public static LittleEntityRenderManager of(LittleAnimationEntity entity) {
-        if (RubidiumManager.installed() && !(entity.level() instanceof FakeClientLevel))
-            return RubidiumManager.createRenderManager(entity);
         return new LittleAnimationRenderManager(entity);
     }
     

@@ -5,7 +5,7 @@ import java.nio.ByteOrder;
 
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
 
-import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
+import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.client.render.VertexFormatUtils;
 

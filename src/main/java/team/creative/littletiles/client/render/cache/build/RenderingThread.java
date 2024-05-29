@@ -7,6 +7,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 
 import javax.annotation.Nullable;
 
+import net.minecraftforge.fml.ModList;
 import org.apache.commons.lang3.ArrayUtils;
 
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
@@ -49,7 +50,8 @@ public class RenderingThread extends Thread {
     public static final HashMap<RenderChunkExtender, Integer> CHUNKS = new HashMap<>();
     public static final Minecraft MC = Minecraft.getInstance();
     private static final ConcurrentLinkedQueue<RenderingBlockContext> QUEUE = new ConcurrentLinkedQueue<>();
-    
+    private boolean hasSodium = ModList.get().isLoaded("embeddium") || ModList.get().isLoaded("sodium");
+
     public static synchronized void initThreads(int count) {
         if (count <= 0)
             throw new IllegalArgumentException("count has to be at least equal or greater than one");
@@ -230,7 +232,7 @@ public class RenderingThread extends Thread {
                         VertexFormat format = DefaultVertexFormat.BLOCK;
                         try {
                             posestack.setIdentity();
-                            get(data.chunk.getPipeline()).buildCache(posestack, buffers, data, format, bakedQuadWrapper);
+                            if (!hasSodium) get(data.chunk.getPipeline()).buildCache(posestack, buffers, data, format, bakedQuadWrapper);
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
                                 data.be.render.boxCache.clear();
