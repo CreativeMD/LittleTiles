@@ -1,3 +1,7 @@
+1.6.0-pre106
+Removed obsolete fixes for embeddium
+Fixed messing up alpha colors of other mods when using embeddium
+
 1.6.0-pre105
 Updated Embeddium & Oculus support
 Added support for translucentSorting from Embeddium
