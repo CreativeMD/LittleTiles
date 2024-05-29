@@ -26,13 +26,20 @@ import team.creative.littletiles.client.mod.sodium.BlockRenderingStateAccess;
 @Mixin(BlockRenderer.class)
 public abstract class AbstractBlockRendererAccessor extends AbstractBlockRenderContext implements BlockRenderingStateAccess {
 
-    @Shadow @Final private Vector3f posOffset;
+    @Shadow
+    @Final
+    private Vector3f posOffset;
 
-    @Shadow private @Nullable ColorProvider<BlockState> colorProvider;
+    @Shadow
+    private @Nullable ColorProvider<BlockState> colorProvider;
 
-    @Shadow @Final private ColorProviderRegistry colorProviderRegistry;
+    @Shadow
+    @Final
+    private ColorProviderRegistry colorProviderRegistry;
 
-    @Shadow @Final private int[] vertexColors;
+    @Shadow
+    @Final
+    private int[] vertexColors;
     @Unique
     private ColorProvider<FluidState> fluidProvider;
 
@@ -44,10 +51,10 @@ public abstract class AbstractBlockRendererAccessor extends AbstractBlockRenderC
         this.state = state;
         this.pos = pos;
         this.randomSeed = state.getSeed(pos);
-        this.posOffset.set((float)origin.getX(), (float)origin.getY(), (float)origin.getZ());
+        this.posOffset.set((float) origin.getX(), (float) origin.getY(), (float) origin.getZ());
         if (state.hasOffsetFunction()) {
             Vec3 modelOffset = state.getOffset(this.level, pos);
-            this.posOffset.add((float)modelOffset.x, (float)modelOffset.y, (float)modelOffset.z);
+            this.posOffset.add((float) modelOffset.x, (float) modelOffset.y, (float) modelOffset.z);
         }
 
         this.colorProvider = this.colorProviderRegistry.getColorProvider(state.getBlock());
@@ -71,13 +78,13 @@ public abstract class AbstractBlockRendererAccessor extends AbstractBlockRenderC
                 int[] vertexColors = this.vertexColors;
                 colorProvider.getColors(this.slice, this.pos, this.state.getFluidState(), quad, vertexColors);
 
-                for(int i = 0; i < 4; ++i) {
+                for (int i = 0; i < 4; ++i) {
                     quad.color(i, ColorHelper.multiplyColor(-16777216 | vertexColors[i], quad.color(i)));
                 }
-              }
+            }
         } else if (customTint != -1) {
             ci.cancel();
-            for(int i = 0; i < 4; ++i) {
+            for (int i = 0; i < 4; ++i) {
                 quad.color(i, customTint);
             }
         }

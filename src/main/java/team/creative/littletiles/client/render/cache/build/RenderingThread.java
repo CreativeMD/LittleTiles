@@ -232,7 +232,7 @@ public class RenderingThread extends Thread {
                         VertexFormat format = DefaultVertexFormat.BLOCK;
                         try {
                             posestack.setIdentity();
-                            if (!hasSodium) get(data.chunk.getPipeline()).buildCache(posestack, buffers, data, format, bakedQuadWrapper);
+                            get(data.chunk.getPipeline()).buildCache(posestack, buffers, data, format, bakedQuadWrapper);
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
                                 data.be.render.boxCache.clear();

@@ -3,17 +3,27 @@ package team.creative.littletiles.mixin.sodium;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildContext;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderTask;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
+import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
+import net.caffeinemc.mods.sodium.client.world.LevelSlice;
+import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.joml.Vector3dc;
 import org.spongepowered.asm.mixin.Final;
@@ -23,17 +33,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
-
-import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildContext;
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask;
-import net.caffeinemc.mods.sodium.client.util.task.CancellationToken;
-import net.caffeinemc.mods.sodium.client.world.LevelSlice;
-import net.caffeinemc.mods.sodium.client.world.cloned.ChunkRenderContext;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.client.render.box.QuadGeneratorContext;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -51,12 +50,23 @@ import team.creative.littletiles.common.block.entity.BETiles;
 @Mixin(ChunkBuilderMeshingTask.class)
 public abstract class ChunkBuilderMeshingTaskMixin extends ChunkBuilderTask implements RebuildTaskExtender {
 
-    @Shadow @Final private ChunkRenderContext renderContext;
+    private static final RenderMaterial STANDARD = RendererAccess.INSTANCE.getRenderer().materialFinder().find();
+    private static final RenderMaterial TRANSLUCENT = RendererAccess.INSTANCE.getRenderer().materialFinder().blendMode(BlendMode.TRANSLUCENT).find();
     @Unique
     public ChunkLayerMap<BufferCollection> caches;
-    
     @Unique
     public ChunkBuildContext buildContext;
+    @Unique
+    SingletonList<BakedQuad> bakedQuadWrapper = new SingletonList<>(null);
+    @Unique
+    BlockPos.MutableBlockPos modelOffset = new BlockPos.MutableBlockPos();
+    @Unique
+    BlockPos.MutableBlockPos modelOffset2 = new BlockPos.MutableBlockPos();
+    @Unique
+    RandomSource rand = RandomSource.create();
+    @Shadow
+    @Final
+    private ChunkRenderContext renderContext;
 
     public ChunkBuilderMeshingTaskMixin(RenderSection render, int time, Vector3dc absoluteCameraPos) {
         super(render, time, absoluteCameraPos);
@@ -68,24 +78,11 @@ public abstract class ChunkBuilderMeshingTaskMixin extends ChunkBuilderTask impl
         this.buildContext = buildContext;
     }
 
-    @Unique
-    SingletonList<BakedQuad> bakedQuadWrapper = new SingletonList<>(null);
-
-    @Unique
-    BlockPos.MutableBlockPos modelOffset = new BlockPos.MutableBlockPos();
-    @Unique
-    BlockPos.MutableBlockPos modelOffset2 = new BlockPos.MutableBlockPos();
-
-    @Unique
-    RandomSource rand = RandomSource.create();
-
-    private static RenderMaterial STANDARD = RendererAccess.INSTANCE.getRenderer().materialFinder().find();
-    private static RenderMaterial TRANSLUCENT = RendererAccess.INSTANCE.getRenderer().materialFinder().blendMode(BlendMode.TRANSLUCENT).find();
     @WrapOperation(
             method = "execute(Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lnet/caffeinemc/mods/sodium/client/util/task/CancellationToken;)Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
             remap = false, require = 1, at = @At(value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/world/LevelSlice;getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;",
-                    remap = true))
+            target = "Lnet/caffeinemc/mods/sodium/client/world/LevelSlice;getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;",
+            remap = true))
     public BlockEntity getBlockEntity(LevelSlice instance, BlockPos pos, Operation<BlockEntity> original, @Local LevelSlice slice, @Local BlockState blockState, @Local TranslucentGeometryCollector collector, @Local BlockRenderer blockRenderer) {
         BlockEntity entity = original.call(instance, pos);
         ((BlockRenderingStateAccess) blockRenderer).setCustomTint(0xFFFFFFFF);
