@@ -24,6 +24,7 @@ import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
+import team.creative.littletiles.mixin.common.block.BlockMixin;
 import team.creative.littletiles.mixin.common.block.StateHolderAccessor;
 
 public class LittleBlockRegistry {
@@ -35,7 +36,6 @@ public class LittleBlockRegistry {
     private static final PairList<Filter<Block>, Function<Block, LittleBlock>> BLOCK_HANDLERS = new PairList<>();
     private static final Function<Block, LittleBlock> FALLBACK = x -> new LittleMCBlock(x);
     private static final List<Function<String, LittleBlock>> SPECIAL_HANDLERS = new ArrayList<>();
-    private static final Object2BooleanMap<Block> HAS_HANDLER_CACHE = new Object2BooleanArrayMap<>();
     
     public static LittleBlock getMissing(String name) {
         LittleBlock little = NAME_MAP.get(name);
@@ -52,17 +52,11 @@ public class LittleBlockRegistry {
     }
     
     public static LittleBlock get(Block block) {
-        LittleBlock little = BLOCK_MAP.get(block);
-        if (little != null)
-            return little;
-        return create(null, block);
+        return ((LittleBlockProvider) block).getLittleBlock();
     }
     
-    public static LittleBlock get(BlockState block) {
-        LittleBlock little = BLOCK_MAP.get(block.getBlock());
-        if (little != null)
-            return little;
-        return create(null, block.getBlock());
+    public static LittleBlock get(BlockState state) {
+        return ((LittleBlockProvider) state.getBlock()).getLittleBlock();
     }
     
     public static String saveState(BlockState state) {
@@ -129,23 +123,14 @@ public class LittleBlockRegistry {
         return state.setValue((Property<T>) prop, (V) value);
     }
     
-    public static boolean hasHandler(Block block) {
-        synchronized (HAS_HANDLER_CACHE) {
-            return HAS_HANDLER_CACHE.computeIfAbsent(block, x -> {
-                if (block instanceof LittleBlock)
-                    return true;
-                for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : BLOCK_HANDLERS)
-                    if (pair.key.is(block))
-                        return true;
-                return false;
-            });
-        }
+    public static boolean isSpecialBlock(Block block) {
+        return ((LittleBlockProvider) block).isSpecialBlock();
     }
     
     private static LittleBlock create(String name, Block block) {
-        if (block instanceof LittleBlock) {
-            NAME_MAP.put(name, (LittleBlock) block);
-            return (LittleBlock) block;
+        if (block instanceof LittleBlock b) {
+            NAME_MAP.put(name, b);
+            return b;
         }
         if (block == null) {
             for (Function<String, LittleBlock> special : SPECIAL_HANDLERS) {
@@ -162,17 +147,20 @@ public class LittleBlockRegistry {
         
         if (name == null)
             name = block.builtInRegistryHolder().key().location().toString();
+        LittleBlock little = ((LittleBlockProvider) block).getLittleBlock();
+        NAME_MAP.put(name, little);
+        return little;
+    }
+    
+    /** Do not call this method. Should only be used by {@link BlockMixin} **/
+    @Deprecated
+    public static void calculateCache(Block block) {
         for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : BLOCK_HANDLERS)
             if (pair.key.is(block)) {
-                LittleBlock little = pair.value.apply(block);
-                BLOCK_MAP.put(block, little);
-                NAME_MAP.put(name, little);
-                return little;
+                ((LittleBlockProvider) block).setCache(pair.value.apply(block), true);
+                return;
             }
-        LittleBlock little = FALLBACK.apply(block);
-        NAME_MAP.put(name, little);
-        BLOCK_MAP.put(block, little);
-        return little;
+        ((LittleBlockProvider) block).setCache(FALLBACK.apply(block), false);
     }
     
     public static void register(Filter<Block> filter, Function<Block, LittleBlock> function) {

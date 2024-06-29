@@ -462,7 +462,7 @@ public abstract class LittleAction<T> extends CreativePacket {
     private static boolean isBlockValid(Block block) {
         if (block instanceof EntityBlock || block instanceof SlabBlock)
             return false;
-        if (LittleBlockRegistry.hasHandler(block))
+        if (LittleBlockRegistry.isSpecialBlock(block))
             return true;
         return block instanceof TransparentBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock || block instanceof LeavesBlock;
     }

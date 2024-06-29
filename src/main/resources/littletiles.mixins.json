@@ -4,6 +4,7 @@
     "compatibilityLevel": "JAVA_21",
     "refmap": "littletiles.mixins.refmap.json",
     "mixins": [
+        "common.block.BlockMixin",
         "common.block.StateHolderAccessor",
         "common.collision.BlockCollisionsMixin",
         "common.collision.CommonHooksMixin",
