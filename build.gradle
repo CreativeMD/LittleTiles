@@ -18,6 +18,9 @@ repositories {
     maven {
         url "https://maven.blamejared.com"
     }
+    flatDir {
+        dirs 'lib'
+    }
 }
 
 group= "team.creative" + project.mod_id
@@ -45,7 +48,7 @@ minecraft {
         client {
             taskName "littletiles_client"
             workingDirectory project.file('run')
-            
+
 			property 'forge.logging.console.level', 'debug'
 			arg '--mixin.config'
 			arg 'creativecore.mixins.json'
@@ -85,9 +88,19 @@ minecraft {
 }
 
 dependencies {
+    implementation fg.deobf("net.caffeinemc:sodium:0.6.0")
+    implementation fg.deobf("net.fabricmc:fabric_api_base:0.6.0")
+    implementation fg.deobf("net.fabricmc:fabric_block_view_api_v2:0.6.0")
+    implementation fg.deobf("net.fabricmc:fabric_renderer_api_v1:0.6.0")
+    implementation fg.deobf("net.fabricmc:fabric_rendering_data_attachment_v1:0.6.0")
+    minecraftLibrary("com.lodborg:interval-tree:1.0.0")
+
     minecraftLibrary fg.deobf("curse.maven:oculus-581495:5299671")
-    implementation fg.deobf("org.embeddedt:embeddium-1.20.1:0.3.20-git-b21cfd8+mc1.20.1")
-    
+    compileOnly fg.deobf("org.embeddedt:embeddium-1.20.1:0.3.20-git-b21cfd8+mc1.20.1")
+
+    runtimeOnly("io.github.llamalad7:mixinextras-common:0.3.6")
+    runtimeOnly("io.github.llamalad7:mixinextras-forge:0.3.6")
+
     minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
     
     implementation project(':CreativeCore')

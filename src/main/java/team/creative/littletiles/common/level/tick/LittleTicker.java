@@ -105,7 +105,7 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     
     public void tick() {
         synchronized (this) {
-            while (next != null && next.tickTime <= tick) {
+            while (next != null && next.get() != null && next.tickTime <= tick) {
                 next.run();
                 if (next == last)
                     last = null;

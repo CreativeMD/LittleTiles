@@ -34,7 +34,7 @@ public class MinecraftMixin {
         return (Minecraft) (Object) this;
     }
     
-    @Inject(method = "continueAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getType()Lnet/minecraft/world/phys/HitResult$Type;"), require = 1,
+    @Inject(method = "continueAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getType()Lnet/minecraft/world/phys/HitResult$Type;"), require = 0,
             cancellable = true)
     private void continueAttack(boolean holding, CallbackInfo info) {
         Minecraft mc = asMinecraft();
@@ -61,12 +61,12 @@ public class MinecraftMixin {
         }
     }
     
-    @Inject(method = "continueAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;stopDestroyBlock()V"), require = 1)
+    @Inject(method = "continueAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;stopDestroyBlock()V"), require = 0)
     private void continueAttackStop(CallbackInfo info) {
         LittleTilesClient.INTERACTION_HANDLER.stopDestroyBlock();
     }
     
-    @Inject(method = "startAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getType()Lnet/minecraft/world/phys/HitResult$Type;"), require = 1,
+    @Inject(method = "startAttack", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getType()Lnet/minecraft/world/phys/HitResult$Type;"), require = 0,
             cancellable = true)
     private void startAttack(CallbackInfoReturnable<Boolean> info) {
         Minecraft mc = asMinecraft();
@@ -86,12 +86,12 @@ public class MinecraftMixin {
         }
     }
     
-    @Redirect(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;isDestroying()Z"), require = 1)
+    @Redirect(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;isDestroying()Z"), require = 0)
     private boolean isDestroying(MultiPlayerGameMode mode) {
         return mode.isDestroying() || LittleTilesClient.INTERACTION_HANDLER.isDestroying();
     }
     
-    @Inject(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getType()Lnet/minecraft/world/phys/HitResult$Type;"), require = 1,
+    @Inject(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getType()Lnet/minecraft/world/phys/HitResult$Type;"), require = 0,
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
     private void startUseItem(CallbackInfo info, InteractionHand[] hands, int delay, int type, InteractionHand interactionhand, InteractionKeyMappingTriggered inputEvent, ItemStack itemstack) {
         Minecraft mc = asMinecraft();

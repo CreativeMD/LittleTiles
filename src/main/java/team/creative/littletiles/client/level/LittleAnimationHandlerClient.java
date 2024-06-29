@@ -12,6 +12,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 
 import javax.annotation.Nullable;
 
+import net.minecraftforge.fml.ModList;
 import org.joml.Matrix4f;
 
 import com.google.common.collect.Lists;
@@ -62,7 +63,6 @@ import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.entity.LevelTransitionListener;
-import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.common.block.mc.BlockTile;
@@ -351,9 +351,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     @SubscribeEvent
     public void renderChunkLayer(RenderLevelStageEvent event) {
-        if (RubidiumManager.installed())
-            return;
-        
         RenderType layer = null;
         
         if (event.getStage() == Stage.AFTER_SOLID_BLOCKS)
@@ -369,12 +366,13 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         if (layer == null)
             return;
-        
+
         PoseStack pose = event.getPoseStack();
         Matrix4f projectionMatrix = event.getProjectionMatrix();
-        
+        layer.setupRenderState();
+
         ShaderInstance shaderinstance = RenderSystem.getShader();
-        
+
         for (int i = 0; i < 12; ++i) {
             int j1 = RenderSystem.getShaderTexture(i);
             shaderinstance.setSampler("Sampler" + i, j1);
@@ -425,7 +423,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             animation.getRenderManager().renderChunkLayer(layer, pose, cam.x, cam.y, cam.z, projectionMatrix, offset);
             pose.popPose();
         }
-        
+        layer.clearRenderState();
+
         shaderinstance.clear();
     }
     

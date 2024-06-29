@@ -56,8 +56,6 @@ import team.creative.littletiles.client.action.interact.LittleInteractionHandler
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.level.LittleVanillaInteractionHandlerClient;
-import team.creative.littletiles.client.mod.oculus.OculusManager;
-import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.player.LittleClientPlayerConnection;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
@@ -237,9 +235,6 @@ public class LittleTilesClient {
         ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.get(), filled, function);
         ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.get(), filled, function);
         ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.get(), filled, function);
-        
-        RubidiumManager.init();
-        OculusManager.init();
     }
     
     public static void modelLoader(RegisterAdditional event) {
