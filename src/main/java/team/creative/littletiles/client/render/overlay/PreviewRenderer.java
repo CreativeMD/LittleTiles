@@ -73,6 +73,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     private boolean lastLowResolution;
     private CompoundTag lastCached;
     private PlacementPreview lastPreviews;
+    private PlacementMode lastMode;
     private IMarkMode marked;
     
     public PreviewRenderer() {
@@ -95,7 +96,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         
         var tag = ILittleTool.getData(stack);
         
-        PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(tag) ? lastPreviews.copy() : null;
+        PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(tag) && lastMode == mode ? lastPreviews.copy() : null;
         if (preview != null)
             try {
                 preview.moveRelative(entity, stack, position, centered, fixed);
@@ -110,10 +111,12 @@ public class PreviewRenderer implements LevelAwareHandler {
             if (tag.isEmpty()) {
                 lastCached = null;
                 lastPreviews = null;
+                lastMode = null;
             } else {
                 lastLowResolution = allowLowResolution;
                 lastCached = tag.copy();
                 lastPreviews = preview.copy();
+                lastMode = mode;
             }
         return preview;
     }
@@ -126,6 +129,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         lastCached = null;
         lastPreviews = null;
         lastLowResolution = false;
+        lastMode = null;
     }
     
     public boolean isCentered(ItemStack stack, ILittlePlacer iTile) {
