@@ -10,6 +10,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.math.Maths;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.api.common.tool.ILittleTool;
@@ -173,13 +174,13 @@ public class PlacementHelper {
             switch (side) {
                 case EAST:
                 case WEST:
-                    return (int) hitVec.x != hitVec.x;
+                    return !Maths.equals((int) hitVec.x, hitVec.x);
                 case UP:
                 case DOWN:
-                    return (int) hitVec.y != hitVec.y;
+                    return !Maths.equals((int) hitVec.y, hitVec.y);
                 case SOUTH:
                 case NORTH:
-                    return (int) hitVec.z != hitVec.z;
+                    return !Maths.equals((int) hitVec.z, hitVec.z);
                 default:
                     return false;
             }
