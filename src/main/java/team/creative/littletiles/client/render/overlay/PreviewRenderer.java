@@ -72,6 +72,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     private boolean lastLowResolution;
     private CompoundTag lastCached;
     private PlacementPreview lastPreviews;
+    private PlacementMode lastMode;
     private IMarkMode marked;
     
     public PreviewRenderer() {
@@ -92,8 +93,10 @@ public class PreviewRenderer implements LevelAwareHandler {
     public PlacementPreview getPreviews(Entity entity, Level level, ItemStack stack, PlacementPosition position, boolean centered, boolean fixed, boolean allowLowResolution) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         
-        PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack.getTag()) ? lastPreviews
-                .copy() : null;
+        PlacementMode mode = iTile.getPlacementMode(stack);
+        
+        PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(stack
+                .getTag()) && lastMode == mode ? lastPreviews.copy() : null;
         if (preview != null)
             try {
                 preview.moveRelative(entity, stack, position, centered, fixed);
@@ -108,10 +111,12 @@ public class PreviewRenderer implements LevelAwareHandler {
             if (stack.getTag() == null) {
                 lastCached = null;
                 lastPreviews = null;
+                lastMode = null;
             } else {
                 lastLowResolution = allowLowResolution;
                 lastCached = stack.getTag().copy();
                 lastPreviews = preview.copy();
+                lastMode = mode;
             }
         return preview;
     }
@@ -124,6 +129,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         lastCached = null;
         lastPreviews = null;
         lastLowResolution = false;
+        lastMode = null;
     }
     
     public boolean isCentered(ItemStack stack, ILittlePlacer iTile) {
