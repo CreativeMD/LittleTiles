@@ -88,7 +88,7 @@ public class LittleTilesConfig {
         
         @Override
         public String getLocalizedMessage() {
-            return LanguageUtils.translate(getMessage(), config.editBlockLimit);
+            return LanguageUtils.translate(getMessage(), config.editBlockLimit.value);
         }
         
     }
@@ -104,7 +104,7 @@ public class LittleTilesConfig {
         
         @Override
         public String getLocalizedMessage() {
-            return LanguageUtils.translate(getMessage(), config.placeBlockLimit);
+            return LanguageUtils.translate(getMessage(), config.placeBlockLimit.value);
         }
         
     }
