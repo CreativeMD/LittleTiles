@@ -1,3 +1,6 @@
+1.6.0-pre109
+Fixed crash when special sorting from embeddium is enabled (this time for real)
+
 1.6.0-pre108
 Added cache to Block for LittleBlock equivalent to improve performance
 Fixed crash when special sorting from embeddium is enabled
