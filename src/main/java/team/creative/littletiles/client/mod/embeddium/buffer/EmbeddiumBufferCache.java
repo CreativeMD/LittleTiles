@@ -141,11 +141,11 @@ public class EmbeddiumBufferCache implements BufferCache {
                 ChunkMeshBufferBuilderAccessor builder = (ChunkMeshBufferBuilderAccessor) ((ChunkModelBuilder) uploader).getVertexBuffer(ModelQuadFacing.UNASSIGNED);
                 var centers = ((TranslucentQuadAnalyzerAccessor) builder.getAnalyzer()).getQuadCenters();
                 int index = ModelQuadFacing.UNASSIGNED.ordinal();
-                if (buffers[index] == null)
+                if (buffers[index] == null || buffers[index].byteBuffer() == null)
                     return false;
                 
                 ByteBuffer buffer = buffers[0] != null ? buffers[0].byteBuffer() : null;
-                if (buffer == null || buffers[index].byteBuffer() == null) { // Recalculate centers
+                if (buffer == null) { // Recalculate centers
                     ChunkVertexType type = LittleRenderPipelineEmbeddium.getType();
                     ByteBuffer renderData = buffers[index].byteBuffer();
                     var positionAttribute = type.getVertexFormat().getAttribute(ChunkMeshAttribute.POSITION_MATERIAL_MESH);
