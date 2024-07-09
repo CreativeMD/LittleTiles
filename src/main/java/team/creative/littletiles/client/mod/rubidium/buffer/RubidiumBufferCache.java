@@ -144,7 +144,7 @@ public class RubidiumBufferCache implements BufferCache {
                     return false;
                 
                 ByteBuffer buffer = buffers[0] != null ? buffers[0].byteBuffer() : null;
-                if (buffer == null) { // Recalculate centers
+                if (buffer == null || buffers[index].byteBuffer() == null) { // Recalculate centers
                     ChunkVertexType type = LittleRenderPipelineRubidium.getType();
                     ByteBuffer renderData = buffers[index].byteBuffer();
                     var positionAttribute = type.getVertexFormat().getAttribute(ChunkMeshAttribute.POSITION_MATERIAL_MESH);
