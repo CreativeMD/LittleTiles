@@ -164,6 +164,13 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     @Override
+    public void configured(ItemStack stack, CompoundTag nbt) {
+        ILittleEditor.super.configured(stack, nbt);
+        if (selection != null)
+            selection.deleteCache();
+    }
+    
+    @Override
     @OnlyIn(Dist.CLIENT)
     public IMarkMode onMark(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result, PlacementPreview previews) {
         if (selection != null)
