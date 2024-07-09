@@ -1,3 +1,12 @@
+1.6.0-pre108
+Added cache to Block for LittleBlock equivalent to improve performance
+Fixed crash when special sorting from embeddium is enabled
+Revert "Fixed random freeze which could occur if embeddium is installed (during chunk update)"
+Fixed hammer and chisel not updating shape size properly when changing grid
+Fixed placement being weird when switching placement mode
+Fixed place position sometimes being incorrectly calculated when using transformable boxes
+Fixed error message for edit and placing blocks limit not displaying amount correctly
+
 1.6.0-pre106
 Removed obsolete fixes for embeddium
 Fixed messing up alpha colors of other mods when using embeddium
