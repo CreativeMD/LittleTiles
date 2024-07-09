@@ -174,13 +174,13 @@ public class PlacementHelper {
             switch (side) {
                 case EAST:
                 case WEST:
-                    return !Maths.equals((int) hitVec.x, hitVec.x);
+                    return !Maths.equals((int) Maths.round(hitVec.x), hitVec.x);
                 case UP:
                 case DOWN:
-                    return !Maths.equals((int) hitVec.y, hitVec.y);
+                    return !Maths.equals((int) Maths.round(hitVec.y), hitVec.y);
                 case SOUTH:
                 case NORTH:
-                    return !Maths.equals((int) hitVec.z, hitVec.z);
+                    return !Maths.equals((int) Maths.round(hitVec.z), hitVec.z);
                 default:
                     return false;
             }
