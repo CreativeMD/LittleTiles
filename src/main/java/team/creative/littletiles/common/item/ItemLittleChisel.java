@@ -182,6 +182,13 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
+    public void configured(ItemStack stack, CompoundTag nbt) {
+        ILittlePlacer.super.configured(stack, nbt);
+        if (selection != null)
+            selection.deleteCache();
+    }
+    
+    @Override
     public void onDeselect(Level level, ItemStack stack, Player player) {
         selection = null;
     }
