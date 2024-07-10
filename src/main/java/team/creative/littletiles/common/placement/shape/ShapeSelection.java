@@ -79,7 +79,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         return stack.getOrCreateTag();
     }
     
-    protected boolean requiresCacheUpdate() {
+    protected boolean requiresCacheUpdate(LittleGrid grid) {
         if (cache == null)
             return true;
         
@@ -111,8 +111,8 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         return overallBox.copy();
     }
     
-    protected ShapeSelectCache getCache() {
-        if (requiresCacheUpdate()) {
+    protected ShapeSelectCache getCache(LittleGrid grid) {
+        if (requiresCacheUpdate(grid)) {
             LittleBox[] pointBoxes = new LittleBox[countPositions()];
             List<ShapeSelectPos> positions = new ArrayList<>(pointBoxes.length);
             int i = 0;
@@ -122,6 +122,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
                 i++;
             }
             
+            this.grid = grid;
             overallBox = new LittleBox(pointBoxes);
             cache = new ShapeSelectCache(grid, positions);
         }
@@ -137,10 +138,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         return grid;
     }
     
-    public LittleBoxes getBoxes(boolean allowLowResolution) {
+    public LittleBoxes getBoxes(boolean allowLowResolution, LittleGrid currentGrid) {
         if (this.allowLowResolution && allowLowResolution)
-            return getCache().get(true);
-        return getCache().get(false);
+            return getCache(currentGrid).get(true);
+        return getCache(currentGrid).get(false);
     }
     
     public void deleteCache() {

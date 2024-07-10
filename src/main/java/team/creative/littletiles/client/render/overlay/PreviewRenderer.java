@@ -105,7 +105,7 @@ public class PreviewRenderer implements LevelAwareHandler {
             }
         
         if (preview == null && iTile != null)
-            preview = iTile.getPlacement(level, stack, position, allowLowResolution);
+            preview = iTile.getPlacement((Player) entity, level, stack, position, allowLowResolution);
         
         if (preview != null)
             if (stack.getTag() == null) {

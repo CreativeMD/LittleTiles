@@ -132,9 +132,9 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
-    public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
+    public PlacementPreview getPlacement(Player player, Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
         if (selection != null) {
-            LittleBoxes boxes = selection.getBoxes(allowLowResolution);
+            LittleBoxes boxes = selection.getBoxes(allowLowResolution, getPositionGrid(player, stack));
             LittleGroupAbsolute previews = new LittleGroupAbsolute(boxes.pos);
             previews.add(boxes.grid, getElement(stack), boxes);
             return PlacementPreview.absolute(level, stack, previews, selection.getFirst().pos.facing);
@@ -179,13 +179,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @OnlyIn(Dist.CLIENT)
     public boolean shouldCache() {
         return false;
-    }
-    
-    @Override
-    public void configured(ItemStack stack, CompoundTag nbt) {
-        ILittlePlacer.super.configured(stack, nbt);
-        if (selection != null)
-            selection.deleteCache();
     }
     
     @Override

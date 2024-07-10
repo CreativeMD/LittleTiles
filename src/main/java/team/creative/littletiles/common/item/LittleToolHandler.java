@@ -131,7 +131,7 @@ public class LittleToolHandler {
         PlacementPosition position = LittleTilesClient.PREVIEW_RENDERER.getPosition(player, level, stack, (BlockHitResult) result);
         if (iTile.onRightClick(level, player, stack, position.copy(), (BlockHitResult) result) && iTile instanceof ILittlePlacer placer && placer.hasTiles(stack)) {
             if (LittleTilesClient.INTERACTION.start(true)) {
-                PlacementPreview preview = placer.getPlacement(level, stack, position, false);
+                PlacementPreview preview = placer.getPlacement(player, level, stack, position, false);
                 if (preview == null)
                     return true;
                 LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.CURRENT_ITEM, preview));

@@ -88,7 +88,7 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
         if (selection == null)
             selection = new ShapeSelection(stack, true);
         selection.setLast(player, stack, pos, result);
-        return selection.getBoxes(true);
+        return selection.getBoxes(true, getPositionGrid(player, stack));
     }
     
     @Override
@@ -100,9 +100,9 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
         } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (isFiltered())
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxesFiltered(level, selection.getBoxes(false), getFilter()));
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxesFiltered(level, selection.getBoxes(false, getPositionGrid(player, stack)), getFilter()));
                 else
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxes(level, selection.getBoxes(false)));
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionDestroyBoxes(level, selection.getBoxes(false, getPositionGrid(player, stack))));
                 selection = null;
                 LittleTilesClient.PREVIEW_RENDERER.removeMarked();
             }
@@ -161,13 +161,6 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
             selection.mirror(player, stack, axis);
         else
             new ShapeSelection(stack, false).mirror(player, stack, axis);
-    }
-    
-    @Override
-    public void configured(ItemStack stack, CompoundTag nbt) {
-        ILittleEditor.super.configured(stack, nbt);
-        if (selection != null)
-            selection.deleteCache();
     }
     
     @Override

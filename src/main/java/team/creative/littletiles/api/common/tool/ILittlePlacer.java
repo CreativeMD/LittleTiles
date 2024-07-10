@@ -35,7 +35,7 @@ public interface ILittlePlacer extends ILittleTool {
         return getTiles(stack);
     }
     
-    public PlacementPreview getPlacement(Level level, ItemStack stack, PlacementPosition position, boolean low);
+    public PlacementPreview getPlacement(Player player, Level level, ItemStack stack, PlacementPosition position, boolean low);
     
     public void saveTiles(ItemStack stack, LittleGroup group);
     
