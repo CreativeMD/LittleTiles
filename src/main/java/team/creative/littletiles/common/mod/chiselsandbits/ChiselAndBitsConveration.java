@@ -7,6 +7,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.TickEvent.LevelTickEvent;
 import net.minecraftforge.event.TickEvent.Phase;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
@@ -24,7 +25,7 @@ public class ChiselAndBitsConveration {
             int progress = 0;
             int size = blockEntities.size();
             if (!blockEntities.isEmpty())
-                System.out.println("Attempting to convert " + size + " blocks ...");
+                LittleTiles.LOGGER.info("Attempting to convert " + size + " blocks ...");
             while (!blockEntities.isEmpty()) {
                 BlockEntity be = blockEntities.poll();
                 LittleGroup tiles = ChiselsAndBitsManager.getGroup(be);
@@ -39,10 +40,10 @@ public class ChiselAndBitsConveration {
                 }
                 progress++;
                 if (progress % 100 == 0)
-                    System.out.println("Converted " + progress + "/" + size + " blocks ...");
+                    LittleTiles.LOGGER.info("Converted " + progress + "/" + size + " blocks ...");
             }
             if (size > 0)
-                System.out.println("Converted " + size + " blocks ...");
+                LittleTiles.LOGGER.info("Converted " + size + " blocks ...");
         }
     }
     

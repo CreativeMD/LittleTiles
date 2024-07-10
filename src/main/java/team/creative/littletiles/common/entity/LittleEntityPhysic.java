@@ -317,7 +317,6 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
                 
                 Vec3d rotatedVec = new Vec3d(pushVec);
                 coordinator.moved().rotation().transform(rotatedVec);
-                System.out.println(parent.level().isClientSide + " " + rotatedVec + " " + scale);
                 
                 double moveX = entityBB.minX - originalBox.minX + rotatedVec.x * scale;
                 double moveY = entityBB.minY - originalBox.minY + rotatedVec.y * scale;

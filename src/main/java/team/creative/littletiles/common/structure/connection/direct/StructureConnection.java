@@ -7,6 +7,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.chunk.LevelChunk;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
@@ -114,7 +115,7 @@ public class StructureConnection implements IStructureConnection {
             try {
                 getStructure();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                System.out.println("Invalid attribute returned");
+                LittleTiles.LOGGER.error("Invalid attribute returned");
                 e.printStackTrace();
             }
         return attribute;

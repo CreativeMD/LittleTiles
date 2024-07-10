@@ -86,7 +86,7 @@ public class RenderingThread extends Thread {
             chunk = be.render.getRenderChunk();
         
         if (chunk == null) {
-            System.out.println("Invalid tileentity with no rendering chunk! pos: " + be.getBlockPos() + ", level: " + be.getLevel());
+            LittleTiles.LOGGER.error("Invalid tileentity with no rendering chunk! pos: " + be.getBlockPos() + ", level: " + be.getLevel());
             return false;
         }
         
