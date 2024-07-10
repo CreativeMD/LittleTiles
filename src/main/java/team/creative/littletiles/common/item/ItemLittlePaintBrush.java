@@ -116,7 +116,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
         if (selection == null)
             selection = new ShapeSelection(stack, true);
         selection.setLast(player, stack, pos, result);
-        return selection.getBoxes(true);
+        return selection.getBoxes(true, getPositionGrid(player, stack));
     }
     
     @Override
@@ -128,10 +128,10 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
         } else if (selection != null)
             if (selection.addAndCheckIfPlace(player, position, result)) {
                 if (ItemLittleHammer.isFiltered())
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxesFiltered(level, selection.getBoxes(false), getColor(stack), false, ItemLittleHammer
-                            .getFilter()));
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxesFiltered(level, selection.getBoxes(false, getPositionGrid(player, stack)), getColor(
+                        stack), false, ItemLittleHammer.getFilter()));
                 else
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxes(level, selection.getBoxes(false), getColor(stack), false));
+                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxes(level, selection.getBoxes(false, getPositionGrid(player, stack)), getColor(stack), false));
                 selection = null;
                 LittleTilesClient.PREVIEW_RENDERER.removeMarked();
             }
