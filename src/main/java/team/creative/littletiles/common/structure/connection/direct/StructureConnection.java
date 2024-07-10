@@ -115,7 +115,7 @@ public class StructureConnection implements IStructureConnection {
             try {
                 getStructure();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                LittleTiles.LOGGER.warn("Invalid attribute returned");
+                LittleTiles.LOGGER.error("Invalid attribute returned");
                 e.printStackTrace();
             }
         return attribute;
