@@ -38,6 +38,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.mod.rubidium.RubidiumInteractor;
 import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumChunkBufferDownloader;
 import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumChunkBufferUploader;
@@ -274,6 +275,12 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             ByteBuffer vanillaBuffer = null;
             if (segment != null)
                 vanillaBuffer = downloadSegment(segment, format);
+            
+            if (segment == null) {
+                if (layer != RenderType.translucent()) // With special sorting enabled the data cannot be retrieved
+                    LittleTiles.LOGGER.error("Failed to download chunk data. chunk: {}, layer: {}", this, layer);
+                continue;
+            }
             
             int[] extraLengthFacing = new int[ModelQuadFacing.COUNT];
             for (LayeredBufferCache layeredCache : blocks)
