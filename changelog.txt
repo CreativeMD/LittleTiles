@@ -1,3 +1,9 @@
+1.6.0-pre110
+Removed unnecessary logs
+Fixed error when trying to download translucent data when embeddium is installed (+ special translucent sorting)
+Fixed crash when attempting to upload chunk with translucent data with embeddium installed
+Fixed hammer, chisel and paint brush issues when changing the grid
+
 1.6.0-pre109
 Fixed crash when special sorting from embeddium is enabled (this time for real)
 
