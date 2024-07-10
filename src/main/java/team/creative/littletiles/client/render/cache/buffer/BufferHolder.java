@@ -60,6 +60,8 @@ public class BufferHolder implements BufferCache {
     
     @Override
     public boolean upload(ChunkBufferUploader uploader) {
+        if (!isAvailable())
+            return false;
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return false;
@@ -70,6 +72,8 @@ public class BufferHolder implements BufferCache {
     }
     
     public boolean upload(int facing, ChunkBufferUploader uploader) {
+        if (!isAvailable())
+            return false;
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return false;
@@ -133,7 +137,7 @@ public class BufferHolder implements BufferCache {
     
     @Override
     public boolean isAvailable() {
-        return buffer != null;
+        return buffer != null && length > 0;
     }
     
     @Override
