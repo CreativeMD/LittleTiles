@@ -245,6 +245,12 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             if (segment != null)
                 vanillaBuffer = downloadSegment(segment, format);
             
+            if (segment == null) {
+                if (layer != RenderType.translucent()) // With special sorting enabled the data cannot be retrieved
+                    LittleTiles.LOGGER.error("Failed to download chunk data. chunk: {}, layer: {}", this, layer);
+                continue;
+            }
+            
             int[] extraLengthFacing = new int[ModelQuadFacing.COUNT];
             for (LayeredBufferCache layeredCache : blocks)
                 for (int i = 0; i < extraLengthFacing.length; i++)
