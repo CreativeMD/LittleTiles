@@ -1,6 +1,6 @@
 package team.creative.littletiles.client.mod.rubidium;
 
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 

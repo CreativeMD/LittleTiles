@@ -1,5 +1,15 @@
 package team.creative.littletiles.mixin.rubidium;
 
+import org.embeddedt.embeddium.impl.render.chunk.compile.ChunkBuildBuffers;
+import org.embeddedt.embeddium.impl.render.chunk.compile.ChunkBuildContext;
+import org.embeddedt.embeddium.impl.render.chunk.compile.ChunkBuildOutput;
+import org.embeddedt.embeddium.impl.render.chunk.compile.tasks.ChunkBuilderMeshingTask;
+import org.embeddedt.embeddium.impl.render.chunk.data.BuiltSectionMeshParts;
+import org.embeddedt.embeddium.impl.render.chunk.terrain.TerrainRenderPass;
+import org.embeddedt.embeddium.impl.render.chunk.terrain.material.DefaultMaterials;
+import org.embeddedt.embeddium.impl.util.task.CancellationToken;
+import org.embeddedt.embeddium.impl.world.WorldSlice;
+import org.embeddedt.embeddium.impl.world.cloned.ChunkRenderContext;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -10,17 +20,6 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildContext;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildOutput;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.tasks.ChunkBuilderMeshingTask;
-import me.jellysquid.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
-import me.jellysquid.mods.sodium.client.util.task.CancellationToken;
-import me.jellysquid.mods.sodium.client.world.WorldSlice;
-import me.jellysquid.mods.sodium.client.world.cloned.ChunkRenderContext;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;

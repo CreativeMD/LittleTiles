@@ -15,16 +15,15 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.SpawnPlacements.Type;
 import net.minecraft.world.entity.monster.piglin.PiglinAi;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -54,8 +53,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraft.world.level.pathfinder.BlockPathTypes;
 import net.minecraft.world.level.pathfinder.PathComputationType;
+import net.minecraft.world.level.pathfinder.PathType;
 import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -64,12 +63,12 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.extensions.common.IClientBlockExtensions;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.IPlantable;
-import net.minecraftforge.common.util.ForgeSoundType;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.extensions.common.IClientBlockExtensions;
+import net.neoforged.neoforge.common.util.DeferredSoundType;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.EventHooks;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
@@ -107,7 +106,7 @@ import team.creative.littletiles.server.LittleTilesServer;
 
 public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, SimpleWaterloggedBlock {
     
-    public static final SoundType SILENT = new ForgeSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
+    public static final SoundType SILENT = new DeferredSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     
     public static BETiles loadBE(BlockGetter level, BlockPos pos) {
@@ -115,7 +114,8 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
             return null;
         BlockEntity be = null;
         try {
-            be = level.getExistingBlockEntity(pos);
+            
+            be = level.getBlockEntity(pos);
         } catch (Exception e) {
             return null;
         }
@@ -135,8 +135,9 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     }
     
     public static BlockState getState(boolean ticking, boolean rendered) {
-        return rendered ? (ticking ? LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED.get().defaultBlockState() : LittleTilesRegistry.BLOCK_TILES_RENDERED.get()
-                .defaultBlockState()) : (ticking ? LittleTilesRegistry.BLOCK_TILES_TICKING.get().defaultBlockState() : LittleTilesRegistry.BLOCK_TILES.get().defaultBlockState());
+        return rendered ? (ticking ? LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED.value().defaultBlockState() : LittleTilesRegistry.BLOCK_TILES_RENDERED.value()
+                .defaultBlockState()) : (ticking ? LittleTilesRegistry.BLOCK_TILES_TICKING.value().defaultBlockState() : LittleTilesRegistry.BLOCK_TILES.value()
+                        .defaultBlockState());
     }
     
     public static BlockState getState(BlockState previous, boolean ticking, boolean rendered) {
@@ -148,7 +149,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     }
     
     public static boolean isTicking(BlockState state) {
-        return state.getBlock() == LittleTilesRegistry.BLOCK_TILES_TICKING.get() || state.getBlock() == LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED.get();
+        return state.getBlock() == LittleTilesRegistry.BLOCK_TILES_TICKING.value() || state.getBlock() == LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED.value();
     }
     
     public static BlockState getState(List<StructureParentCollection> structures) {
@@ -170,7 +171,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     public final boolean rendered;
     
     public BlockTile(boolean ticking, boolean rendered) {
-        super(BlockBehaviour.Properties.of().destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape().noOcclusion());
+        super(BlockBehaviour.Properties.of().destroyTime(1).explosionResistance(3.0F).sound(SILENT).dynamicShape().noOcclusion().isValidSpawn((a, b, c, d) -> false));
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
         this.ticking = ticking;
         this.rendered = rendered;
@@ -331,21 +332,22 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     }
     
     @Override
-    public boolean isPathfindable(BlockState state, BlockGetter level, BlockPos pos, PathComputationType type) {
-        return super.isPathfindable(state, level, pos, type);
+    protected boolean isPathfindable(BlockState state, PathComputationType type) {
+        return super.isPathfindable(state, type);
     }
     
     @Override
-    public @org.jetbrains.annotations.Nullable BlockPathTypes getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @org.jetbrains.annotations.Nullable Mob mob) {
-        return state.getBlock() == Blocks.LAVA ? BlockPathTypes.LAVA : state.isBurning(level, pos) ? BlockPathTypes.DAMAGE_FIRE : null;
+    @Nullable
+    public PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob mob) {
+        return state.getBlock() == Blocks.LAVA ? PathType.LAVA : state.isBurning(level, pos) ? PathType.DAMAGE_FIRE : null;
     }
     
     @Override
     public void setBedOccupied(BlockState state, Level world, BlockPos pos, LivingEntity sleeper, boolean occupied) {}
     
     @Override
-    public boolean isBed(BlockState state, BlockGetter level, BlockPos pos, @Nullable Entity entity) {
-        return getBed(level, pos, entity) != null;
+    public boolean isBed(BlockState state, BlockGetter level, BlockPos pos, LivingEntity sleeper) {
+        return getBed(level, pos, sleeper) != null;
     }
     
     public LittleStructure getBed(BlockGetter level, BlockPos pos, @Nullable Entity entity) {
@@ -365,11 +367,10 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     }
     
     @Override
-    public Optional<Vec3> getRespawnPosition(BlockState state, EntityType<?> type, LevelReader level, BlockPos pos, float orientation, @Nullable LivingEntity entity) {
-        LittleStructure bed = getBed(level, pos, entity);
+    public Optional<ServerPlayer.RespawnPosAngle> getRespawnPosition(BlockState state, EntityType<?> type, LevelReader level, BlockPos pos, float orientation) {
+        LittleStructure bed = getBed(level, pos, null);
         if (bed != null && level instanceof Level && level.dimensionType().bedWorks())
-            return BedBlock.findStandUpPosition(type, level, pos, bed.getBedDirection(), orientation);
-        
+            return BedBlock.findStandUpPosition(type, level, pos, bed.getBedDirection(), orientation).map(x -> ServerPlayer.RespawnPosAngle.of(x, pos));
         return Optional.empty();
     }
     
@@ -395,41 +396,37 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         if (context.isComplete()) {
             state = context.tile.getState();
             
-            float hardness = state.getDestroySpeed(level, pos);
-            if (hardness < 0.0F)
+            float f = state.getDestroySpeed(level, pos);
+            if (f == -1.0F)
                 return 0.0F;
-            
-            if (hardness == -1.0F) {
-                return 0.0F;
-            } else {
-                int i = ForgeHooks.isCorrectToolForDrops(state, player) ? 30 : 100;
-                return player.getDigSpeed(state, pos) / hardness / i;
-            }
-        } else
-            return super.getDestroyProgress(state, player, level, pos);
+            int i = EventHooks.doPlayerHarvestCheck(player, state, level, pos) ? 30 : 100;
+            return player.getDigSpeed(state, pos) / f / i;
+        }
+        return super.getDestroyProgress(state, player, level, pos);
     }
     
     @Override
     public void destroy(LevelAccessor level, BlockPos pos, BlockState state) {}
     
     @Override
-    protected void spawnDestroyParticles(Level p_152422_, Player p_152423_, BlockPos p_152424_, BlockState p_152425_) {
-        p_152422_.levelEvent(p_152423_, 2001, p_152424_, getId(p_152425_));
+    protected void spawnDestroyParticles(Level level, Player player, BlockPos pos, BlockState state) {
+        level.levelEvent(player, 2001, pos, getId(state));
     }
     
     @Override
-    public void playerWillDestroy(Level p_49852_, BlockPos p_49853_, BlockState p_49854_, Player p_49855_) {
-        this.spawnDestroyParticles(p_49852_, p_49855_, p_49853_, p_49854_);
-        if (p_49854_.is(BlockTags.GUARDED_BY_PIGLINS)) {
-            PiglinAi.angerNearbyPiglins(p_49855_, false);
-        }
+    public BlockState playerWillDestroy(Level level, BlockPos pos, BlockState state, Player player) {
+        this.spawnDestroyParticles(level, player, pos, state);
+        if (state.is(BlockTags.GUARDED_BY_PIGLINS))
+            PiglinAi.angerNearbyPiglins(player, false);
         
-        p_49852_.gameEvent(p_49855_, GameEvent.BLOCK_DESTROY, p_49853_);
+        level.gameEvent(player, GameEvent.BLOCK_DESTROY, pos);
+        return state;
     }
     
     @Override
-    public boolean canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, IPlantable plantable) {
+    public TriState canSustainPlant(BlockState state, BlockGetter level, BlockPos pos, Direction facing, BlockState plantState) {
         BETiles be = loadBE(level, pos);
+        boolean isDefault = false;
         if (be != null && be.sideCache.get(Facing.get(facing)).doesBlockCollision()) {
             LittleBox box = new LittleBox(0, be.getGrid().count - 1, 0, be.getGrid().count, be.getGrid().count, be.getGrid().count);
             for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
@@ -437,12 +434,16 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
                     BlockState toCheck = pair.value.getState();
                     if (toCheck.hasProperty(BlockStateProperties.WATERLOGGED) && state.getValue(BlockStateProperties.WATERLOGGED).booleanValue())
                         toCheck = toCheck.setValue(BlockStateProperties.WATERLOGGED, true);
-                    if (toCheck.canSustainPlant(level, pos, facing, plantable))
-                        return true;
+                    switch (toCheck.canSustainPlant(level, pos, facing, plantState)) {
+                        case TRUE -> {
+                            return TriState.TRUE;
+                        }
+                        case DEFAULT -> isDefault = true;
+                    }
                 }
             
         }
-        return false;
+        return isDefault ? TriState.DEFAULT : TriState.FALSE;
     }
     
     @Override
@@ -457,19 +458,18 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     }
     
     @Override
-    public InteractionResult use(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
-        if (hand == InteractionHand.OFF_HAND)
-            return InteractionResult.PASS;
+    public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result) {
+        ;
         if (level.isClientSide)
-            return useClient(state, level, pos, player, hand, result);
+            return useClient(state, level, pos, player, result);
         return InteractionResult.PASS;
     }
     
     @OnlyIn(Dist.CLIENT)
-    public InteractionResult useClient(BlockState state, Level level, BlockPos pos, Player player, InteractionHand hand, BlockHitResult result) {
+    public InteractionResult useClient(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
-        if (context.isComplete() && !(player.getItemInHand(hand).getItem() instanceof ItemLittleWrench) && LittleTilesClient.INTERACTION.can()) {
-            InteractionResult inter = LittleTilesClient.ACTION_HANDLER.execute(new LittleActionActivated(level, pos, player, hand));
+        if (context.isComplete() && !(player.getMainHandItem().getItem() instanceof ItemLittleWrench) && LittleTilesClient.INTERACTION.can()) {
+            InteractionResult inter = LittleTilesClient.ACTION_HANDLER.execute(new LittleActionActivated(level, pos, player));
             if (inter != InteractionResult.PASS && LittleTilesClient.INTERACTION.start(true))
                 return inter;
         }
@@ -544,11 +544,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     }
     
     @Override
-    public boolean isValidSpawn(BlockState state, BlockGetter world, BlockPos pos, Type type, EntityType<?> entityType) {
-        return false;
-    }
-    
-    @Override
     public boolean onDestroyedByPlayer(BlockState state, Level level, BlockPos pos, Player player, boolean willHarvest, FluidState fluid) {
         if (level.isClientSide)
             return removedByPlayerClient(state, level, pos, player, willHarvest, fluid);
@@ -592,11 +587,11 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     }
     
     @Override
-    public ItemStack getCloneItemStack(BlockState state, HitResult target, BlockGetter level, BlockPos pos, Player player) {
+    public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player);
         if (result.isComplete()) {
             if (selectEntireBlock(player, LittleActionHandlerClient.isUsingSecondMode())) {
-                ItemStack drop = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
+                ItemStack drop = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
                 LittleGroup group = new LittleGroup();
                 for (LittleTile tile : result.parent)
                     group.add(result.parent.getGrid(), tile, tile.copy());
@@ -659,8 +654,8 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
             if (heighestTile != null) {
                 Vec3 vec3 = entity.getDeltaMovement();
                 level.addParticle(new BlockParticleOption(ParticleTypes.BLOCK, heighestTile.getState()).setPos(pos), entity.getX() + (random.nextDouble() - 0.5D) * entity
-                        .getDimensions(entity.getPose()).width, entity.getY() + 0.1D, entity.getZ() + (random.nextDouble() - 0.5D) * entity.getDimensions(entity.getPose()).width,
-                    vec3.x * -4.0D, 1.5D, vec3.z * -4.0D);
+                        .getDimensions(entity.getPose()).width(), entity.getY() + 0.1D, entity.getZ() + (random.nextDouble() - 0.5D) * entity.getDimensions(entity.getPose())
+                                .width(), vec3.x * -4.0D, 1.5D, vec3.z * -4.0D);
             }
             return true;
         }

@@ -58,6 +58,7 @@
         "rubidium.ChunkMeshBufferBuilderAccessor",
         "rubidium.ChunkModelBuilderMixin",
         "rubidium.DefaultChunkRendererMixin",
+        "rubidium.EmbeddiumWorldRendererAccessor",
         "rubidium.GlBufferMixin",
         "rubidium.GlBufferSegmentAccessor",
         "rubidium.GLRenderDeviceAccessor",
@@ -66,7 +67,6 @@
         "rubidium.RenderSectionManagerAccessor",
         "rubidium.RenderSectionMixin",
         "rubidium.SectionRenderDataStorageAccessor",
-        "rubidium.SodiumWorldRendererAccessor",
         "rubidium.TerrainRenderPassAccessor",
         "rubidium.TranslucentQuadAnalyzerAccessor"
     ],

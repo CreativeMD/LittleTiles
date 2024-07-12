@@ -4,9 +4,11 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Queue;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 import java.util.concurrent.PriorityBlockingQueue;
 
@@ -18,7 +20,8 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Queues;
 import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexConsumer;
@@ -27,14 +30,14 @@ import net.minecraft.CrashReport;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
+import net.minecraft.client.renderer.SectionBufferBuilderPool;
 import net.minecraft.client.renderer.ShaderInstance;
+import net.minecraft.client.renderer.chunk.SectionCompiler;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.util.Mth;
 import net.minecraft.util.thread.ProcessorMailbox;
@@ -44,20 +47,18 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.event.TickEvent.LevelTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.RenderTickEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
@@ -80,16 +81,18 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public static final int MAX_INTERVALS_WAITING = 2;
     
     private final HashMap<UUID, EntityTransitionHolder> transitions = new HashMap<>();
-    private final PriorityBlockingQueue<LittleRenderChunk.ChunkCompileTask> toBatchHighPriority = Queues.newPriorityBlockingQueue();
-    private final Queue<LittleRenderChunk.ChunkCompileTask> toBatchLowPriority = Queues.newLinkedBlockingDeque();
+    private final PriorityBlockingQueue<LittleRenderChunk.CompileTask> toBatchHighPriority = Queues.newPriorityBlockingQueue();
+    private final Queue<LittleRenderChunk.CompileTask> toBatchLowPriority = Queues.newLinkedBlockingDeque();
     private int highPriorityQuota = 2;
-    private final Queue<ChunkBufferBuilderPack> freeBuffers;
     private final Queue<Runnable> toUpload = Queues.newConcurrentLinkedQueue();
+    private final SectionBufferBuilderPool bufferPool;
     private volatile int toBatchCount;
-    private volatile int freeBufferCount;
-    public final ChunkBufferBuilderPack fixedBuffers;
+    private volatile boolean closed;
+    public final SectionBufferBuilderPack fixedBuffers;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
+    SectionCompiler sectionCompiler;
+    
     private int longTickCounter = LONG_TICK_INTERVAL;
     public int longTickIndex = Integer.MIN_VALUE;
     
@@ -97,11 +100,11 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         super(level);
         int threadCount = LittleTiles.CONFIG.rendering.entityCacheBuildThreads;
         this.fixedBuffers = mc.renderBuffers().fixedBufferPack();
-        List<ChunkBufferBuilderPack> list = Lists.newArrayListWithExpectedSize(threadCount);
+        List<SectionBufferBuilderPack> list = Lists.newArrayListWithExpectedSize(threadCount);
         
         try {
             for (int i = 0; i < threadCount; i++)
-                list.add(new ChunkBufferBuilderPack());
+                list.add(new SectionBufferBuilderPack());
         } catch (OutOfMemoryError error) {
             LittleTiles.LOGGER.warn("Allocated only {}/{} buffers", list.size(), threadCount);
             int newSize = Math.min(list.size() * 2 / 3, list.size() - 1);
@@ -111,11 +114,15 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             System.gc();
         }
         
-        this.freeBuffers = Queues.newArrayDeque(list);
-        this.freeBufferCount = this.freeBuffers.size();
+        this.bufferPool = mc.renderBuffers().sectionBufferPool();
         this.executor = Util.backgroundExecutor();
         this.mailbox = ProcessorMailbox.create(executor, "Chunk Renderer");
         this.mailbox.tell(this::runTask);
+        this.sectionCompiler = new SectionCompiler(mc.getBlockRenderer(), mc.getBlockEntityRenderDispatcher());
+    }
+    
+    public void reload() {
+        this.sectionCompiler = new SectionCompiler(mc.getBlockRenderer(), mc.getBlockEntityRenderDispatcher());
     }
     
     public boolean checkInTransition(Entity entity) {
@@ -148,43 +155,42 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     private void runTask() {
-        if (!this.freeBuffers.isEmpty()) {
-            LittleRenderChunk.ChunkCompileTask task = this.pollTask();
+        if (!closed && !this.bufferPool.isEmpty()) {
+            LittleRenderChunk.CompileTask task = this.pollTask();
             if (task != null) {
-                ChunkBufferBuilderPack pack = this.freeBuffers.poll();
+                SectionBufferBuilderPack pack = Objects.requireNonNull(this.bufferPool.acquire());
                 this.toBatchCount = this.toBatchHighPriority.size() + this.toBatchLowPriority.size();
-                this.freeBufferCount = this.freeBuffers.size();
-                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(task.name(), () -> task.doTask(pack)), this.executor).thenCompose(x -> x).whenComplete(
-                    (result, throwable) -> {
-                        if (throwable != null)
-                            Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Batching chunks"));
-                        else
-                            this.mailbox.tell(() -> {
-                                if (result == LittleRenderChunk.ChunkTaskResult.SUCCESSFUL)
-                                    pack.clearAll();
-                                else
-                                    pack.discardAll();
-                                
-                                this.freeBuffers.add(pack);
-                                this.freeBufferCount = this.freeBuffers.size();
-                                this.runTask();
-                            });
+                CompletableFuture.supplyAsync(Util.wrapThreadWithTaskName(task.name(), () -> task.doTask(pack)), this.executor).thenCompose(
+                    result -> (CompletionStage<LittleRenderChunk.SectionTaskResult>) result).whenComplete((result, error) -> {
+                        if (error != null) {
+                            Minecraft.getInstance().delayCrash(CrashReport.forThrowable(error, "Batching sections"));
+                            return;
+                        }
+                        this.mailbox.tell(() -> {
+                            if (result == LittleRenderChunk.SectionTaskResult.SUCCESSFUL)
+                                pack.clearAll();
+                            else
+                                pack.discardAll();
+                            
+                            this.bufferPool.release(pack);
+                            this.runTask();
+                        });
                     });
             }
         }
     }
     
     @Nullable
-    private LittleRenderChunk.ChunkCompileTask pollTask() {
+    private LittleRenderChunk.CompileTask pollTask() {
         if (this.highPriorityQuota <= 0) {
-            LittleRenderChunk.ChunkCompileTask task = this.toBatchLowPriority.poll();
+            LittleRenderChunk.CompileTask task = this.toBatchLowPriority.poll();
             if (task != null) {
                 this.highPriorityQuota = 2;
                 return task;
             }
         }
         
-        LittleRenderChunk.ChunkCompileTask task2 = this.toBatchHighPriority.poll();
+        LittleRenderChunk.CompileTask task2 = this.toBatchHighPriority.poll();
         if (task2 != null) {
             --this.highPriorityQuota;
             return task2;
@@ -195,7 +201,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     public String getStats() {
-        return String.format(Locale.ROOT, "pC: %03d, pU: %02d, aB: %02d", this.toBatchCount, this.toUpload.size(), this.freeBufferCount);
+        return String.format(Locale.ROOT, "pC: %03d, pU: %02d, aB: %02d", this.toBatchCount, this.toUpload.size(), this.bufferPool.getFreeBufferCount());
     }
     
     public int getToBatchCount() {
@@ -207,7 +213,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     public int getFreeBufferCount() {
-        return this.freeBufferCount;
+        return this.bufferPool.getFreeBufferCount();
     }
     
     public void uploadAllPendingUploads() {
@@ -220,7 +226,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         this.clearBatchQueue();
     }
     
-    public void schedule(LittleRenderChunk.ChunkCompileTask task) {
+    public void schedule(LittleRenderChunk.CompileTask task) {
         this.mailbox.tell(() -> {
             if (task.isHighPriority)
                 this.toBatchHighPriority.offer(task);
@@ -231,8 +237,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         });
     }
     
-    public CompletableFuture<Void> uploadChunkLayer(BufferBuilder.RenderedBuffer rendered, VertexBuffer buffer) {
-        return CompletableFuture.runAsync(() -> {
+    public CompletableFuture<Void> uploadChunkLayer(MeshData rendered, VertexBuffer buffer) {
+        return this.closed ? CompletableFuture.completedFuture(null) : CompletableFuture.runAsync(() -> {
             if (!buffer.isInvalid()) {
                 buffer.bind();
                 buffer.upload(rendered);
@@ -241,15 +247,27 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         }, this.toUpload::add);
     }
     
+    public CompletableFuture<Void> uploadSectionIndexBuffer(ByteBufferBuilder.Result p_350933_, VertexBuffer p_350643_) {
+        return this.closed ? CompletableFuture.completedFuture(null) : CompletableFuture.runAsync(() -> {
+            if (p_350643_.isInvalid()) {
+                p_350933_.close();
+            } else {
+                p_350643_.bind();
+                p_350643_.uploadIndexBuffer(p_350933_);
+                VertexBuffer.unbind();
+            }
+        }, this.toUpload::add);
+    }
+    
     private void clearBatchQueue() {
         while (!this.toBatchHighPriority.isEmpty()) {
-            LittleRenderChunk.ChunkCompileTask task = this.toBatchHighPriority.poll();
+            LittleRenderChunk.CompileTask task = this.toBatchHighPriority.poll();
             if (task != null)
                 task.cancel();
         }
         
         while (!this.toBatchLowPriority.isEmpty()) {
-            LittleRenderChunk.ChunkCompileTask task1 = this.toBatchLowPriority.poll();
+            LittleRenderChunk.CompileTask task1 = this.toBatchLowPriority.poll();
             if (task1 != null)
                 task1.cancel();
         }
@@ -262,9 +280,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     public void dispose() {
+        this.closed = true;
         this.clearBatchQueue();
-        this.mailbox.close();
-        this.freeBuffers.clear();
+        this.uploadAllPendingUploads();
     }
     
     public void allChanged() {
@@ -303,16 +321,14 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     @Override
-    public void tick(LevelTickEvent event) {
+    public void tick(LevelTickEvent.Post event) {
         super.tick(event);
         
-        if (event.phase == Phase.END) {
-            longTickCounter--;
-            if (longTickCounter <= 0) {
-                longTickCounter = LONG_TICK_INTERVAL;
-                longTick();
-                longTickIndex++;
-            }
+        longTickCounter--;
+        if (longTickCounter <= 0) {
+            longTickCounter = LONG_TICK_INTERVAL;
+            longTick();
+            longTickIndex++;
         }
         
     }
@@ -415,7 +431,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         RenderSystem.setupShaderLights(shaderinstance);
         shaderinstance.apply();
         Uniform offset = RenderSystem.getShader().CHUNK_OFFSET;
-        float partialTicks = mc.getPartialTick();
+        float partialTicks = mc.getTimer().getGameTimeDeltaPartialTick(false);
         for (LittleEntity animation : this) {
             pose.pushPose();
             animation.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, partialTicks);
@@ -430,11 +446,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     @SubscribeEvent
-    public void renderEnd(RenderTickEvent event) {
-        if (event.phase == Phase.END)
-            for (LittleEntity animation : entities)
-                if (animation.hasLoaded())
-                    animation.getRenderManager().isInSight = null;
+    public void renderEnd(RenderFrameEvent.Post event) {
+        for (LittleEntity animation : entities)
+            if (animation.hasLoaded())
+                animation.getRenderManager().isInSight = null;
     }
     
     @Override
@@ -468,9 +483,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                     flag = blockstate.getMenuProvider((Level) result.level, blockpos) != null;
                 else {
                     BlockInWorld blockinworld = new BlockInWorld(result.level, blockpos, false);
-                    Registry<Block> registry = result.level.registryAccess().registryOrThrow(Registries.BLOCK);
-                    flag = !itemstack.isEmpty() && (itemstack.hasAdventureModeBreakTagForBlock(registry, blockinworld) || itemstack.hasAdventureModePlaceTagForBlock(registry,
-                        blockinworld));
+                    flag = !itemstack.isEmpty() && (itemstack.canBreakBlockInAdventureMode(blockinworld) || itemstack.canBreakBlockInAdventureMode(blockinworld));
                 }
             }
         }
@@ -496,7 +509,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
         LittleEntity entity = result.getHolder();
         Vec3 position = mc.gameRenderer.getMainCamera().getPosition();
-        entity.getOrigin().setupRendering(event.getPoseStack(), position.x, position.y, position.z, event.getPartialTick());
+        entity.getOrigin().setupRendering(event.getPoseStack(), position.x, position.y, position.z, event.getPartialTick().getGameTimeDeltaPartialTick(false));
         RenderSystem.enableDepthTest();
         
         double x = pos.getX() - position.x();
@@ -510,6 +523,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 shape = block.getSelectionShape(result.level, pos);
             else
                 shape = state.getShape(result.level, pos, CollisionContext.of(mc.cameraEntity));
+            
             shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
                 float f = (float) (x2 - x1);
                 float f1 = (float) (y2 - y1);
@@ -518,10 +532,10 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 f /= f3;
                 f1 /= f3;
                 f2 /= f3;
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (x1 + x), (float) (y1 + y), (float) (z1 + z)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(posestack$pose.normal(), f,
-                    f1, f2).endVertex();
-                vertexconsumer2.vertex(posestack$pose.pose(), (float) (x2 + x), (float) (y2 + y), (float) (z2 + z)).color(0.0F, 0.0F, 0.0F, 0.4F).normal(posestack$pose.normal(), f,
-                    f1, f2).endVertex();
+                vertexconsumer2.addVertex(posestack$pose.pose(), (float) (x1 + x), (float) (y1 + y), (float) (z1 + z)).setColor(0.0F, 0.0F, 0.0F, 0.4F).setNormal(posestack$pose, f,
+                    f1, f2);
+                vertexconsumer2.addVertex(posestack$pose.pose(), (float) (x2 + x), (float) (y2 + y), (float) (z2 + z)).setColor(0.0F, 0.0F, 0.0F, 0.4F).setNormal(posestack$pose, f,
+                    f1, f2);
             });
         }
         

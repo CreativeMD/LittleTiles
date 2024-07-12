@@ -11,7 +11,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;

@@ -3,8 +3,8 @@ package team.creative.littletiles.client.level.little;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.EntityLeaveLevelEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.level.little.LittleAnimationLevelCallback;
 
@@ -38,7 +38,7 @@ public class LittleAnimationLevelClientCallback extends LittleAnimationLevelCall
         entity.unRide();
         
         entity.onRemovedFromWorld();
-        MinecraftForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, level));
+        NeoForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, level));
     }
     
     @Override
@@ -56,8 +56,12 @@ public class LittleAnimationLevelClientCallback extends LittleAnimationLevelCall
     public void tickNonPassenger(Entity entity) {
         entity.setOldPosAndRot();
         ++entity.tickCount;
-        if (entity.canUpdate())
+        
+        if (!net.neoforged.neoforge.event.EventHooks.fireEntityTickPre(entity).isCanceled()) {
             entity.tick();
+            net.neoforged.neoforge.event.EventHooks.fireEntityTickPost(entity);
+        }
+        
         for (Entity passenger : entity.getPassengers())
             this.tickPassenger(entity, passenger);
     }

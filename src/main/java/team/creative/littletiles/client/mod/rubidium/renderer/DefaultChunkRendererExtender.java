@@ -1,8 +1,9 @@
 package team.creative.littletiles.client.mod.rubidium.renderer;
 
-import me.jellysquid.mods.sodium.client.render.chunk.region.RenderRegion;
-import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
-import me.jellysquid.mods.sodium.client.render.viewport.CameraTransform;
+import org.embeddedt.embeddium.impl.render.chunk.region.RenderRegion;
+import org.embeddedt.embeddium.impl.render.chunk.shader.ChunkShaderInterface;
+import org.embeddedt.embeddium.impl.render.viewport.CameraTransform;
+
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 

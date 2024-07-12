@@ -9,9 +9,9 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -86,7 +86,7 @@ public class LittleActionHandlerClient extends LevelHandler {
             T result = action.action(player);
             if (action.wasSuccessful(result)) {
                 rememberAction(action);
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
+                NeoForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
                 
                 LittleTiles.NETWORK.sendToServer(action);
             }
@@ -111,7 +111,7 @@ public class LittleActionHandlerClient extends LevelHandler {
                 throw new LittleActionException("action.revert.notavailable");
             
             if (reverted.wasSuccessful(reverted.action(player))) {
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.UNDO, player));
+                NeoForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.UNDO, player));
                 LittleTiles.NETWORK.sendToServer(reverted);
                 
                 lastActions.set(index, reverted);
@@ -137,7 +137,7 @@ public class LittleActionHandlerClient extends LevelHandler {
                 throw new LittleActionException("action.revert.notavailable");
             
             if (reverted.wasSuccessful(reverted.action(player))) {
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.REDO, player));
+                NeoForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.REDO, player));
                 LittleTiles.NETWORK.sendToServer(reverted);
                 
                 lastActions.set(index, reverted);

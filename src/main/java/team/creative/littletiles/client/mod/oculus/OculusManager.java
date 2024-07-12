@@ -1,9 +1,10 @@
 package team.creative.littletiles.client.mod.oculus;
 
-import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
+import org.embeddedt.embeddium.impl.render.chunk.compile.ChunkBuildBuffers;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 
 public class OculusManager {
     

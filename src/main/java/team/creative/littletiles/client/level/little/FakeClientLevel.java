@@ -20,8 +20,8 @@ import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.biome.Biomes;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -118,7 +118,7 @@ public class FakeClientLevel extends LittleClientLevel {
     public void levelEvent(Player p_217378_1_, int p_217378_2_, BlockPos p_217378_3_, int p_217378_4_) {}
     
     @Override
-    public void gameEvent(Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_) {}
+    public void gameEvent(Entity p_151549_, Holder<GameEvent> p_151550_, BlockPos p_151551_) {}
     
     @Override
     public String toString() {

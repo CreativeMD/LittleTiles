@@ -25,6 +25,7 @@ import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.text.content.ContentItemStack;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
@@ -102,7 +103,7 @@ public class GuiWorkbench extends GuiLayer {
             } else {
                 ILittlePlacer tile = PlacementHelper.getLittleInterface(input1);
                 if (tile != null && !input2.isEmpty() && (input2.getItem() instanceof ItemLittleBlueprint))
-                    input2.setTag(input1.getOrCreateTag().copy());
+                    ILittleTool.setData(input2, ILittleTool.getData(input1).copy());
             }
         }
     });

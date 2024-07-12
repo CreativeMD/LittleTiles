@@ -2,7 +2,6 @@ package team.creative.littletiles.client.render.level;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -19,7 +18,6 @@ import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
-import com.mojang.blaze3d.vertex.BufferBuilder.SortState;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -35,11 +33,13 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.block.BlockRenderDispatcher;
 import net.minecraft.client.renderer.block.ModelBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
 import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.CompiledSection;
 import net.minecraft.client.renderer.chunk.VisGraph;
 import net.minecraft.client.renderer.chunk.VisibilitySet;
 import net.minecraft.core.BlockPos;
@@ -51,13 +51,11 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
@@ -66,6 +64,8 @@ import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
+import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkCompileTask;
+import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkTaskResult;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -78,7 +78,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     public final LittleLevelRenderManager manager;
     public final SectionPos section;
     public final BlockPos pos;
-    public final AtomicReference<CompiledChunk> compiled = new AtomicReference<>(CompiledChunk.UNCOMPILED);
+    public final AtomicReference<CompiledSection> compiled = new AtomicReference<>(CompiledSection.UNCOMPILED);
     private AABB bb;
     public final AtomicBoolean considered = new AtomicBoolean();
     @Nullable
@@ -293,41 +293,35 @@ public class LittleRenderChunk implements RenderChunkExtender {
         return LittleRenderPipelineType.FORGE;
     }
     
-    public static enum ChunkTaskResult {
+    public static enum SectionTaskResult {
         SUCCESSFUL,
         CANCELLED;
     }
     
-    public abstract class ChunkCompileTask implements Comparable<ChunkCompileTask> {
+    public abstract class CompileTask implements Comparable<CompileTask> {
         
         protected final double distAtCreation;
         protected final AtomicBoolean isCancelled = new AtomicBoolean(false);
         public final boolean isHighPriority;
-        protected Map<BlockPos, ModelData> modelData;
         
-        public ChunkCompileTask(@Nullable ChunkPos pos, double distAtCreation, boolean isHighPriority) {
+        public CompileTask(@Nullable SectionPos pos, double distAtCreation, boolean isHighPriority) {
             this.distAtCreation = distAtCreation;
             this.isHighPriority = isHighPriority;
-            this.modelData = pos == null ? Collections.EMPTY_MAP : level().getModelDataManager().getAt(pos);
         }
         
-        public abstract CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack p_112853_);
+        public abstract CompletableFuture<SectionTaskResult> doTask(SectionBufferBuilderPack p_112853_);
         
         public abstract void cancel();
         
         public abstract String name();
         
         @Override
-        public int compareTo(ChunkCompileTask other) {
+        public int compareTo(CompileTask other) {
             return Doubles.compare(this.distAtCreation, other.distAtCreation);
-        }
-        
-        public ModelData getModelData(BlockPos pos) {
-            return modelData.getOrDefault(pos, ModelData.EMPTY);
         }
     }
     
-    class RebuildTask extends ChunkCompileTask implements RebuildTaskExtender {
+    class RebuildTask extends CompileTask implements RebuildTaskExtender {
         
         @Nullable
         protected Level level;
@@ -555,7 +549,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     @OnlyIn(Dist.CLIENT)
-    class ResortTransparencyTask extends ChunkCompileTask {
+    class ResortTransparencyTask extends CompileTask {
         
         private final CompiledChunk compiledChunk;
         

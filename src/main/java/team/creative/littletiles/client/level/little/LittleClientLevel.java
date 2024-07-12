@@ -4,19 +4,16 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
-import com.mojang.authlib.GameProfile;
-
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.multiplayer.ServerData;
-import net.minecraft.client.telemetry.WorldSessionTelemetryManager;
+import net.minecraft.client.multiplayer.CommonListenerCookie;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -39,11 +36,12 @@ import net.minecraft.world.level.entity.TransientEntitySectionManager;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEvent.Context;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -65,7 +63,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     public LittleLevelRenderManager renderManager;
     private final List<LevelBlockChangeListener> blockChangeListeners = new ArrayList<>();
     
-    protected LittleClientLevel(ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess access) {
+    protected LittleClientLevel(ClientLevelData data, ResourceKey<Level> dimension, Supplier<ProfilerFiller> supplier, boolean debug, long seed, RegistryAccess.Frozen access) {
         super(FakeClientPacketListener.get(access), data, dimension, access.registryOrThrow(Registries.DIMENSION_TYPE).getHolderOrThrow(
             LittleTilesRegistry.FAKE_DIMENSION), 3, 3, supplier, null, debug, seed);
     }
@@ -158,7 +156,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
             BlockState blockstate = this.getBlockState(pos);
             
             try {
-                blockstate.neighborChanged(this, pos, block, fromPos, false);
+                blockstate.handleNeighborChanged(this, pos, block, fromPos, false);
             } catch (Throwable throwable) {
                 CrashReport crashreport = CrashReport.forThrowable(throwable, "Exception while updating neighbours");
                 CrashReportCategory crashreportcategory = crashreport.addCategory("Block being updated");
@@ -208,8 +206,8 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     @Override
-    public int getFreeMapId() {
-        return 0;
+    public MapId getFreeMapId() {
+        return new MapId(0);
     }
     
     @Override
@@ -228,7 +226,7 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
     }
     
     @Override
-    public void gameEvent(GameEvent event, Vec3 pos, Context context) {}
+    public void gameEvent(Holder<GameEvent> event, Vec3 pos, Context context) {}
     
     @Override
     public Iterable<Entity> entities() {
@@ -249,20 +247,20 @@ public abstract class LittleClientLevel extends ClientLevel implements LittleLev
         
         private static final FakeClientPacketListener INSTANCE = CreativeHackery.allocateInstance(FakeClientPacketListener.class);
         
-        public static FakeClientPacketListener get(RegistryAccess access) {
+        public static FakeClientPacketListener get(RegistryAccess.Frozen access) {
             INSTANCE.access = access;
             return INSTANCE;
         }
         
-        private RegistryAccess access;
+        private RegistryAccess.Frozen access;
         
-        public FakeClientPacketListener(Minecraft p_253924_, Screen p_254239_, Connection p_253614_, ServerData p_254072_, GameProfile p_254079_, WorldSessionTelemetryManager p_262115_) {
-            super(p_253924_, p_254239_, p_253614_, p_254072_, p_254079_, p_262115_);
+        public FakeClientPacketListener(Minecraft mc, Connection con, CommonListenerCookie cookie) {
+            super(mc, con, cookie);
         }
         
         @Override
-        public RegistryAccess registryAccess() {
-            return access;
+        public RegistryAccess.Frozen registryAccess() {
+            return this.access;
         }
         
     }

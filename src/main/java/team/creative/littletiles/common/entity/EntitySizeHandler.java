@@ -1,8 +1,7 @@
 package team.creative.littletiles.common.entity;
 
 import net.minecraft.world.entity.EntityDimensions;
-import net.minecraftforge.event.entity.EntityEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
 
 public class EntitySizeHandler {
     

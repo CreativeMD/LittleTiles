@@ -1,5 +1,6 @@
 package team.creative.littletiles.mixin.rubidium;
 
+import org.embeddedt.embeddium.impl.gl.buffer.GlBuffer;
 import org.spongepowered.asm.mixin.Mixin;
 
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
@@ -7,7 +8,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 
-import me.jellysquid.mods.sodium.client.gl.buffer.GlBuffer;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
 @Mixin(GlBuffer.class)

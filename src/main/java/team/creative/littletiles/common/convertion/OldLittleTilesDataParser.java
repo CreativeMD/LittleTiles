@@ -151,8 +151,8 @@ public class OldLittleTilesDataParser {
         for (int i = 0; i < list.size(); i++) {
             CompoundTag eventTag = list.getCompound(i);
             AnimationEvent event = switch (eventTag.getString("id")) {
-                case "sound-event" -> eventTag.getBoolean("opening") == opening ? new PlaySoundEvent(PlaySoundEvent.get(new ResourceLocation(eventTag.getString("sound"))), eventTag
-                        .getFloat("volume"), eventTag.getFloat("pitch")) : null;
+                case "sound-event" -> eventTag.getBoolean("opening") == opening ? new PlaySoundEvent(PlaySoundEvent.get(ResourceLocation.parse(eventTag.getString(
+                    "sound"))), eventTag.getFloat("volume"), eventTag.getFloat("pitch")) : null;
                 case "child" -> new ChildDoorEvent(eventTag.getInt("childId"));
                 default -> null;
             };

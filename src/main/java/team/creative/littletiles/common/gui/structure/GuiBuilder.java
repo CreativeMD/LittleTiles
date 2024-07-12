@@ -1,11 +1,11 @@
 package team.creative.littletiles.common.gui.structure;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
@@ -40,7 +40,7 @@ public class GuiBuilder extends GuiLayer {
             int width = nbt.getInt("width");
             int height = nbt.getInt("height");
             int thickness = nbt.getInt("thickness");
-            Block block = ForgeRegistries.BLOCKS.getValue(new ResourceLocation(nbt.getString("block")));
+            Block block = BuiltInRegistries.BLOCK.get(ResourceLocation.parse(nbt.getString("block")));
             LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
             
             builder.lastBlockState = block.defaultBlockState();
@@ -55,7 +55,7 @@ public class GuiBuilder extends GuiLayer {
             if (type != null) {
                 ItemStack stack = builder.inventory.getItem(0);
                 if (!LittleAction.needIngredients(getPlayer()) && stack.isEmpty()) {
-                    stack = new ItemStack(LittleTilesRegistry.BLUEPRINT.get());
+                    stack = new ItemStack(LittleTilesRegistry.BLUEPRINT.value());
                     builder.inventory.setItem(0, stack);
                 }
                 if (stack.getItem() instanceof ItemLittleBlueprint blue)

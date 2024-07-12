@@ -1,15 +1,14 @@
 package team.creative.littletiles.client.mod.rubidium.level;
 
-import me.jellysquid.mods.sodium.client.world.WorldSlice;
-import me.jellysquid.mods.sodium.client.world.biome.BiomeColorSource;
-import me.jellysquid.mods.sodium.client.world.cloned.ChunkRenderContext;
+import org.embeddedt.embeddium.impl.world.WorldSlice;
+import org.embeddedt.embeddium.impl.world.cloned.ChunkRenderContext;
+
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ColorResolver;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FluidState;
@@ -86,16 +85,6 @@ public class LittleWorldSlice extends WorldSlice {
     @Override
     public int getMinBuildHeight() {
         return parent.getMinBuildHeight();
-    }
-    
-    @Override
-    public int getColor(BiomeColorSource source, int x, int y, int z) {
-        Biome biome = parent.getBiome(new BlockPos(x, y, z)).value();
-        return switch (source) {
-            case GRASS -> biome.getGrassColor(x, z);
-            case FOLIAGE -> biome.getFoliageColor();
-            case WATER -> biome.getWaterColor();
-        };
     }
     
 }

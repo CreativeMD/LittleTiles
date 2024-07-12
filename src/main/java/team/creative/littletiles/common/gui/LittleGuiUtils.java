@@ -11,7 +11,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector.StackCollector;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector.StackSelector;

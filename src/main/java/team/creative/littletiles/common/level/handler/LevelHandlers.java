@@ -6,7 +6,6 @@ import java.util.function.Function;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.LevelEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;

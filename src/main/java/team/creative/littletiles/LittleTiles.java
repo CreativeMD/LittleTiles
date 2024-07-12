@@ -22,20 +22,21 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.ForgeConfig;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.fml.DistExecutor;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
-import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.ModLoadingContext;
+import net.neoforged.fml.common.Mod;
+import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeConfig;
+import net.neoforged.neoforge.common.crafting.CraftingHelper;
+import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
@@ -112,24 +113,27 @@ public class LittleTiles {
     
     public static LittleTilesConfig CONFIG;
     public static final Logger LOGGER = LogManager.getLogger(LittleTiles.MODID);
-    public static final CreativeNetwork NETWORK = new CreativeNetwork(1, LOGGER, new ResourceLocation(LittleTiles.MODID, "main"));
+    public static final CreativeNetwork NETWORK = new CreativeNetwork(1, LOGGER, ResourceLocation.tryBuild(LittleTiles.MODID, "main"));
     public static final LittleAnimationHandlers ANIMATION_HANDLERS = new LittleAnimationHandlers();
     public static final LittleTickers TICKERS = new LittleTickers();
     
     public static TagKey<Block> STORAGE_BLOCKS;
     
-    public LittleTiles() {
-        FMLJavaModLoadingContext.get().getModEventBus().addListener(this::init);
-        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> () -> LittleTilesClient.load(FMLJavaModLoadingContext.get().getModEventBus()));
+    public LittleTiles(ModLoadingContext context) {
+        var bus = context.getActiveContainer().getEventBus();
+        bus.addListener(this::init);
+        if (FMLLoader.getDist() == Dist.CLIENT)
+            LittleTilesClient.load(bus);
         
-        MinecraftForge.EVENT_BUS.addListener(this::serverStarting);
+        NeoForge.EVENT_BUS.addListener(this::serverStarting);
         
-        LittleTilesRegistry.BLOCKS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        LittleTilesRegistry.ITEMS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        LittleTilesRegistry.BLOCK_ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        LittleTilesRegistry.ENTITIES.register(FMLJavaModLoadingContext.get().getModEventBus());
-        LittleTilesRegistry.CREATIVE_TABS.register(FMLJavaModLoadingContext.get().getModEventBus());
-        LittleTilesRegistry.RECIPE_SERIALIZERS.register(FMLJavaModLoadingContext.get().getModEventBus());
+        LittleTilesRegistry.BLOCKS.register(bus);
+        LittleTilesRegistry.ITEMS.register(bus);
+        LittleTilesRegistry.BLOCK_ENTITIES.register(bus);
+        LittleTilesRegistry.ENTITIES.register(bus);
+        LittleTilesRegistry.CREATIVE_TABS.register(bus);
+        LittleTilesRegistry.RECIPE_SERIALIZERS.register(bus);
+        ILittleTool.DATA_COMPONENTS.register(bus);
         
         LittlePacketTypes.init();
     }
@@ -185,10 +189,10 @@ public class LittleTiles {
         LittleActionRegistry.register(LittleActionDestroyBoxesFiltered.class, LittleActionDestroyBoxesFiltered::new);
         LittleActionRegistry.register(LittleActionDestroy.class, LittleActionDestroy::new);
         
-        MinecraftForge.EVENT_BUS.register(new LittleBedEventHandler());
-        MinecraftForge.EVENT_BUS.register(LittleAnimationHandlers.class);
+        NeoForge.EVENT_BUS.register(new LittleBedEventHandler());
+        NeoForge.EVENT_BUS.register(LittleAnimationHandlers.class);
         // MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
-        MinecraftForge.EVENT_BUS.register(new LittleToolHandler());
+        NeoForge.EVENT_BUS.register(new LittleToolHandler());
         
         LittleTilesServer.init(event);
         
@@ -196,19 +200,18 @@ public class LittleTiles {
             TheOneProbeManager.init();
         
         //MinecraftForge.EVENT_BUS.register(ChiselAndBitsConveration.class);
+        NeoForge.EVENT_BUS.register(EntitySizeHandler.class);
         
-        MinecraftForge.EVENT_BUS.register(EntitySizeHandler.class);
+        STORAGE_BLOCKS = BlockTags.create(ResourceLocation.tryBuild(MODID, "storage_blocks"));
         
-        STORAGE_BLOCKS = BlockTags.create(new ResourceLocation(MODID, "storage_blocks"));
-        
-        CraftingHelper.register(new ResourceLocation(MODID, "structure"), StructureIngredientSerializer.INSTANCE);
+        CraftingHelper.register(ResourceLocation.tryBuild(MODID, "structure"), StructureIngredientSerializer.INSTANCE);
         
         LittleTilesGuiRegistry.init();
         LittleBlocks.init();
     }
     
     private void serverStarting(final ServerStartingEvent event) {
-        ForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
+        NeoForgeConfig.SERVER.fullBoundingBoxLadders.set(true);
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-tovanilla").executes((x) -> {
             x.getSource().sendSuccess(() -> Component.literal(

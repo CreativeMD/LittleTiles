@@ -21,6 +21,7 @@ import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.element.LittleElement.NotBlockException;
@@ -108,7 +109,7 @@ public class GuiChisel extends GuiConfigureTool {
         GuiScrollY scroll = (GuiScrollY) get("settings");
         
         scroll.clear();
-        for (GuiControl control : box.getSelected(ShapeRegistry.DEFAULT_SHAPE).getCustomSettings(tool.get().getTag(), getGrid()))
+        for (GuiControl control : box.getSelected(ShapeRegistry.DEFAULT_SHAPE).getCustomSettings(ILittleTool.getData(tool.get()), getGrid()))
             scroll.add(control);
         scroll.reflow();
     }

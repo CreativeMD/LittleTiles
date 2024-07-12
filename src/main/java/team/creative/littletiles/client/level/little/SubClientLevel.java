@@ -22,8 +22,8 @@ import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
@@ -37,9 +37,8 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     private Level parentLevel;
     
     public SubClientLevel(Level parent) {
-        super((ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess());
+        super((ClientLevelData) parent.getLevelData(), parent.dimension(), parent.getProfilerSupplier(), parent.isDebug(), 0, parent.registryAccess().freeze());
         this.parentLevel = parent;
-        this.gatherCapabilities();
     }
     
     @Override
@@ -198,7 +197,7 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     }
     
     @Override
-    public void gameEvent(Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_) {
+    public void gameEvent(Entity p_151549_, Holder<GameEvent> p_151550_, BlockPos p_151551_) {
         getRealLevel().gameEvent(p_151549_, p_151550_, p_151551_);
     }
     

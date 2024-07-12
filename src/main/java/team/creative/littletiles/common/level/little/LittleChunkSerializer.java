@@ -33,7 +33,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkSource;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.DataLayer;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
@@ -44,7 +43,7 @@ import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.ChunkDataEvent;
+import net.neoforged.neoforge.event.level.ChunkDataEvent;
 import team.creative.littletiles.mixin.server.level.ChunkSerializerAccessor;
 import team.creative.littletiles.server.level.little.LittleServerLevel;
 

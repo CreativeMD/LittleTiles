@@ -1,11 +1,9 @@
 plugins {
     id 'eclipse'
     id 'idea'
-    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
-    id 'com.diffplug.eclipse.apt'
-    id 'org.spongepowered.mixin'
     id 'com.modrinth.minotaur' version '2.+'
     id 'com.matthewprenger.cursegradle' version '1.4+'
+    id 'net.neoforged.gradle.userdev' version '7.0.+'
 }
 
 repositories {
@@ -22,9 +20,7 @@ repositories {
 
 group= "team.creative" + project.mod_id
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(17)
-
-project.evaluationDependsOn(":CreativeCore")
+java.toolchain.languageVersion = JavaLanguageVersion.of(21)
 
 java.sourceSets.create("api") {
     
@@ -38,161 +34,34 @@ java.sourceSets.create("api") {
 sourceSets.main.compileClasspath += sourceSets.api.output
 sourceSets.main.runtimeClasspath += sourceSets.api.output
 
-minecraft {
-    mappings channel: 'official', version: "${project.property 'minecraft_version'}"
+project.evaluationDependsOn(":CreativeCore")
+
+runs {  
+    configureEach {
+        workingDirectory project.file('run')
+        systemProperty 'forge.logging.console.level', 'debug'
+        
+        modSource project(":CreativeCore").sourceSets.main
+        modSource project.sourceSets.main
+    }
     
-    runs {
-        client {
-            taskName "littletiles_client"
-            workingDirectory project.file('run')
-            
-			property 'forge.logging.console.level', 'debug'
-			arg '--mixin.config'
-			arg 'creativecore.mixins.json'
-			arg '--mixin.config'
-			arg 'creativecore.forge.mixins.json'
-
-            mods {
-				creativecore {
-                    source project(':CreativeCore').sourceSets.main
-                }
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
-
-        server {
-            taskName "littletiles_server"
-            workingDirectory project.file('run')
-			
-			property 'forge.logging.console.level', 'debug'
-            arg '--mixin.config'
-            arg 'creativecore.mixins.json'
-            arg '--mixin.config'
-            arg 'creativecore.forge.mixins.json'
-            
-            mods {
-                creativecore {
-                    source project(':CreativeCore').sourceSets.main
-                }
-                "${mod_id}" {
-                    source sourceSets.main
-                }
-            }
-        }
+    client {
+    }
+    
+    server {
     }
 }
 
 dependencies {
-    minecraftLibrary fg.deobf("curse.maven:oculus-581495:5299671")
-    implementation fg.deobf("org.embeddedt:embeddium-1.20.1:0.3.20-git-b21cfd8+mc1.20.1")
+    implementation "net.neoforged:neoforge:${forge_version}"
     
-    minecraft "net.minecraftforge:forge:${project.property 'minecraft_version'}-${project.property 'forge_version'}"
+    //minecraftLibrary fg.deobf("curse.maven:oculus-581495:5299671")
+    implementation "org.embeddedt:embeddium-1.21:1.0.5-git-94b2378+mc1.21"
     
     implementation project(':CreativeCore')
-    
-    annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
 }
 
 modDependencies = [
-    [ modId: "creativecore", mandatory: true, ordering: "NONE", side: "BOTH", versionRange: "[" + creativecore_version + ",)" ]
+    [ modId: "creativecore", type: "required", ordering: "NONE", side: "BOTH", versionRange: "[" + creativecore_version + ",)" ]
 ]
-
-jar {
-    duplicatesStrategy = DuplicatesStrategy.INCLUDE
-    archiveFileName.set(project.mod_name + "_" + project.mod_release_suffix + "_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
-    manifest {
-        attributes([
-            "Specification-Title": project.mod_name,
-            "Specification-Vendor": "CreativeMD",
-            "Specification-Version": project.mod_version,
-            "Implementation-Title": project.mod_name,
-            "Implementation-Version"  : project.mod_version,
-            "Implementation-Vendor": "CreativeMD",
-            "Implementation-Timestamp": new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
-}
-
-jar.finalizedBy('reobfJar')
-
-mixin {
-    add sourceSets.main, 'littletiles.mixins.refmap.json'
-     
-    config 'littletiles.mixins.json'
-}
-
-tasks.withType(JavaCompile).configureEach {
-    options.encoding = 'UTF-8'
-}
-
-String getChangelogText() {
-    String result = ''
-    boolean first = true
-    file('changelog.txt').readLines().find {
-        if (first) {
-            if (it.equals(project.mod_version)) {
-                first = false
-            }
-            return false
-        } else if (!it?.trim()) {
-            return true
-        } else {
-            result += "* " + it + "\n"
-            return false
-        }
-    }
-    
-    return result
-}
-
-task upload(type: GradleBuild) {
-    description 'Uploads new version to modrinth and curseforge.'
-    group = 'publishing'
-    tasks = ['modrinth', 'curseforge']
-}
-
-gradle.taskGraph.whenReady {
-    if (it.hasTask(tasks.modrinth) || it.hasTask(tasks.curseforge)) {
-        if (!getChangelogText()?.trim()) {
-            throw new GradleException('No changelog provided')
-        }
-    }
-}
-
-tasks.modrinth.enabled = System.getenv("MODRINTH_TOKEN") != null
-tasks.modrinth.group = 'publishing'
-modrinth {
-    token = System.getenv("MODRINTH_TOKEN")
-    projectId = project.mod_id
-    versionNumber = project.mod_version
-    versionType = project.release_type
-    uploadFile = jar
-    gameVersions = [ project.minecraft_version ]
-    changelog = getChangelogText()
-    loaders = [ "forge", "neoforge" ]
-    dependencies {
-        required.project "creativecore"
-    }
-}
-
-tasks.curseforge.enabled = System.getenv("CURSEFORGE_TOKEN") != null
-tasks.curseforge.group = 'publishing'
-curseforge {
-    apiKey = System.getenv("CURSEFORGE_TOKEN") != null ? System.getenv("CURSEFORGE_TOKEN") : "empty"
-    project {
-        id = project.curse_id
-        changelog = getChangelogText()
-        changelogType = "markdown"
-        addGameVersion project.minecraft_version
-        addGameVersion "Forge"
-        addGameVersion "NeoForge"
-        releaseType = project.release_type
-        mainArtifact(jar) {
-        }
-        relations {
-            requiredLibrary "creativecore"
-        }
-    }
-}
+modMixins = [ "littletiles.mixins.json" ]

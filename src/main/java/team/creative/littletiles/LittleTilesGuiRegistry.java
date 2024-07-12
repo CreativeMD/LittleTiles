@@ -28,14 +28,14 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructureBu
 
 public class LittleTilesGuiRegistry {
     
-    public static final GuiSyncGlobalLayer<GuiDialogSignalEvents> SIGNAL_EVENTS_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_events_dialog", x -> new GuiDialogSignalEvents());
-    public static final GuiSyncGlobalLayer<GuiDialogSignal> SIGNAL_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_dialog", x -> new GuiDialogSignal());
-    public static final GuiSyncGlobalLayer<GuiDialogSignalInput> INPUT_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_input_dialog", x -> new GuiDialogSignalInput());
-    public static final GuiSyncGlobalLayer<GuiDialogSignalMode> MODE_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_mode_dialog", x -> new GuiDialogSignalMode());
-    public static final GuiSyncGlobalLayer<GuiDialogSignalVirtualInput> VIRTUAL_INPUT_DIALOG = GuiSyncHolder.GLOBAL
-            .layer("signal_virtual_input_dialog", x -> new GuiDialogSignalVirtualInput());
-    public static final GuiSyncGlobalLayer<GuiDialogSignalVirtualNumberInput> VIRTUAL_NUMBER_DIALOG = GuiSyncHolder.GLOBAL
-            .layer("signal_virtual_number_dialog", x -> new GuiDialogSignalVirtualNumberInput());
+    public static final GuiSyncGlobalLayer<GuiDialogSignalEvents> SIGNAL_EVENTS_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_events_dialog", (x, y) -> new GuiDialogSignalEvents());
+    public static final GuiSyncGlobalLayer<GuiDialogSignal> SIGNAL_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_dialog", (x, y) -> new GuiDialogSignal());
+    public static final GuiSyncGlobalLayer<GuiDialogSignalInput> INPUT_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_input_dialog", (x, y) -> new GuiDialogSignalInput());
+    public static final GuiSyncGlobalLayer<GuiDialogSignalMode> MODE_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_mode_dialog", (x, y) -> new GuiDialogSignalMode());
+    public static final GuiSyncGlobalLayer<GuiDialogSignalVirtualInput> VIRTUAL_INPUT_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_virtual_input_dialog",
+        (x, y) -> new GuiDialogSignalVirtualInput());
+    public static final GuiSyncGlobalLayer<GuiDialogSignalVirtualNumberInput> VIRTUAL_NUMBER_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_virtual_number_dialog",
+        (x, y) -> new GuiDialogSignalVirtualNumberInput());
     
     public static final LittleTileGuiCreator STRUCTURE_OVERVIEW = GuiCreator.register("structureoverview", new LittleTileGuiCreator((nbt, player, context) -> null));
     public static final LittleTileGuiCreator STRUCTURE_OVERVIEW2 = GuiCreator.register("structureoverview2", new LittleTileGuiCreator((nbt, player, context) -> null));
@@ -46,19 +46,19 @@ public class LittleTilesGuiRegistry {
         return null;
     }));
     
-    public static final LittleStructureGuiCreator STORAGE = GuiCreator
-            .register("storage", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiStorage((LittleStorage) structure, player)));
-    public static final LittleStructureGuiCreator BLANKOMATIC = GuiCreator
-            .register("blankomatic", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiBlankOMatic((LittleBlankOMatic) structure)));
+    public static final LittleStructureGuiCreator STORAGE = GuiCreator.register("storage",
+        new LittleStructureGuiCreator((nbt, player, structure) -> new GuiStorage((LittleStorage) structure, player)));
+    public static final LittleStructureGuiCreator BLANKOMATIC = GuiCreator.register("blankomatic",
+        new LittleStructureGuiCreator((nbt, player, structure) -> new GuiBlankOMatic((LittleBlankOMatic) structure)));
     
     public static final GuiCreatorBasic EXPORTER = GuiCreator.register("exporter", new GuiCreatorBasic((nbt, player) -> new GuiExport()));
     public static final GuiCreatorBasic IMPORTER = GuiCreator.register("importer", new GuiCreatorBasic((nbt, player) -> new GuiImport()));
     
-    public static final LittleStructureGuiCreator PARTICLE = GuiCreator
-            .register("particle", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiParticle((LittleParticleEmitter) structure)));
+    public static final LittleStructureGuiCreator PARTICLE = GuiCreator.register("particle",
+        new LittleStructureGuiCreator((nbt, player, structure) -> new GuiParticle((LittleParticleEmitter) structure)));
     
-    public static final LittleStructureGuiCreator STRUCTURE_BUILDER = GuiCreator
-            .register("structure_builder", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiBuilder((LittleStructureBuilder) structure)));
+    public static final LittleStructureGuiCreator STRUCTURE_BUILDER = GuiCreator.register("structure_builder",
+        new LittleStructureGuiCreator((nbt, player, structure) -> new GuiBuilder((LittleStructureBuilder) structure)));
     public static final LittleStructureGuiCreator WORKBENCH = GuiCreator.register("workbench", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiWorkbench()));
     
     public static void init() {}

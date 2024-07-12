@@ -1,7 +1,7 @@
 package team.creative.littletiles.client.action.interact;
 
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.RenderTickEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.level.LevelAwareHandler;
 import team.creative.littletiles.common.action.LittleInteraction;
@@ -13,7 +13,7 @@ public class LittleInteractionHandlerClient implements LevelAwareHandler {
     private LittleInteraction interaction;
     
     public LittleInteractionHandlerClient() {
-        MinecraftForge.EVENT_BUS.addListener(this::clientTick);
+        NeoForge.EVENT_BUS.addListener(this::clientTick);
     }
     
     public boolean start(boolean rightclick) {
@@ -34,7 +34,7 @@ public class LittleInteractionHandlerClient implements LevelAwareHandler {
         interaction = null;
     }
     
-    public void clientTick(RenderTickEvent event) {
+    public void clientTick(RenderFrameEvent event) {
         if (interaction != null)
             finish();
     }

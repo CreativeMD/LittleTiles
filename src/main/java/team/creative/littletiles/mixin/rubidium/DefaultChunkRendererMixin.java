@@ -1,5 +1,17 @@
 package team.creative.littletiles.mixin.rubidium;
 
+import org.embeddedt.embeddium.impl.gl.attribute.GlVertexAttributeBinding;
+import org.embeddedt.embeddium.impl.gl.device.CommandList;
+import org.embeddedt.embeddium.impl.gl.device.RenderDevice;
+import org.embeddedt.embeddium.impl.render.chunk.ChunkRenderMatrices;
+import org.embeddedt.embeddium.impl.render.chunk.DefaultChunkRenderer;
+import org.embeddedt.embeddium.impl.render.chunk.ShaderChunkRenderer;
+import org.embeddedt.embeddium.impl.render.chunk.lists.ChunkRenderListIterable;
+import org.embeddedt.embeddium.impl.render.chunk.shader.ChunkShaderInterface;
+import org.embeddedt.embeddium.impl.render.chunk.terrain.TerrainRenderPass;
+import org.embeddedt.embeddium.impl.render.chunk.terrain.material.DefaultMaterials;
+import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkVertexType;
+import org.embeddedt.embeddium.impl.render.viewport.CameraTransform;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -10,18 +22,6 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexAttributeBinding;
-import me.jellysquid.mods.sodium.client.gl.device.CommandList;
-import me.jellysquid.mods.sodium.client.gl.device.RenderDevice;
-import me.jellysquid.mods.sodium.client.render.chunk.ChunkRenderMatrices;
-import me.jellysquid.mods.sodium.client.render.chunk.DefaultChunkRenderer;
-import me.jellysquid.mods.sodium.client.render.chunk.ShaderChunkRenderer;
-import me.jellysquid.mods.sodium.client.render.chunk.lists.ChunkRenderListIterable;
-import me.jellysquid.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
-import me.jellysquid.mods.sodium.client.render.viewport.CameraTransform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;

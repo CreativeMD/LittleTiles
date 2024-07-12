@@ -6,9 +6,9 @@ import java.util.function.Consumer;
 import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
-import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.LevelEvent;
+import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import team.creative.littletiles.common.level.handler.LevelHandler;
 import team.creative.littletiles.common.level.handler.LevelHandlers;
 
@@ -18,8 +18,8 @@ public class LevelHandlersClient {
     private List<LevelHandlerClient> handlers = new ArrayList<>();
     
     public LevelHandlersClient() {
-        MinecraftForge.EVENT_BUS.addListener(this::load);
-        MinecraftForge.EVENT_BUS.addListener(this::unload);
+        NeoForge.EVENT_BUS.addListener(this::load);
+        NeoForge.EVENT_BUS.addListener(this::unload);
     }
     
     public void register(LevelAwareHandler handler) {

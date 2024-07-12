@@ -1,13 +1,12 @@
 package team.creative.littletiles.mixin.rubidium;
 
+import org.embeddedt.embeddium.impl.render.EmbeddiumWorldRenderer;
+import org.embeddedt.embeddium.impl.render.chunk.RenderSectionManager;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
-
-@Mixin(SodiumWorldRenderer.class)
-public interface SodiumWorldRendererAccessor {
+@Mixin(EmbeddiumWorldRenderer.class)
+public interface EmbeddiumWorldRendererAccessor {
     
     @Accessor(remap = false)
     public RenderSectionManager getRenderSectionManager();

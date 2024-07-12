@@ -23,8 +23,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.filter.premade.BlockFilters;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -60,7 +60,7 @@ public class LittleBlocks {
             }
             
             @Override
-            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
+            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
                 ItemStack heldItem = player.getMainHandItem();
                 if (heldItem.is(Items.FLINT_AND_STEEL) || heldItem.is(Items.FIRE_CHARGE)) {
                     if (!parent.isClient())
@@ -68,7 +68,7 @@ public class LittleBlocks {
                     parent.getBE().updateTiles(x -> tile.remove(x.get(parent), box));
                     
                     if (heldItem.getItem() == Items.FLINT_AND_STEEL)
-                        heldItem.hurtAndBreak(1, player, (x) -> x.broadcastBreakEvent(InteractionHand.MAIN_HAND));
+                        heldItem.hurtAndBreak(1, player, LivingEntity.getSlotForHand(InteractionHand.MAIN_HAND));
                     else if (!player.isCreative())
                         heldItem.shrink(1);
                     
@@ -80,7 +80,7 @@ public class LittleBlocks {
             @Override
             public void exploded(IParentCollection parent, LittleTile tile, Explosion explosion) {
                 for (LittleBox box : tile)
-                    explodeBox(parent, box, explosion.getExploder(), true);
+                    explodeBox(parent, box, explosion.getDirectSourceEntity(), true);
             }
             
             public void explodeBox(IParentCollection parent, LittleBox box, Entity entity, boolean randomFuse) {
@@ -109,11 +109,11 @@ public class LittleBlocks {
             }
             
             @Override
-            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
+            public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
                 if (parent.isClient())
                     return InteractionResult.SUCCESS;
                 
-                player.openMenu(Blocks.CRAFTING_TABLE.getMenuProvider(getState(), parent.getLevel(), parent.getPos()));
+                player.openMenu(getState().getMenuProvider(parent.getLevel(), parent.getPos()));
                 player.awardStat(Stats.INTERACT_WITH_CRAFTING_TABLE);
                 return InteractionResult.CONSUME;
             }

@@ -1,6 +1,7 @@
 package team.creative.littletiles.client.mod.rubidium.pipeline;
 
-import me.jellysquid.mods.sodium.client.model.light.data.HashLightDataCache;
+import org.embeddedt.embeddium.impl.model.light.data.HashLightDataCache;
+
 import net.minecraft.world.level.BlockAndTintGetter;
 
 public class LittleLightDataAccess extends HashLightDataCache {

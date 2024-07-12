@@ -11,8 +11,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiLayer;
@@ -83,7 +83,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     private int lastHeight = -1;
     
     public OverlayRenderer() {
-        MinecraftForge.EVENT_BUS.addListener(this::renderPost);
+        NeoForge.EVENT_BUS.addListener(this::renderPost);
     }
     
     public void displayActionMessage(List<Component> message) {

@@ -2,7 +2,6 @@ package team.creative.littletiles.client.player;
 
 import java.util.BitSet;
 import java.util.Iterator;
-import java.util.Optional;
 
 import javax.annotation.Nullable;
 
@@ -21,23 +20,40 @@ import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.client.resources.sounds.GuardianAttackSoundInstance;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.Connection;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.common.ClientboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ClientboundCustomReportDetailsPacket;
+import net.minecraft.network.protocol.common.ClientboundDisconnectPacket;
+import net.minecraft.network.protocol.common.ClientboundKeepAlivePacket;
+import net.minecraft.network.protocol.common.ClientboundPingPacket;
+import net.minecraft.network.protocol.common.ClientboundResourcePackPopPacket;
+import net.minecraft.network.protocol.common.ClientboundResourcePackPushPacket;
+import net.minecraft.network.protocol.common.ClientboundServerLinksPacket;
+import net.minecraft.network.protocol.common.ClientboundStoreCookiePacket;
+import net.minecraft.network.protocol.common.ClientboundTransferPacket;
+import net.minecraft.network.protocol.common.ClientboundUpdateTagsPacket;
+import net.minecraft.network.protocol.cookie.ClientboundCookieRequestPacket;
 import net.minecraft.network.protocol.game.*;
+import net.minecraft.network.protocol.ping.ClientboundPongResponsePacket;
 import net.minecraft.server.RunningOnDifferentThreadException;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.effect.MobEffect;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ExperienceOrb;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -49,6 +65,7 @@ import net.minecraft.world.entity.animal.horse.AbstractHorse;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Guardian;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.AbstractHurtingProjectile;
 import net.minecraft.world.entity.vehicle.Boat;
 import net.minecraft.world.inventory.HorseInventoryMenu;
 import net.minecraft.world.item.ItemStack;
@@ -67,6 +84,7 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.ClientLevelExtender;
@@ -120,8 +138,8 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     }
     
     @Override
-    public void onDisconnect(Component component) {
-        vanilla().onDisconnect(component);
+    public void onDisconnect(DisconnectionDetails details) {
+        vanilla().onDisconnect(details);
     }
     
     @Override
@@ -130,8 +148,13 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     }
     
     @Override
-    public void handleResourcePack(ClientboundResourcePackPacket packet) {
-        vanilla().handleResourcePack(packet);
+    public void handleResourcePackPush(ClientboundResourcePackPushPacket packet) {
+        vanilla().handleResourcePackPush(packet);
+    }
+    
+    @Override
+    public void handleResourcePackPop(ClientboundResourcePackPopPacket packet) {
+        vanilla().handleResourcePackPop(packet);
     }
     
     @Override
@@ -153,7 +176,8 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleExplosion(ClientboundExplodePacket packet) {
         ensureRunningOnSameThread(packet);
-        Explosion explosion = new Explosion(level, (Entity) null, packet.getX(), packet.getY(), packet.getZ(), packet.getPower(), packet.getToBlow());
+        Explosion explosion = new Explosion(level, (Entity) null, packet.getX(), packet.getY(), packet.getZ(), packet.getPower(), packet.getToBlow(), packet
+                .getBlockInteraction(), packet.getSmallExplosionParticles(), packet.getLargeExplosionParticles(), packet.getExplosionSound());
         explosion.finalizeExplosion(true);
         mc.player.setDeltaMovement(mc.player.getDeltaMovement().add(packet.getKnockbackX(), packet.getKnockbackY(), packet.getKnockbackZ()));
     }
@@ -163,7 +187,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         ensureRunningOnSameThread(packet);
         BlockPos blockpos = packet.getPos();
         level.getBlockEntity(blockpos, packet.getType()).ifPresent((x) -> {
-            x.onDataPacket(vanilla().getConnection(), packet);
+            x.onDataPacket(vanilla().getConnection(), packet, level.registryAccess());
             
             if (x instanceof CommandBlockEntity && mc.screen instanceof CommandBlockEditScreen screen)
                 screen.updateGui();
@@ -201,6 +225,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
             level.playSeededSound(mc.player, entity, packet.getSound(), packet.getSource(), packet.getVolume(), packet.getPitch(), packet.getSeed());
     }
     
+    @Override
     public void send(Packet<?> packet) {
         LittleTiles.NETWORK.sendToServer(new LittleVanillaPacket((LittleLevel) level, packet));
     }
@@ -211,21 +236,34 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
             listener.onSuccess();
     }
     
+    @Nullable
+    private Entity createEntityFromPacket(ClientboundAddEntityPacket packet) {
+        EntityType<?> entitytype = packet.getType();
+        if (entitytype == EntityType.PLAYER) {
+            PlayerInfo playerinfo = vanilla().getPlayerInfo(packet.getUUID());
+            if (playerinfo == null) {
+                LOGGER.warn("Server attempted to add player prior to sending player info (Player id {})", packet.getUUID());
+                return null;
+            }
+            return new RemotePlayer(requiresClientLevel(), playerinfo.getProfile());
+        }
+        return entitytype.create(this.level);
+    }
+    
     @Override
     public void handleAddEntity(ClientboundAddEntityPacket packet) {
         ensureRunningOnSameThread(packet);
         
         Entity entity = LittleTilesClient.ANIMATION_HANDLER.pollEntityInTransition(packet);
         if (entity == null)
-            entity = packet.getType().create(this.level);
+            entity = createEntityFromPacket(packet);
         
         if (entity != null) {
             entity.recreateFromPacket(packet);
-            int i = packet.getId();
             if (level instanceof LittleAnimationLevel a)
                 a.addFreshEntityFromPacket(entity);
             else
-                requiresClientLevel().putNonPlayerEntity(i, entity);
+                requiresClientLevel().addEntity(entity);
             vanillaAccessor().callPostAddEntitySoundInstance(entity);
         } else
             LOGGER.warn("Skipping Entity with id {}", packet.getType());
@@ -240,7 +278,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         entity.setYRot(0.0F);
         entity.setXRot(0.0F);
         entity.setId(packet.getId());
-        level.putNonPlayerEntity(packet.getId(), entity);
+        level.addEntity(entity);
     }
     
     @Override
@@ -260,30 +298,6 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     }
     
     @Override
-    public void handleAddPlayer(ClientboundAddPlayerPacket packet) {
-        ensureRunningOnSameThread(packet);
-        ClientLevel level = requiresClientLevel();
-        PlayerInfo playerinfo = vanilla().getPlayerInfo(packet.getPlayerId());
-        if (playerinfo == null) {
-            LOGGER.warn("Server attempted to add player prior to sending player info (Player id {})", packet.getPlayerId());
-            return;
-        }
-        
-        double d0 = packet.getX();
-        double d1 = packet.getY();
-        double d2 = packet.getZ();
-        float f = packet.getyRot() * 360 / 256.0F;
-        float f1 = packet.getxRot() * 360 / 256.0F;
-        int i = packet.getEntityId();
-        RemotePlayer remoteplayer = new RemotePlayer(mc.level, playerinfo.getProfile());
-        remoteplayer.setId(i);
-        remoteplayer.syncPacketPositionCodec(d0, d1, d2);
-        remoteplayer.absMoveTo(d0, d1, d2, f, f1);
-        remoteplayer.setOldPosAndRot();
-        level.addPlayer(i, remoteplayer);
-    }
-    
-    @Override
     public void handleTeleportEntity(ClientboundTeleportEntityPacket packet) {
         ensureRunningOnSameThread(packet);
         Entity entity = this.level.getEntity(packet.getId());
@@ -295,7 +309,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
             if (!entity.isControlledByLocalInstance()) {
                 float f = packet.getyRot() * 360 / 256.0F;
                 float f1 = packet.getxRot() * 360 / 256.0F;
-                entity.lerpTo(d0, d1, d2, f, f1, 3, true);
+                entity.lerpTo(d0, d1, d2, f, f1, 3);
                 entity.setOnGround(packet.isOnGround());
             }
             
@@ -319,11 +333,11 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
                     vecdeltacodec.setBase(vec3);
                     float f = packet.hasRotation() ? packet.getyRot() * 360 / 256.0F : entity.getYRot();
                     float f1 = packet.hasRotation() ? packet.getxRot() * 360 / 256.0F : entity.getXRot();
-                    entity.lerpTo(vec3.x(), vec3.y(), vec3.z(), f, f1, 3, false);
+                    entity.lerpTo(vec3.x(), vec3.y(), vec3.z(), f, f1, 3);
                 } else if (packet.hasRotation()) {
                     float f2 = packet.getyRot() * 360 / 256.0F;
                     float f3 = packet.getxRot() * 360 / 256.0F;
-                    entity.lerpTo(entity.getX(), entity.getY(), entity.getZ(), f2, f3, 3, false);
+                    entity.lerpTo(entity.getX(), entity.getY(), entity.getZ(), f2, f3, 3);
                 }
                 
                 entity.setOnGround(packet.isOnGround());
@@ -442,8 +456,8 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         ensureRunningOnSameThread(packet);
         LittleClientLevel level = requiresClientLevel();
         for (ClientboundChunksBiomesPacket.ChunkBiomeData clientboundchunksbiomespacket$chunkbiomedata : packet.chunkBiomeData())
-            level.getChunkSource().replaceBiomes(clientboundchunksbiomespacket$chunkbiomedata.pos().x, clientboundchunksbiomespacket$chunkbiomedata
-                    .pos().z, clientboundchunksbiomespacket$chunkbiomedata.getReadBuffer());
+            level.getChunkSource().replaceBiomes(clientboundchunksbiomespacket$chunkbiomedata.pos().x, clientboundchunksbiomespacket$chunkbiomedata.pos().z,
+                clientboundchunksbiomespacket$chunkbiomedata.getReadBuffer());
         
         for (ClientboundChunksBiomesPacket.ChunkBiomeData clientboundchunksbiomespacket$chunkbiomedata1 : packet.chunkBiomeData())
             level.onChunkLoaded(new ChunkPos(clientboundchunksbiomespacket$chunkbiomedata1.pos().x, clientboundchunksbiomespacket$chunkbiomedata1.pos().z));
@@ -513,16 +527,14 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     public void handleForgetLevelChunk(ClientboundForgetLevelChunkPacket packet) {
         ensureRunningOnSameThread(packet);
         ClientLevel level = requiresClientLevel();
-        int i = packet.getX();
-        int j = packet.getZ();
         ChunkSource chunkSource = this.level.getChunkSource();
         if (chunkSource instanceof ClientChunkCache client)
-            client.drop(i, j);
+            client.drop(packet.pos());
         this.queueLightRemoval(level, packet);
     }
     
     private void queueLightRemoval(ClientLevel level, ClientboundForgetLevelChunkPacket packet) {
-        ChunkPos chunkpos = new ChunkPos(packet.getX(), packet.getZ());
+        ChunkPos chunkpos = packet.pos();
         level.queueLightUpdate(() -> {
             LevelLightEngine levellightengine = this.level.getLightEngine();
             levellightengine.setLightEnabled(chunkpos, false);
@@ -557,11 +569,11 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         if (entity != null) {
             RandomSource random = vanillaAccessor().getRandom();
             if (entity instanceof ExperienceOrb)
-                level.playLocalSound(entity.getX(), entity.getY(), entity
-                        .getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (random.nextFloat() - random.nextFloat()) * 0.35F + 0.9F, false);
+                level.playLocalSound(entity.getX(), entity.getY(), entity.getZ(), SoundEvents.EXPERIENCE_ORB_PICKUP, SoundSource.PLAYERS, 0.1F, (random.nextFloat() - random
+                        .nextFloat()) * 0.35F + 0.9F, false);
             else
-                level.playLocalSound(entity.getX(), entity.getY(), entity
-                        .getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, (random.nextFloat() - random.nextFloat()) * 1.4F + 2.0F, false);
+                level.playLocalSound(entity.getX(), entity.getY(), entity.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, (random.nextFloat() - random
+                        .nextFloat()) * 1.4F + 2.0F, false);
             
             mc.particleEngine.add(new ItemPickupParticle(mc.getEntityRenderDispatcher(), mc.renderBuffers(), mc.level, entity, livingentity));
             if (entity instanceof ItemEntity itemEntity) {
@@ -722,13 +734,13 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleHorseScreenOpen(ClientboundHorseScreenOpenPacket packet) {
         ensureRunningOnSameThread(packet);
-        Entity entity = this.level.getEntity(packet.getEntityId());
-        if (entity instanceof AbstractHorse horse) {
+        if (this.level.getEntity(packet.getEntityId()) instanceof AbstractHorse horse) {
             LocalPlayer localplayer = mc.player;
-            SimpleContainer simplecontainer = new SimpleContainer(packet.getSize());
-            HorseInventoryMenu horseinventorymenu = new HorseInventoryMenu(packet.getContainerId(), localplayer.getInventory(), simplecontainer, horse);
+            int i = packet.getInventoryColumns();
+            SimpleContainer simplecontainer = new SimpleContainer(AbstractHorse.getInventorySize(i));
+            HorseInventoryMenu horseinventorymenu = new HorseInventoryMenu(packet.getContainerId(), localplayer.getInventory(), simplecontainer, horse, i);
             localplayer.containerMenu = horseinventorymenu;
-            mc.setScreen(new HorseInventoryScreen(horseinventorymenu, localplayer.getInventory(), horse));
+            mc.setScreen(new HorseInventoryScreen(horseinventorymenu, localplayer.getInventory(), horse, i));
         }
         
     }
@@ -770,9 +782,8 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleSetEquipment(ClientboundSetEquipmentPacket packet) {
         ensureRunningOnSameThread(packet);
-        Entity entity = this.level.getEntity(packet.getEntity());
-        if (entity != null)
-            packet.getSlots().forEach((slot) -> entity.setItemSlot(slot.getFirst(), slot.getSecond()));
+        if (this.level.getEntity(packet.getEntity()) instanceof LivingEntity living)
+            packet.getSlots().forEach((slot) -> living.setItemSlot(slot.getFirst(), slot.getSecond()));
     }
     
     @Override
@@ -848,21 +859,18 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         ensureRunningOnSameThread(packet);
         Entity entity = this.level.getEntity(packet.getEntityId());
         if (entity instanceof LivingEntity living) {
-            MobEffect mobeffect = packet.getEffect();
-            if (mobeffect != null)
-                living.forceAddEffect(new MobEffectInstance(mobeffect, packet.getEffectDurationTicks(), packet.getEffectAmplifier(), packet.isEffectAmbient(), packet
-                        .isEffectVisible(), packet.effectShowsIcon(), (MobEffectInstance) null, Optional.ofNullable(packet.getFactorData())), (Entity) null);
+            Holder<MobEffect> mobeffect = packet.getEffect();
+            MobEffectInstance instance = new MobEffectInstance(mobeffect, packet.getEffectDurationTicks(), packet.getEffectAmplifier(), packet.isEffectAmbient(), packet
+                    .isEffectVisible(), packet.effectShowsIcon(), (MobEffectInstance) null);
+            if (!packet.shouldBlend())
+                instance.skipBlending();
+            living.forceAddEffect(instance, (Entity) null);
         }
     }
     
     @Override
     public void handleUpdateTags(ClientboundUpdateTagsPacket packet) {
         vanilla().handleUpdateTags(packet);
-    }
-    
-    @Override
-    public void handleEnabledFeatures(ClientboundUpdateEnabledFeaturesPacket packet) {
-        vanilla().handleEnabledFeatures(packet);
     }
     
     @Override
@@ -874,10 +882,10 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handlePlayerCombatKill(ClientboundPlayerCombatKillPacket packet) {
         ensureRunningOnSameThread(packet);
-        Entity entity = this.level.getEntity(packet.getPlayerId());
+        Entity entity = this.level.getEntity(packet.playerId());
         if (entity == mc.player)
             if (mc.player.shouldShowDeathScreen())
-                mc.setScreen(new DeathScreen(packet.getMessage(), this.level.getLevelData().isHardcore()));
+                mc.setScreen(new DeathScreen(packet.message(), this.level.getLevelData().isHardcore()));
             else
                 mc.player.respawn();
     }
@@ -970,7 +978,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
         ensureRunningOnSameThread(packet);
         Entity entity = packet.getEntity(this.level);
         if (entity instanceof LivingEntity living)
-            living.removeEffectNoUpdate(packet.getEffect());
+            living.removeEffectNoUpdate(packet.effect());
     }
     
     @Override
@@ -1083,14 +1091,14 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
             AttributeMap attributemap = ((LivingEntity) entity).getAttributes();
             
             for (ClientboundUpdateAttributesPacket.AttributeSnapshot attribute : packet.getValues()) {
-                AttributeInstance attributeinstance = attributemap.getInstance(attribute.getAttribute());
+                AttributeInstance attributeinstance = attributemap.getInstance(attribute.attribute());
                 if (attributeinstance == null)
-                    LOGGER.warn("Entity {} does not have attribute {}", entity, BuiltInRegistries.ATTRIBUTE.getKey(attribute.getAttribute()));
+                    LOGGER.warn("Entity {} does not have attribute {}", entity, attribute.attribute().getRegisteredName());
                 else {
-                    attributeinstance.setBaseValue(attribute.getBase());
+                    attributeinstance.setBaseValue(attribute.base());
                     attributeinstance.removeModifiers();
                     
-                    for (AttributeModifier attributemodifier : attribute.getModifiers())
+                    for (AttributeModifier attributemodifier : attribute.modifiers())
                         attributeinstance.addTransientModifier(attributemodifier);
                 }
             }
@@ -1132,7 +1140,7 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public void handleBundlePacket(ClientboundBundlePacket packet) {
         ensureRunningOnSameThread(packet);
-        for (Packet<ClientGamePacketListener> sub : packet.subPackets())
+        for (Packet<? super ClientGamePacketListener> sub : packet.subPackets())
             sub.handle(this);
     }
     
@@ -1149,5 +1157,93 @@ public class LittleClientPlayerHandler implements TickablePacketListener, Client
     @Override
     public boolean isAcceptingMessages() {
         return vanilla().isAcceptingMessages();
+    }
+    
+    @Override
+    public void handlePongResponse(ClientboundPongResponsePacket packet) {
+        vanilla().handlePongResponse(packet);
+    }
+    
+    @Override
+    public void handleStoreCookie(ClientboundStoreCookiePacket packet) {
+        vanilla().handleStoreCookie(packet);
+    }
+    
+    @Override
+    public void handleTransfer(ClientboundTransferPacket packet) {
+        vanilla().handleTransfer(packet);
+    }
+    
+    @Override
+    public void handleCustomReportDetails(ClientboundCustomReportDetailsPacket packet) {
+        vanilla().handleCustomReportDetails(packet);
+    }
+    
+    @Override
+    public void handleServerLinks(ClientboundServerLinksPacket packet) {
+        vanilla().handleServerLinks(packet);
+    }
+    
+    @Override
+    public void handleRequestCookie(ClientboundCookieRequestPacket packet) {
+        vanilla().handleRequestCookie(packet);
+    }
+    
+    @Override
+    public Connection getConnection() {
+        return vanilla().getConnection();
+    }
+    
+    @Override
+    public ConnectionType getConnectionType() {
+        return vanilla().getConnectionType();
+    }
+    
+    @Override
+    public void handleResetScore(ClientboundResetScorePacket packet) {
+        vanilla().handleResetScore(packet);
+    }
+    
+    @Override
+    public void handleTickingState(ClientboundTickingStatePacket packet) {
+        ensureRunningOnSameThread(packet);
+        TickRateManager tickratemanager = level.tickRateManager();
+        tickratemanager.setTickRate(packet.tickRate());
+        tickratemanager.setFrozen(packet.isFrozen());
+    }
+    
+    @Override
+    public void handleTickingStep(ClientboundTickingStepPacket packet) {
+        ensureRunningOnSameThread(packet);
+        if (level != null) {
+            TickRateManager tickratemanager = level.tickRateManager();
+            tickratemanager.setFrozenTicksToRun(packet.tickSteps());
+        }
+    }
+    
+    @Override
+    public void handleConfigurationStart(ClientboundStartConfigurationPacket packet) {
+        vanilla().handleConfigurationStart(packet);
+    }
+    
+    @Override
+    public void handleChunkBatchStart(ClientboundChunkBatchStartPacket packet) {
+        vanilla().handleChunkBatchStart(packet);
+    }
+    
+    @Override
+    public void handleChunkBatchFinished(ClientboundChunkBatchFinishedPacket packet) {
+        vanilla().handleChunkBatchFinished(packet);
+    }
+    
+    @Override
+    public void handleDebugSample(ClientboundDebugSamplePacket packet) {
+        vanilla().handleDebugSample(packet);
+    }
+    
+    @Override
+    public void handleProjectilePowerPacket(ClientboundProjectilePowerPacket packet) {
+        if (level.getEntity(packet.getId()) instanceof AbstractHurtingProjectile abstracthurtingprojectile)
+            abstracthurtingprojectile.accelerationPower = packet.getAccelerationPower();
     }
 }

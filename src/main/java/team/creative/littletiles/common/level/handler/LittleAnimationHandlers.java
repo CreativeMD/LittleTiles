@@ -4,12 +4,12 @@ import java.util.UUID;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.LevelTickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.StartTracking;
-import net.minecraftforge.event.entity.player.PlayerEvent.StopTracking;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent.StartTracking;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent.StopTracking;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;

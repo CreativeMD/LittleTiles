@@ -53,7 +53,7 @@ public class LittleElement {
     
     public LittleElement(String name, int color) {
         setState(LittleBlockRegistry.loadState(name));
-        if (state.getBlock() == LittleTilesRegistry.MISSING.get())
+        if (state.getBlock() == LittleTilesRegistry.MISSING.value())
             this.block = LittleBlockRegistry.getMissing(name);
         this.color = color;
     }

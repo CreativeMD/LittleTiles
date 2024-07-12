@@ -6,10 +6,10 @@ import java.util.function.Consumer;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.ServerTickEvent;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
 public class LittleServerPlayerConnection {
@@ -17,7 +17,7 @@ public class LittleServerPlayerConnection {
     private LittleServerPlayerConnection() {}
     
     static {
-        MinecraftForge.EVENT_BUS.register(LittleServerPlayerConnection.class);
+        NeoForge.EVENT_BUS.register(LittleServerPlayerConnection.class);
     }
     
     private static final HashMap<ServerPlayer, LittleServerPlayerHandler> LISTENERS = new HashMap<>();

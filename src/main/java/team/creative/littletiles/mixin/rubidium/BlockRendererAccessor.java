@@ -1,16 +1,16 @@
 package team.creative.littletiles.mixin.rubidium;
 
+import org.embeddedt.embeddium.api.render.chunk.BlockRenderContext;
+import org.embeddedt.embeddium.impl.model.color.ColorProviderRegistry;
+import org.embeddedt.embeddium.impl.model.light.data.QuadLightData;
+import org.embeddedt.embeddium.impl.model.quad.BakedQuadView;
+import org.embeddedt.embeddium.impl.render.chunk.compile.buffers.ChunkModelBuilder;
+import org.embeddedt.embeddium.impl.render.chunk.compile.pipeline.BlockRenderer;
+import org.embeddedt.embeddium.impl.render.chunk.terrain.material.Material;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import me.jellysquid.mods.sodium.client.model.color.ColorProviderRegistry;
-import me.jellysquid.mods.sodium.client.model.light.data.QuadLightData;
-import me.jellysquid.mods.sodium.client.model.quad.BakedQuadView;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.minecraft.world.phys.Vec3;
 
 @Mixin(BlockRenderer.class)

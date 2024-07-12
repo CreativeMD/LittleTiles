@@ -15,11 +15,11 @@ import net.minecraft.network.protocol.game.ClientboundLevelChunkPacketData;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.LightLayer;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.lighting.LevelLightEngine;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.level.ChunkEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.ChunkEvent;
 import team.creative.littletiles.mixin.client.level.ClientChunkCacheAccessor;
 
 public class LittleClientChunkCache extends ClientChunkCache {
@@ -46,7 +46,7 @@ public class LittleClientChunkCache extends ClientChunkCache {
     }
     
     @Override
-    public void drop(int x, int z) {}
+    public void drop(ChunkPos pos) {}
     
     @Override
     @Nullable
@@ -62,7 +62,7 @@ public class LittleClientChunkCache extends ClientChunkCache {
         LevelChunk chunk = getChunk(x, z, ChunkStatus.FULL, true);
         chunk.replaceWithPacketData(buffer, tag, consumer);
         getLevel().onChunkLoaded(chunk);
-        MinecraftForge.EVENT_BUS.post(new ChunkEvent.Load(chunk, false));
+        NeoForge.EVENT_BUS.post(new ChunkEvent.Load(chunk, false));
         return chunk;
     }
     

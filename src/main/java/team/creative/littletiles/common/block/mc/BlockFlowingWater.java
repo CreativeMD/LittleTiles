@@ -3,17 +3,18 @@ package team.creative.littletiles.common.block.mc;
 import org.joml.Vector3d;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockBehaviour;
@@ -23,8 +24,8 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -42,9 +43,9 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     
-    public final Block still;
+    public final Holder<Block> still;
     
-    public BlockFlowingWater(Block still) {
+    public BlockFlowingWater(Holder<Block> still) {
         super(BlockBehaviour.Properties.of().liquid());
         this.still = still;
     }
@@ -100,13 +101,13 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
         if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
             BlockState newState;
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;
             if (index >= Direction.values().length)
-                newState = LittleTilesRegistry.WATER.get().defaultBlockState();
+                newState = LittleTilesRegistry.WATER.value().defaultBlockState();
             else
                 newState = tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]);
             parent.getBE().updateTiles(x -> {
@@ -116,7 +117,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
             });
             return InteractionResult.SUCCESS;
         }
-        return ILittleMCBlock.super.use(parent, tile, box, player, result, hand);
+        return ILittleMCBlock.super.use(parent, tile, box, player, result);
     }
     
     @Override
@@ -124,7 +125,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     public boolean canBeRenderCombined(LittleTile thisTile, LittleTile tile) {
         if (tile.getBlock() == this)
             return true;
-        if (tile.getBlock() == LittleTilesRegistry.WATER.get())
+        if (tile.getBlock() == LittleTilesRegistry.WATER.value())
             return true;
         return false;
     }
@@ -133,7 +134,8 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
         float f12 = 0.0F;
         if (entity instanceof LivingEntity living) {
-            f12 = EnchantmentHelper.getRespiration(living) * 0.2F;
+            AttributeInstance attributeinstance = living.getAttribute(Attributes.OXYGEN_BONUS);
+            f12 = (float) (attributeinstance != null ? attributeinstance.getValue() : 0) * 0.2F;
             
             if (living.hasEffect(MobEffects.WATER_BREATHING))
                 f12 = f12 * 0.3F + 0.6F;

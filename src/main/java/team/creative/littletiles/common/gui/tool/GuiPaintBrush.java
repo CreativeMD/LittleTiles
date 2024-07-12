@@ -16,6 +16,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
@@ -91,7 +92,7 @@ public class GuiPaintBrush extends GuiConfigureTool {
         
         LittleShape shape = box.getSelected(ShapeRegistry.TILE_SHAPE);
         scroll.clear();
-        for (GuiControl control : shape.getCustomSettings(tool.get().getTag(), getGrid()))
+        for (GuiControl control : shape.getCustomSettings(ILittleTool.getData(tool.get()), getGrid()))
             scroll.add(control);
         
         reflow();

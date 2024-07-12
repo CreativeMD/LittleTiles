@@ -3,8 +3,8 @@ package team.creative.littletiles.common.structure.registry.gui;
 import javax.annotation.Nullable;
 
 import net.minecraft.world.SimpleContainer;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.util.mc.ColorUtils;

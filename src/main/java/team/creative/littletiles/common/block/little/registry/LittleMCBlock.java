@@ -5,7 +5,6 @@ import org.joml.Vector3d;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -92,7 +91,7 @@ public class LittleMCBlock implements LittleBlock {
     
     @Override
     public SoundType getSoundType() {
-        return block.getSoundType(getState());
+        return getState().getSoundType();
     }
     
     @Override
@@ -127,7 +126,7 @@ public class LittleMCBlock implements LittleBlock {
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
         return InteractionResult.PASS;
     }
     
@@ -147,7 +146,7 @@ public class LittleMCBlock implements LittleBlock {
     @Override
     public boolean isFluid(TagKey<Fluid> fluid) {
         if (block instanceof LiquidBlock b)
-            return b.getFluid().is(fluid);
+            return b.fluid.is(fluid);
         return false;
     }
     

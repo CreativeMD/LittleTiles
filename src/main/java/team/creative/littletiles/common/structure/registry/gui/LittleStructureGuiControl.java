@@ -2,8 +2,8 @@ package team.creative.littletiles.common.structure.registry.gui;
 
 import javax.annotation.Nullable;
 
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;

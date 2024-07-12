@@ -31,19 +31,19 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ModelEvent.RegisterAdditional;
-import net.minecraftforge.client.event.ModelEvent.RegisterGeometryLoaders;
-import net.minecraftforge.client.event.RegisterClientCommandsEvent;
-import net.minecraftforge.client.event.RegisterColorHandlersEvent;
-import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
-import net.minecraftforge.client.model.data.ModelData;
-import net.minecraftforge.client.settings.IKeyConflictContext;
-import net.minecraftforge.client.settings.KeyModifier;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
+import net.neoforged.neoforge.client.event.ModelEvent.RegisterAdditional;
+import net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
+import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.settings.IKeyConflictContext;
+import net.neoforged.neoforge.client.settings.KeyModifier;
+import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeBlockModel;
@@ -154,7 +154,7 @@ public class LittleTilesClient {
     
     public static void load(IEventBus bus) {
         bus.addListener(LittleTilesClient::setup);
-        MinecraftForge.EVENT_BUS.addListener(LittleTilesClient::commands);
+        NeoForge.EVENT_BUS.addListener(LittleTilesClient::commands);
         bus.addListener(LittleTilesClient::initItemColors);
         bus.addListener(LittleTilesClient::initBlockColors);
         bus.addListener(LittleTilesClient::registerKeys);
@@ -193,10 +193,10 @@ public class LittleTilesClient {
             if (layer == 0)
                 return ColorUtils.WHITE;
             return ItemLittlePaintBrush.getColor(stack);
-        }, LittleTilesRegistry.PAINT_BRUSH.get());
+        }, LittleTilesRegistry.PAINT_BRUSH.value());
         
         // overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
-        MinecraftForge.EVENT_BUS.register(new LittleClientEventHandler());
+        NeoForge.EVENT_BUS.register(new LittleClientEventHandler());
         
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
         LEVEL_HANDLERS.register(LittleVanillaInteractionHandlerClient::new, x -> INTERACTION_HANDLER = x);
@@ -207,7 +207,7 @@ public class LittleTilesClient {
         LEVEL_HANDLERS.register(INTERACTION = new LittleInteractionHandlerClient());
         
         // Init overlays
-        MinecraftForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
+        NeoForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
         LEVEL_HANDLERS.register(OVERLAY_RENDERER = new OverlayRenderer());
         
         ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
@@ -216,6 +216,7 @@ public class LittleTilesClient {
             @Override
             public void onResourceManagerReload(ResourceManager manager) {
                 RenderingThread.CURRENT_RENDERING_INDEX++;
+                LittleTilesClient.ANIMATION_HANDLER.reload();
                 LittleBlockClientRegistry.clearCache();
                 ITEM_RENDER_CACHE.clearCache();
             }
@@ -231,25 +232,25 @@ public class LittleTilesClient {
         blockEntityRenderer = new BETilesRenderer();
         BlockEntityRenderers.register(LittleTilesRegistry.BE_TILES_TYPE_RENDERED.get(), x -> blockEntityRenderer);
         
-        ResourceLocation filled = new ResourceLocation(LittleTiles.MODID, "filled");
+        ResourceLocation filled = ResourceLocation.tryBuild(LittleTiles.MODID, "filled");
         ClampedItemPropertyFunction function = (stack, level, entity, x) -> ((ItemColorIngredient) stack.getItem()).getColor(stack) / (float) ColorIngredient.BOTTLE_SIZE;
-        ItemProperties.register(LittleTilesRegistry.BLACK_COLOR.get(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.get(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.get(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.get(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.BLACK_COLOR.value(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.value(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.value(), filled, function);
+        ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.value(), filled, function);
         
         RubidiumManager.init();
         OculusManager.init();
     }
     
     public static void modelLoader(RegisterAdditional event) {
-        event.register(new ModelResourceLocation(LittleTiles.MODID, "glove_background", "inventory"));
-        event.register(new ModelResourceLocation(LittleTiles.MODID, "chisel_background", "inventory"));
-        event.register(new ModelResourceLocation(LittleTiles.MODID, "blueprint_background", "inventory"));
+        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "glove_background"), "inventory"));
+        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel_background"), "inventory"));
+        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint_background"), "inventory"));
     }
     
     public static void modelEvent(RegisterGeometryLoaders event) {
-        CreativeCoreClient.registerBlockModel(new ResourceLocation(LittleTiles.MODID, "empty"), new CreativeBlockModel() {
+        CreativeCoreClient.registerBlockModel(ResourceLocation.tryBuild(LittleTiles.MODID, "empty"), new CreativeBlockModel() {
             
             @Override
             public List<? extends RenderBox> getBoxes(BlockState state, ModelData data, RandomSource source) {
@@ -262,8 +263,8 @@ public class LittleTilesClient {
             }
         });
         
-        CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "tiles"), new LittleModelItemTilesBig());
-        CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "premade"), new LittleModelItemTilesBig() {
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "tiles"), new LittleModelItemTilesBig());
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "premade"), new LittleModelItemTilesBig() {
             @Override
             public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
                 if (!stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY))
@@ -284,92 +285,91 @@ public class LittleTilesClient {
                 return cubes;
             }
         });
-        CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "glove"),
-            new LittleModelItemPreview(new ModelResourceLocation(LittleTiles.MODID, "glove_background", "inventory"), null) {
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
+            LittleTiles.MODID, "glove_background"), "inventory"), null) {
+            
+            @Override
+            public boolean shouldRenderFake(ItemStack stack) {
+                return true;
+            }
+            
+            @Override
+            protected ItemStack getFakeStack(ItemStack current) {
+                GloveMode mode = ItemLittleGlove.getMode(current);
+                if (mode.hasPreviewElement(current))
+                    return new ItemStack(mode.getPreviewElement(current).getState().getBlock());
                 
-                @Override
-                public boolean shouldRenderFake(ItemStack stack) {
-                    return true;
-                }
+                if (!mode.hasTiles(current))
+                    return ItemStack.EMPTY;
                 
-                @Override
-                protected ItemStack getFakeStack(ItemStack current) {
-                    GloveMode mode = ItemLittleGlove.getMode(current);
-                    if (mode.hasPreviewElement(current))
-                        return new ItemStack(mode.getPreviewElement(current).getState().getBlock());
-                    
-                    if (!mode.hasTiles(current))
-                        return ItemStack.EMPTY;
-                    
-                    ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
-                    stack.setTag(LittleGroup.save(mode.getTiles(current)));
-                    return stack;
-                    
-                }
-            });
-        CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "chisel"),
-            new LittleModelItemPreview(new ModelResourceLocation(LittleTiles.MODID, "chisel_background", "inventory"), stack -> ItemLittleChisel.getElement(stack)));
-        CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "blueprint"),
-            new LittleModelItemBackground(new ModelResourceLocation(LittleTiles.MODID, "blueprint_background", "inventory"), x -> {
-                ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
-                stack.setTag(x.getOrCreateTag().getCompound(ItemLittleBlueprint.CONTENT_KEY));
+                ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
+                stack.setTag(LittleGroup.save(mode.getTiles(current)));
                 return stack;
-            }));
-        
-        CreativeCoreClient.registerItemModel(new ResourceLocation(LittleTiles.MODID, "blockingredient"),
-            new CreativeItemBoxModel(new ModelResourceLocation("minecraft", "stone", "inventory")) {
                 
-                @Override
-                public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
-                    List<RenderBox> cubes = new ArrayList<>();
-                    BlockIngredientEntry ingredient = ItemBlockIngredient.loadIngredient(stack);
-                    if (ingredient == null)
-                        return null;
+            }
+        });
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
+            LittleTiles.MODID, "chisel_background"), "inventory"), stack -> ItemLittleChisel.getElement(stack)));
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
+                .tryBuild(LittleTiles.MODID, "blueprint_background"), "inventory"), x -> {
+                    ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
+                    stack.setTag(x.getOrCreateTag().getCompound(ItemLittleBlueprint.CONTENT_KEY));
+                    return stack;
+                }));
+        
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blockingredient"), new CreativeItemBoxModel(new ModelResourceLocation(ResourceLocation
+                .tryBuild("minecraft", "stone"), "inventory")) {
+            
+            @Override
+            public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
+                List<RenderBox> cubes = new ArrayList<>();
+                BlockIngredientEntry ingredient = ItemBlockIngredient.loadIngredient(stack);
+                if (ingredient == null)
+                    return null;
+                
+                double volume = Math.min(1, ingredient.value);
+                LittleGrid context = LittleGrid.overallDefault();
+                long pixels = (long) (volume * context.count3d);
+                if (pixels < context.count * context.count)
+                    cubes.add(new RenderBox(0.4F, 0.4F, 0.4F, 0.6F, 0.6F, 0.6F, ingredient.block.getState()));
+                else {
+                    long remainingPixels = pixels;
+                    long planes = pixels / context.count2d;
+                    remainingPixels -= planes * context.count2d;
+                    long rows = remainingPixels / context.count;
+                    remainingPixels -= rows * context.count;
                     
-                    double volume = Math.min(1, ingredient.value);
-                    LittleGrid context = LittleGrid.overallDefault();
-                    long pixels = (long) (volume * context.count3d);
-                    if (pixels < context.count * context.count)
-                        cubes.add(new RenderBox(0.4F, 0.4F, 0.4F, 0.6F, 0.6F, 0.6F, ingredient.block.getState()));
-                    else {
-                        long remainingPixels = pixels;
-                        long planes = pixels / context.count2d;
-                        remainingPixels -= planes * context.count2d;
-                        long rows = remainingPixels / context.count;
-                        remainingPixels -= rows * context.count;
-                        
-                        float height = (float) (planes * context.pixelLength);
-                        
-                        if (planes > 0)
-                            cubes.add(new RenderBox(0.0F, 0.0F, 0.0F, 1.0F, height, 1.0F, ingredient.block.getState()));
-                        
-                        float width = (float) (rows * context.pixelLength);
-                        
-                        if (rows > 0)
-                            cubes.add(new RenderBox(0.0F, height, 0.0F, 1.0F, height + (float) context.pixelLength, width, ingredient.block.getState()));
-                        
-                        if (remainingPixels > 0)
-                            cubes.add(new RenderBox(0.0F, height, width, 1.0F, height + (float) context.pixelLength, width + (float) context.pixelLength, ingredient.block
-                                    .getState()));
-                    }
-                    return cubes;
+                    float height = (float) (planes * context.pixelLength);
+                    
+                    if (planes > 0)
+                        cubes.add(new RenderBox(0.0F, 0.0F, 0.0F, 1.0F, height, 1.0F, ingredient.block.getState()));
+                    
+                    float width = (float) (rows * context.pixelLength);
+                    
+                    if (rows > 0)
+                        cubes.add(new RenderBox(0.0F, height, 0.0F, 1.0F, height + (float) context.pixelLength, width, ingredient.block.getState()));
+                    
+                    if (remainingPixels > 0)
+                        cubes.add(new RenderBox(0.0F, height, width, 1.0F, height + (float) context.pixelLength, width + (float) context.pixelLength, ingredient.block.getState()));
                 }
-            });
+                return cubes;
+            }
+        });
     }
     
     public static void initItemColors(RegisterColorHandlersEvent.Item event) {
-        CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.PREMADE.get());
-        CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.ITEM_TILES.get());
+        CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.PREMADE.value());
+        CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.ITEM_TILES.value());
         event.register((stack, tint) -> {
             if (stack.getItem() instanceof BlockItem block)
                 return event.getBlockColors().getColor(block.getBlock().defaultBlockState(), (BlockAndTintGetter) null, (BlockPos) null, tint);
             return ColorUtils.WHITE;
-        }, LittleTilesRegistry.WATER.get(), LittleTilesRegistry.FLOWING_WATER.get());
+        }, LittleTilesRegistry.WATER.value(), LittleTilesRegistry.FLOWING_WATER.value());
     }
     
     public static void initBlockColors(RegisterColorHandlersEvent.Block event) {
-        event.register((state, level, pos, tint) -> level != null && pos != null ? BiomeColors.getAverageWaterColor(level, pos) : 4159204, LittleTilesRegistry.WATER.get(),
-            LittleTilesRegistry.FLOWING_WATER.get());
+        event.register((state, level, pos, tint) -> level != null && pos != null ? BiomeColors.getAverageWaterColor(level, pos) : 4159204, LittleTilesRegistry.WATER.value(),
+            LittleTilesRegistry.FLOWING_WATER.value());
     }
     
     public static void commands(RegisterClientCommandsEvent event) {

@@ -9,7 +9,6 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,22 +23,24 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
-import net.minecraft.world.level.block.GlassBlock;
 import net.minecraft.world.level.block.HalfTransparentBlock;
 import net.minecraft.world.level.block.LeavesBlock;
 import net.minecraft.world.level.block.SlabBlock;
 import net.minecraft.world.level.block.StainedGlassBlock;
+import net.minecraft.world.level.block.TransparentBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.event.level.BlockEvent;
-import net.minecraftforge.event.level.BlockEvent.BreakEvent;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.bus.api.ICancellableEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock.Action;
+import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.BlockEvent.BreakEvent;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -190,7 +191,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         if (level.isClientSide)
             return;
         BreakEvent event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player);
-        MinecraftForge.EVENT_BUS.post(event);
+        NeoForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             sendBlockResetToClient(level, player, pos);
             throw new AreaProtected();
@@ -269,14 +270,14 @@ public abstract class LittleAction<T> extends CreativePacket {
         if (!rightClick && PlayerUtils.isAdventure(player)) {
             ItemStack stack = player.getMainHandItem();
             BlockInWorld blockinworld = new BlockInWorld(level, pos, false);
-            if (!stack.hasAdventureModePlaceTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK), blockinworld))
+            if (!stack.canPlaceOnBlockInAdventureMode(blockinworld))
                 return false;
         } else if (!rightClick && !player.mayBuild())
             return false;
         
         if (WorldEditEvent != null) {
             PlayerInteractEvent event = rightClick ? new PlayerInteractEvent.RightClickBlock(player, InteractionHand.MAIN_HAND, pos, new BlockHitResult(Vec3.atBottomCenterOf(
-                pos), facing.toVanilla(), pos, true)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing.toVanilla());
+                pos), facing.toVanilla(), pos, true)) : new PlayerInteractEvent.LeftClickBlock(player, pos, facing.toVanilla(), Action.START);
             try {
                 if (worldEditInstance == null)
                     loadWorldEditEvent();
@@ -284,7 +285,7 @@ public abstract class LittleAction<T> extends CreativePacket {
             } catch (IllegalAccessException | IllegalArgumentException | InvocationTargetException e) {
                 e.printStackTrace();
             }
-            if (event.isCanceled())
+            if (((ICancellableEvent) event).isCanceled())
                 return false;
         }
         
@@ -373,7 +374,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         
         String id = ItemPremadeStructure.getPremadeId(toDrain);
         for (ItemStack stack : inventory) {
-            if (stack.getItem() == LittleTilesRegistry.PREMADE.get() && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
+            if (stack.getItem() == LittleTilesRegistry.PREMADE.value() && ItemPremadeStructure.getPremadeId(stack).equals(id)) {
                 stack.shrink(1);
                 return true;
             }
@@ -439,7 +440,7 @@ public abstract class LittleAction<T> extends CreativePacket {
             return false;
         if (LittleBlockRegistry.hasHandler(block))
             return true;
-        return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock || block instanceof LeavesBlock;
+        return block instanceof TransparentBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock || block instanceof LeavesBlock;
     }
     
     public static boolean isBlockValid(BlockState state) {

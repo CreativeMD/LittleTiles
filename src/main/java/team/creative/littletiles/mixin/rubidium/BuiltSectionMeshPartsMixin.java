@@ -1,9 +1,9 @@
 package team.creative.littletiles.mixin.rubidium;
 
+import org.embeddedt.embeddium.impl.render.chunk.data.BuiltSectionMeshParts;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
-import me.jellysquid.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
 import team.creative.littletiles.client.mod.rubidium.data.BuiltSectionMeshPartsExtender;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 

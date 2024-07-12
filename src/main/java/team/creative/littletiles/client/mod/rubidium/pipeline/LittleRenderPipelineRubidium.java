@@ -7,6 +7,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.embeddedt.embeddium.api.render.chunk.BlockRenderContext;
+import org.embeddedt.embeddium.api.util.ColorABGR;
+import org.embeddedt.embeddium.impl.model.color.ColorProvider;
+import org.embeddedt.embeddium.impl.model.color.ColorProviderRegistry;
+import org.embeddedt.embeddium.impl.model.light.LightMode;
+import org.embeddedt.embeddium.impl.model.light.LightPipeline;
+import org.embeddedt.embeddium.impl.model.light.LightPipelineProvider;
+import org.embeddedt.embeddium.impl.model.light.data.QuadLightData;
+import org.embeddedt.embeddium.impl.model.quad.BakedQuadView;
+import org.embeddedt.embeddium.impl.model.quad.ModelQuadView;
+import org.embeddedt.embeddium.impl.model.quad.properties.ModelQuadFacing;
+import org.embeddedt.embeddium.impl.render.EmbeddiumWorldRenderer;
+import org.embeddedt.embeddium.impl.render.chunk.RenderSectionManager;
+import org.embeddedt.embeddium.impl.render.chunk.compile.ChunkBuildBuffers;
+import org.embeddedt.embeddium.impl.render.chunk.compile.buffers.ChunkModelBuilder;
+import org.embeddedt.embeddium.impl.render.chunk.compile.pipeline.BlockRenderer;
+import org.embeddedt.embeddium.impl.render.chunk.terrain.material.DefaultMaterials;
+import org.embeddedt.embeddium.impl.render.chunk.terrain.material.Material;
+import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkVertexType;
+import org.embeddedt.embeddium.impl.render.texture.SpriteUtil;
 import org.lwjgl.system.MemoryUtil;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -14,26 +34,6 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import me.jellysquid.mods.sodium.client.model.color.ColorProvider;
-import me.jellysquid.mods.sodium.client.model.color.ColorProviderRegistry;
-import me.jellysquid.mods.sodium.client.model.light.LightMode;
-import me.jellysquid.mods.sodium.client.model.light.LightPipeline;
-import me.jellysquid.mods.sodium.client.model.light.LightPipelineProvider;
-import me.jellysquid.mods.sodium.client.model.light.data.QuadLightData;
-import me.jellysquid.mods.sodium.client.model.quad.BakedQuadView;
-import me.jellysquid.mods.sodium.client.model.quad.ModelQuadView;
-import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
-import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSectionManager;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.material.Material;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
-import me.jellysquid.mods.sodium.client.render.texture.SpriteUtil;
-import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -45,7 +45,7 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.client.model.data.ModelData;
+import net.neoforged.neoforge.client.model.data.ModelData;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -72,15 +72,15 @@ import team.creative.littletiles.mixin.rubidium.BlockRendererAccessor;
 import team.creative.littletiles.mixin.rubidium.ChunkBuildBuffersAccessor;
 import team.creative.littletiles.mixin.rubidium.ChunkBuilderAccessor;
 import team.creative.littletiles.mixin.rubidium.ChunkMeshBufferBuilderAccessor;
+import team.creative.littletiles.mixin.rubidium.EmbeddiumWorldRendererAccessor;
 import team.creative.littletiles.mixin.rubidium.RenderSectionManagerAccessor;
-import team.creative.littletiles.mixin.rubidium.SodiumWorldRendererAccessor;
 import team.creative.littletiles.mixin.rubidium.TranslucentQuadAnalyzerAccessor;
 
 public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     
     public static RenderChunkExtender getChunk(BlockPos pos) {
-        return (RenderChunkExtender) ((RenderSectionManagerAccessor) ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager()).callGetRenderSection(
-            SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getY()), SectionPos.blockToSectionCoord(pos.getZ()));
+        return (RenderChunkExtender) ((RenderSectionManagerAccessor) ((EmbeddiumWorldRendererAccessor) EmbeddiumWorldRenderer.instance()).getRenderSectionManager())
+                .callGetRenderSection(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getY()), SectionPos.blockToSectionCoord(pos.getZ()));
     }
     
     public static ChunkVertexType getType() {
@@ -246,7 +246,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     
     @Override
     public void reload() {
-        RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+        RenderSectionManager manager = ((EmbeddiumWorldRendererAccessor) EmbeddiumWorldRenderer.instance()).getRenderSectionManager();
         if (manager == null) {
             buildBuffers = null;
             renderer = null;

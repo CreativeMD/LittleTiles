@@ -3,6 +3,8 @@ package team.creative.littletiles;
 import java.util.function.Supplier;
 
 import net.minecraft.Util;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceKey;
@@ -23,9 +25,8 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
-import net.minecraftforge.registries.RegistryObject;
+import net.neoforged.neoforge.registries.DeferredHolder;
+import net.neoforged.neoforge.registries.DeferredRegister;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.entity.BETilesRendered;
@@ -63,128 +64,128 @@ public class LittleTilesRegistry {
     
     // ITEMS
     
-    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(ForgeRegistries.ITEMS, LittleTiles.MODID);
+    public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(BuiltInRegistries.ITEM, LittleTiles.MODID);
     
-    public static final RegistryObject<Item> HAMMER = ITEMS.register("hammer", () -> new ItemLittleHammer());
-    public static final RegistryObject<Item> BLUEPRINT = ITEMS.register("blueprint", () -> new ItemLittleBlueprint());
-    public static final RegistryObject<Item> ITEM_TILES = ITEMS.register("multi_tiles", () -> new ItemMultiTiles());
-    public static final RegistryObject<Item> SAW = ITEMS.register("saw", () -> new ItemLittleSaw());
-    public static final RegistryObject<Item> BAG = ITEMS.register("bag", () -> new ItemLittleBag());
-    public static final RegistryObject<Item> WRENCH = ITEMS.register("wrench", () -> new ItemLittleWrench());
-    public static final RegistryObject<Item> SCREWDRIVER = ITEMS.register("screwdriver", () -> new ItemLittleScrewdriver());
-    public static final RegistryObject<Item> CHISEL = ITEMS.register("chisel", () -> new ItemLittleChisel());
-    public static final RegistryObject<Item> PAINT_BRUSH = ITEMS.register("paint_brush", () -> new ItemLittlePaintBrush());
-    public static final RegistryObject<Item> GLOVE = ITEMS.register("glove", () -> new ItemLittleGlove());
-    public static final RegistryObject<Item> PREMADE = ITEMS.register("premade", () -> new ItemPremadeStructure());
+    public static final Holder<Item> HAMMER = ITEMS.register("hammer", () -> new ItemLittleHammer());
+    public static final Holder<Item> BLUEPRINT = ITEMS.register("blueprint", () -> new ItemLittleBlueprint());
+    public static final Holder<Item> ITEM_TILES = ITEMS.register("multi_tiles", () -> new ItemMultiTiles());
+    public static final Holder<Item> SAW = ITEMS.register("saw", () -> new ItemLittleSaw());
+    public static final Holder<Item> BAG = ITEMS.register("bag", () -> new ItemLittleBag());
+    public static final Holder<Item> WRENCH = ITEMS.register("wrench", () -> new ItemLittleWrench());
+    public static final Holder<Item> SCREWDRIVER = ITEMS.register("screwdriver", () -> new ItemLittleScrewdriver());
+    public static final Holder<Item> CHISEL = ITEMS.register("chisel", () -> new ItemLittleChisel());
+    public static final Holder<Item> PAINT_BRUSH = ITEMS.register("paint_brush", () -> new ItemLittlePaintBrush());
+    public static final Holder<Item> GLOVE = ITEMS.register("glove", () -> new ItemLittleGlove());
+    public static final Holder<Item> PREMADE = ITEMS.register("premade", () -> new ItemPremadeStructure());
     
-    public static final RegistryObject<Item> BLOCK_INGREDIENT = ITEMS.register("blockingredient", () -> new ItemBlockIngredient());
+    public static final Holder<Item> BLOCK_INGREDIENT = ITEMS.register("blockingredient", () -> new ItemBlockIngredient());
     
-    public static final RegistryObject<Item> BLACK_COLOR = ITEMS.register("bottle_black", () -> new ItemColorIngredient(ColorIngredientType.black));
-    public static final RegistryObject<Item> CYAN_COLOR = ITEMS.register("bottle_cyan", () -> new ItemColorIngredient(ColorIngredientType.cyan));
-    public static final RegistryObject<Item> MAGENTA_COLOR = ITEMS.register("bottle_magenta", () -> new ItemColorIngredient(ColorIngredientType.magenta));
-    public static final RegistryObject<Item> YELLOW_COLOR = ITEMS.register("bottle_yellow", () -> new ItemColorIngredient(ColorIngredientType.yellow));
+    public static final Holder<Item> BLACK_COLOR = ITEMS.register("bottle_black", () -> new ItemColorIngredient(ColorIngredientType.black));
+    public static final Holder<Item> CYAN_COLOR = ITEMS.register("bottle_cyan", () -> new ItemColorIngredient(ColorIngredientType.cyan));
+    public static final Holder<Item> MAGENTA_COLOR = ITEMS.register("bottle_magenta", () -> new ItemColorIngredient(ColorIngredientType.magenta));
+    public static final Holder<Item> YELLOW_COLOR = ITEMS.register("bottle_yellow", () -> new ItemColorIngredient(ColorIngredientType.yellow));
     
     // BLOCKS
     
-    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(ForgeRegistries.BLOCKS, LittleTiles.MODID);
+    public static final DeferredRegister<Block> BLOCKS = DeferredRegister.create(BuiltInRegistries.BLOCK, LittleTiles.MODID);
     
-    public static final RegistryObject<Block> BLOCK_TILES = BLOCKS.register("tiles", () -> new BlockTile(false, false));
-    public static final RegistryObject<Block> BLOCK_TILES_TICKING = BLOCKS.register("tiles_ticking", () -> new BlockTile(true, false));
-    public static final RegistryObject<Block> BLOCK_TILES_RENDERED = BLOCKS.register("tiles_rendered", () -> new BlockTile(false, true));
-    public static final RegistryObject<Block> BLOCK_TILES_TICKING_RENDERED = BLOCKS.register("tiles_ticking_rendered", () -> new BlockTile(true, true));
+    public static final Holder<Block> BLOCK_TILES = BLOCKS.register("tiles", () -> new BlockTile(false, false));
+    public static final Holder<Block> BLOCK_TILES_TICKING = BLOCKS.register("tiles_ticking", () -> new BlockTile(true, false));
+    public static final Holder<Block> BLOCK_TILES_RENDERED = BLOCKS.register("tiles_rendered", () -> new BlockTile(false, true));
+    public static final Holder<Block> BLOCK_TILES_TICKING_RENDERED = BLOCKS.register("tiles_ticking_rendered", () -> new BlockTile(true, true));
     
-    public static final RegistryObject<Block> CLEAN = register("colored_clean", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> FLOOR = register("colored_floor", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY_BIG = register("colored_grainy_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY = register("colored_grainy", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY_LOW = register("colored_grainy_low", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> BRICK = register("colored_brick", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> BRICK_BIG = register("colored_brick_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> BORDERED = register("colored_bordered", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> CHISELED = register("colored_chiseled", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> BROKEN_BRICK_BIG = register("colored_broken_brick_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> CLAY = register("colored_clay", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> STRIPS = register("colored_strips", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> GRAVEL = register("colored_gravel", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> SAND = register("colored_sand", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> STONE = register("colored_stone", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> CORK = register("colored_cork", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> CLEAN = register("colored_clean", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> FLOOR = register("colored_floor", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> GRAINY_BIG = register("colored_grainy_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> GRAINY = register("colored_grainy", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> GRAINY_LOW = register("colored_grainy_low", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> BRICK = register("colored_brick", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> BRICK_BIG = register("colored_brick_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> BORDERED = register("colored_bordered", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> CHISELED = register("colored_chiseled", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> BROKEN_BRICK_BIG = register("colored_broken_brick_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> CLAY = register("colored_clay", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> STRIPS = register("colored_strips", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> GRAVEL = register("colored_gravel", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> SAND = register("colored_sand", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> STONE = register("colored_stone", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final Holder<Block> CORK = register("colored_cork", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
     
-    public static final RegistryObject<Block> WATER = register("colored_water", () -> new BlockWater(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).noCollission()));
+    public static final Holder<Block> WATER = register("colored_water", () -> new BlockWater(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).noCollission()));
     
-    public static final RegistryObject<Block> LAVA = register("colored_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).noCollission()));
-    public static final RegistryObject<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW).noCollission()
+    public static final Holder<Block> LAVA = register("colored_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).noCollission()));
+    public static final Holder<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW).noCollission()
             .lightLevel(x -> 15)));
     
-    public static final RegistryObject<Block> STORAGE_BLOCK = register("storage", () -> new Block(BlockBehaviour.Properties.of().sound(SoundType.WOOD).destroyTime(1.5F).strength(
-        1.5F).sound(SoundType.WOOD)));
+    public static final Holder<Block> STORAGE_BLOCK = register("storage", () -> new Block(BlockBehaviour.Properties.of().sound(SoundType.WOOD).destroyTime(1.5F).strength(1.5F)
+            .sound(SoundType.WOOD)));
     
-    public static final RegistryObject<Block> FLOWING_WATER = BLOCKS.register("colored_water_flowing", () -> new BlockFlowingWater(WATER.get()));
+    public static final Holder<Block> FLOWING_WATER = BLOCKS.register("colored_water_flowing", () -> new BlockFlowingWater(WATER));
     
-    public static final RegistryObject<Block> FLOWING_LAVA = BLOCKS.register("colored_lava_flowing", () -> new BlockFlowingLava(LAVA.get()));
-    public static final RegistryObject<Block> WHITE_FLOWING_LAVA = BLOCKS.register("colored_white_lava_flowing", () -> new BlockFlowingLava(WHITE_LAVA.get()));
+    public static final Holder<Block> FLOWING_LAVA = BLOCKS.register("colored_lava_flowing", () -> new BlockFlowingLava(LAVA));
+    public static final Holder<Block> WHITE_FLOWING_LAVA = BLOCKS.register("colored_white_lava_flowing", () -> new BlockFlowingLava(WHITE_LAVA));
     
-    public static final RegistryObject<Block> SINGLE_CABLE = BLOCKS.register("cable_single", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().sound(SoundType.WOOD)));
+    public static final Holder<Block> SINGLE_CABLE = BLOCKS.register("cable_single", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().sound(SoundType.WOOD)));
     
-    public static final RegistryObject<Block> INPUT_ARROW = BLOCKS.register("arrow_input", () -> new BlockArrow());
-    public static final RegistryObject<Block> OUTPUT_ARROW = BLOCKS.register("arrow_output", () -> new BlockArrow());
+    public static final Holder<Block> INPUT_ARROW = BLOCKS.register("arrow_input", () -> new BlockArrow());
+    public static final Holder<Block> OUTPUT_ARROW = BLOCKS.register("arrow_output", () -> new BlockArrow());
     
-    public static final RegistryObject<Block> SIGNAL_CONVERTER = register("signal_converter", () -> new BlockSignalConverter());
+    public static final Holder<Block> SIGNAL_CONVERTER = register("signal_converter", () -> new BlockSignalConverter());
     
-    public static final RegistryObject<Block> MISSING = register("missing", () -> new Block(BlockBehaviour.Properties.of()));
+    public static final Holder<Block> MISSING = register("missing", () -> new Block(BlockBehaviour.Properties.of()));
     
-    private static <T extends Block> RegistryObject<T> register(String name, Supplier<? extends T> sup) {
-        RegistryObject<T> ret = BLOCKS.register(name, sup);
-        ITEMS.register(name, () -> new BlockItem(ret.get(), new Item.Properties()));
+    private static <T extends Block> DeferredHolder<Block, ? extends T> register(String name, Supplier<? extends T> sup) {
+        var ret = BLOCKS.register(name, sup);
+        ITEMS.register(name, () -> new BlockItem(ret.value(), new Item.Properties()));
         return ret;
     }
     
     // BLOCK_ENTITY
     
-    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(ForgeRegistries.BLOCK_ENTITY_TYPES, LittleTiles.MODID);
+    public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, LittleTiles.MODID);
     
-    public static final RegistryObject<BlockEntityType<BETiles>> BE_TILES_TYPE = registerBlockEntity("tiles", () -> BlockEntityType.Builder.of(BETiles::new, BLOCK_TILES.get(),
-        BLOCK_TILES_TICKING.get()));
-    public static final RegistryObject<BlockEntityType<BETilesRendered>> BE_TILES_TYPE_RENDERED = registerBlockEntity("tiles_rendered", () -> BlockEntityType.Builder.of(
-        BETilesRendered::new, BLOCK_TILES_RENDERED.get(), BLOCK_TILES_TICKING_RENDERED.get()));
-    public static final RegistryObject<BlockEntityType<BESignalConverter>> BE_SIGNALCONVERTER_TYPE = registerBlockEntity("converter", () -> BlockEntityType.Builder.of(
-        BESignalConverter::new, SIGNAL_CONVERTER.get()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BETiles>> BE_TILES_TYPE = registerBlockEntity("tiles", () -> BlockEntityType.Builder.of(BETiles::new,
+        BLOCK_TILES.value(), BLOCK_TILES_TICKING.value()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BETilesRendered>> BE_TILES_TYPE_RENDERED = registerBlockEntity("tiles_rendered",
+        () -> BlockEntityType.Builder.of(BETilesRendered::new, BLOCK_TILES_RENDERED.value(), BLOCK_TILES_TICKING_RENDERED.value()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BESignalConverter>> BE_SIGNALCONVERTER_TYPE = registerBlockEntity("converter",
+        () -> BlockEntityType.Builder.of(BESignalConverter::new, SIGNAL_CONVERTER.value()));
     
-    public static <T extends BlockEntity> RegistryObject<BlockEntityType<T>> registerBlockEntity(String name, Supplier<BlockEntityType.Builder<T>> sup) {
+    public static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> registerBlockEntity(String name, Supplier<BlockEntityType.Builder<T>> sup) {
         return BLOCK_ENTITIES.register(name, () -> sup.get().build(Util.fetchChoiceType(References.BLOCK_ENTITY, name)));
     }
     
     // ENTITIES
     
-    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(ForgeRegistries.ENTITY_TYPES, LittleTiles.MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(BuiltInRegistries.ENTITY_TYPE, LittleTiles.MODID);
     
-    public static final RegistryObject<EntityType<PrimedSizedTnt>> SIZED_TNT_TYPE = ENTITIES.register("primed_size_tnt", () -> EntityType.Builder.<PrimedSizedTnt>of(
+    public static final DeferredHolder<EntityType<?>, EntityType<PrimedSizedTnt>> SIZED_TNT_TYPE = ENTITIES.register("primed_size_tnt", () -> EntityType.Builder.<PrimedSizedTnt>of(
         PrimedSizedTnt::new, MobCategory.MISC).build("primed_size_tnt"));
-    public static final RegistryObject<EntityType<EntitySit>> SIT_TYPE = ENTITIES.register("sit", () -> EntityType.Builder.<EntitySit>of(EntitySit::new, MobCategory.MISC).build(
-        "sit"));
+    public static final DeferredHolder<EntityType<?>, EntityType<EntitySit>> SIT_TYPE = ENTITIES.register("sit", () -> EntityType.Builder.<EntitySit>of(EntitySit::new,
+        MobCategory.MISC).build("sit"));
     
-    public static final RegistryObject<EntityType<LittleAnimationEntity>> ENTITY_ANIMATION = ENTITIES.register("litte_animation", () -> EntityType.Builder
+    public static final DeferredHolder<EntityType<?>, EntityType<LittleAnimationEntity>> ENTITY_ANIMATION = ENTITIES.register("litte_animation", () -> EntityType.Builder
             .<LittleAnimationEntity>of(LittleAnimationEntity::new, MobCategory.MISC).build("litte_animation"));
-    public static final RegistryObject<EntityType<LittleLevelEntity>> ENTITY_LEVEL = ENTITIES.register("little_level", () -> EntityType.Builder.<LittleLevelEntity>of(
-        LittleLevelEntity::new, MobCategory.MISC).build("little_level"));
+    public static final DeferredHolder<EntityType<?>, EntityType<LittleLevelEntity>> ENTITY_LEVEL = ENTITIES.register("little_level", () -> EntityType.Builder
+            .<LittleLevelEntity>of(LittleLevelEntity::new, MobCategory.MISC).build("little_level"));
     
     // DIMENSION
     
-    public static final ResourceKey FAKE_DIMENSION = ResourceKey.create(Registries.DIMENSION_TYPE, new ResourceLocation(LittleTiles.MODID, "fake"));
+    public static final ResourceKey FAKE_DIMENSION = ResourceKey.create(Registries.DIMENSION_TYPE, ResourceLocation.tryBuild(LittleTiles.MODID, "fake"));
     
     // Recipe Serializer
     
-    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(ForgeRegistries.RECIPE_SERIALIZERS, LittleTiles.MODID);
+    public static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, LittleTiles.MODID);
     
-    public static final RegistryObject<RecipeSerializer<? extends CraftingRecipe>> PREMADE_RECIPES = RECIPE_SERIALIZERS.register("crafting_shaped_premade",
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends CraftingRecipe>> PREMADE_RECIPES = RECIPE_SERIALIZERS.register("crafting_shaped_premade",
         PremadeShapedRecipeSerializer::new);
     
     // CREATIVE_TAB
     
     public static final DeferredRegister<CreativeModeTab> CREATIVE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB, LittleTiles.MODID);
     
-    public static final RegistryObject<CreativeModeTab> TAB = CREATIVE_TABS.register("items", () -> CreativeModeTab.builder().icon(() -> new ItemStack(LittleTilesRegistry.HAMMER
-            .get())).title(Component.translatable("creative_tab.littletiles")).displayItems((features, output) -> {
+    public static final Holder<CreativeModeTab> TAB = CREATIVE_TABS.register("items", () -> CreativeModeTab.builder().icon(() -> new ItemStack(LittleTilesRegistry.HAMMER.value()))
+            .title(Component.translatable("creative_tab.littletiles")).displayItems((features, output) -> {
                 for (ExampleStructures example : ExampleStructures.values())
                     if (example.stack != null)
                         output.accept(example.stack);
@@ -193,42 +194,42 @@ public class LittleTilesRegistry {
                     if (entry.showInCreativeTab && !entry.hasCustomTab())
                         output.accept(entry.createItemStack());
                     
-                output.accept(LittleTilesRegistry.HAMMER.get());
-                output.accept(LittleTilesRegistry.CHISEL.get());
-                output.accept(LittleTilesRegistry.BLUEPRINT.get());
+                output.accept(LittleTilesRegistry.HAMMER.value());
+                output.accept(LittleTilesRegistry.CHISEL.value());
+                output.accept(LittleTilesRegistry.BLUEPRINT.value());
                 
-                output.accept(LittleTilesRegistry.BAG.get());
-                output.accept(LittleTilesRegistry.GLOVE.get());
+                output.accept(LittleTilesRegistry.BAG.value());
+                output.accept(LittleTilesRegistry.GLOVE.value());
                 
-                output.accept(LittleTilesRegistry.PAINT_BRUSH.get());
-                output.accept(LittleTilesRegistry.SAW.get());
-                output.accept(LittleTilesRegistry.SCREWDRIVER.get());
-                output.accept(LittleTilesRegistry.WRENCH.get());
+                output.accept(LittleTilesRegistry.PAINT_BRUSH.value());
+                output.accept(LittleTilesRegistry.SAW.value());
+                output.accept(LittleTilesRegistry.SCREWDRIVER.value());
+                output.accept(LittleTilesRegistry.WRENCH.value());
                 
-                output.accept(LittleTilesRegistry.SIGNAL_CONVERTER.get());
-                output.accept(LittleTilesRegistry.STORAGE_BLOCK.get());
+                output.accept(LittleTilesRegistry.SIGNAL_CONVERTER.value());
+                output.accept(LittleTilesRegistry.STORAGE_BLOCK.value());
                 
-                output.accept(LittleTilesRegistry.CLEAN.get());
-                output.accept(LittleTilesRegistry.FLOOR.get());
-                output.accept(LittleTilesRegistry.GRAINY_BIG.get());
-                output.accept(LittleTilesRegistry.GRAINY.get());
-                output.accept(LittleTilesRegistry.GRAINY_LOW.get());
-                output.accept(LittleTilesRegistry.BRICK.get());
-                output.accept(LittleTilesRegistry.BRICK_BIG.get());
-                output.accept(LittleTilesRegistry.BORDERED.get());
-                output.accept(LittleTilesRegistry.CHISELED.get());
-                output.accept(LittleTilesRegistry.BROKEN_BRICK_BIG.get());
-                output.accept(LittleTilesRegistry.CLAY.get());
-                output.accept(LittleTilesRegistry.STRIPS.get());
-                output.accept(LittleTilesRegistry.GRAVEL.get());
-                output.accept(LittleTilesRegistry.SAND.get());
-                output.accept(LittleTilesRegistry.STONE.get());
-                output.accept(LittleTilesRegistry.CORK.get());
+                output.accept(LittleTilesRegistry.CLEAN.value());
+                output.accept(LittleTilesRegistry.FLOOR.value());
+                output.accept(LittleTilesRegistry.GRAINY_BIG.value());
+                output.accept(LittleTilesRegistry.GRAINY.value());
+                output.accept(LittleTilesRegistry.GRAINY_LOW.value());
+                output.accept(LittleTilesRegistry.BRICK.value());
+                output.accept(LittleTilesRegistry.BRICK_BIG.value());
+                output.accept(LittleTilesRegistry.BORDERED.value());
+                output.accept(LittleTilesRegistry.CHISELED.value());
+                output.accept(LittleTilesRegistry.BROKEN_BRICK_BIG.value());
+                output.accept(LittleTilesRegistry.CLAY.value());
+                output.accept(LittleTilesRegistry.STRIPS.value());
+                output.accept(LittleTilesRegistry.GRAVEL.value());
+                output.accept(LittleTilesRegistry.SAND.value());
+                output.accept(LittleTilesRegistry.STONE.value());
+                output.accept(LittleTilesRegistry.CORK.value());
                 
-                output.accept(LittleTilesRegistry.WATER.get());
+                output.accept(LittleTilesRegistry.WATER.value());
                 
-                output.accept(LittleTilesRegistry.LAVA.get());
-                output.accept(LittleTilesRegistry.WHITE_LAVA.get());
+                output.accept(LittleTilesRegistry.LAVA.value());
+                output.accept(LittleTilesRegistry.WHITE_LAVA.value());
                 
             }).build());
 }

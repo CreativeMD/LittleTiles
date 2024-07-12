@@ -7,7 +7,7 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.network.protocol.game.ServerboundCustomPayloadPacket;
+import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 
 @Mixin(ServerboundCustomPayloadPacket.class)
 public class ServerboundCustomPayloadPacketMixin {

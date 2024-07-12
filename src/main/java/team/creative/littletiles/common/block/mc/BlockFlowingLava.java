@@ -3,9 +3,9 @@ package team.creative.littletiles.common.block.mc;
 import org.joml.Vector3d;
 
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -22,8 +22,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -41,9 +41,9 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     
     public static final EnumProperty<Direction> FACING = BlockStateProperties.FACING;
     
-    public final Block still;
+    public final Holder<Block> still;
     
-    public BlockFlowingLava(Block still) {
+    public BlockFlowingLava(Holder<Block> still) {
         super(BlockBehaviour.Properties.of().liquid());
         this.still = still;
     }
@@ -112,16 +112,16 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
         if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingLava) {
             BlockState newState;
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;
             if (index >= Direction.values().length)
-                if (this == LittleTilesRegistry.FLOWING_LAVA.get())
-                    newState = LittleTilesRegistry.LAVA.get().defaultBlockState();
+                if (this == LittleTilesRegistry.FLOWING_LAVA)
+                    newState = LittleTilesRegistry.LAVA.value().defaultBlockState();
                 else
-                    newState = LittleTilesRegistry.WHITE_LAVA.get().defaultBlockState();
+                    newState = LittleTilesRegistry.WHITE_LAVA.value().defaultBlockState();
             else
                 newState = tile.getState().setValue(BlockStateProperties.FACING, Direction.values()[index]);
             parent.getBE().updateTiles(x -> {
@@ -131,7 +131,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
             });
             return InteractionResult.SUCCESS;
         }
-        return ILittleMCBlock.super.use(parent, tile, box, player, result, hand);
+        return ILittleMCBlock.super.use(parent, tile, box, player, result);
     }
     
     @Override
@@ -144,7 +144,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     public boolean canBeRenderCombined(LittleTile one, LittleTile two) {
         if (two.getBlock() == this)
             return true;
-        if (two.getBlock() == LittleTilesRegistry.LAVA.get())
+        if (two.getBlock() == LittleTilesRegistry.LAVA.value())
             return true;
         return false;
     }

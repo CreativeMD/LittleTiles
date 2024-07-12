@@ -1,6 +1,7 @@
 package team.creative.littletiles.client.mod.oculus;
 
-import me.jellysquid.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
+import org.embeddedt.embeddium.impl.render.chunk.compile.ChunkBuildBuffers;
+
 import net.irisshaders.iris.api.v0.IrisApi;
 import net.irisshaders.iris.compat.sodium.impl.block_context.ChunkBuildBuffersExt;
 import net.irisshaders.iris.compat.sodium.impl.shader_overrides.ShaderChunkRendererExt;

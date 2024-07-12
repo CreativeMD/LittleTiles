@@ -5,8 +5,8 @@ import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.action.ActionEvent;
 import team.creative.littletiles.client.action.ActionEvent.ActionType;
@@ -33,7 +33,7 @@ public class LittleActionHandlerServer {
         try {
             T result = action.action(player);
             if (action.wasSuccessful(result)) {
-                MinecraftForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
+                NeoForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
                 return result;
             }
         } catch (LittleActionException e) {

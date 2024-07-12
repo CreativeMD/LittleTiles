@@ -9,7 +9,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.minecraftforge.common.crafting.conditions.ICondition.IContext;
+import net.neoforged.neoforge.common.conditions.ICondition.IContext;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 
 public class PremadeShapedRecipeSerializer implements RecipeSerializer<ShapedRecipe> {

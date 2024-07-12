@@ -5,8 +5,8 @@ import java.util.Set;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTiles;

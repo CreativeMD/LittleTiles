@@ -1,7 +1,7 @@
 package team.creative.littletiles.common.mod.theoneprobe;
 
 import mcjty.theoneprobe.api.ITheOneProbe;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import team.creative.creativecore.reflection.ReflectionHelper;
 
 public class TheOneProbeManager {

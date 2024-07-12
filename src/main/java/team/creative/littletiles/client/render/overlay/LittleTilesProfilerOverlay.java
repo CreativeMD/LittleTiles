@@ -10,10 +10,9 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
-import net.minecraftforge.client.event.RenderGuiEvent;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -74,24 +73,22 @@ public class LittleTilesProfilerOverlay {
     }
     
     @SubscribeEvent
-    public static void onTick(ClientTickEvent event) {
-        if (event.phase == Phase.END) {
-            updateTicker++;
-            if (updateTicker > updateTime) {
-                chunkUpdates = 0;
-                uploaded = 0;
-                updateTicker = 0;
-                if (durations != null)
-                    synchronized (durations) {
-                        averageDuration = 0;
-                        if (!durations.isEmpty()) {
-                            for (int i = 0; i < durations.size(); i++)
-                                averageDuration += durations.get(i);
-                            averageDuration /= durations.size();
-                            durations.clear();
-                        }
+    public static void onTick(ClientTickEvent.Post event) {
+        updateTicker++;
+        if (updateTicker > updateTime) {
+            chunkUpdates = 0;
+            uploaded = 0;
+            updateTicker = 0;
+            if (durations != null)
+                synchronized (durations) {
+                    averageDuration = 0;
+                    if (!durations.isEmpty()) {
+                        for (int i = 0; i < durations.size(); i++)
+                            averageDuration += durations.get(i);
+                        averageDuration /= durations.size();
+                        durations.clear();
                     }
-            }
+                }
         }
     }
     

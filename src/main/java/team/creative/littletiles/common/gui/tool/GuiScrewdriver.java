@@ -26,6 +26,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
@@ -62,8 +63,6 @@ public class GuiScrewdriver extends GuiConfigure {
     public void create() {
         if (!isClient())
             return;
-        
-        tool.get().getOrCreateTag();
         
         //add(new GuiCheckBox("no_structure", lastSelectedFilter instanceof TileNoStructureFilter).setTranslate("gui.no_structure"));
         add(new GuiLabel("filter_label").setTranslate("gui.filter"));
@@ -104,11 +103,12 @@ public class GuiScrewdriver extends GuiConfigure {
     }
     
     public LittleAction getDesiredAction() {
-        int[] array = tool.get().getOrCreateTag().getIntArray("pos1");
+        var data = ILittleTool.getData(tool.get());
+        int[] array = data.getIntArray("pos1");
         if (array.length != 3)
             return null;
         BlockPos pos = new BlockPos(array[0], array[1], array[2]);
-        array = tool.get().getOrCreateTag().getIntArray("pos2");
+        array = data.getIntArray("pos2");
         if (array.length != 3)
             return null;
         BlockPos pos2 = new BlockPos(array[0], array[1], array[2]);

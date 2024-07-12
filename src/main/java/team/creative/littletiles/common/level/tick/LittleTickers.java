@@ -8,9 +8,8 @@ import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.LevelTickEvent;
-import net.minecraftforge.event.TickEvent.Phase;
-import net.minecraftforge.event.TickEvent.ServerTickEvent;
+import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.handler.LevelHandlers;
 import team.creative.littletiles.common.structure.LittleStructure;

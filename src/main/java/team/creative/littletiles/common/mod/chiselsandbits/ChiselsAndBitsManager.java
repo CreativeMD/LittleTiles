@@ -3,7 +3,7 @@ package team.creative.littletiles.common.mod.chiselsandbits;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.fml.ModList;
+import net.neoforged.fml.ModList;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public class ChiselsAndBitsManager {

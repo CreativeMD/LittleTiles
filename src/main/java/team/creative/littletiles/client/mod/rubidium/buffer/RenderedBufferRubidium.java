@@ -4,12 +4,10 @@ import java.nio.ByteBuffer;
 import java.util.Collection;
 import java.util.Set;
 
+import org.embeddedt.embeddium.impl.gl.attribute.GlVertexFormat;
 import org.lwjgl.system.MemoryUtil;
 
-import com.mojang.blaze3d.platform.MemoryTracker;
-
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexFormat;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
@@ -21,7 +19,7 @@ public class RenderedBufferRubidium implements AutoCloseable, ChunkBufferUploade
     private Set<TextureAtlasSprite> animatedSprites = new ObjectOpenHashSet<>();
     
     public RenderedBufferRubidium(BufferCollection collection) {
-        buffer = MemoryTracker.create(collection.length());
+        buffer = MemoryUtil.memAlloc(collection.length());
         for (BufferCache cache : collection.buffers())
             cache.upload(this);
         buffer.rewind();

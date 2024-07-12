@@ -1,11 +1,9 @@
 package team.creative.littletiles.mixin.rubidium;
 
+import org.embeddedt.embeddium.impl.render.chunk.data.BuiltSectionMeshParts;
+import org.embeddedt.embeddium.impl.render.chunk.terrain.TerrainRenderPass;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
-import me.jellysquid.mods.sodium.client.render.chunk.RenderSection;
-import me.jellysquid.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
-import me.jellysquid.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 
 @Mixin(targets = "me/jellysquid/mods/sodium/client/render/chunk/region/RenderRegionManager$PendingSectionUpload")
 public interface PendingSectionUploadAccessor {

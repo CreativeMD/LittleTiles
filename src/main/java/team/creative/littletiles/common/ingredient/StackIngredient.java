@@ -7,7 +7,7 @@ import java.util.Map.Entry;
 
 import net.minecraft.world.Container;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.items.IItemHandler;
+import net.neoforged.neoforge.items.IItemHandler;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.type.map.LinkedHashMapInteger;
 

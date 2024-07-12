@@ -10,12 +10,12 @@ import java.util.stream.Collectors;
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.minecraft.ResourceLocationException;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.Property;
-import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
@@ -44,7 +44,7 @@ public class LittleBlockRegistry {
         LittleBlock little = NAME_MAP.get(name);
         if (little != null)
             return little;
-        return create(name, ForgeRegistries.BLOCKS.getValue(new ResourceLocation(name)));
+        return create(name, BuiltInRegistries.BLOCK.get(ResourceLocation.parse(name)));
     }
     
     public static LittleBlock get(Block block) {
@@ -84,21 +84,21 @@ public class LittleBlockRegistry {
         else
             parts = new String[] { name };
         if (parts.length == 0)
-            return LittleTilesRegistry.MISSING.get().defaultBlockState();
+            return LittleTilesRegistry.MISSING.value().defaultBlockState();
         ResourceLocation location;
         try {
-            location = new ResourceLocation(parts[0]);
+            location = ResourceLocation.parse(parts[0]);
         } catch (ResourceLocationException e) {
-            return LittleTilesRegistry.MISSING.get().defaultBlockState();
+            return LittleTilesRegistry.MISSING.value().defaultBlockState();
         }
-        Block block = ForgeRegistries.BLOCKS.getValue(location);
+        Block block = BuiltInRegistries.BLOCK.get(location);
         if (block == null || block instanceof AirBlock) {
             if (checkOld) {
                 String converted = OldLittleTilesDataParser.BLOCK_MAP.get(name);
                 if (converted != null)
                     return loadState(converted, false);
             }
-            return LittleTilesRegistry.MISSING.get().defaultBlockState();
+            return LittleTilesRegistry.MISSING.value().defaultBlockState();
         }
         if (parts.length == 1)
             return block.defaultBlockState();

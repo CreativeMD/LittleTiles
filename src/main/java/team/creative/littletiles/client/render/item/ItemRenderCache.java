@@ -14,8 +14,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.TickEvent.ClientTickEvent;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.client.render.model.CreativeBakedBoxModel;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -39,7 +39,7 @@ public class ItemRenderCache implements LevelAwareHandler {
     private int timeToCheckSlowTick = 100;
     
     public ItemRenderCache() {
-        MinecraftForge.EVENT_BUS.addListener(this::tick);
+        NeoForge.EVENT_BUS.addListener(this::tick);
     }
     
     public int countCaches() {

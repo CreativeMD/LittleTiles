@@ -22,7 +22,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.client.ForgeHooksClient;
-import net.minecraftforge.client.event.InputEvent.InteractionKeyMappingTriggered;
+import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 

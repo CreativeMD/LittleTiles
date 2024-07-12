@@ -2,7 +2,6 @@ package team.creative.littletiles.common.action;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -35,7 +34,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     public transient StructurePreview structurePreview;
     
     public LittleActionDestroy(Level level, BlockPos blockPos, Player player) {
-        super(level, blockPos, player, InteractionHand.MAIN_HAND);
+        super(level, blockPos, player);
     }
     
     public LittleActionDestroy() {}
@@ -59,7 +58,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     }
     
     @Override
-    protected Boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode, InteractionHand hand) throws LittleActionException {
+    protected Boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException {
         if (context.parent.isStructure()) {
             try {
                 LittleStructure structure = context.parent.getStructure();

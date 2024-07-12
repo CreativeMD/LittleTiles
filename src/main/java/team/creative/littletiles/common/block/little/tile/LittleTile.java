@@ -14,7 +14,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.RandomSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -25,8 +24,8 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.box.ABB;
@@ -433,8 +432,8 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.canInteract();
     }
     
-    public InteractionResult use(IParentCollection parent, LittleBox box, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
-        return block.use(parent, this, box, player, result, hand);
+    public InteractionResult use(IParentCollection parent, LittleBox box, BlockPos pos, Player player, BlockHitResult result) {
+        return block.use(parent, this, box, player, result);
     }
     
     public int getLightValue() {

@@ -1,9 +1,8 @@
 package team.creative.littletiles.mixin.rubidium;
 
+import org.embeddedt.embeddium.impl.gl.device.GLRenderDevice;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
-
-import me.jellysquid.mods.sodium.client.gl.device.GLRenderDevice;
 
 @Mixin(GLRenderDevice.class)
 public interface GLRenderDeviceAccessor {

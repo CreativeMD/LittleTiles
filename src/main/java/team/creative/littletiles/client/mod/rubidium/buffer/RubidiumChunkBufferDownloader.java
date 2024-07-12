@@ -3,9 +3,10 @@ package team.creative.littletiles.client.mod.rubidium.buffer;
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 
-import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexFormat;
-import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
-import me.jellysquid.mods.sodium.client.render.chunk.data.SectionRenderDataUnsafe;
+import org.embeddedt.embeddium.impl.gl.attribute.GlVertexFormat;
+import org.embeddedt.embeddium.impl.model.quad.properties.ModelQuadFacing;
+import org.embeddedt.embeddium.impl.render.chunk.data.SectionRenderDataUnsafe;
+
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloader;
 
 public class RubidiumChunkBufferDownloader implements ChunkBufferDownloader {

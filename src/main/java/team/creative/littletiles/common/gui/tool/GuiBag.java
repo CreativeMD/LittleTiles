@@ -92,8 +92,6 @@ public class GuiBag extends GuiConfigure {
         
         flow = GuiFlow.STACK_Y;
         
-        tool.get().getOrCreateTag();
-        
         bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
         ColorIngredient unit = bag.get(ColorIngredient.class);
         

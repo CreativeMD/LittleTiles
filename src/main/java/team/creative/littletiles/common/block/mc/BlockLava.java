@@ -5,7 +5,6 @@ import org.joml.Vector3d;
 import net.minecraft.core.Direction;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -46,18 +45,18 @@ public class BlockLava extends Block implements ILittleMCBlock, IFakeRenderingBl
     }
     
     @Override
-    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
         if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
-            if (this == LittleTilesRegistry.LAVA.get())
-                tile.setState(LittleTilesRegistry.FLOWING_LAVA.get().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]));
+            if (this == LittleTilesRegistry.LAVA.value())
+                tile.setState(LittleTilesRegistry.FLOWING_LAVA.value().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]));
             else
-                tile.setState(LittleTilesRegistry.WHITE_FLOWING_LAVA.get().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]));
+                tile.setState(LittleTilesRegistry.WHITE_FLOWING_LAVA.value().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]));
             
             BlockState newState;
-            if (this == LittleTilesRegistry.LAVA.get())
-                newState = LittleTilesRegistry.FLOWING_LAVA.get().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]);
+            if (this == LittleTilesRegistry.LAVA.value())
+                newState = LittleTilesRegistry.FLOWING_LAVA.value().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]);
             else
-                newState = LittleTilesRegistry.WHITE_FLOWING_LAVA.get().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]);
+                newState = LittleTilesRegistry.WHITE_FLOWING_LAVA.value().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]);
             parent.getBE().updateTiles(x -> {
                 LittleTile newFlowing = new LittleTile(newState, ColorUtils.WHITE, box.copy());
                 x.noneStructureTiles().remove(tile, box);
@@ -65,7 +64,7 @@ public class BlockLava extends Block implements ILittleMCBlock, IFakeRenderingBl
             });
             return InteractionResult.SUCCESS;
         }
-        return ILittleMCBlock.super.use(parent, tile, box, player, result, hand);
+        return ILittleMCBlock.super.use(parent, tile, box, player, result);
     }
     
     @Override

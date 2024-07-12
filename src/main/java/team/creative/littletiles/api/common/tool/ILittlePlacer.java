@@ -6,8 +6,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.api.distmarker.OnlyIn;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -58,9 +58,7 @@ public interface ILittlePlacer extends ILittleTool {
     }
     
     public default LittleGrid getTilesGrid(ItemStack stack) {
-        if (stack.hasTag())
-            return LittleGrid.get(stack.getTag());
-        return LittleGrid.overallDefault();
+        return LittleGrid.get(ILittleTool.getData(stack));
     }
     
     public boolean containsIngredients(ItemStack stack);
@@ -108,8 +106,9 @@ public interface ILittlePlacer extends ILittleTool {
     
     @OnlyIn(Dist.CLIENT)
     public default List<RenderBox> getPositingCubes(Level level, BlockPos pos, ItemStack stack) {
-        if (stack.hasTag() && stack.getTag().contains(LittleGroup.STRUCTURE_KEY)) {
-            LittleStructureType type = LittleStructureRegistry.REGISTRY.get(stack.getTag().getCompound(LittleGroup.STRUCTURE_KEY).getString("id"));
+        var data = ILittleTool.getData(stack);
+        if (data.contains(LittleGroup.STRUCTURE_KEY)) {
+            LittleStructureType type = LittleStructureRegistry.REGISTRY.get(data.getCompound(LittleGroup.STRUCTURE_KEY).getString("id"));
             if (type != null)
                 return type.getPositingCubes(level, pos, stack);
         }

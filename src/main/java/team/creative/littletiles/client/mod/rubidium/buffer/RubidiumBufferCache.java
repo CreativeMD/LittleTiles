@@ -5,13 +5,14 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import me.jellysquid.mods.sodium.client.gl.attribute.GlVertexAttributeFormat;
-import me.jellysquid.mods.sodium.client.model.quad.properties.ModelQuadFacing;
-import me.jellysquid.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkMeshAttribute;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexEncoder;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
-import me.jellysquid.mods.sodium.client.render.chunk.vertex.format.impl.CompactChunkVertex;
+import org.embeddedt.embeddium.impl.gl.attribute.GlVertexAttributeFormat;
+import org.embeddedt.embeddium.impl.model.quad.properties.ModelQuadFacing;
+import org.embeddedt.embeddium.impl.render.chunk.compile.buffers.ChunkModelBuilder;
+import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkMeshAttribute;
+import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkVertexEncoder;
+import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkVertexType;
+import org.embeddedt.embeddium.impl.render.chunk.vertex.format.impl.CompactChunkVertex;
+
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.mod.rubidium.pipeline.LittleRenderPipelineRubidium;

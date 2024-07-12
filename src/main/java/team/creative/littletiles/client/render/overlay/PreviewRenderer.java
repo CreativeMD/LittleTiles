@@ -31,11 +31,10 @@ import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.client.event.RenderHighlightEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent;
-import net.minecraftforge.client.event.RenderLevelStageEvent.Stage;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.RenderHighlightEvent;
+import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -66,7 +65,7 @@ import team.creative.littletiles.common.structure.exception.MissingAnimationExce
 
 public class PreviewRenderer implements LevelAwareHandler {
     
-    public static final ResourceLocation WHITE_TEXTURE = new ResourceLocation(LittleTiles.MODID, "textures/preview.png");
+    public static final ResourceLocation WHITE_TEXTURE = ResourceLocation.tryBuild(LittleTiles.MODID, "textures/preview.png");
     public static Minecraft mc = Minecraft.getInstance();
     
     private boolean lastLowResolution;
@@ -75,7 +74,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     private IMarkMode marked;
     
     public PreviewRenderer() {
-        MinecraftForge.EVENT_BUS.register(this);
+        NeoForge.EVENT_BUS.register(this);
     }
     
     public PlacementPosition getPosition(Player player, Level level, ItemStack stack, BlockHitResult result) {
