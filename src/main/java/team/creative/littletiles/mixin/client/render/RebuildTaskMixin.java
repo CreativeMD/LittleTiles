@@ -1,122 +1,59 @@
 package team.creative.littletiles.mixin.client.render;
 
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Coerce;
+import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
-
-import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
-import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
+import net.minecraft.client.renderer.chunk.RenderChunkRegion;
+import net.minecraft.client.renderer.chunk.SectionCompiler;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection;
+import net.minecraft.core.SectionPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
-import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
-import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
-import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
-import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
-import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.client.render.mc.SectionCompilerResultsExtender;
 
-@Mixin(targets = "net/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask")
-public abstract class RebuildTaskMixin implements RebuildTaskExtender {
+@Mixin(targets = "net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$RebuildTask")
+public abstract class RebuildTaskMixin {
     
-    @Unique
-    public Set<RenderType> renderTypes;
-    
-    @Unique
-    public ChunkBufferBuilderPack pack;
-    
-    @Unique
-    public ChunkLayerMap<BufferCollection> caches;
+    public static final String COMPILE_CALL = "Lnet/minecraft/client/renderer/chunk/SectionCompiler;compile(Lnet/minecraft/core/SectionPos;Lnet/minecraft/client/renderer/chunk/RenderChunkRegion;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;Ljava/util/List;)Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;";
     
     @Shadow(aliases = { "this$0" })
-    public RenderChunk this$1;
+    public RenderSection this$1;
     
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;enableCaching()V"),
-            method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
+    @Inject(at = @At(value = "INVOKE", target = COMPILE_CALL), method = "doTask(Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;",
             require = 1)
-    private void compileStart(float f1, float f2, float f3, ChunkBufferBuilderPack pack, CallbackInfoReturnable info) {
-        this.pack = pack;
-        LittleRenderPipelineType.startCompile((RenderChunkExtender) this$1, this);
+    private void compileStart(SectionBufferBuilderPack pack, CallbackInfoReturnable<CompletableFuture> info) {
+        LittleRenderPipelineType.startCompile((RenderChunkExtender) this$1);
     }
     
-    @Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/client/renderer/block/ModelBlockRenderer;clearCache()V"),
-            method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
-            require = 1)
-    private void compile(CallbackInfoReturnable info) {
-        LittleRenderPipelineType.endCompile((RenderChunkExtender) this$1, this);
-        
-        this.pack = null;
-        this.renderTypes = null;
+    @Inject(at = @At(value = "INVOKE", target = COMPILE_CALL, shift = Shift.AFTER),
+            method = "doTask(Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", require = 1)
+    private void compileEnd(SectionBufferBuilderPack pack, CallbackInfoReturnable<CompletableFuture> info) {
+        LittleRenderPipelineType.endCompile((RenderChunkExtender) this$1);
     }
     
-    @Redirect(at = @At(value = "NEW", target = "(I)Lit/unimi/dsi/fastutil/objects/ReferenceArraySet;", remap = false),
-            method = "compile(FFFLnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;",
-            require = 1)
-    private ReferenceArraySet afterSetCreated(int capacity) {
-        renderTypes = new ReferenceArraySet(capacity);
-        return (ReferenceArraySet) renderTypes;
-    }
-    
-    @Inject(at = @At("HEAD"),
-            method = "handleBlockEntity(Lnet/minecraft/client/renderer/chunk/ChunkRenderDispatcher$RenderChunk$RebuildTask$CompileResults;Lnet/minecraft/world/level/block/entity/BlockEntity;)V",
-            require = 1)
-    private void handleBlockEntity(@Coerce Object object, BlockEntity block, CallbackInfo info) {
-        if (block instanceof BETiles tiles)
-            LittleRenderPipelineType.compile((RenderChunkExtender) this$1, tiles, this);
-    }
-    
-    @Inject(method = "doTask(Lnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", at = @At("RETURN"), cancellable = true, require = 1)
-    private void injected(CallbackInfoReturnable<CompletableFuture> cir) {
+    @Inject(method = "doTask(Lnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", at = @At("RETURN"), cancellable = true, require = 1,
+            locals = LocalCapture.CAPTURE_FAILHARD)
+    private void injected(SectionBufferBuilderPack pack, CallbackInfoReturnable<CompletableFuture> cir, RenderChunkRegion renderchunkregion, SectionPos sectionpos, SectionCompiler.Results results) {
         cir.setReturnValue(cir.getReturnValue().whenComplete((result, exception) -> {
             if (((Enum) result).ordinal() == 0) { // Successful
                 ((RenderChunkExtender) this$1).prepareUpload();
+                var caches = ((SectionCompilerResultsExtender) (Object) results).getCaches();
                 if (caches != null)
                     for (Tuple<RenderType, BufferCollection> tuple : caches.tuples())
                         ((RenderChunkExtender) this$1).uploaded(tuple.key, tuple.value);
             }
-            this.caches = null;
         }));
-    }
-    
-    @Unique
-    public BufferBuilder builder(RenderType layer) {
-        BufferBuilder builder = pack.builder(layer);
-        if (renderTypes.add(layer))
-            ((RenderChunkExtender) this$1).begin(builder);
-        return builder;
-    }
-    
-    @Override
-    public BufferCache upload(RenderType layer, BufferCache cache) {
-        if (cache.upload((ChunkBufferUploader) builder(layer))) {
-            getOrCreateBuffers(layer).queueForUpload(cache);
-            return cache;
-        }
-        return null;
-    }
-    
-    @Unique
-    public BufferCollection getOrCreateBuffers(RenderType layer) {
-        if (caches == null)
-            caches = new ChunkLayerMap<>();
-        BufferCollection cache = caches.get(layer);
-        if (cache == null)
-            caches.put(layer, cache = new BufferCollection());
-        return cache;
     }
     
 }

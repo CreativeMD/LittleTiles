@@ -5,10 +5,12 @@ import java.nio.ByteOrder;
 
 import org.embeddedt.embeddium.impl.model.quad.properties.ModelQuadFacing;
 
-import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
+import com.mojang.blaze3d.vertex.MeshData;
 
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.client.render.VertexFormatUtils;
+import team.creative.littletiles.mixin.client.render.ByteBufferBuilderResultAccessor;
+import team.creative.littletiles.mixin.client.render.MeshDataAccessor;
 
 public class BufferHolder implements BufferCache {
     
@@ -40,13 +42,13 @@ public class BufferHolder implements BufferCache {
         this.groupCount = indexes != null ? indexes.length / 2 : 0;
     }
     
-    public BufferHolder(RenderedBuffer buffer, int[] indexes) {
-        this.length = buffer.drawState().vertexBufferSize();
+    public BufferHolder(MeshData buffer, int[] indexes) {
+        this.length = ((ByteBufferBuilderResultAccessor) ((MeshDataAccessor) buffer).getVertexBuffer()).getCapacity();
         this.buffer = ByteBuffer.allocateDirect(length);
         this.buffer.put(buffer.vertexBuffer());
         this.buffer.rewind();
         this.vertexCount = buffer.drawState().vertexCount();
-        buffer.release();
+        buffer.close();
         this.indexes = indexes;
         this.groupCount = indexes != null ? indexes.length / 2 : 0;
     }

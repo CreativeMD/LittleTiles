@@ -78,9 +78,9 @@ import team.creative.littletiles.mixin.rubidium.TranslucentQuadAnalyzerAccessor;
 
 public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     
-    public static RenderChunkExtender getChunk(BlockPos pos) {
+    public static RenderChunkExtender getChunk(long pos) {
         return (RenderChunkExtender) ((RenderSectionManagerAccessor) ((EmbeddiumWorldRendererAccessor) EmbeddiumWorldRenderer.instance()).getRenderSectionManager())
-                .callGetRenderSection(SectionPos.blockToSectionCoord(pos.getX()), SectionPos.blockToSectionCoord(pos.getY()), SectionPos.blockToSectionCoord(pos.getZ()));
+                .callGetRenderSection(SectionPos.x(pos), SectionPos.y(pos), SectionPos.z(pos));
     }
     
     public static ChunkVertexType getType() {
@@ -128,7 +128,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
             pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT);
         
         ColorProviderRegistry colorProvider = ((BlockRendererAccessor) renderer).getColorProviderRegistry();
-        data.chunk.prepareModelOffset(modelOffset, pos);
+        data.prepareModelOffset(modelOffset, pos);
         
         // Render vertex buffer
         for (Tuple<RenderType, IndexedCollector<LittleRenderBox>> entry : data.be.render.boxCache.tuples()) {
@@ -141,7 +141,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
                 continue;
             
             for (int i = 0; i < ModelQuadFacing.VALUES.length; i++)
-                builder.getVertexBuffer(ModelQuadFacing.VALUES[i]).start(data.chunk.sectionIndex());
+                builder.getVertexBuffer(ModelQuadFacing.VALUES[i]).start(data.sectionIndex());
             
             Arrays.fill(faceCounters, 0);
             

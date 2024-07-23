@@ -16,16 +16,18 @@ import org.joml.Matrix4f;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.shaders.Uniform;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.PrioritizeChunkUpdates;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.SectionBufferBuilderPack;
+import net.minecraft.client.renderer.chunk.RenderRegionCache;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -33,7 +35,6 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeConfig;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -41,7 +42,6 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.little.LittleClientLevel;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
-import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkCompileTask;
 import team.creative.littletiles.client.render.level.LittleRenderChunks;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
@@ -69,23 +69,27 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     }
     
     @Override
-    public RenderChunkExtender getRenderChunk(BlockPos pos) {
+    public boolean isSmall() {
+        return false;
+    }
+    
+    @Override
+    public RenderChunkExtender getRenderChunk(long pos) {
         return getOrCreateChunk(pos);
     }
     
-    public synchronized LittleRenderChunk getChunk(BlockPos pos) {
-        return chunks.get(SectionPos.asLong(pos));
+    public synchronized LittleRenderChunk getChunk(long pos) {
+        return chunks.get(pos);
     }
     
-    public synchronized LittleRenderChunk getOrCreateChunk(BlockPos pos) {
-        return getChunk(SectionPos.of(pos), true);
+    public synchronized LittleRenderChunk getOrCreateChunk(long pos) {
+        return getChunk(pos, true);
     }
     
-    public synchronized LittleRenderChunk getChunk(SectionPos pos, boolean create) {
-        long value = pos.asLong();
-        LittleRenderChunk chunk = chunks.get(value);
+    public synchronized LittleRenderChunk getChunk(long pos, boolean create) {
+        LittleRenderChunk chunk = chunks.get(pos);
         if (chunk == null && create)
-            return create(pos);
+            return create(SectionPos.of(pos));
         return chunk;
     }
     
@@ -108,11 +112,15 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
         }
     }
     
-    public CompletableFuture<Void> uploadChunkLayer(BufferBuilder.RenderedBuffer rendered, VertexBuffer buffer) {
+    public CompletableFuture<Void> uploadChunkLayer(MeshData rendered, VertexBuffer buffer) {
         return LittleTilesClient.ANIMATION_HANDLER.uploadChunkLayer(rendered, buffer);
     }
     
-    public void schedule(ChunkCompileTask task) {
+    public CompletableFuture<Void> uploadSectionIndexBuffer(ByteBufferBuilder.Result result, VertexBuffer buffer) {
+        return LittleTilesClient.ANIMATION_HANDLER.uploadSectionIndexBuffer(result, buffer);
+    }
+    
+    public void schedule(LittleRenderChunk.CompileTask task) {
         LittleTilesClient.ANIMATION_HANDLER.schedule(task);
     }
     
@@ -179,6 +187,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
         List<LittleRenderChunk> schedule = Lists.newArrayList();
         
         LittleClientLevel level = (LittleClientLevel) getLevel();
+        RenderRegionCache cache = null;
         
         for (LittleRenderChunk chunk : this) {
             ChunkPos chunkpos = new ChunkPos(chunk.pos);
@@ -186,22 +195,26 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
                 boolean immediate = false;
                 if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.PLAYER_AFFECTED)
                     immediate = chunk.isDirtyFromPlayer();
-                else if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.NEARBY) {
-                    immediate = !ForgeConfig.CLIENT.alwaysSetupTerrainOffThread.get() && (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk
-                            .isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
-                }
-                
+                else if (mc.options.prioritizeChunkUpdates().get() == PrioritizeChunkUpdates.NEARBY)
+                    immediate = (chunk.pos.offset(8, 8, 8).distSqr(getCameraBlockPos()) < 768.0D || chunk.isDirtyFromPlayer()); // the target is the else block below, so invert the forge addition to get there early
+                    
                 if (immediate) {
-                    chunk.compile();
+                    if (cache == null)
+                        cache = new RenderRegionCache();
+                    chunk.compile(cache);
                     chunk.setNotDirty();
                 } else
                     schedule.add(chunk);
             }
         }
         
-        for (LittleRenderChunk chunk : schedule) {
-            chunk.compileASync();
-            chunk.setNotDirty();
+        if (!schedule.isEmpty()) {
+            if (cache == null)
+                cache = new RenderRegionCache();
+            for (LittleRenderChunk chunk : schedule) {
+                chunk.compileASync(cache);
+                chunk.setNotDirty();
+            }
         }
         
         mc.getProfiler().pop();
@@ -210,7 +223,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     @Override
     protected void renderAllBlockEntities(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
         for (LittleRenderChunk chunk : this) {
-            List<BlockEntity> list = chunk.getCompiledChunk().getRenderableBlockEntities();
+            List<BlockEntity> list = chunk.getCompiledSection().getRenderableBlockEntities();
             if (list.isEmpty())
                 continue;
             
@@ -234,7 +247,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, Uniform offset) {
         for (Iterator<LittleRenderChunk> iterator = layer == RenderType.translucent() ? visibleChunksInverse() : visibleChunks().iterator(); iterator.hasNext();) {
             LittleRenderChunk chunk = iterator.next();
-            if (!chunk.getCompiledChunk().isEmpty(layer)) {
+            if (!chunk.getCompiledSection().isEmpty(layer)) {
                 VertexBuffer vertexbuffer = chunk.getVertexBuffer(layer);
                 if (offset != null) {
                     offset.set((float) (chunk.pos.getX() - x), (float) (chunk.pos.getY() - y), (float) (chunk.pos.getZ() - z));
@@ -250,7 +263,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
             offset.set(0F, 0F, 0F);
     }
     
-    public ChunkBufferBuilderPack fixedBuffers() {
+    public SectionBufferBuilderPack fixedBuffers() {
         return LittleTilesClient.ANIMATION_HANDLER.fixedBuffers;
     }
     

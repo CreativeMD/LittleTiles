@@ -115,7 +115,7 @@ public class LittleTilesProfilerOverlay {
                 
                 PairList<String, Object> details = new PairList<>();
                 details.add("ThreadCount", RenderingThread.THREADS.size());
-                details.add("Chunks", RenderingThread.CHUNKS.size());
+                details.add("Sections", RenderingThread.QUEUE.sectionCount());
                 details.add("Triggered", uploaded + chunkUpdates);
                 details.add("Queue", RenderingThread.queueSize());
                 

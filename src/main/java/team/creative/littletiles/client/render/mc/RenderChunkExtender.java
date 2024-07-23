@@ -6,70 +6,46 @@ import java.util.function.Supplier;
 
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL15C;
-import org.lwjgl.system.MemoryUtil;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.MeshData.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexSorting;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.core.Vec3i;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
-import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloader.SimpleChunkBufferDownloader;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 
 public interface RenderChunkExtender {
-    
-    public static Vec3 offsetCorrection(Vec3i to, Vec3i from) {
-        if (to == from || to.equals(from))
-            return null;
-        return new Vec3(from.getX() - to.getX(), from.getY() - to.getY(), from.getZ() - to.getZ());
-    }
-    
-    public LittleRenderPipelineType getPipeline();
-    
-    public void begin(BufferBuilder builder);
     
     public VertexBuffer getVertexBuffer(RenderType layer);
     
     public void markReadyForUpdate(boolean playerChanged);
     
-    public default void setQuadSorting(BufferBuilder builder, Vec3 vec) {
-        setQuadSorting(builder, vec.x, vec.y, vec.z);
+    public default VertexSorting createVertexSorting(Vec3 vec) {
+        return createVertexSorting(vec.x, vec.y, vec.z);
     }
     
-    public void setQuadSorting(BufferBuilder builder, double x, double y, double z);
-    
-    public default void prepareModelOffset(MutableBlockPos modelOffset, BlockPos pos) {
-        modelOffset.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
-    }
+    public VertexSorting createVertexSorting(double x, double y, double z);
     
     public boolean isEmpty(RenderType layer);
     
     public SortState getTransparencyState();
     
+    public void setTransparencyState(SortState state);
+    
     public void setHasBlock(RenderType layer);
-    
-    public BlockPos standardOffset();
-    
-    public default Vec3 offsetCorrection(RenderChunkExtender chunk) {
-        return offsetCorrection(standardOffset(), chunk.standardOffset());
-    }
-    
-    public default int sectionIndex() {
-        return -1;
-    }
     
     public int getQueued();
     
@@ -172,42 +148,38 @@ public interface RenderChunkExtender {
             ByteBuffer vanillaBuffer = null;
             if (!isEmpty(layer))
                 vanillaBuffer = downloadUploadedData((VertexBufferExtender) uploadBuffer, 0, ((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
+            ByteBufferBuilder buffer = new ByteBufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risky and could potentially cause issues
             
-            BufferBuilder builder = new BufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risking and could potentially cause issues
-            begin(builder);
-            if (vanillaBuffer != null) {
-                if (layer == RenderType.translucent()) {
-                    SortState state = getTransparencyState();
-                    if (state != null)
-                        builder.restoreSortState(state);
-                }
-                
-                builder.putBulkData(vanillaBuffer);
-            }
+            BufferBuilder builder = new BufferBuilder(buffer, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
+            if (vanillaBuffer != null)
+                ((ChunkBufferUploader) builder).upload(vanillaBuffer);
             
             for (LayeredBufferCache data : blocks)
                 data.get(layer).upload((ChunkBufferUploader) builder);
             
-            if (layer == RenderType.translucent())
-                setQuadSorting(builder, Minecraft.getInstance().levelRenderer.getChunkRenderDispatcher().getCameraPosition());
+            MeshData data = builder.build();
+            if (layer == RenderType.translucent()) {
+                var cam = Minecraft.getInstance().levelRenderer.getSectionRenderDispatcher().getCameraPosition();
+                setTransparencyState(data.sortQuads(buffer, createVertexSorting(cam.x, cam.y, cam.z)));
+            }
             
             uploadBuffer.bind();
-            uploadBuffer.upload(builder.end());
-            MemoryUtil.memFree(((BufferBuilderAccessor) builder).getBuffer());
+            uploadBuffer.upload(data);
+            buffer.close();
             VertexBuffer.unbind();
             setHasBlock(layer);
         }
         return true;
     }
     
-    public default void startBuilding(RebuildTaskExtender task) {
+    public default void startBuilding() {
         synchronized (this) {
             setQueued(getQueued() + 1);
         }
         backToRAM();
     }
     
-    public default void endBuilding(RebuildTaskExtender task) {
+    public default void endBuilding() {
         synchronized (this) {
             setQueued(getQueued() - 1);
         }

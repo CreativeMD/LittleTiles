@@ -37,7 +37,7 @@ public class LittleAnimationLevelClientCallback extends LittleAnimationLevelCall
     public void onTrackingEnd(Entity entity) {
         entity.unRide();
         
-        entity.onRemovedFromWorld();
+        entity.onRemovedFromLevel();
         NeoForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, level));
     }
     

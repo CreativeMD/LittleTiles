@@ -20,6 +20,7 @@ import team.creative.creativecore.client.render.model.CreativeBakedBoxModel;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.level.LevelAwareHandler;
 
 public class ItemRenderCache implements LevelAwareHandler {
@@ -48,7 +49,7 @@ public class ItemRenderCache implements LevelAwareHandler {
     
     public List<BakedQuad> requestCache(ItemStack stack, boolean translucent) {
         synchronized (caches) {
-            if (!stack.hasTag())
+            if (ILittleTool.getData(stack).isEmpty())
                 return null;
             ItemModelCache cache = caches.get(temp.set(stack));
             if (cache != null)
@@ -96,7 +97,7 @@ public class ItemRenderCache implements LevelAwareHandler {
         
         public RenderedStack set(ItemStack stack) {
             item = stack.getItem();
-            nbt = stack.getTag();
+            nbt = ILittleTool.getData(stack);
             return this;
         }
         

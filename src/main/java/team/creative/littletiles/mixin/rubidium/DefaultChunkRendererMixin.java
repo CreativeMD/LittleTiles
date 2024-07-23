@@ -54,9 +54,10 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
     private GlVertexAttributeBinding[] vertexAttributeBindings;
     
     @Inject(at = @At(value = "INVOKE",
-            target = "Lme/jellysquid/mods/sodium/client/render/chunk/ShaderChunkRenderer;end(Lme/jellysquid/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;)V",
-            remap = false), method = "render", remap = false)
-    public void render(ChunkRenderMatrices matrices, CommandList commandList, ChunkRenderListIterable renderLists, TerrainRenderPass renderPass, CameraTransform camera, CallbackInfo info) {
+            target = "Lorg/embeddedt/embeddium/impl/render/chunk/ShaderChunkRenderer;end(Lorg/embeddedt/embeddium/impl/render/chunk/terrain/TerrainRenderPass;)V", remap = false),
+            method = "render", remap = false)
+    public void render(ChunkRenderMatrices matrices, CommandList commandList, ChunkRenderListIterable renderLists, TerrainRenderPass renderPass, CameraTransform camera,
+            CallbackInfo info) {
         var bindings = vertexAttributeBindings;
         if (bindings == null && OculusManager.installed()) {
             bindings = (GlVertexAttributeBinding[]) OculusManager.createVertexFormat(vertexFormat);
@@ -72,7 +73,7 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
             shader = (ChunkShaderInterface) OculusInteractor.getShader(this);
         if (shader == null)
             shader = this.activeProgram.getInterface();
-        float partialTicks = mc.getPartialTick();
+        float partialTicks = mc.getTimer().getGameTimeDeltaPartialTick(false);
         for (LittleEntity animation : LittleTilesClient.ANIMATION_HANDLER) {
             if (animation.getRenderManager() instanceof LittleAnimationRenderManagerRubidium r) {
                 

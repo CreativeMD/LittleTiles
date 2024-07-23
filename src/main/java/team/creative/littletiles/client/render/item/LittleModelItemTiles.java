@@ -5,17 +5,19 @@ import java.util.List;
 
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public class LittleModelItemTiles extends CreativeItemBoxModel {
     
     public LittleModelItemTiles() {
-        super(new ModelResourceLocation("minecraft", "stone", "inventory"));
+        super(new ModelResourceLocation(ResourceLocation.tryBuild("minecraft", "stone"), "inventory"));
     }
     
     @Override
@@ -28,7 +30,8 @@ public class LittleModelItemTiles extends CreativeItemBoxModel {
     
     @Override
     public boolean hasTranslucentLayer(ItemStack stack) {
-        return stack.hasTag() ? stack.getTag().getBoolean(LittleGroup.TRANSLUCENT_KEY) : false;
+        var tag = ILittleTool.getData(stack);
+        return tag.getBoolean(LittleGroup.TRANSLUCENT_KEY);
     }
     
     @Override

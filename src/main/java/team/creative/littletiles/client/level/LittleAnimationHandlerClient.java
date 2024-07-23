@@ -91,7 +91,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     public final SectionBufferBuilderPack fixedBuffers;
     private final ProcessorMailbox<Runnable> mailbox;
     private final Executor executor;
-    SectionCompiler sectionCompiler;
+    public SectionCompiler sectionCompiler;
     
     private int longTickCounter = LONG_TICK_INTERVAL;
     public int longTickIndex = Integer.MIN_VALUE;
@@ -118,7 +118,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         this.executor = Util.backgroundExecutor();
         this.mailbox = ProcessorMailbox.create(executor, "Chunk Renderer");
         this.mailbox.tell(this::runTask);
-        this.sectionCompiler = new SectionCompiler(mc.getBlockRenderer(), mc.getBlockEntityRenderDispatcher());
+        reload();
     }
     
     public void reload() {
@@ -247,13 +247,13 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         }, this.toUpload::add);
     }
     
-    public CompletableFuture<Void> uploadSectionIndexBuffer(ByteBufferBuilder.Result p_350933_, VertexBuffer p_350643_) {
+    public CompletableFuture<Void> uploadSectionIndexBuffer(ByteBufferBuilder.Result result, VertexBuffer buffer) {
         return this.closed ? CompletableFuture.completedFuture(null) : CompletableFuture.runAsync(() -> {
-            if (p_350643_.isInvalid()) {
-                p_350933_.close();
+            if (buffer.isInvalid()) {
+                result.close();
             } else {
-                p_350643_.bind();
-                p_350643_.uploadIndexBuffer(p_350933_);
+                buffer.bind();
+                buffer.uploadIndexBuffer(result);
                 VertexBuffer.unbind();
             }
         }, this.toUpload::add);

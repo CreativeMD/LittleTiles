@@ -8,8 +8,6 @@ import javax.annotation.Nullable;
 
 import org.embeddedt.embeddium.impl.gl.attribute.GlVertexAttributeBinding;
 import org.embeddedt.embeddium.impl.gl.attribute.GlVertexFormat;
-import org.embeddedt.embeddium.impl.render.chunk.LocalSectionIndex;
-import org.embeddedt.embeddium.impl.render.chunk.region.RenderRegion;
 import org.embeddedt.embeddium.impl.render.chunk.shader.ChunkShaderInterface;
 import org.embeddedt.embeddium.impl.render.viewport.CameraTransform;
 import org.joml.Matrix4f;
@@ -19,18 +17,17 @@ import org.spongepowered.asm.mixin.Unique;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData.SortState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
+import com.mojang.blaze3d.vertex.VertexSorting;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
@@ -38,15 +35,11 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.mod.rubidium.RubidiumInteractor;
 import team.creative.littletiles.client.mod.rubidium.buffer.RenderedBufferRubidium;
 import team.creative.littletiles.client.mod.rubidium.renderer.DefaultChunkRendererExtender;
-import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
-import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
-import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
@@ -136,21 +129,12 @@ public class LittleAnimationRenderManagerRubidium extends LittleAnimationRenderM
     }
     
     @Override
-    public int sectionIndex() {
-        int rX = entity.getCenter().chunkOffset.getX() & (RenderRegion.REGION_WIDTH - 1);
-        int rY = entity.getCenter().chunkOffset.getY() & (RenderRegion.REGION_HEIGHT - 1);
-        int rZ = entity.getCenter().chunkOffset.getZ() & (RenderRegion.REGION_LENGTH - 1);
-        
-        return LocalSectionIndex.pack(rX, rY, rZ);
+    public boolean isSmall() {
+        return true;
     }
     
-    @Override
-    public void prepareModelOffset(MutableBlockPos modelOffset, BlockPos pos) {
-        modelOffset.set(pos.getX() - (entity.getCenter().chunkOffset.getX() << 4), pos.getY() - (entity.getCenter().chunkOffset.getY() << 4), pos.getZ() - (entity
-                .getCenter().chunkOffset.getZ() << 4));
-    }
-    
-    public void renderChunkLayerRubidium(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, ChunkShaderInterface shader, CameraTransform camera) {
+    public void renderChunkLayerRubidium(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, ChunkShaderInterface shader,
+            CameraTransform camera) {
         if (hasBlocks.contains(layer)) {
             VertexBuffer vertexbuffer = buffers.get(layer);
             if (vertexbuffer == null)
@@ -167,23 +151,13 @@ public class LittleAnimationRenderManagerRubidium extends LittleAnimationRenderM
     }
     
     @Override
-    public void setQuadSorting(BufferBuilder builder, double x, double y, double z) {
+    public VertexSorting createVertexSorting(double x, double y, double z) {
         throw new UnsupportedOperationException();
     }
     
     @Override
     public void resortTransparency(RenderType layer, double x, double y, double z) {
         throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public LittleRenderPipelineType getPipeline() {
-        return RubidiumInteractor.PIPELINE;
-    }
-    
-    @Override
-    public Vec3 offsetCorrection(RenderChunkExtender chunk) {
-        return null;
     }
     
     static final class CompileResults {
@@ -198,13 +172,13 @@ public class LittleAnimationRenderManagerRubidium extends LittleAnimationRenderM
         }
     }
     
-    private class RebuildTask implements RebuildTaskExtender {
+    private class RebuildTask {
         
         private ChunkLayerMap<BufferCollection> caches;
         
         private CompileResults compile(float x, float y, float z) {
             CompileResults results = new CompileResults();
-            LittleRenderPipelineType.startCompile(LittleAnimationRenderManagerRubidium.this, this);
+            LittleRenderPipelineType.startCompile(LittleAnimationRenderManagerRubidium.this);
             
             for (BETiles block : getLevel())
                 handleBlockEntity(results, block);
@@ -213,12 +187,12 @@ public class LittleAnimationRenderManagerRubidium extends LittleAnimationRenderM
                 for (Tuple<RenderType, BufferCollection> layer : caches.tuples())
                     results.buffers.put(layer.key, new RenderedBufferRubidium(layer.value));
                 
-            LittleRenderPipelineType.endCompile(LittleAnimationRenderManagerRubidium.this, this);
+            LittleRenderPipelineType.endCompile(LittleAnimationRenderManagerRubidium.this);
             return results;
         }
         
         private void handleBlockEntity(CompileResults results, BETiles entity) {
-            LittleRenderPipelineType.compile(LittleAnimationRenderManagerRubidium.this, entity, this);
+            LittleRenderPipelineType.compileUploaded(LittleAnimationRenderManagerRubidium.this.entity.getCenter().chunkOffset.asLong(), entity, x -> getOrCreateBuffers(x));
             BlockEntityRenderer blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))
@@ -239,12 +213,6 @@ public class LittleAnimationRenderManagerRubidium extends LittleAnimationRenderM
             BufferCollection cache = caches.get(layer);
             if (cache == null)
                 caches.put(layer, cache = new BufferCollection());
-            return cache;
-        }
-        
-        @Override
-        public BufferCache upload(RenderType layer, BufferCache cache) {
-            getOrCreateBuffers(layer).queueForUpload(cache);
             return cache;
         }
         

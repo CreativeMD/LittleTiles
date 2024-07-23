@@ -13,6 +13,8 @@ import org.embeddedt.embeddium.impl.gl.buffer.GlBufferTarget;
 import org.embeddedt.embeddium.impl.gl.device.CommandList;
 import org.embeddedt.embeddium.impl.gl.device.RenderDevice;
 import org.embeddedt.embeddium.impl.model.quad.properties.ModelQuadFacing;
+import org.embeddedt.embeddium.impl.render.EmbeddiumWorldRenderer;
+import org.embeddedt.embeddium.impl.render.chunk.RenderSection;
 import org.embeddedt.embeddium.impl.render.chunk.RenderSectionFlags;
 import org.embeddedt.embeddium.impl.render.chunk.RenderSectionManager;
 import org.embeddedt.embeddium.impl.render.chunk.data.SectionRenderDataStorage;
@@ -25,24 +27,21 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexSorting;
 
-import me.jellysquid.mods.sodium.client.render.SodiumWorldRenderer;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
-import team.creative.littletiles.client.mod.rubidium.RubidiumInteractor;
 import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumChunkBufferDownloader;
 import team.creative.littletiles.client.mod.rubidium.buffer.RubidiumChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
@@ -99,22 +98,17 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     }
     
     @Override
-    public void begin(BufferBuilder builder) {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
     public VertexBuffer getVertexBuffer(RenderType layer) {
         throw new UnsupportedOperationException();
     }
     
     @Override
     public void markReadyForUpdate(boolean playerChanged) {
-        ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager().scheduleRebuild(chunkX, chunkY, chunkZ, playerChanged);
+        ((EmbeddiumWorldRendererAccessor) EmbeddiumWorldRenderer.instance()).getRenderSectionManager().scheduleRebuild(chunkX, chunkY, chunkZ, playerChanged);
     }
     
     @Override
-    public void setQuadSorting(BufferBuilder builder, double x, double y, double z) {
+    public VertexSorting createVertexSorting(double x, double y, double z) {
         throw new UnsupportedOperationException();
     }
     
@@ -124,25 +118,13 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     }
     
     @Override
-    public SortState getTransparencyState() {
+    public MeshData.SortState getTransparencyState() {
         throw new UnsupportedOperationException();
     }
     
     @Override
     public void setHasBlock(RenderType layer) {
         throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public BlockPos standardOffset() {
-        if (origin == null)
-            origin = new BlockPos(chunkX * 16, chunkY * 16, chunkZ * 16);
-        return origin;
-    }
-    
-    @Override
-    public LittleRenderPipelineType getPipeline() {
-        return RubidiumInteractor.PIPELINE;
     }
     
     public GlBufferSegment getUploadedBuffer(SectionRenderDataStorage storage) {
@@ -157,13 +139,8 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     }
     
     public RenderRegion getRenderRegion() {
-        return ((RenderSectionManagerAccessor) ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager()).getRegions().createForChunk(chunkX, chunkY,
-            chunkZ);
-    }
-    
-    @Override
-    public int sectionIndex() {
-        return sectionIndex;
+        return ((RenderSectionManagerAccessor) ((EmbeddiumWorldRendererAccessor) EmbeddiumWorldRenderer.instance()).getRenderSectionManager()).getRegions().createForChunk(chunkX,
+            chunkY, chunkZ);
     }
     
     @Override
@@ -207,7 +184,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         
         Runnable run = () -> {
             RubidiumChunkBufferDownloader downloader = new RubidiumChunkBufferDownloader();
-            RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+            RenderSectionManager manager = ((EmbeddiumWorldRendererAccessor) EmbeddiumWorldRenderer.instance()).getRenderSectionManager();
             ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
             GlVertexFormat<ChunkMeshAttribute> format = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType().getVertexFormat();
             for (Tuple<RenderType, BufferCollection> tuple : caches.tuples()) {
@@ -244,13 +221,8 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     }
     
     @Override
-    public Vec3 offsetCorrection(RenderChunkExtender chunk) {
-        return null;
-    }
-    
-    @Override
     public boolean appendRenderData(Iterable<? extends LayeredBufferCache> blocks) {
-        RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+        RenderSectionManager manager = ((EmbeddiumWorldRendererAccessor) EmbeddiumWorldRenderer.instance()).getRenderSectionManager();
         RenderRegion region = getRenderRegion();
         ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
         GlVertexFormat<ChunkMeshAttribute> format = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType().getVertexFormat();

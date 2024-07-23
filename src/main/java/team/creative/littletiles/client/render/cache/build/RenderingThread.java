@@ -1,11 +1,7 @@
 package team.creative.littletiles.client.render.cache.build;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import javax.annotation.Nullable;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -46,9 +42,8 @@ public class RenderingThread extends Thread {
     private static final String[] fakeLeveldMods = new String[] { "chisel" };
     private static final ChunkLayerMap<BufferCache> EMPTY_HOLDERS = new ChunkLayerMap<>();
     public static List<RenderingThread> THREADS;
-    public static final HashMap<RenderChunkExtender, Integer> CHUNKS = new HashMap<>();
     public static final Minecraft MC = Minecraft.getInstance();
-    private static final ConcurrentLinkedQueue<RenderingBlockContext> QUEUE = new ConcurrentLinkedQueue<>();
+    public static final RenderingBlockQueue QUEUE = new RenderingBlockQueue();
     
     public static synchronized void initThreads(int count) {
         if (count <= 0)
@@ -58,7 +53,7 @@ public class RenderingThread extends Thread {
                 if (thread != null)
                     thread.interrupt();
                 
-            while (QUEUE.size() > 0)
+            while (!QUEUE.isEmpty())
                 QUEUE.poll().be.render.resetRenderingState();
         }
         THREADS = new ArrayList<>();
@@ -73,22 +68,12 @@ public class RenderingThread extends Thread {
                     thread.interrupt();
                 
         THREADS = null;
-        
         QUEUE.clear();
-        CHUNKS.clear();
     }
     
-    public static synchronized boolean queue(BETiles be, @Nullable RenderChunkExtender chunk) {
+    public static synchronized boolean queue(BETiles be, long pos) {
         if (THREADS == null)
             initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
-        
-        if (chunk == null)
-            chunk = be.render.getRenderChunk();
-        
-        if (chunk == null) {
-            System.out.println("Invalid tileentity with no rendering chunk! pos: " + be.getBlockPos() + ", level: " + be.getLevel());
-            return false;
-        }
         
         if (be.isRenderingEmpty()) {
             int index = be.render.startBuildingCache();
@@ -97,17 +82,11 @@ public class RenderingThread extends Thread {
                 be.render.getBufferCache().setEmpty();
             }
             if (!be.render.finishBuildingCache(index, EMPTY_HOLDERS, CURRENT_RENDERING_INDEX, true))
-                return queue(be, chunk);
+                return queue(be, pos);
             return false;
         }
         
-        synchronized (CHUNKS) {
-            Integer count = CHUNKS.get(chunk);
-            if (count == null)
-                count = 0;
-            RenderingThread.CHUNKS.put(chunk, count + 1);
-        }
-        QUEUE.add(new RenderingBlockContext(be, chunk));
+        QUEUE.queue(be, pos);
         return true;
     }
     
@@ -230,13 +209,13 @@ public class RenderingThread extends Thread {
                         VertexFormat format = DefaultVertexFormat.BLOCK;
                         try {
                             posestack.setIdentity();
-                            get(data.chunk.getPipeline()).buildCache(posestack, buffers, data, format, bakedQuadWrapper);
+                            get(data.getPipeline()).buildCache(posestack, buffers, data, format, bakedQuadWrapper);
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
                                 data.be.render.boxCache.clear();
                             
                             if (!finish(data, buffers, renderState, false))
-                                QUEUE.add(data);
+                                QUEUE.requeue(data);
                             
                             buffers.clear();
                             
@@ -245,18 +224,18 @@ public class RenderingThread extends Thread {
                         } catch (Exception e) {
                             e.printStackTrace();
                             if (!finish(data, EMPTY_HOLDERS, -1, false))
-                                QUEUE.add(data);
+                                QUEUE.requeue(data);
                         }
                     } catch (RemovedBlockEntityException e) {
                         finish(data, EMPTY_HOLDERS, -1, true);
                     } catch (RenderingBlockedException e) {
-                        QUEUE.add(data);
+                        QUEUE.requeue(data);
                     } catch (Exception e) {
                         if (!(e instanceof RenderingException))
                             e.printStackTrace();
                         finish(data, EMPTY_HOLDERS, -1, true);
                     } catch (OutOfMemoryError error) {
-                        QUEUE.add(data);
+                        QUEUE.requeue(data);
                         error.printStackTrace();
                     } finally {
                         buffers.clear();
@@ -279,21 +258,10 @@ public class RenderingThread extends Thread {
         if (!data.be.render.finishBuildingCache(data.index, buffers, renderState, force))
             return false;
         
-        boolean complete = false;
-        
-        synchronized (CHUNKS) {
-            Integer count = CHUNKS.get(data.chunk);
-            if (count != null)
-                if (count <= 1) {
-                    CHUNKS.remove(data.chunk);
-                    complete = true;
-                } else
-                    CHUNKS.put(data.chunk, count - 1);
-        }
-        
-        if (complete) {
+        RenderChunkExtender chunk = QUEUE.unqeue(data);
+        if (chunk != null) {
             LittleTilesProfilerOverlay.chunkUpdates++;
-            data.chunk.markReadyForUpdate(false);
+            chunk.markReadyForUpdate(false);
         }
         return true;
         

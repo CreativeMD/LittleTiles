@@ -1,9 +1,7 @@
 package team.creative.littletiles.client.render.level;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.CancellationException;
@@ -16,61 +14,45 @@ import javax.annotation.Nullable;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.common.primitives.Doubles;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferBuilder.RenderedBuffer;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
+import com.mojang.blaze3d.vertex.MeshData.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexSorting;
 
-import it.unimi.dsi.fastutil.objects.Reference2ObjectArrayMap;
-import it.unimi.dsi.fastutil.objects.ReferenceArraySet;
 import net.minecraft.CrashReport;
 import net.minecraft.Util;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.ChunkBufferBuilderPack;
-import net.minecraft.client.renderer.ItemBlockRenderTypes;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
-import net.minecraft.client.renderer.block.BlockRenderDispatcher;
-import net.minecraft.client.renderer.block.ModelBlockRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
+import net.minecraft.client.renderer.chunk.RenderChunkRegion;
+import net.minecraft.client.renderer.chunk.RenderRegionCache;
+import net.minecraft.client.renderer.chunk.SectionCompiler;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher;
 import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.CompiledSection;
-import net.minecraft.client.renderer.chunk.VisGraph;
-import net.minecraft.client.renderer.chunk.VisibilitySet;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
-import net.minecraft.util.RandomSource;
-import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.FluidState;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.ClientHooks;
+import net.neoforged.neoforge.client.event.AddSectionGeometryEvent.AdditionalSectionRenderer;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
-import team.creative.littletiles.client.render.cache.buffer.BufferCache;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
-import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
-import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkCompileTask;
-import team.creative.littletiles.client.render.level.LittleRenderChunk.ChunkTaskResult;
-import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
-import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.client.render.mc.SectionCompilerResultsExtender;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
-import team.creative.littletiles.mixin.client.render.CompiledChunkAccessor;
+import team.creative.littletiles.mixin.client.render.CompiledSectionAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleRenderChunk implements RenderChunkExtender {
@@ -146,11 +128,6 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     @Override
-    public BlockPos standardOffset() {
-        return pos;
-    }
-    
-    @Override
     public VertexBuffer getVertexBuffer(RenderType layer) {
         return this.buffers.get(layer);
     }
@@ -165,18 +142,13 @@ public class LittleRenderChunk implements RenderChunkExtender {
         return d0 * d0 + d1 * d1 + d2 * d2;
     }
     
-    public ChunkRenderDispatcher.CompiledChunk getCompiledChunk() {
+    public CompiledSection getCompiledSection() {
         return this.compiled.get();
-    }
-    
-    @Override
-    public void begin(BufferBuilder builder) {
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
     }
     
     private void reset() {
         this.cancelTasks();
-        this.compiled.set(ChunkRenderDispatcher.CompiledChunk.UNCOMPILED);
+        this.compiled.set(SectionRenderDispatcher.CompiledSection.UNCOMPILED);
         this.dirty = true;
     }
     
@@ -210,14 +182,14 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     public boolean resortTransparency(RenderType layer) {
-        CompiledChunk compiled = this.getCompiledChunk();
+        CompiledSection compiled = this.getCompiledSection();
         if (this.lastResortTransparencyTask != null)
             this.lastResortTransparencyTask.cancel();
         
-        if (!((CompiledChunkAccessor) compiled).getHasBlocks().contains(layer))
+        if (!((CompiledSectionAccessor) compiled).getHasBlocks().contains(layer))
             return false;
         
-        this.lastResortTransparencyTask = new ResortTransparencyTask(section.chunk(), this.getDistToPlayerSqr(), compiled);
+        this.lastResortTransparencyTask = new ResortTransparencyTask(this.getDistToPlayerSqr(), compiled);
         manager.schedule(this.lastResortTransparencyTask);
         return true;
     }
@@ -238,18 +210,19 @@ public class LittleRenderChunk implements RenderChunkExtender {
         return flag;
     }
     
-    public ChunkCompileTask createCompileTask() {
+    public CompileTask createCompileTask(RenderRegionCache cache) {
         boolean canceled = this.cancelTasks();
-        this.lastRebuildTask = new RebuildTask(section.chunk(), this.getDistToPlayerSqr(), level().asLevel(), canceled || this.compiled.get() != CompiledChunk.UNCOMPILED);
-        return this.lastRebuildTask;
+        var additionalRenderers = ClientHooks.gatherAdditionalRenderers(pos, (Level) manager.getLevel());
+        RenderChunkRegion region = cache.createRegion((Level) manager.getLevel(), section, additionalRenderers.isEmpty());
+        return this.lastRebuildTask = new RebuildTask(this.getDistToPlayerSqr(), region, canceled || this.compiled.get() != CompiledSection.UNCOMPILED, additionalRenderers);
     }
     
-    public void compileASync() {
-        manager.schedule(createCompileTask());
+    public void compileASync(RenderRegionCache cache) {
+        manager.schedule(createCompileTask(cache));
     }
     
-    public void compile() {
-        this.createCompileTask().doTask(manager.fixedBuffers());
+    public void compile(RenderRegionCache cache) {
+        this.createCompileTask(cache).doTask(manager.fixedBuffers());
     }
     
     public void updateGlobalBlockEntities(Collection<BlockEntity> blockEntities) {
@@ -268,29 +241,29 @@ public class LittleRenderChunk implements RenderChunkExtender {
     
     @Override
     public SortState getTransparencyState() {
-        return ((CompiledChunkAccessor) getCompiledChunk()).getTransparencyState();
+        return ((CompiledSectionAccessor) getCompiledSection()).getTransparencyState();
+    }
+    
+    @Override
+    public void setTransparencyState(SortState state) {
+        ((CompiledSectionAccessor) getCompiledSection()).setTransparencyState(state);
     }
     
     @Override
     public void setHasBlock(RenderType layer) {
-        CompiledChunk compiled = getCompiledChunk();
-        if (compiled != CompiledChunk.UNCOMPILED)
-            ((CompiledChunkAccessor) compiled).getHasBlocks().add(layer);
+        CompiledSection compiled = getCompiledSection();
+        if (compiled != CompiledSection.UNCOMPILED)
+            ((CompiledSectionAccessor) compiled).getHasBlocks().add(layer);
     }
     
     @Override
     public boolean isEmpty(RenderType layer) {
-        return getCompiledChunk().isEmpty(layer);
+        return getCompiledSection().isEmpty(layer);
     }
     
     @Override
-    public void setQuadSorting(BufferBuilder builder, double x, double y, double z) {
-        builder.setQuadSorting(VertexSorting.byDistance((float) x - pos.getX(), (float) y - pos.getY(), (float) z - pos.getZ()));
-    }
-    
-    @Override
-    public LittleRenderPipelineType getPipeline() {
-        return LittleRenderPipelineType.FORGE;
+    public VertexSorting createVertexSorting(double x, double y, double z) {
+        return VertexSorting.byDistance((float) x - pos.getX(), (float) y - pos.getY(), (float) z - pos.getZ());
     }
     
     public static enum SectionTaskResult {
@@ -304,7 +277,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
         protected final AtomicBoolean isCancelled = new AtomicBoolean(false);
         public final boolean isHighPriority;
         
-        public CompileTask(@Nullable SectionPos pos, double distAtCreation, boolean isHighPriority) {
+        public CompileTask(double distAtCreation, boolean isHighPriority) {
             this.distAtCreation = distAtCreation;
             this.isHighPriority = isHighPriority;
         }
@@ -321,22 +294,15 @@ public class LittleRenderChunk implements RenderChunkExtender {
         }
     }
     
-    class RebuildTask extends CompileTask implements RebuildTaskExtender {
+    class RebuildTask extends CompileTask {
         
-        @Nullable
-        protected Level level;
-        private ChunkLayerMap<BufferCollection> caches;
-        private ChunkBufferBuilderPack pack;
-        private Set<RenderType> renderTypes;
+        private final List<AdditionalSectionRenderer> additionalRenderers;
+        private RenderChunkRegion region;
         
-        @Deprecated
-        public RebuildTask(@Nullable double distAtCreation, Level level, boolean isHighPriority) {
-            this(null, distAtCreation, level, isHighPriority);
-        }
-        
-        public RebuildTask(@Nullable ChunkPos pos, double distAtCreation, @Nullable Level level, boolean isHighPriority) {
-            super(pos, distAtCreation, isHighPriority);
-            this.level = level;
+        public RebuildTask(double distAtCreation, RenderChunkRegion region, boolean isHighPriority, List<AdditionalSectionRenderer> additionalRenderers) {
+            super(distAtCreation, isHighPriority);
+            this.region = region;
+            this.additionalRenderers = additionalRenderers;
         }
         
         @Override
@@ -345,9 +311,9 @@ public class LittleRenderChunk implements RenderChunkExtender {
         }
         
         @Override
-        public CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack pack) {
+        public CompletableFuture<SectionTaskResult> doTask(SectionBufferBuilderPack pack) {
             if (this.isCancelled.get())
-                return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
+                return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
             
             /*if (!LittleRenderChunk.this.hasAllNeighbors()) {
                 this.level = null;
@@ -357,34 +323,35 @@ public class LittleRenderChunk implements RenderChunkExtender {
             }*/
             
             if (this.isCancelled.get())
-                return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
+                return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
             
             Vec3d cam = manager.getCameraPosition();
-            RebuildTask.CompileResults results = this.compile((float) cam.x, (float) cam.y, (float) cam.z, pack);
+            SectionCompiler.Results results = LittleTilesClient.ANIMATION_HANDLER.sectionCompiler.compile(section, region, createVertexSorting(cam.x, cam.y, cam.z), pack,
+                this.additionalRenderers);
             LittleRenderChunk.this.updateGlobalBlockEntities(results.globalBlockEntities);
             
             if (this.isCancelled.get()) {
-                results.renderedLayers.values().forEach(BufferBuilder.RenderedBuffer::release);
-                return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
+                results.release();
+                return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
             }
             
-            if (results.isEmpty()) {
+            if (((SectionCompilerResultsExtender) (Object) results).isEmpty()) {
                 manager.emptyChunk(LittleRenderChunk.this);
-                LittleRenderChunk.this.compiled.set(CompiledChunk.UNCOMPILED);
-                results.renderedLayers.values().forEach(BufferBuilder.RenderedBuffer::release);
+                LittleRenderChunk.this.compiled.set(CompiledSection.UNCOMPILED);
+                results.release();
                 LittleRenderChunk.this.prepareUpload();
-                return CompletableFuture.completedFuture(ChunkTaskResult.SUCCESSFUL);
+                return CompletableFuture.completedFuture(SectionTaskResult.SUCCESSFUL);
             }
             
-            CompiledChunk compiled = new CompiledChunk();
-            ((CompiledChunkAccessor) compiled).setVisibilitySet(results.visibilitySet);
+            CompiledSection compiled = new CompiledSection();
+            ((CompiledSectionAccessor) compiled).setVisibilitySet(results.visibilitySet);
             compiled.getRenderableBlockEntities().addAll(results.blockEntities);
-            ((CompiledChunkAccessor) compiled).setTransparencyState(results.transparencyState);
+            ((CompiledSectionAccessor) compiled).setTransparencyState(results.transparencyState);
             
             List<CompletableFuture<Void>> list = Lists.newArrayList();;
-            for (Entry<RenderType, RenderedBuffer> entry : results.renderedLayers.entrySet()) {
+            for (Entry<RenderType, MeshData> entry : results.renderedLayers.entrySet()) {
                 list.add(manager.uploadChunkLayer(entry.getValue(), LittleRenderChunk.this.getVertexBuffer(entry.getKey())));
-                ((CompiledChunkAccessor) compiled).getHasBlocks().add(entry.getKey());
+                ((CompiledSectionAccessor) compiled).getHasBlocks().add(entry.getKey());
             }
             
             return Util.sequenceFailFast(list).handle((voids, throwable) -> {
@@ -392,158 +359,28 @@ public class LittleRenderChunk implements RenderChunkExtender {
                     Minecraft.getInstance().delayCrash(CrashReport.forThrowable(throwable, "Rendering chunk"));
                 
                 if (this.isCancelled.get())
-                    return ChunkTaskResult.CANCELLED;
+                    return SectionTaskResult.CANCELLED;
                 
                 LittleRenderChunk.this.compiled.set(compiled);
                 manager.queueChunk(LittleRenderChunk.this);
-                return ChunkTaskResult.SUCCESSFUL;
+                return SectionTaskResult.SUCCESSFUL;
             }).whenComplete((result, exception) -> {
-                if (result == ChunkTaskResult.SUCCESSFUL) {
+                if (result == SectionTaskResult.SUCCESSFUL) {
                     LittleRenderChunk.this.prepareUpload();
+                    var caches = ((SectionCompilerResultsExtender) (Object) results).getCaches();
                     if (caches != null)
                         for (Tuple<RenderType, BufferCollection> tuple : caches.tuples())
                             LittleRenderChunk.this.uploaded(tuple.key, tuple.value);
                 }
-                this.caches = null;
             });
             
         }
         
-        private CompileResults compile(float x, float y, float z, ChunkBufferBuilderPack pack) {
-            this.pack = pack;
-            LittleRenderPipelineType.startCompile(LittleRenderChunk.this, this);
-            CompileResults results = new CompileResults();
-            BlockPos maxPos = pos.offset(15, 15, 15);
-            VisGraph visgraph = new VisGraph();
-            Level renderchunkregion = this.level;
-            this.level = null;
-            PoseStack posestack = new PoseStack();
-            if (renderchunkregion != null) {
-                ModelBlockRenderer.enableCaching();
-                renderTypes = new ReferenceArraySet<>(RenderType.chunkBufferLayers().size());
-                RandomSource randomsource = RandomSource.create();
-                BlockRenderDispatcher blockrenderdispatcher = Minecraft.getInstance().getBlockRenderer();
-                
-                for (BlockPos blockpos2 : BlockPos.betweenClosed(pos, maxPos)) {
-                    BlockState blockstate = renderchunkregion.getBlockState(blockpos2);
-                    if (blockstate.isSolidRender(renderchunkregion, blockpos2))
-                        visgraph.setOpaque(blockpos2);
-                    
-                    if (blockstate.hasBlockEntity()) {
-                        BlockEntity blockentity = renderchunkregion.getBlockEntity(blockpos2);
-                        if (blockentity != null)
-                            this.handleBlockEntity(results, blockentity);
-                    }
-                    
-                    BlockState blockstate1 = renderchunkregion.getBlockState(blockpos2);
-                    FluidState fluidstate = blockstate1.getFluidState();
-                    if (!fluidstate.isEmpty()) {
-                        RenderType rendertype = ItemBlockRenderTypes.getRenderLayer(fluidstate);
-                        BufferBuilder bufferbuilder = pack.builder(rendertype);
-                        if (renderTypes.add(rendertype))
-                            LittleRenderChunk.this.begin(bufferbuilder);
-                        
-                        blockrenderdispatcher.renderLiquid(blockpos2, renderchunkregion, bufferbuilder, blockstate1, fluidstate);
-                    }
-                    
-                    if (blockstate.getRenderShape() != RenderShape.INVISIBLE) {
-                        var model = blockrenderdispatcher.getBlockModel(blockstate);
-                        var modelData = getModelData(blockpos2);
-                        randomsource.setSeed(blockstate.getSeed(blockpos2));
-                        for (RenderType rendertype2 : model.getRenderTypes(blockstate, randomsource, modelData)) {
-                            BufferBuilder bufferbuilder2 = pack.builder(rendertype2);
-                            if (renderTypes.add(rendertype2))
-                                LittleRenderChunk.this.begin(bufferbuilder2);
-                            
-                            posestack.pushPose();
-                            posestack.translate(blockpos2.getX() & 15, blockpos2.getY() & 15, blockpos2.getZ() & 15);
-                            blockrenderdispatcher.renderBatched(blockstate, blockpos2, renderchunkregion, posestack, bufferbuilder2, true, randomsource, modelData, rendertype2);
-                            posestack.popPose();
-                        }
-                    }
-                }
-                
-                if (renderTypes.contains(RenderType.translucent())) {
-                    BufferBuilder bufferbuilder1 = pack.builder(RenderType.translucent());
-                    if (!bufferbuilder1.isCurrentBatchEmpty()) {
-                        setQuadSorting(bufferbuilder1, x, y, z);
-                        results.transparencyState = bufferbuilder1.getSortState();
-                    }
-                }
-                
-                for (RenderType rendertype1 : renderTypes) {
-                    BufferBuilder.RenderedBuffer rendered = pack.builder(rendertype1).endOrDiscardIfEmpty();
-                    if (rendered != null)
-                        results.renderedLayers.put(rendertype1, rendered);
-                }
-                
-                ModelBlockRenderer.clearCache();
-            }
-            
-            results.visibilitySet = visgraph.resolve();
-            LittleRenderPipelineType.endCompile(LittleRenderChunk.this, this);
-            this.pack = null;
-            this.renderTypes = null;
-            return results;
-        }
-        
-        private <E extends BlockEntity> void handleBlockEntity(CompileResults results, E entity) {
-            if (entity instanceof BETiles tiles)
-                LittleRenderPipelineType.compile(LittleRenderChunk.this, tiles, this);
-            BlockEntityRenderer<E> blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
-            if (blockentityrenderer != null)
-                if (blockentityrenderer.shouldRenderOffScreen(entity))
-                    results.globalBlockEntities.add(entity);
-                else
-                    results.blockEntities.add(entity); //FORGE: Fix MC-112730
-        }
-        
         @Override
         public void cancel() {
-            this.level = null;
+            this.region = null;
             if (this.isCancelled.compareAndSet(false, true))
                 LittleRenderChunk.this.setDirty(false);
-            
-        }
-        
-        public BufferBuilder builder(RenderType layer) {
-            BufferBuilder builder = pack.builder(layer);
-            if (renderTypes.add(layer))
-                LittleRenderChunk.this.begin(builder);
-            return builder;
-        }
-        
-        public BufferCollection getOrCreateBuffers(RenderType layer) {
-            if (caches == null)
-                caches = new ChunkLayerMap<>();
-            BufferCollection cache = caches.get(layer);
-            if (cache == null)
-                caches.put(layer, cache = new BufferCollection());
-            return cache;
-        }
-        
-        @Override
-        public BufferCache upload(RenderType layer, BufferCache cache) {
-            if (cache.upload((ChunkBufferUploader) builder(layer))) {
-                getOrCreateBuffers(layer).queueForUpload(cache);
-                return cache;
-            }
-            return null;
-        }
-        
-        @OnlyIn(Dist.CLIENT)
-        static final class CompileResults {
-            
-            public final List<BlockEntity> globalBlockEntities = new ArrayList<>();
-            public final List<BlockEntity> blockEntities = new ArrayList<>();
-            public final Map<RenderType, BufferBuilder.RenderedBuffer> renderedLayers = new Reference2ObjectArrayMap<>();
-            public VisibilitySet visibilitySet = new VisibilitySet();
-            @Nullable
-            public BufferBuilder.SortState transparencyState;
-            
-            public boolean isEmpty() {
-                return renderedLayers.isEmpty() && globalBlockEntities.isEmpty() && blockEntities.isEmpty();
-            }
         }
         
     }
@@ -551,16 +388,11 @@ public class LittleRenderChunk implements RenderChunkExtender {
     @OnlyIn(Dist.CLIENT)
     class ResortTransparencyTask extends CompileTask {
         
-        private final CompiledChunk compiledChunk;
+        private final CompiledSection compiledSection;
         
-        @Deprecated
-        public ResortTransparencyTask(double distAtCreation, CompiledChunk chunk) {
-            this(null, distAtCreation, chunk);
-        }
-        
-        public ResortTransparencyTask(@Nullable ChunkPos pos, double distAtCreation, CompiledChunk chunk) {
-            super(pos, distAtCreation, true);
-            this.compiledChunk = chunk;
+        public ResortTransparencyTask(double distAtCreation, CompiledSection section) {
+            super(distAtCreation, true);
+            this.compiledSection = section;
         }
         
         @Override
@@ -569,40 +401,38 @@ public class LittleRenderChunk implements RenderChunkExtender {
         }
         
         @Override
-        public CompletableFuture<ChunkTaskResult> doTask(ChunkBufferBuilderPack p_112893_) {
+        public CompletableFuture<SectionTaskResult> doTask(SectionBufferBuilderPack pack) {
             if (this.isCancelled.get())
-                return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
+                return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
             if (this.isCancelled.get())
-                return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
+                return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
             
             if (!LittleRenderChunk.this.hasAllNeighbors()) {
                 this.isCancelled.set(true);
-                return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
+                return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
             }
             
             Vec3d cam = manager.getCameraPosition();
-            BufferBuilder.SortState sortstate = ((CompiledChunkAccessor) this.compiledChunk).getTransparencyState();
-            if (sortstate != null && !this.compiledChunk.isEmpty(RenderType.translucent())) {
-                BufferBuilder bufferbuilder = p_112893_.builder(RenderType.translucent());
-                LittleRenderChunk.this.begin(bufferbuilder);
-                bufferbuilder.restoreSortState(sortstate);
-                setQuadSorting(bufferbuilder, cam.x, cam.y, cam.z);
-                ((CompiledChunkAccessor) this.compiledChunk).setTransparencyState(bufferbuilder.getSortState());
-                BufferBuilder.RenderedBuffer rendered = bufferbuilder.end();
+            MeshData.SortState sortstate = ((CompiledSectionAccessor) this.compiledSection).getTransparencyState();
+            if (sortstate != null && !this.compiledSection.isEmpty(RenderType.translucent())) {
+                VertexSorting vertexsorting = LittleRenderChunk.this.createVertexSorting(cam.x, cam.y, cam.z);
+                ByteBufferBuilder.Result result = sortstate.buildSortedIndexBuffer(pack.buffer(RenderType.translucent()), vertexsorting);
+                if (result == null)
+                    return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
                 if (this.isCancelled.get()) {
-                    rendered.release();
-                    return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
+                    result.close();
+                    return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
                 }
-                CompletableFuture<ChunkTaskResult> completablefuture = manager.uploadChunkLayer(rendered, LittleRenderChunk.this.getVertexBuffer(RenderType.translucent()))
-                        .thenApply(x -> ChunkTaskResult.CANCELLED);
-                return completablefuture.handle((result, exception) -> {
+                CompletableFuture<SectionTaskResult> completablefuture = manager.uploadSectionIndexBuffer(result, LittleRenderChunk.this.getVertexBuffer(RenderType.translucent()))
+                        .thenApply(x -> SectionTaskResult.CANCELLED);
+                return completablefuture.handle((r, exception) -> {
                     if (exception != null && !(exception instanceof CancellationException) && !(exception instanceof InterruptedException))
                         Minecraft.getInstance().delayCrash(CrashReport.forThrowable(exception, "Rendering chunk"));
                     
-                    return this.isCancelled.get() ? ChunkTaskResult.CANCELLED : ChunkTaskResult.SUCCESSFUL;
+                    return this.isCancelled.get() ? SectionTaskResult.CANCELLED : SectionTaskResult.SUCCESSFUL;
                 });
             }
-            return CompletableFuture.completedFuture(ChunkTaskResult.CANCELLED);
+            return CompletableFuture.completedFuture(SectionTaskResult.CANCELLED);
         }
         
         @Override

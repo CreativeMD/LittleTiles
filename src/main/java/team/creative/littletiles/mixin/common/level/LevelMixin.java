@@ -21,7 +21,7 @@ import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
 
 @Mixin(Level.class)
-public abstract class LevelMixin implements LevelAccessor, AutoCloseable, net.minecraftforge.common.extensions.IForgeLevel {
+public abstract class LevelMixin implements LevelAccessor, AutoCloseable {
     
     @Override
     public boolean noCollision(@Nullable Entity entity, AABB bb) {
@@ -58,8 +58,8 @@ public abstract class LevelMixin implements LevelAccessor, AutoCloseable, net.mi
             if (toTest instanceof BoxesVoxelShape box)
                 box.onlyKeepIntersecting(aabb);
             
-        VoxelShape voxelshape = shapes.stream().filter((toTest) -> this.getWorldBorder() == null || this.getWorldBorder().isWithinBounds(toTest.bounds())).flatMap(
-            (toTest) -> toTest.toAabbs().stream()).map((bb) -> bb.inflate(x / 2.0D, y / 2.0D, z / 2.0D)).map(Shapes::create).reduce(Shapes.empty(), Shapes::or);
+        VoxelShape voxelshape = shapes.stream().filter((toTest) -> this.getWorldBorder() == null || this.getWorldBorder().isWithinBounds(toTest.bounds())).flatMap((
+                toTest) -> toTest.toAabbs().stream()).map((bb) -> bb.inflate(x / 2.0D, y / 2.0D, z / 2.0D)).map(Shapes::create).reduce(Shapes.empty(), Shapes::or);
         VoxelShape voxelshape1 = Shapes.join(shape, voxelshape, BooleanOp.ONLY_FIRST);
         return voxelshape1.closestPointTo(vec);
     }

@@ -4,6 +4,8 @@ import java.util.Iterator;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
@@ -25,7 +27,6 @@ import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
-import team.creative.creativecore.mixin.BufferBuilderAccessor;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
@@ -33,15 +34,20 @@ import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
+import team.creative.littletiles.mixin.client.render.BufferBuilderAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleRenderPipelineForge extends LittleRenderPipeline {
     
-    private final BufferBuilder builder = new BufferBuilder(131072);
+    private final ByteBufferBuilder byteBuilder = new ByteBufferBuilder(131072);
+    private BufferBuilder builder;
     private final MutableBlockPos modelOffset = new MutableBlockPos();
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferCache> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
+        if (builder == null)
+            reload();
+        
         Level renderLevel = data.be.getLevel();
         while (renderLevel instanceof LittleSubLevel sub && !sub.shouldUseLightingForRenderig())
             renderLevel = sub.getParent();
@@ -56,7 +62,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
         
         int overlay = OverlayTexture.NO_OVERLAY;
         
-        data.chunk.prepareModelOffset(modelOffset, pos);
+        data.prepareModelOffset(modelOffset, pos);
         pose.translate(modelOffset.getX(), modelOffset.getY(), modelOffset.getZ());
         
         // Render vertex buffer
@@ -65,8 +71,6 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             IndexedCollector<LittleRenderBox> cubes = entry.value;
             if (cubes == null || cubes.isEmpty())
                 continue;
-            
-            builder.begin(VertexFormat.Mode.QUADS, format);
             
             IntArrayList indexes = new IntArrayList();
             for (Iterator<LittleRenderBox> iterator = cubes.sectionIterator(x -> {
@@ -103,7 +107,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                     cube.deleteQuadCache();
             }
             
-            buffers.put(entry.key, new BufferHolder(builder.end(), indexes.toIntArray()));
+            buffers.put(entry.key, new BufferHolder(builder.buildOrThrow(), indexes.toIntArray()));
         }
         
         ((CreativeQuadLighter) lighter).setCustomTint(-1);
@@ -111,7 +115,9 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
     }
     
     @Override
-    public void reload() {}
+    public void reload() {
+        builder = new BufferBuilder(byteBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
+    }
     
     @Override
     public void release() {}

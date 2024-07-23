@@ -14,6 +14,9 @@ import java.util.function.Predicate;
 import javax.annotation.Nullable;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -26,7 +29,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.extensions.IForgeBlockEntity;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.be.BlockEntityCreative;
@@ -42,7 +44,6 @@ import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.ILittleBlockEntity;
 import team.creative.littletiles.client.render.block.BERenderManager;
 import team.creative.littletiles.client.render.level.RenderUploader;
-import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.BlockParentCollection;
@@ -62,7 +63,7 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 
-public class BETiles extends BlockEntityCreative implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
+public class BETiles extends BlockEntityCreative implements IGridBased, ILittleBlockEntity {
     
     private boolean hasLoaded = false;
     private boolean preventUnload = false;
@@ -134,7 +135,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (level != null && level.isClientSide) {
             render.unsetBlocked();
             if (rendering) // Fixes incorrect rendering when receiving an update while render cache is building
-                render.queue(true, null);
+                render.queue(true, SectionPos.asLong(getBlockPos()));
         }
     }
     
@@ -184,10 +185,10 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void updateQuadCache(RenderChunkExtender chunk) {
+    public void updateQuadCache(long pos) {
         if (tiles == null)
             return;
-        render.chunkUpdate(chunk);
+        render.sectionUpdate(pos);
     }
     
     public void updateLighting() {
@@ -434,8 +435,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     @Override
-    public void load(CompoundTag nbt) {
-        super.load(nbt);
+    protected void loadAdditional(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadAdditional(nbt, provider);
         
         if (tiles == null)
             init();
@@ -457,7 +458,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (level != null && level.isClientSide) {
             render.unsetBlocked();
             if (rendering) // Fixes incorrect rendering when receiving an update while render cache is building
-                render.queue(true, null);
+                render.queue(true, SectionPos.asLong(getBlockPos()));
         }
     }
     
@@ -466,8 +467,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     @Override
-    public void saveAdditional(CompoundTag nbt) {
-        super.saveAdditional(nbt);
+    protected void saveAdditional(CompoundTag nbt, Provider provider) {
+        super.saveAdditional(nbt, provider);
         grid.set(nbt);
         nbt.put("content", tiles.save(new LittleServerFace(this)));
         sideCache.write(nbt);
@@ -477,7 +478,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     @OnlyIn(Dist.CLIENT)
     public void handleUpdate(CompoundTag nbt, boolean chunkUpdate) {
         RenderUploader.notifyReceiveClientUpdate(this);
-        load(nbt);
+        loadAdditional(nbt, level.registryAccess());
         if (!chunkUpdate)
             updateTiles(false);
     }

@@ -13,7 +13,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.systems.RenderSystem.AutoStorageIndexBuffer;
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
@@ -42,9 +42,9 @@ public abstract class VertexBufferMixin implements VertexBufferExtender {
     public int length;
     
     @Inject(at = @At(value = "INVOKE", target = "Lcom/mojang/blaze3d/systems/RenderSystem;glBufferData(ILjava/nio/ByteBuffer;I)V"),
-            method = "uploadVertexBuffer(Lcom/mojang/blaze3d/vertex/BufferBuilder$DrawState;Ljava/nio/ByteBuffer;)Lcom/mojang/blaze3d/vertex/VertexFormat;", require = 1)
-    public void uploadVertexBuffer(BufferBuilder.DrawState drawState, ByteBuffer buffer, CallbackInfoReturnable<VertexFormat> info) {
-        length = drawState.vertexBufferSize();
+            method = "uploadVertexBuffer(Lcom/mojang/blaze3d/vertex/MeshData$DrawState;Ljava/nio/ByteBuffer;)Lcom/mojang/blaze3d/vertex/VertexFormat;", require = 1)
+    public void uploadVertexBuffer(MeshData.DrawState drawState, ByteBuffer buffer, CallbackInfoReturnable<VertexFormat> info) {
+        length = drawState.vertexCount() * drawState.format().getVertexSize();
     }
     
     @Override

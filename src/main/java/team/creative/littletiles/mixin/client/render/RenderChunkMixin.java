@@ -4,20 +4,19 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Invoker;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexSorting;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.RenderChunk;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.CompiledSection;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection;
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
-import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
-@Mixin(RenderChunk.class)
+@Mixin(RenderSection.class)
 public abstract class RenderChunkMixin implements RenderChunkExtender {
     
     public ChunkLayerMap<BufferCollection> lastUploaded;
@@ -35,8 +34,8 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     }
     
     @Unique
-    private RenderChunk as() {
-        return (RenderChunk) (Object) this;
+    private RenderSection as() {
+        return (RenderSection) (Object) this;
     }
     
     @Override
@@ -50,10 +49,6 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     }
     
     @Override
-    @Invoker("beginLayer")
-    public abstract void begin(BufferBuilder builder);
-    
-    @Override
     @Invoker("getBuffer")
     public abstract VertexBuffer getVertexBuffer(RenderType layer);
     
@@ -63,35 +58,30 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     
     @Override
     public SortState getTransparencyState() {
-        return ((CompiledChunkAccessor) as().getCompiledChunk()).getTransparencyState();
+        return ((CompiledSectionAccessor) as().getCompiled()).getTransparencyState();
     }
     
     @Override
-    public BlockPos standardOffset() {
-        return as().getOrigin();
+    public void setTransparencyState(SortState state) {
+        ((CompiledSectionAccessor) as().getCompiled()).setTransparencyState(state);
     }
     
     @Override
     public void setHasBlock(RenderType layer) {
-        CompiledChunk compiled = as().getCompiledChunk();
-        if (compiled != CompiledChunk.UNCOMPILED)
-            ((CompiledChunkAccessor) compiled).getHasBlocks().add(layer);
+        CompiledSection compiled = as().getCompiled();
+        if (compiled != CompiledSection.UNCOMPILED)
+            ((CompiledSectionAccessor) compiled).getHasBlocks().add(layer);
     }
     
     @Override
     public boolean isEmpty(RenderType layer) {
-        return as().getCompiledChunk().isEmpty(layer);
+        return as().getCompiled().isEmpty(layer);
     }
     
     @Override
-    public void setQuadSorting(BufferBuilder builder, double x, double y, double z) {
+    public VertexSorting createVertexSorting(double x, double y, double z) {
         BlockPos origin = as().getOrigin();
-        builder.setQuadSorting(VertexSorting.byDistance((float) x - origin.getX(), (float) y - origin.getY(), (float) z - origin.getZ()));
-    }
-    
-    @Override
-    public LittleRenderPipelineType getPipeline() {
-        return LittleRenderPipelineType.FORGE;
+        return VertexSorting.byDistance((float) x - origin.getX(), (float) y - origin.getY(), (float) z - origin.getZ());
     }
     
 }

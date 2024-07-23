@@ -34,6 +34,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelDataManager;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -64,7 +65,9 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
         return entity.getSubLevel();
     }
     
-    public abstract RenderChunkExtender getRenderChunk(BlockPos pos);
+    public abstract RenderChunkExtender getRenderChunk(long pos);
+    
+    public abstract boolean isSmall();
     
     public void setupRender(Camera camera, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
         Vec3 cam = camera.getPosition();
@@ -147,9 +150,8 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
         if (sortedset != null && !sortedset.isEmpty()) {
             int j1 = sortedset.last().getProgress();
             if (j1 >= 0) {
-                PoseStack.Pose posestack$pose1 = pose.last();
-                VertexConsumer vertexconsumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(
-                    j1)), posestack$pose1.pose(), posestack$pose1.normal(), 1.0F);
+                VertexConsumer vertexconsumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(j1)), pose
+                        .last(), 1.0F);
                 
                 newSource = (type) -> type.affectsCrumbling() ? VertexMultiConsumer.create(vertexconsumer, bufferSource.getBuffer(type)) : bufferSource.getBuffer(type);
             }
@@ -160,7 +162,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     protected abstract void renderAllBlockEntities(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource);
     
     protected void renderBlockEntity(BlockEntity blockentity, PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
-        if (!frustum.isVisible(blockentity.getRenderBoundingBox()))
+        if (ClientHooks.isBlockEntityRendererVisible(mc.getBlockEntityRenderDispatcher(), blockentity, frustum))
             return;
         BlockPos blockpos4 = blockentity.getBlockPos();
         pose.pushPose();
@@ -187,9 +189,8 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
                     int k1 = sortedset1.last().getProgress();
                     pose.pushPose();
                     pose.translate(blockpos2.getX() - cam.x, blockpos2.getY() - cam.y, blockpos2.getZ() - cam.z);
-                    PoseStack.Pose last = pose.last();
-                    VertexConsumer consumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(k1)), last
-                            .pose(), last.normal(), 1.0F);
+                    VertexConsumer consumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(k1)), pose
+                            .last(), 1.0F);
                     ModelDataManager manager = level.getModelDataManager();
                     ModelData modelData = null;
                     if (manager != null)

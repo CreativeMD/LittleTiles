@@ -51,6 +51,7 @@ import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.action.interact.LittleInteractionHandlerClient;
 import team.creative.littletiles.client.level.LevelHandlersClient;
@@ -267,7 +268,7 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "premade"), new LittleModelItemTilesBig() {
             @Override
             public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
-                if (!stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY))
+                if (!ILittleTool.getData(stack).contains(LittleGroup.STRUCTURE_KEY))
                     return Collections.EMPTY_LIST;
                 
                 LittlePremadeType premade = ItemPremadeStructure.get(stack);
@@ -303,7 +304,7 @@ public class LittleTilesClient {
                     return ItemStack.EMPTY;
                 
                 ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
-                stack.setTag(LittleGroup.save(mode.getTiles(current)));
+                ILittleTool.setData(stack, LittleGroup.save(mode.getTiles(current)));
                 return stack;
                 
             }
@@ -313,7 +314,7 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
                 .tryBuild(LittleTiles.MODID, "blueprint_background"), "inventory"), x -> {
                     ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
-                    stack.setTag(x.getOrCreateTag().getCompound(ItemLittleBlueprint.CONTENT_KEY));
+                    ILittleTool.setData(stack, ILittleTool.getData(stack).getCompound(ItemLittleBlueprint.CONTENT_KEY));
                     return stack;
                 }));
         

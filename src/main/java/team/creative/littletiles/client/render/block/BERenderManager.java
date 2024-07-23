@@ -5,10 +5,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -17,19 +15,15 @@ import team.creative.creativecore.client.render.face.RenderBoxFaceSpecial;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
-import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
-import team.creative.littletiles.client.mod.rubidium.pipeline.LittleRenderPipelineRubidium;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
-import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.face.LittleFaceState;
@@ -38,19 +32,9 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
-import team.creative.littletiles.mixin.client.render.LevelRendererAccessor;
-import team.creative.littletiles.mixin.client.render.ViewAreaAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class BERenderManager {
-    
-    public static RenderChunkExtender getRenderChunk(Level level, BlockPos pos) {
-        if (level instanceof LittleLevel little)
-            return little.getRenderManager().getRenderChunk(pos);
-        if (RubidiumManager.installed())
-            return LittleRenderPipelineRubidium.getChunk(pos);
-        return (RenderChunkExtender) ((ViewAreaAccessor) ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getViewArea()).getChunkAt(pos);
-    }
     
     private BETiles be;
     
@@ -83,7 +67,7 @@ public class BERenderManager {
         return queued;
     }
     
-    public void chunkUpdate(RenderChunkExtender chunk) {
+    public void sectionUpdate(long pos) {
         synchronized (this) {
             boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
             if (renderState != RenderingThread.CURRENT_RENDERING_INDEX) {
@@ -95,7 +79,7 @@ public class BERenderManager {
             neighbourChanged = false;
             
             if (doesNeedUpdate)
-                queue(eraseBoxCache, chunk);
+                queue(eraseBoxCache, pos);
         }
     }
     
@@ -114,7 +98,7 @@ public class BERenderManager {
     public void tilesChanged() {
         requireRenderingBoundingBoxUpdate = true;
         cachedRenderDistance = 0;
-        queue(true, null);
+        queue(true, SectionPos.asLong(be.getBlockPos()));
     }
     
     public void markRenderBoundingBoxDirty() {
@@ -165,16 +149,16 @@ public class BERenderManager {
     
     public void onNeighbourChanged() {
         neighbourChanged = true;
-        queue(false, null);
+        queue(false, SectionPos.asLong(be.getBlockPos()));
     }
     
-    public void queue(boolean eraseBoxCache, @Nullable RenderChunkExtender chunk) {
+    public void queue(boolean eraseBoxCache, long pos) {
         synchronized (this) {
             requestedIndex++;
             
             this.eraseBoxCache |= eraseBoxCache;
             
-            if (!queued && RenderingThread.queue(be, chunk))
+            if (!queued && RenderingThread.queue(be, pos))
                 queued = true;
         }
     }
@@ -317,7 +301,4 @@ public class BERenderManager {
         return boxes;
     }
     
-    public RenderChunkExtender getRenderChunk() {
-        return getRenderChunk(be.getLevel(), be.getBlockPos());
-    }
 }

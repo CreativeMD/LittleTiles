@@ -5,20 +5,20 @@ import java.util.Set;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
 
-import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.MeshData;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.chunk.ChunkRenderDispatcher.CompiledChunk;
+import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.CompiledSection;
 import net.minecraft.client.renderer.chunk.VisibilitySet;
 
-@Mixin(CompiledChunk.class)
-public interface CompiledChunkAccessor {
+@Mixin(CompiledSection.class)
+public interface CompiledSectionAccessor {
     
     @Accessor
-    public BufferBuilder.SortState getTransparencyState();
+    public MeshData.SortState getTransparencyState();
     
     @Accessor
-    public void setTransparencyState(BufferBuilder.SortState state);
+    public void setTransparencyState(MeshData.SortState state);
     
     @Accessor
     public Set<RenderType> getHasBlocks();

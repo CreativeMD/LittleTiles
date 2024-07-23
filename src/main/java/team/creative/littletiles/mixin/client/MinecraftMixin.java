@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.client.ForgeHooksClient;
+import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
@@ -42,7 +42,7 @@ public class MinecraftMixin {
             BlockHitResult blockhitresult = result.asBlockHit();
             BlockPos blockpos = blockhitresult.getBlockPos();
             if (!result.level.isEmptyBlock(blockpos)) {
-                var inputEvent = ForgeHooksClient.onClickInput(0, mc.options.keyAttack, InteractionHand.MAIN_HAND);
+                var inputEvent = ClientHooks.onClickInput(0, mc.options.keyAttack, InteractionHand.MAIN_HAND);
                 if (inputEvent.isCanceled()) {
                     if (inputEvent.shouldSwingHand()) {
                         mc.particleEngine.addBlockHitEffects(blockpos, blockhitresult);
@@ -93,7 +93,8 @@ public class MinecraftMixin {
     
     @Inject(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getType()Lnet/minecraft/world/phys/HitResult$Type;"), require = 1,
             cancellable = true, locals = LocalCapture.CAPTURE_FAILHARD)
-    private void startUseItem(CallbackInfo info, InteractionHand[] hands, int delay, int type, InteractionHand interactionhand, InteractionKeyMappingTriggered inputEvent, ItemStack itemstack) {
+    private void startUseItem(CallbackInfo info, InteractionHand[] hands, int delay, int type, InteractionHand interactionhand, InteractionKeyMappingTriggered inputEvent,
+            ItemStack itemstack) {
         Minecraft mc = asMinecraft();
         LocalPlayer player = mc.player;
         if (mc.hitResult instanceof LittleHitResult hit) {

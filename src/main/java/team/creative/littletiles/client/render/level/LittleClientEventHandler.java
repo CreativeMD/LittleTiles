@@ -5,6 +5,7 @@ import org.joml.Vector3d;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -22,6 +23,7 @@ import net.minecraft.world.phys.AABB;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
@@ -32,7 +34,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 
 public class LittleClientEventHandler {
     
-    private static final ResourceLocation RES_UNDERWATER_OVERLAY = new ResourceLocation("textures/misc/underwater.png");
+    private static final ResourceLocation RES_UNDERWATER_OVERLAY = ResourceLocation.withDefaultNamespace("textures/misc/underwater.png");
     public static int transparencySortingIndex;
     
     @SubscribeEvent
@@ -59,7 +61,7 @@ public class LittleClientEventHandler {
                         RenderSystem.setShaderTexture(0, RES_UNDERWATER_OVERLAY);
                         
                         Tesselator tesselator = Tesselator.getInstance();
-                        BufferBuilder bufferbuilder = tesselator.getBuilder();
+                        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
                         float f = LightTexture.getBrightness(player.level().dimensionType(), player.level().getMaxLocalRawBrightness(blockpos));
                         RenderSystem.enableBlend();
                         RenderSystem.defaultBlendFunc();
@@ -69,12 +71,12 @@ public class LittleClientEventHandler {
                         float f7 = -mc.player.getYRot() / 64.0F;
                         float f8 = mc.player.getXRot() / 64.0F;
                         Matrix4f matrix4f = pose.last().pose();
-                        bufferbuilder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
-                        bufferbuilder.vertex(matrix4f, -1.0F, -1.0F, -0.5F).uv(4.0F + f7, 4.0F + f8).endVertex();
-                        bufferbuilder.vertex(matrix4f, 1.0F, -1.0F, -0.5F).uv(0.0F + f7, 4.0F + f8).endVertex();
-                        bufferbuilder.vertex(matrix4f, 1.0F, 1.0F, -0.5F).uv(0.0F + f7, 0.0F + f8).endVertex();
-                        bufferbuilder.vertex(matrix4f, -1.0F, 1.0F, -0.5F).uv(4.0F + f7, 0.0F + f8).endVertex();
-                        tesselator.end();
+                        bufferbuilder.addVertex(matrix4f, -1.0F, -1.0F, -0.5F).setUv(4.0F + f7, 4.0F + f8);
+                        bufferbuilder.addVertex(matrix4f, 1.0F, -1.0F, -0.5F).setUv(0.0F + f7, 4.0F + f8);
+                        bufferbuilder.addVertex(matrix4f, 1.0F, 1.0F, -0.5F).setUv(0.0F + f7, 0.0F + f8);
+                        bufferbuilder.addVertex(matrix4f, -1.0F, 1.0F, -0.5F).setUv(4.0F + f7, 0.0F + f8);
+                        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+                        RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                         RenderSystem.disableBlend();
                         
                         event.setCanceled(true);

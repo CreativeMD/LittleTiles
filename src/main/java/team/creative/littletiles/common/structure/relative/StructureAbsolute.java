@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.structure.relative;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -17,7 +18,7 @@ public class StructureAbsolute extends StructureRelative {
     
     public final LittleVecGrid inBlockOffset;
     public final BlockPos baseOffset;
-    public final BlockPos chunkOffset;
+    public final SectionPos chunkOffset;
     public final BlockPos inChunkOffset;
     
     public final Vec3d rotationCenter;
@@ -34,7 +35,7 @@ public class StructureAbsolute extends StructureRelative {
         
         this.baseOffset = pos.offset(minPosOffset);
         
-        this.chunkOffset = new BlockPos(baseOffset.getX() >> 4, baseOffset.getY() >> 4, baseOffset.getZ() >> 4);
+        this.chunkOffset = SectionPos.of(baseOffset);
         int chunkX = intFloorDiv(baseOffset.getX(), 16);
         int chunkY = intFloorDiv(baseOffset.getY(), 16);
         int chunkZ = intFloorDiv(baseOffset.getZ(), 16);
@@ -61,7 +62,7 @@ public class StructureAbsolute extends StructureRelative {
         
         this.baseOffset = pos.getPos().offset(minPosOffset);
         
-        this.chunkOffset = new BlockPos(baseOffset.getX() >> 4, baseOffset.getY() >> 4, baseOffset.getZ() >> 4);
+        this.chunkOffset = SectionPos.of(baseOffset);
         int chunkX = intFloorDiv(baseOffset.getX(), 16);
         int chunkY = intFloorDiv(baseOffset.getY(), 16);
         int chunkZ = intFloorDiv(baseOffset.getZ(), 16);
@@ -105,8 +106,8 @@ public class StructureAbsolute extends StructureRelative {
     public static LittleBox convertAxisToBox(LittleVecGrid vec, LittleVec additional) {
         if (additional.x == 0)
             return new LittleBox(vec.getVec().x - 1, vec.getVec().y - 1, vec.getVec().z - 1, vec.getVec().x + 1, vec.getVec().y + 1, vec.getVec().z + 1);
-        return new LittleBox(additional.x > 0 ? vec.getVec().x : vec.getVec().x - 1, additional.y > 0 ? vec.getVec().y : vec.getVec().y - 1, additional.z > 0 ? vec
-                .getVec().z : vec.getVec().z - 1, additional.x > 0 ? vec.getVec().x + 1 : vec
-                        .getVec().x, additional.y > 0 ? vec.getVec().y + 1 : vec.getVec().y, additional.z > 0 ? vec.getVec().z + 1 : vec.getVec().z);
+        return new LittleBox(additional.x > 0 ? vec.getVec().x : vec.getVec().x - 1, additional.y > 0 ? vec.getVec().y : vec.getVec().y - 1, additional.z > 0 ? vec.getVec().z : vec
+                .getVec().z - 1, additional.x > 0 ? vec.getVec().x + 1 : vec.getVec().x, additional.y > 0 ? vec.getVec().y + 1 : vec.getVec().y, additional.z > 0 ? vec
+                        .getVec().z + 1 : vec.getVec().z);
     }
 }
