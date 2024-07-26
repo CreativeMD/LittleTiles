@@ -1,16 +1,18 @@
 package team.creative.littletiles.common.gui;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.StringTag;
+import org.jetbrains.annotations.Nullable;
+
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.ItemLore;
 import net.minecraft.world.level.block.Block;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
 import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector.StackCollector;
@@ -51,9 +53,10 @@ public class LittleGuiUtils {
                     if (ingredientsInventory != null && ingredientsInventory.contains(BlockIngredient.class))
                         ingredients.add(ingredientsInventory.get(BlockIngredient.class));
                 } else {
-                    LazyOptional<IItemHandler> optional = stack.getCapability(ForgeCapabilities.ITEM_HANDLER);
-                    if (optional.isPresent())
-                        collect(optional.orElseThrow(RuntimeException::new), ingredients);
+                    @Nullable
+                    IItemHandler handler = stack.getCapability(Capabilities.ItemHandler.ITEM);
+                    if (handler != null)
+                        collect(handler, ingredients);
                 }
                 
             }
@@ -74,9 +77,9 @@ public class LittleGuiUtils {
                     if (inventory != null && inventory.contains(BlockIngredient.class))
                         ingredients.add(inventory.get(BlockIngredient.class));
                 } else {
-                    LazyOptional<IItemHandler> optional = stack.getCapability(ForgeCapabilities.ITEM_HANDLER);
-                    if (optional.isPresent())
-                        collect(optional.orElseThrow(RuntimeException::new), ingredients);
+                    IItemHandler handler = stack.getCapability(Capabilities.ItemHandler.ITEM);
+                    if (handler != null)
+                        collect(handler, ingredients);
                 }
             }
             
@@ -86,13 +89,10 @@ public class LittleGuiUtils {
                 
                 stack.setCount(Math.max(1, (int) ingredient.value));
                 
-                CompoundTag display = new CompoundTag();
-                ListTag list = new ListTag();
                 int blocks = (int) ingredient.value;
                 double pixel = (ingredient.value - blocks) * LittleGrid.OVERALL_DEFAULT_COUNT3D;
-                list.add(StringTag.valueOf((blocks > 0 ? blocks + " blocks " : "") + (pixel > 0 ? (Math.round(pixel * 100) / 100) + " pixel" : "")));
-                display.put(ItemStack.TAG_LORE, list);
-                stack.addTagElement(ItemStack.TAG_DISPLAY, display);
+                stack.set(DataComponents.LORE, new ItemLore(Arrays.asList(Component.literal((blocks > 0 ? blocks + " blocks " : "") + (pixel > 0 ? (Math.round(
+                    pixel * 100) / 100) + " pixel" : "")))));
                 newStacks.add(stack);
             }
             stacks.add("selector.ingredients", newStacks);

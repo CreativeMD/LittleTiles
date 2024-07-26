@@ -21,6 +21,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.DisconnectionDetails;
 import net.minecraft.network.PacketSendListener;
 import net.minecraft.network.TickablePacketListener;
 import net.minecraft.network.chat.Component;
@@ -30,24 +32,30 @@ import net.minecraft.network.protocol.common.ServerboundCustomPayloadPacket;
 import net.minecraft.network.protocol.common.ServerboundKeepAlivePacket;
 import net.minecraft.network.protocol.common.ServerboundPongPacket;
 import net.minecraft.network.protocol.common.ServerboundResourcePackPacket;
+import net.minecraft.network.protocol.cookie.ServerboundCookieResponsePacket;
 import net.minecraft.network.protocol.game.ClientboundBlockChangedAckPacket;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundTagQueryPacket;
 import net.minecraft.network.protocol.game.ServerGamePacketListener;
 import net.minecraft.network.protocol.game.ServerboundAcceptTeleportationPacket;
-import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQuery;
+import net.minecraft.network.protocol.game.ServerboundBlockEntityTagQueryPacket;
 import net.minecraft.network.protocol.game.ServerboundChangeDifficultyPacket;
 import net.minecraft.network.protocol.game.ServerboundChatAckPacket;
 import net.minecraft.network.protocol.game.ServerboundChatCommandPacket;
+import net.minecraft.network.protocol.game.ServerboundChatCommandSignedPacket;
 import net.minecraft.network.protocol.game.ServerboundChatPacket;
 import net.minecraft.network.protocol.game.ServerboundChatSessionUpdatePacket;
+import net.minecraft.network.protocol.game.ServerboundChunkBatchReceivedPacket;
 import net.minecraft.network.protocol.game.ServerboundClientCommandPacket;
 import net.minecraft.network.protocol.game.ServerboundCommandSuggestionPacket;
+import net.minecraft.network.protocol.game.ServerboundConfigurationAcknowledgedPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerButtonClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.network.protocol.game.ServerboundContainerClosePacket;
+import net.minecraft.network.protocol.game.ServerboundContainerSlotStateChangedPacket;
+import net.minecraft.network.protocol.game.ServerboundDebugSampleSubscriptionPacket;
 import net.minecraft.network.protocol.game.ServerboundEditBookPacket;
-import net.minecraft.network.protocol.game.ServerboundEntityTagQuery;
+import net.minecraft.network.protocol.game.ServerboundEntityTagQueryPacket;
 import net.minecraft.network.protocol.game.ServerboundInteractPacket;
 import net.minecraft.network.protocol.game.ServerboundJigsawGeneratePacket;
 import net.minecraft.network.protocol.game.ServerboundLockDifficultyPacket;
@@ -77,6 +85,7 @@ import net.minecraft.network.protocol.game.ServerboundSwingPacket;
 import net.minecraft.network.protocol.game.ServerboundTeleportToEntityPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemOnPacket;
 import net.minecraft.network.protocol.game.ServerboundUseItemPacket;
+import net.minecraft.network.protocol.ping.ServerboundPingRequestPacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.RunningOnDifferentThreadException;
@@ -86,16 +95,20 @@ import net.minecraft.server.network.FilteredText;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.server.network.ServerPlayerConnection;
 import net.minecraft.util.StringUtil;
+import net.minecraft.util.thread.ReentrantBlockableEventLoop;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.MenuProvider;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.BaseCommandBlock;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
@@ -109,14 +122,13 @@ import net.minecraft.world.level.block.entity.JigsawBlockEntity;
 import net.minecraft.world.level.block.entity.SignBlockEntity;
 import net.minecraft.world.level.block.entity.StructureBlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.pattern.BlockInWorld;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.ForgeHooks;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.ForgeEventFactory;
+import net.neoforged.neoforge.common.CommonHooks;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.network.connection.ConnectionType;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.packet.entity.LittleVanillaPacket;
@@ -325,7 +337,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                     else if (packet.getUpdateType() == StructureBlockEntity.UpdateType.LOAD_AREA)
                         if (!structure.isStructureLoadable())
                             this.player.displayClientMessage(Component.translatable("structure_block.load_not_found", s), false);
-                        else if (structure.loadStructure(level))
+                        else if (structure.placeStructureIfSameSize(level))
                             this.player.displayClientMessage(Component.translatable("structure_block.load_success", s), false);
                         else
                             this.player.displayClientMessage(Component.translatable("structure_block.load_prepare", s), false);
@@ -386,7 +398,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     }
     
     @Override
-    public void handleEntityTagQuery(ServerboundEntityTagQuery packet) {
+    public void handleEntityTagQuery(ServerboundEntityTagQueryPacket packet) {
         ensureRunningOnSameThread(packet);
         if (this.player.hasPermissions(2)) {
             Entity entity = level.getEntity(packet.getEntityId());
@@ -396,11 +408,11 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     }
     
     @Override
-    public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQuery packet) {
+    public void handleBlockEntityTagQuery(ServerboundBlockEntityTagQueryPacket packet) {
         ensureRunningOnSameThread(packet);
         if (this.player.hasPermissions(2)) {
             BlockEntity blockentity = level.getBlockEntity(packet.getPos());
-            CompoundTag compoundtag = blockentity != null ? blockentity.saveWithoutMetadata() : null;
+            CompoundTag compoundtag = blockentity != null ? blockentity.saveWithoutMetadata(level.registryAccess()) : null;
             send(new ClientboundTagQueryPacket(packet.getTransactionId(), compoundtag));
         }
     }
@@ -452,7 +464,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
             Vec3 vec3 = blockhitresult.getLocation();
             BlockPos blockpos = blockhitresult.getBlockPos();
             Vec3 vec31 = Vec3.atCenterOf(blockpos);
-            if (this.player.canReach(blockpos, 1.5)) { // Vanilla uses eye-to-center distance < 6, which implies a padding of 1.5
+            if (this.player.canInteractWithBlock(blockpos, 1.0)) {
                 Vec3 vec32 = vec3.subtract(vec31);
                 if (Math.abs(vec32.x()) < 1.0000001D && Math.abs(vec32.y()) < 1.0000001D && Math.abs(vec32.z()) < 1.0000001D) {
                     Direction direction = blockhitresult.getDirection();
@@ -515,8 +527,8 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     }
     
     @Override
-    public void onDisconnect(Component component) {
-        getVanilla().onDisconnect(component);
+    public void disconnect(Component reason) {
+        getVanilla().disconnect(reason);
     }
     
     public void ackBlockChangesUpTo(Level level, int sequence) {
@@ -724,11 +736,11 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     }
     
     public void handleBlockBreakAction(BlockPos pos, ServerboundPlayerActionPacket.Action action, Direction direction, int buildHeight, int sequence) {
-        PlayerInteractEvent.LeftClickBlock event = ForgeHooks.onLeftClickBlock(player, pos, direction);
-        if (event.isCanceled() || (!this.isCreative() && event.getResult() == Event.Result.DENY))
+        PlayerInteractEvent.LeftClickBlock event = CommonHooks.onLeftClickBlock(player, pos, direction, action);
+        if (event.isCanceled())
             return;
         
-        if (!this.player.canReach(pos, 1.5))
+        if (!this.player.canInteractWithBlock(pos, 1.0))
             this.debugLogging(pos, false, sequence, "too far");
         else if (pos.getY() >= buildHeight) {
             send(new ClientboundBlockUpdatePacket(pos, level.getBlockState(pos)));
@@ -756,7 +768,10 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
                 float f = 1.0F;
                 BlockState blockstate = level.getBlockState(pos);
                 if (!blockstate.isAir()) {
-                    if (event.getUseBlock() != Event.Result.DENY)
+                    if (level instanceof ServerLevel s)
+                        EnchantmentHelper.onHitBlock(s, this.player.getMainHandItem(), this.player, this.player, EquipmentSlot.MAINHAND, Vec3.atCenterOf(pos), blockstate,
+                            x -> this.player.onEquippedItemBroken(x, EquipmentSlot.MAINHAND));
+                    if (event.getUseBlock() != TriState.FALSE)
                         blockstate.attack(level, pos, this.player);
                     f = blockstate.getDestroyProgress(this.player, level, pos);
                 }
@@ -835,26 +850,25 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     }
     
     public boolean destroyBlock(Level level, BlockPos pos) {
-        BlockState blockstate = level.getBlockState(pos);
-        int exp = onBlockBreakEvent(level, getGameMode(), pos);
-        if (exp == -1)
+        BlockState blockstate1 = level.getBlockState(pos);
+        var event = CommonHooks.fireBlockBreak(level, getGameMode(), player, pos, blockstate1);
+        if (event.isCanceled())
             return false;
         
         BlockEntity blockentity = level.getBlockEntity(pos);
-        Block block = blockstate.getBlock();
+        Block block = blockstate1.getBlock();
         if (block instanceof GameMasterBlock && !this.player.canUseGameMasterBlocks()) {
-            level.sendBlockUpdated(pos, blockstate, blockstate, 3);
+            level.sendBlockUpdated(pos, blockstate1, blockstate1, 3);
             return false;
         }
-        
-        if (player.getMainHandItem().onBlockStartBreak(pos, player))
-            return false;
         
         if (this.player.blockActionRestricted(level, pos, getGameMode()))
             return false;
         
+        BlockState blockstate = block.playerWillDestroy(level, pos, blockstate1, this.player);
+        
         if (this.isCreative()) {
-            removeBlock(level, pos, false);
+            removeBlock(level, pos, blockstate, false);
             return true;
         }
         
@@ -862,66 +876,32 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         ItemStack itemstack1 = itemstack.copy();
         boolean flag1 = blockstate.canHarvestBlock(level, pos, this.player); // previously player.hasCorrectToolForDrops(blockstate)
         itemstack.mineBlock(level, blockstate, pos, this.player);
-        if (itemstack.isEmpty() && !itemstack1.isEmpty())
-            ForgeEventFactory.onPlayerDestroyItem(this.player, itemstack1, InteractionHand.MAIN_HAND);
-        boolean flag = removeBlock(level, pos, flag1);
+        boolean flag = removeBlock(level, pos, blockstate, flag1);
         
-        if (flag && flag1)
+        if (flag1 && flag)
             block.playerDestroy(level, this.player, pos, blockstate, blockentity, itemstack1);
         
-        if (flag && exp > 0 && level instanceof ServerLevel s)
-            blockstate.getBlock().popExperience(s, pos, exp);
+        // Neo: Fire the PlayerDestroyItemEvent if the tool was broken at any point during the break process
+        if (itemstack.isEmpty() && !itemstack1.isEmpty())
+            EventHooks.onPlayerDestroyItem(this.player, itemstack1, InteractionHand.MAIN_HAND);
         
         return true;
     }
     
-    private boolean removeBlock(Level level, BlockPos pos, boolean canHarvest) {
-        BlockState state = level.getBlockState(pos);
+    /** Patched-in method that handles actual removal of blocks for {@link #destroyBlock(BlockPos)}.
+     *
+     * @param pos
+     *            The block pos of the destroyed block
+     * @param state
+     *            The state of the destroyed block
+     * @param canHarvest
+     *            If the player breaking the block can harvest the drops of the block
+     * @return If the block was removed, as reported by {@link BlockState#onDestroyedByPlayer}. */
+    private boolean removeBlock(Level level, BlockPos pos, BlockState state, boolean canHarvest) {
         boolean removed = state.onDestroyedByPlayer(level, pos, this.player, canHarvest, level.getFluidState(pos));
         if (removed)
             state.getBlock().destroy(level, pos, state);
         return removed;
-    }
-    
-    public int onBlockBreakEvent(Level level, GameType gameType, BlockPos pos) {
-        boolean preCancelEvent = false;
-        ItemStack itemstack = player.getMainHandItem();
-        if (!itemstack.isEmpty() && !itemstack.getItem().canAttackBlock(level.getBlockState(pos), level, pos, player))
-            preCancelEvent = true;
-        
-        if (gameType.isBlockPlacingRestricted()) {
-            if (gameType == GameType.SPECTATOR)
-                preCancelEvent = true;
-            
-            if (!player.mayBuild() && itemstack.isEmpty() || !itemstack.hasAdventureModeBreakTagForBlock(level.registryAccess().registryOrThrow(Registries.BLOCK),
-                new BlockInWorld(level, pos, false)))
-                preCancelEvent = true;
-        }
-        
-        // Tell client the block is gone immediately then process events
-        if (level.getBlockEntity(pos) == null)
-            send(level, new ClientboundBlockUpdatePacket(pos, level.getFluidState(pos).createLegacyBlock()));
-        
-        // Post the block break event
-        BlockState state = level.getBlockState(pos);
-        BlockEvent.BreakEvent event = new BlockEvent.BreakEvent(level, pos, state, player);
-        event.setCanceled(preCancelEvent);
-        MinecraftForge.EVENT_BUS.post(event);
-        
-        // Handle if the event is canceled
-        if (event.isCanceled()) {
-            // Let the client know the block still exists
-            send(level, new ClientboundBlockUpdatePacket(level, pos));
-            
-            // Update any tile entity data for this block
-            BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity != null) {
-                Packet<?> pkt = blockEntity.getUpdatePacket();
-                if (pkt != null)
-                    send(level, pkt);
-            }
-        }
-        return event.isCanceled() ? -1 : event.getExpToDrop();
     }
     
     public InteractionResult useItem(Level level, ItemStack stack, InteractionHand hand) {
@@ -930,7 +910,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         if (player.getCooldowns().isOnCooldown(stack.getItem()))
             return InteractionResult.PASS;
         
-        InteractionResult cancelResult = ForgeHooks.onItemRightClick(player, hand);
+        InteractionResult cancelResult = CommonHooks.onItemRightClick(player, hand);
         if (cancelResult != null)
             return cancelResult;
         
@@ -938,10 +918,10 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         int j = stack.getDamageValue();
         InteractionResultHolder<ItemStack> result = stack.use(level, player, hand);
         ItemStack itemstack = result.getObject();
-        if (itemstack == stack && itemstack.getCount() == i && itemstack.getUseDuration() <= 0 && itemstack.getDamageValue() == j)
+        if (itemstack == stack && itemstack.getCount() == i && itemstack.getUseDuration(player) <= 0 && itemstack.getDamageValue() == j)
             return result.getResult();
         
-        if (result.getResult() == InteractionResult.FAIL && itemstack.getUseDuration() > 0 && !player.isUsingItem())
+        if (result.getResult() == InteractionResult.FAIL && itemstack.getUseDuration(player) > 0 && !player.isUsingItem())
             return result.getResult();
         
         if (stack != itemstack)
@@ -968,7 +948,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         if (!blockstate.getBlock().isEnabled(level.enabledFeatures()))
             return InteractionResult.FAIL;
         
-        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock(player, hand, blockpos, hit);
+        PlayerInteractEvent.RightClickBlock event = CommonHooks.onRightClickBlock(player, hand, blockpos, hit);
         if (event.isCanceled())
             return event.getCancellationResult();
         
@@ -982,7 +962,7 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         }
         
         UseOnContext useoncontext = new UseOnContext(level, player, hand, stack, hit);
-        if (event.getUseItem() != Event.Result.DENY) {
+        if (event.getUseItem() != TriState.FALSE) {
             InteractionResult result = stack.onItemUseFirst(useoncontext);
             if (result != InteractionResult.PASS)
                 return result;
@@ -992,16 +972,24 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
         boolean flag1 = (player.isSecondaryUseActive() && flag) && !(player.getMainHandItem().doesSneakBypassUse(level, blockpos, player) && player.getOffhandItem()
                 .doesSneakBypassUse(level, blockpos, player));
         ItemStack itemstack = stack.copy();
-        if (event.getUseBlock() == Event.Result.ALLOW || (event.getUseBlock() != Event.Result.DENY && !flag1)) {
-            InteractionResult interactionresult = blockstate.use(level, player, hand, hit);
-            if (interactionresult.consumesAction()) {
+        if (event.getUseBlock().isTrue() || (event.getUseBlock().isDefault() && !flag1)) {
+            ItemInteractionResult iteminteractionresult = blockstate.useItemOn(player.getItemInHand(hand), level, player, hand, hit);
+            if (iteminteractionresult.consumesAction()) {
                 CriteriaTriggers.ITEM_USED_ON_BLOCK.trigger(player, blockpos, itemstack);
-                return interactionresult;
+                return iteminteractionresult.result();
+            }
+            
+            if (iteminteractionresult == ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION && hand == InteractionHand.MAIN_HAND) {
+                InteractionResult interactionresult = blockstate.useWithoutItem(level, player, hit);
+                if (interactionresult.consumesAction()) {
+                    CriteriaTriggers.DEFAULT_BLOCK_USE.trigger(player, blockpos);
+                    return interactionresult;
+                }
             }
         }
         
-        if (event.getUseItem() == Event.Result.ALLOW || (!stack.isEmpty() && !player.getCooldowns().isOnCooldown(stack.getItem()))) {
-            if (event.getUseItem() == Event.Result.DENY)
+        if (event.getUseItem().isTrue() || (!stack.isEmpty() && !player.getCooldowns().isOnCooldown(stack.getItem()))) {
+            if (event.getUseItem().isFalse())
                 return InteractionResult.PASS;
             InteractionResult interactionresult1;
             if (this.isCreative()) {
@@ -1027,6 +1015,66 @@ public class LittleServerPlayerHandler implements ServerPlayerConnection, Tickab
     @FunctionalInterface
     interface EntityInteraction {
         InteractionResult run(ServerPlayer player, Entity entity, InteractionHand hand);
+    }
+    
+    @Override
+    public void onDisconnect(DisconnectionDetails details) {
+        getVanilla().onDisconnect(details);
+    }
+    
+    @Override
+    public void handlePingRequest(ServerboundPingRequestPacket packet) {
+        getVanilla().handlePingRequest(packet);
+    }
+    
+    @Override
+    public void handleCookieResponse(ServerboundCookieResponsePacket packet) {
+        getVanilla().handleCookieResponse(packet);
+    }
+    
+    @Override
+    public void send(Packet<?> packet, @org.jetbrains.annotations.Nullable PacketSendListener listener) {
+        send(level, packet, listener);
+    }
+    
+    @Override
+    public Connection getConnection() {
+        return getVanilla().getConnection();
+    }
+    
+    @Override
+    public ReentrantBlockableEventLoop<?> getMainThreadEventLoop() {
+        return getVanilla().getMainThreadEventLoop();
+    }
+    
+    @Override
+    public ConnectionType getConnectionType() {
+        return getVanilla().getConnectionType();
+    }
+    
+    @Override
+    public void handleSignedChatCommand(ServerboundChatCommandSignedPacket packet) {
+        getVanilla().handleSignedChatCommand(packet);
+    }
+    
+    @Override
+    public void handleContainerSlotStateChanged(ServerboundContainerSlotStateChangedPacket packet) {
+        getVanilla().handleContainerSlotStateChanged(packet);
+    }
+    
+    @Override
+    public void handleConfigurationAcknowledged(ServerboundConfigurationAcknowledgedPacket packet) {
+        getVanilla().handleConfigurationAcknowledged(packet);
+    }
+    
+    @Override
+    public void handleChunkBatchReceived(ServerboundChunkBatchReceivedPacket packet) {
+        getVanilla().handleChunkBatchReceived(packet);
+    }
+    
+    @Override
+    public void handleDebugSampleSubscription(ServerboundDebugSampleSubscriptionPacket packet) {
+        getVanilla().handleDebugSampleSubscription(packet);
     }
     
 }

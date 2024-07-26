@@ -15,9 +15,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.Options;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.client.ForgeHooksClient;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.client.ClientHooks;
 import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
@@ -112,7 +112,7 @@ public class GuiAnimationViewer extends GuiControl {
     public PoseStack getProjectionMatrix(Minecraft mc, double fov, float width, float height) {
         PoseStack posestack = new PoseStack();
         posestack.setIdentity();
-        posestack.mulPoseMatrix(new Matrix4f().setPerspective((float) (fov * Math.PI / 180F), width / height, 0.05F, mc.gameRenderer.getDepthFar()));
+        posestack.mulPose(new Matrix4f().setPerspective((float) (fov * Math.PI / 180F), width / height, 0.05F, mc.gameRenderer.getDepthFar()));
         return posestack;
     }
     
@@ -184,7 +184,7 @@ public class GuiAnimationViewer extends GuiControl {
         offY.tick();
         offZ.tick();
         
-        float amount = mc.getDeltaFrameTime() * 2;
+        float amount = mc.getTimer().getGameTimeDeltaTicks() * 2;
         if (Screen.hasControlDown())
             amount *= 4;
         if (forward)
@@ -200,7 +200,7 @@ public class GuiAnimationViewer extends GuiControl {
         if (down)
             projection.up(-amount, this);
         
-        PoseStack pose = RenderSystem.getModelViewStack();
+        PoseStack pose = new PoseStack(); //RenderSystem.getModelViewStack(); TODO CHECK IF THIS ACTUALLY WORKS
         pose.pushPose();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -228,9 +228,8 @@ public class GuiAnimationViewer extends GuiControl {
         RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         
-        RenderSystem.setProjectionMatrix(new Matrix4f()
-                .setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()), 0.0F, 1000.0F, ForgeHooksClient
-                        .getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()),
+            0.0F, 1000.0F, ClientHooks.getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
         RenderSystem.applyModelViewMatrix();
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();

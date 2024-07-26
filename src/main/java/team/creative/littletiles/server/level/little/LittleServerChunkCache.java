@@ -12,13 +12,12 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.util.Either;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.TicketType;
@@ -37,6 +36,7 @@ import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.ChunkGeneratorStructureState;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LightChunk;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.chunk.storage.ChunkScanAccess;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.RandomState;
@@ -61,11 +61,11 @@ public class LittleServerChunkCache extends ServerChunkCache implements Iterable
         return this.chunkMap.getTickingGenerated();
     }
     
-    private Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure> getChunkMainThread(int x, int z, boolean create) {
+    private ChunkResult<ChunkAccess> getChunkMainThread(int x, int z, boolean create) {
         LittleChunkHolder holder = chunks.get(ChunkPos.asLong(x, z));
         if (holder == null && create)
             chunks.put(ChunkPos.asLong(x, z), holder = ((LittleChunkMap) chunkMap).createHolder(new ChunkPos(x, z)));
-        return Either.left(holder.chunk);
+        return ChunkResult.of(holder.chunk);
     }
     
     @Override
@@ -88,8 +88,8 @@ public class LittleServerChunkCache extends ServerChunkCache implements Iterable
     }
     
     @Override
-    public CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> getChunkFuture(int x, int z, ChunkStatus status, boolean create) {
-        CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> completablefuture;
+    public CompletableFuture<ChunkResult<ChunkAccess>> getChunkFuture(int x, int z, ChunkStatus status, boolean create) {
+        CompletableFuture<ChunkResult<ChunkAccess>> completablefuture;
         if (Thread.currentThread() == ((ServerChunkCacheAccessor) this).getMainThread()) {
             completablefuture = CompletableFuture.supplyAsync(() -> getChunkMainThread(x, z, create));
             this.mainThreadProcessor.managedBlock(completablefuture::isDone);

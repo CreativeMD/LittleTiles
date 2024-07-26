@@ -95,7 +95,7 @@ public class FakeServerLevelInfo extends FakeLevelInfo implements ServerLevelDat
     public void setInitialized(boolean init) {}
     
     @Override
-    public boolean getAllowCommands() {
+    public boolean isAllowCommands() {
         return false;
     }
     

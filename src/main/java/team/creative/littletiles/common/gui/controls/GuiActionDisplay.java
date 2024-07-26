@@ -124,7 +124,7 @@ public class GuiActionDisplay extends GuiControl {
             else {
                 
                 float alpha = timer > displayTime ? (1 - Math.max(0F, timer - displayTime) / fadeTime) : 1;
-                message.render(pose, Math.max(0.05F, alpha));
+                message.render(graphics, Math.max(0.05F, alpha));
                 i++;
                 pose.translate(0, message.getTotalHeight(), 0);
             }
@@ -151,9 +151,9 @@ public class GuiActionDisplay extends GuiControl {
             this.timestamp = System.currentTimeMillis();
         }
         
-        public void render(PoseStack stack, float alpha) {
+        public void render(GuiGraphics graphics, float alpha) {
             RenderSystem.setShaderColor(1, 1, 1, alpha);
-            super.render(stack);
+            super.render(graphics);
         }
         
     }

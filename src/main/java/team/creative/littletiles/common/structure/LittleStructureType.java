@@ -7,6 +7,7 @@ import java.util.function.BiFunction;
 import java.util.function.Supplier;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -137,7 +138,7 @@ public class LittleStructureType {
         return true;
     }
     
-    public void addIngredients(LittleGroup group, LittleIngredients ingredients) {
+    public void addIngredients(HolderLookup.Provider provider, LittleGroup group, LittleIngredients ingredients) {
         if (ingredientRules != null)
             for (IStructureIngredientRule rule : ingredientRules)
                 rule.add(group, ingredients);

@@ -1,15 +1,15 @@
 package team.creative.littletiles.common.structure.animation.event;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.littletiles.common.structure.animation.context.AnimationContext;
 
 public class PlaySoundEvent extends AnimationEvent<CompoundTag> {
     
     public static SoundEvent get(ResourceLocation location) {
-        SoundEvent sound = ForgeRegistries.SOUND_EVENTS.getValue(location);
+        SoundEvent sound = BuiltInRegistries.SOUND_EVENT.get(location);
         if (sound != null)
             return sound;
         return SoundEvent.createVariableRangeEvent(location);
@@ -20,7 +20,7 @@ public class PlaySoundEvent extends AnimationEvent<CompoundTag> {
     public float pitch;
     
     public PlaySoundEvent(CompoundTag nbt) {
-        sound = get(new ResourceLocation(nbt.getString("s")));
+        sound = get(ResourceLocation.parse(nbt.getString("s")));
         volume = nbt.getFloat("v");
         pitch = nbt.getFloat("p");
     }

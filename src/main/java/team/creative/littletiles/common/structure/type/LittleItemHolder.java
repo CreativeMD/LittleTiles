@@ -3,7 +3,6 @@ package team.creative.littletiles.common.structure.type;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -44,12 +43,12 @@ public class LittleItemHolder extends LittleStructure {
     
     @Override
     protected void loadExtra(CompoundTag nbt) {
-        stack = ItemStack.of(nbt.getCompound("stack"));
+        stack = ItemStack.parseOptional(getStructureLevel().registryAccess(), nbt.getCompound("stack"));
     }
     
     @Override
     protected void saveExtra(CompoundTag nbt) {
-        nbt.put("stack", stack.save(new CompoundTag()));
+        nbt.put("stack", stack.saveOptional(getStructureLevel().registryAccess()));
     }
     
     @Override
@@ -58,7 +57,7 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (level.isClientSide)
             return InteractionResult.SUCCESS;
         ItemStack mainStack = player.getMainHandItem();

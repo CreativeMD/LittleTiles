@@ -37,7 +37,7 @@ public class BlocksUpdate extends CreativePacket {
             states.add(level.getBlockState(pos));
             BlockEntity be = level.getBlockEntity(pos);
             if (be != null)
-                tags.add(be.saveWithoutMetadata());
+                tags.add(be.saveWithoutMetadata(level.registryAccess()));
             else
                 tags.add(null);
         }
@@ -54,7 +54,7 @@ public class BlocksUpdate extends CreativePacket {
         for (BlockEntity be : blockEntities) {
             positions.add(be.getBlockPos());
             states.add(level.getBlockState(be.getBlockPos()));
-            tags.add(be.saveWithoutMetadata());
+            tags.add(be.saveWithoutMetadata(level.registryAccess()));
         }
         
         if (level instanceof ISubLevel subLevel)
@@ -79,11 +79,11 @@ public class BlocksUpdate extends CreativePacket {
             if (level instanceof ClientLevel c) {
                 c.setBlocksDirty(positions.get(i), states.get(i), states.get(i));
                 if (tags.get(i) != null)
-                    level.getBlockEntity(positions.get(i)).load(tags.get(i));
+                    level.getBlockEntity(positions.get(i)).loadWithComponents(tags.get(i), level.registryAccess());
             } else {
                 level.setBlock(positions.get(i), states.get(i), 3);
                 if (tags.get(i) != null)
-                    level.getBlockEntity(positions.get(i)).load(tags.get(i));
+                    level.getBlockEntity(positions.get(i)).loadWithComponents(tags.get(i), level.registryAccess());
             }
             
         }

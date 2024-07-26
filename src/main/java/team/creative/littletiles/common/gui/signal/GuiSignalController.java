@@ -9,6 +9,7 @@ import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -141,8 +142,8 @@ public class GuiSignalController extends GuiParent {
         pose.pushPose();
         pose.scale(controlScale, controlScale, 1);
         controllerRect = realContentRect;
-        renderControls(graphics, contentRect, realContentRect, mouseX, mouseY, FilterListIterator
-                .skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset, false);
+        renderControls(graphics, contentRect, realContentRect, mouseX, mouseY, FilterListIterator.skipNull(new ConsecutiveListIterator<>(grid).goEnd()), scale, xOffset, yOffset,
+            false);
         controllerRect = null;
         pose.popPose();
         
@@ -152,7 +153,8 @@ public class GuiSignalController extends GuiParent {
     @Override
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    protected void renderControl(GuiGraphics graphics, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY, boolean hover) {
+    protected void renderControl(GuiGraphics graphics, GuiChildControl child, GuiControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY,
+            boolean hover) {
         if (control instanceof GuiSignalNode com) {
             controllerRect.scissor();
             RenderSystem.disableDepthTest();
@@ -194,13 +196,10 @@ public class GuiSignalController extends GuiParent {
     private void renderConnection(Matrix4f matrix, GuiChildControl from, GuiChildControl to, boolean hover, double originX, double originY) {
         int color = hover ? ColorUtils.WHITE : ColorUtils.BLACK;
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder builder = tesselator.getBuilder();
-        
-        builder.begin(Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        builder.vertex(matrix, (float) (from.rect.maxX - originX), (float) ((from.rect.minY + from.rect.maxY) * 0.5 - originY), 0).color(color).normal(1, 0, 0).endVertex();
-        builder.vertex(matrix, (float) (to.rect.minX - originX), (float) ((to.rect.minY + to.rect.maxY) * 0.5 - originY), 0).color(color).normal(1, 0, 0).endVertex();
-        tesselator.end();
-        
+        BufferBuilder builder = tesselator.begin(Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        builder.addVertex(matrix, (float) (from.rect.maxX - originX), (float) ((from.rect.minY + from.rect.maxY) * 0.5 - originY), 0).setColor(color).setNormal(1, 0, 0);
+        builder.addVertex(matrix, (float) (to.rect.minX - originX), (float) ((to.rect.minY + to.rect.maxY) * 0.5 - originY), 0).setColor(color).setNormal(1, 0, 0);
+        BufferUploader.drawWithShader(builder.buildOrThrow());
     }
     
     private void flowCell(GuiChildControl child, int x, int y) {
@@ -341,7 +340,8 @@ public class GuiSignalController extends GuiParent {
         if (condition instanceof SignalInputConditionNot || condition instanceof SignalInputConditionNotBitwise) {
             boolean bitwise = condition instanceof SignalInputConditionNotBitwise;
             node = new GuiSignalNodeNotOperator(bitwise);
-            GuiSignalNode child = fill(bitwise ? ((SignalInputConditionNotBitwise) condition).condition : ((SignalInputConditionNot) condition).condition, signal, parsed, level + 1);
+            GuiSignalNode child = fill(bitwise ? ((SignalInputConditionNotBitwise) condition).condition : ((SignalInputConditionNot) condition).condition, signal, parsed,
+                level + 1);
             GuiSignalConnection connection = new GuiSignalConnection(child, node);
             node.connect(connection);
             child.connect(connection);

@@ -4,9 +4,9 @@ import java.util.UUID;
 
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent.StartTracking;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent.StopTracking;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -33,9 +33,9 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
                 return createClient(level);
             return new LittleAnimationHandlerServer(level);
         });
-        MinecraftForge.EVENT_BUS.addListener(this::tick);
-        MinecraftForge.EVENT_BUS.addListener(this::trackEntity);
-        MinecraftForge.EVENT_BUS.addListener(this::stopTrackEntity);
+        NeoForge.EVENT_BUS.addListener(this::tick);
+        NeoForge.EVENT_BUS.addListener(this::trackEntity);
+        NeoForge.EVENT_BUS.addListener(this::stopTrackEntity);
     }
     
     public LittleEntity find(boolean client, UUID uuid) {
@@ -49,8 +49,8 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
         return null;
     }
     
-    public void tick(LevelTickEvent event) {
-        get(event.level).tick(event);
+    public void tick(LevelTickEvent.Post event) {
+        get(event.getLevel()).tick(event);
     }
     
     public void trackEntity(StartTracking event) {

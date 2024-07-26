@@ -2,6 +2,8 @@ package team.creative.littletiles.common.block.mc;
 
 import java.util.Optional;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.context.BlockPlaceContext;
@@ -30,6 +32,11 @@ public class BlockSignalConverter extends BaseEntityBlock {
     
     public BlockSignalConverter() {
         super(BlockBehaviour.Properties.of().sound(SoundType.METAL));
+    }
+    
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return null;
     }
     
     @Override

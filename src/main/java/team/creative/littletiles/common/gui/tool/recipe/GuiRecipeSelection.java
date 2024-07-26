@@ -22,6 +22,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTilesGuiRegistry;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -38,8 +39,8 @@ public class GuiRecipeSelection extends GuiConfigure {
         ItemStack stack = tool.get();
         SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
         try {
-            LittleGroup previews = mode.getGroup(getPlayer().level(), getPlayer(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), nbt.getBoolean("includeVanilla"),
-                nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
+            LittleGroup previews = mode.getGroup(getPlayer().level(), getPlayer(), ItemLittleBlueprint.getSelection(stack), nbt.getBoolean("includeVanilla"), nbt.getBoolean(
+                "includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
             if (nbt.contains("grid")) {
                 LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
                 previews.convertTo(grid);
@@ -66,7 +67,9 @@ public class GuiRecipeSelection extends GuiConfigure {
     
     public final GuiSyncLocal<EndTag> CLEAR_SELECTION = getSyncHolder().register("clear_selection", x -> {
         SelectionMode mode = ItemLittleBlueprint.getSelectionMode(tool.get());
-        tool.get().getOrCreateTag().remove(ItemLittleBlueprint.SELECTION_KEY);
+        var data = ILittleTool.getData(tool.get());
+        data.remove(ItemLittleBlueprint.SELECTION_KEY);
+        ILittleTool.setData(tool.get(), data);
         ItemLittleBlueprint.setSelectionMode(tool.get(), mode);
         tool.changed();
         LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
@@ -96,7 +99,7 @@ public class GuiRecipeSelection extends GuiConfigure {
         box.select(mode);
         add(box.setExpandableX());
         
-        result = mode.generateResult(getPlayer().level(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY));
+        result = mode.generateResult(getPlayer().level(), ItemLittleBlueprint.getSelection(stack));
         
         GuiCheckBox vanilla = new GuiCheckBox("includeVanilla", false).setTranslate("selection.include.vanilla");
         if (result != null && result.blocks > 0)
@@ -146,8 +149,8 @@ public class GuiRecipeSelection extends GuiConfigure {
             boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
             
             try {
-                if (rememberStructure && mode.getGroup(getPlayer().level(), getPlayer(), stack.getOrCreateTagElement(ItemLittleBlueprint.SELECTION_KEY), includeVanilla, includeCB,
-                    includeLT, rememberStructure).isEmptyIncludeChildren()) {
+                if (rememberStructure && mode.getGroup(getPlayer().level(), getPlayer(), ItemLittleBlueprint.getSelection(stack), includeVanilla, includeCB, includeLT,
+                    rememberStructure).isEmptyIncludeChildren()) {
                     GuiDialogHandler.openDialog(getIntegratedParent(), "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                     return;
                 }

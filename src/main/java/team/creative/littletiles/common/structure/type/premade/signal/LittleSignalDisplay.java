@@ -7,6 +7,7 @@ import org.lwjgl.opengl.GL11;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -122,12 +123,11 @@ public class LittleSignalDisplay extends LittleStructurePremade {
         
         RenderSystem.setShader(GameRenderer::getPositionTexShader);
         Tesselator tessellator = Tesselator.getInstance();
-        BufferBuilder builder = tessellator.getBuilder();
-        builder.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
+        BufferBuilder builder = tessellator.begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX);
         for (BoxCorner corner : face.corners)
-            builder.vertex(pose.last().pose(), box.get(corner.x), box.get(corner.y), box.get(corner.z)).uv(corner.isFacingPositive(uAxis) != (topRight.get(uAxis) > 0) ? 1 : 0,
-                corner.isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0).endVertex();
-        tessellator.end();
+            builder.addVertex(pose.last().pose(), box.get(corner.x), box.get(corner.y), box.get(corner.z)).setUv(corner.isFacingPositive(uAxis) != (topRight.get(
+                uAxis) > 0) ? 1 : 0, corner.isFacingPositive(vAxis) != (topRight.get(vAxis) > 0) ? 1 : 0);
+        BufferUploader.drawWithShader(builder.buildOrThrow());
         
         pose.popPose();
         

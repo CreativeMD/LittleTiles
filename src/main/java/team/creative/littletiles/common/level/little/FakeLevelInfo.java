@@ -4,15 +4,14 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.Difficulty;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.storage.WritableLevelData;
+import net.neoforged.neoforge.common.CommonHooks;
 
 public class FakeLevelInfo implements WritableLevelData {
     
     private final boolean hardcore;
     private final GameRules gameRules;
     private final boolean isFlat;
-    private int xSpawn;
-    private int ySpawn;
-    private int zSpawn;
+    private BlockPos spawnPos;
     private float spawnAngle;
     private long gameTime;
     private long dayTime;
@@ -28,23 +27,19 @@ public class FakeLevelInfo implements WritableLevelData {
     }
     
     @Override
-    public int getXSpawn() {
-        return this.xSpawn;
-    }
-    
-    @Override
-    public int getYSpawn() {
-        return this.ySpawn;
-    }
-    
-    @Override
-    public int getZSpawn() {
-        return this.zSpawn;
+    public BlockPos getSpawnPos() {
+        return spawnPos;
     }
     
     @Override
     public float getSpawnAngle() {
-        return this.spawnAngle;
+        return spawnAngle;
+    }
+    
+    @Override
+    public void setSpawn(BlockPos pos, float angle) {
+        this.spawnPos = pos.immutable();
+        this.spawnAngle = angle;
     }
     
     @Override
@@ -57,40 +52,12 @@ public class FakeLevelInfo implements WritableLevelData {
         return this.dayTime;
     }
     
-    @Override
-    public void setXSpawn(int p_76058_1_) {
-        this.xSpawn = p_76058_1_;
-    }
-    
-    @Override
-    public void setYSpawn(int p_76056_1_) {
-        this.ySpawn = p_76056_1_;
-    }
-    
-    @Override
-    public void setZSpawn(int p_76087_1_) {
-        this.zSpawn = p_76087_1_;
-    }
-    
-    @Override
-    public void setSpawnAngle(float p_241859_1_) {
-        this.spawnAngle = p_241859_1_;
-    }
-    
     public void setGameTime(long p_239155_1_) {
         this.gameTime = p_239155_1_;
     }
     
     public void setDayTime(long p_239158_1_) {
         this.dayTime = p_239158_1_;
-    }
-    
-    @Override
-    public void setSpawn(BlockPos p_176143_1_, float p_176143_2_) {
-        this.xSpawn = p_176143_1_.getX();
-        this.ySpawn = p_176143_1_.getY();
-        this.zSpawn = p_176143_1_.getZ();
-        this.spawnAngle = p_176143_2_;
     }
     
     @Override
@@ -128,9 +95,9 @@ public class FakeLevelInfo implements WritableLevelData {
         return this.difficultyLocked;
     }
     
-    public void setDifficulty(Difficulty p_239156_1_) {
-        net.minecraftforge.common.ForgeHooks.onDifficultyChange(p_239156_1_, this.difficulty);
-        this.difficulty = p_239156_1_;
+    public void setDifficulty(Difficulty difficulty) {
+        CommonHooks.onDifficultyChange(difficulty, this.difficulty);
+        this.difficulty = difficulty;
     }
     
     public void setDifficultyLocked(boolean p_239157_1_) {

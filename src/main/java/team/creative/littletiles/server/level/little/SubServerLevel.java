@@ -23,12 +23,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.MinecraftForge;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
@@ -50,8 +52,7 @@ public class SubServerLevel extends LittleServerLevel implements LittleSubLevel 
     protected SubServerLevel(ServerLevel parent) {
         super(parent.getServer(), (ServerLevelData) parent.getLevelData(), parent.dimension(), false, parent.getSeed(), parent.registryAccess());
         this.parentLevel = parent;
-        this.gatherCapabilities();
-        MinecraftForge.EVENT_BUS.post(new LevelEvent.Load(this));
+        NeoForge.EVENT_BUS.post(new LevelEvent.Load(this));
     }
     
     @Override
@@ -168,7 +169,8 @@ public class SubServerLevel extends LittleServerLevel implements LittleSubLevel 
     }
     
     @Override
-    public void addAlwaysVisibleParticle(ParticleOptions p_217404_1_, boolean p_217404_2_, double x, double y, double z, double p_217404_9_, double p_217404_11_, double p_217404_13_) {
+    public void addAlwaysVisibleParticle(ParticleOptions p_217404_1_, boolean p_217404_2_, double x, double y, double z, double p_217404_9_, double p_217404_11_,
+            double p_217404_13_) {
         if (getOrigin() == null)
             return;
         Vector3d vec = getOrigin().transformPointToWorld(new Vector3d(x, y, z));
@@ -201,17 +203,17 @@ public class SubServerLevel extends LittleServerLevel implements LittleSubLevel 
     }
     
     @Override
-    public void gameEvent(Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_) {
+    public void gameEvent(Entity p_151549_, Holder<GameEvent> p_151550_, BlockPos p_151551_) {
         getRealLevel().gameEvent(p_151549_, p_151550_, p_151551_);
     }
     
     @Override
-    public MapItemSavedData getMapData(String id) {
+    public MapItemSavedData getMapData(MapId id) {
         return getRealLevel().getMapData(id);
     }
     
     @Override
-    public void setMapData(String id, MapItemSavedData data) {
+    public void setMapData(MapId id, MapItemSavedData data) {
         getRealLevel().setMapData(id, data);
     }
     

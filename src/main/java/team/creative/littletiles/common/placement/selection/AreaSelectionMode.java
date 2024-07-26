@@ -17,6 +17,7 @@ import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -80,12 +81,15 @@ public class AreaSelectionMode extends SelectionMode {
     
     @Override
     public void clear(ItemStack stack) {
-        stack.getTag().remove("pos1");
-        stack.getTag().remove("pos2");
+        var data = ILittleTool.getData(stack);
+        data.remove("pos1");
+        data.remove("pos2");
+        ILittleTool.setData(stack, data);
     }
     
     @Override
-    public LittleGroup getGroup(Level level, Player player, CompoundTag nbt, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException {
+    public LittleGroup getGroup(Level level, Player player, CompoundTag nbt, boolean includeVanilla, boolean includeCB, boolean includeLT,
+            boolean rememberStructure) throws LittleActionException {
         BlockPos pos = null;
         if (nbt.contains("pos1")) {
             int[] array = nbt.getIntArray("pos1");

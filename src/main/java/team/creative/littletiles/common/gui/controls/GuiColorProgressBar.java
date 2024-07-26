@@ -2,8 +2,7 @@ package team.creative.littletiles.common.gui.controls;
 
 import java.util.List;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
+import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import team.creative.creativecore.client.render.GuiRenderHelper;
@@ -45,8 +44,8 @@ public class GuiColorProgressBar extends GuiProgressbar {
     }
     
     @Override
-    protected void renderProgress(PoseStack pose, GuiChildControl control, Rect rect, double percent) {
-        GuiRenderHelper.colorRect(pose, 0, 0, (int) (rect.getWidth() * percent), (int) rect.getHeight(), color.toInt());
+    protected void renderProgress(GuiGraphics graphics, GuiChildControl control, Rect rect, double percent) {
+        GuiRenderHelper.colorRect(graphics, 0, 0, (int) (rect.getWidth() * percent), (int) rect.getHeight(), color.toInt());
     }
     
 }

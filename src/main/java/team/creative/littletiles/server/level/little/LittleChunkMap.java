@@ -12,8 +12,6 @@ import java.util.function.Supplier;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.DataFixer;
-import com.mojang.datafixers.util.Either;
-import com.mojang.serialization.Codec;
 
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
@@ -21,25 +19,27 @@ import net.minecraft.ReportedException;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientboundLevelChunkWithLightPacket;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ChunkMap;
+import net.minecraft.server.level.ChunkResult;
 import net.minecraft.server.level.ChunkTaskPriorityQueue;
 import net.minecraft.server.level.ChunkTaskPriorityQueueSorter;
 import net.minecraft.server.level.DistanceManager;
+import net.minecraft.server.level.GenerationChunkHolder;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.level.ThreadedLevelLightEngine;
 import net.minecraft.server.level.progress.ChunkProgressListener;
+import net.minecraft.util.StaticCache2D;
 import net.minecraft.util.thread.BlockableEventLoop;
 import net.minecraft.util.thread.ProcessorMailbox;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ChunkPos;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.ChunkGenerator;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LightChunkGetter;
+import net.minecraft.world.level.chunk.status.ChunkStep;
 import net.minecraft.world.level.chunk.storage.ChunkScanAccess;
 import net.minecraft.world.level.entity.ChunkStatusUpdateListener;
 import net.minecraft.world.level.levelgen.structure.templatesystem.StructureTemplateManager;
@@ -97,7 +97,7 @@ public class LittleChunkMap extends ChunkMap {
     }
     
     @Override
-    protected ChunkHolder getVisibleChunkIfPresent(long pos) {
+    public ChunkHolder getVisibleChunkIfPresent(long pos) {
         throw new UnsupportedOperationException();
     }
     
@@ -110,9 +110,6 @@ public class LittleChunkMap extends ChunkMap {
     public ThreadedLevelLightEngine getLightEngine() {
         return lightEngine;
     }
-    
-    @Override
-    public void debugReloadGenerator() {}
     
     @Override
     public String getChunkDebugData(ChunkPos pos) {
@@ -137,25 +134,24 @@ public class LittleChunkMap extends ChunkMap {
     
     @Override
     /** the holder class has no use in this scenario, so all methods related to it are empty */
-    public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareEntityTickingChunk(ChunkHolder holder) {
+    public CompletableFuture<ChunkResult<LevelChunk>> prepareEntityTickingChunk(ChunkHolder holder) {
+        return null;
+    }
+    
+    @Override
+    public CompletableFuture<ChunkAccess> applyStep(GenerationChunkHolder holder, ChunkStep step, StaticCache2D<GenerationChunkHolder> cache) {
         return null;
     }
     
     @Override
     /** the holder class has no use in this scenario, so all methods related to it are empty */
-    public CompletableFuture<Either<ChunkAccess, ChunkHolder.ChunkLoadingFailure>> schedule(ChunkHolder holder, ChunkStatus status) {
+    public CompletableFuture<ChunkResult<LevelChunk>> prepareTickingChunk(ChunkHolder holder) {
         return null;
     }
     
     @Override
     /** the holder class has no use in this scenario, so all methods related to it are empty */
-    public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareTickingChunk(ChunkHolder holder) {
-        return null;
-    }
-    
-    @Override
-    /** the holder class has no use in this scenario, so all methods related to it are empty */
-    public CompletableFuture<Either<LevelChunk, ChunkHolder.ChunkLoadingFailure>> prepareAccessibleChunk(ChunkHolder p_143110_) {
+    public CompletableFuture<ChunkResult<LevelChunk>> prepareAccessibleChunk(ChunkHolder p_143110_) {
         return null;
     }
     
@@ -198,17 +194,14 @@ public class LittleChunkMap extends ChunkMap {
     }
     
     @Override
-    public CompoundTag upgradeChunkTag(ResourceKey<Level> levelKey, Supplier<DimensionDataStorage> storageSupplier, CompoundTag tag, Optional<ResourceKey<Codec<? extends ChunkGenerator>>> codec) {
-        return tag;
-    }
-    
-    @Override
     public CompletableFuture<Optional<CompoundTag>> read(ChunkPos pos) {
         return null;
     }
     
     @Override
-    public void write(ChunkPos pos, CompoundTag tag) {}
+    public CompletableFuture<Void> write(ChunkPos pos, CompoundTag tag) {
+        return null;
+    }
     
     @Override
     public void flushWorker() {}

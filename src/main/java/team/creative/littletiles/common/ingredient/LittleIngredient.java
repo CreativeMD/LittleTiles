@@ -11,7 +11,6 @@ import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
-import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -206,8 +205,8 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
             public ColorIngredient extract(ItemStack stack) {
                 if (stack.getItem() instanceof DyeItem) {
                     DyeColor dyeColor = ((DyeItem) stack.getItem()).getDyeColor();
-                    float[] rgb = dyeColor.getTextureDiffuseColors();
-                    ColorIngredient color = ColorIngredient.getColors(ColorUtils.rgb(rgb[0], rgb[1], rgb[2]));
+                    int rgb = dyeColor.getTextureDiffuseColor();
+                    ColorIngredient color = ColorIngredient.getColors(rgb);
                     color.scale(LittleTiles.CONFIG.general.dyeVolume);
                     return color;
                 }

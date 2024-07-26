@@ -1,10 +1,11 @@
 package team.creative.littletiles.common.packet.structure;
 
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.UUID;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
@@ -13,7 +14,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
-import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
@@ -32,8 +33,8 @@ public class StructureBlockToEntityPacket extends StructurePacket {
         this.uuid = entity.getUUID();
     }
     
-    private void queueStructure(HashMap<RenderChunkExtender, RenderCacheHolder> chunks, LittleStructure structure, LittleAnimationEntity entity) throws LittleActionException {
-        HashSet<RenderChunkExtender> backToRAM = new HashSet<>();
+    private void queueStructure(Long2ObjectMap<RenderCacheHolder> chunks, RenderingLevelHandler targetLevel, RenderingLevelHandler origin, LittleStructure structure,
+            LittleAnimationEntity entity) throws LittleActionException {
         for (BETiles be : structure.blocks()) {
             
             BlockEntity block = entity.getSubLevel().getBlockEntity(be.getBlockPos());
@@ -41,24 +42,22 @@ public class StructureBlockToEntityPacket extends StructurePacket {
                 continue;
             
             BETiles target = (BETiles) block;
-            RenderChunkExtender toRam = be.render.getRenderChunk();
-            if (backToRAM.add(toRam))
-                toRam.backToRAM();
             
-            RenderChunkExtender chunk = target.render.getRenderChunk();
+            var pos = SectionPos.asLong(be.getBlockPos());
+            RenderCacheHolder holder = chunks.get(pos);
+            if (holder == null) {
+                origin.getRenderChunk(be.getLevel(), pos).backToRAM();
+                chunks.put(pos, holder = new RenderCacheHolder(SectionPos.of(be.getBlockPos())));
+            }
             
-            Vec3 offset = chunk.offsetCorrection(toRam);
-            RenderCacheHolder holder = chunks.get(chunk);
-            if (holder == null)
-                chunks.put(chunk, holder = new RenderCacheHolder());
-            holder.add(target, be.render.getBufferCache(), structure.getIndex(), offset);
+            holder.add(target, be.render.getBufferCache(), structure.getIndex(), RenderingLevelHandler.offsetCorrection(targetLevel, origin, holder.pos));
         }
         
         for (StructureChildConnection child : structure.children.all()) {
             if (child.isLinkToAnotherWorld())
                 continue;
             try {
-                queueStructure(chunks, child.getStructure(), entity);
+                queueStructure(chunks, targetLevel, origin, child.getStructure(), entity);
             } catch (LittleActionException e) {}
         }
     }
@@ -67,8 +66,9 @@ public class StructureBlockToEntityPacket extends StructurePacket {
     public void execute(Player player, LittleStructure structure) {
         try {
             requiresClient(player);
-            HashMap<RenderChunkExtender, RenderCacheHolder> chunks = new HashMap<>();
-            queueStructure(chunks, structure, (LittleAnimationEntity) LittleTilesClient.ANIMATION_HANDLER.find(uuid));
+            Long2ObjectMap<RenderCacheHolder> chunks = new Long2ObjectOpenHashMap<>();
+            LittleAnimationEntity ani = (LittleAnimationEntity) LittleTilesClient.ANIMATION_HANDLER.find(uuid);
+            queueStructure(chunks, RenderingLevelHandler.of(ani.getSubLevel()), RenderingLevelHandler.of(structure.getStructureLevel()), structure, ani);
         } catch (LittleActionException | ClassCastException e) {
             e.printStackTrace();
         }
@@ -76,7 +76,12 @@ public class StructureBlockToEntityPacket extends StructurePacket {
     
     private static class RenderCacheHolder implements LayeredBufferCache {
         
+        public final SectionPos pos;
         private final ChunkLayerMap<BufferCache> holders = new ChunkLayerMap<>();
+        
+        public RenderCacheHolder(SectionPos pos) {
+            this.pos = pos;
+        }
         
         @Override
         public BufferCache get(RenderType layer) {

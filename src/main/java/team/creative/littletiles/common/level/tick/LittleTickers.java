@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import team.creative.littletiles.LittleTiles;
@@ -26,8 +26,8 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
     
     public LittleTickers() {
         super();
-        MinecraftForge.EVENT_BUS.addListener(this::levelTick);
-        MinecraftForge.EVENT_BUS.addListener(this::serverTick);
+        NeoForge.EVENT_BUS.addListener(this::levelTick);
+        NeoForge.EVENT_BUS.addListener(this::serverTick);
     }
     
     @Override
@@ -47,15 +47,13 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
             client = null;
     }
     
-    public void levelTick(LevelTickEvent event) {
-        if (event.phase == Phase.END) {
-            LittleTicker ticker = getWithoutCreate(event.level);
-            if (ticker != null)
-                ticker.tick();
-        }
+    public void levelTick(LevelTickEvent.Post event) {
+        LittleTicker ticker = getWithoutCreate(event.getLevel());
+        if (ticker != null)
+            ticker.tick();
     }
     
-    public void serverTick(ServerTickEvent event) {
+    public void serverTick(ServerTickEvent.Post event) {
         if (!UNSORTED_TICKETS.isEmpty())
             for (Iterator<SignalScheduleTicket> iterator = UNSORTED_TICKETS.iterator(); iterator.hasNext();) {
                 SignalScheduleTicket ticket = iterator.next();

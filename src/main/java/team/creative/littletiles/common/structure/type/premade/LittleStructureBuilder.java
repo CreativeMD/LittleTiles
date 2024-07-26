@@ -6,7 +6,6 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -53,7 +52,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         LittleTilesGuiRegistry.STRUCTURE_BUILDER.open(player, this);
         return InteractionResult.SUCCESS;
     }
@@ -81,7 +80,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
             lastBlockState = LittleBlockRegistry.loadState(nbt.getString("state"));
         else
             lastBlockState = Blocks.OAK_PLANKS.defaultBlockState();
-        inventory = InventoryUtils.load(nbt, 1);
+        inventory = InventoryUtils.load(getStructureLevel().registryAccess(), nbt, 1);
     }
     
     @Override
@@ -89,7 +88,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
         nbt.putInt("sizeX", lastSizeX);
         nbt.putInt("sizeY", lastSizeY);
         nbt.putInt("thickness", lastThickness);
-        InventoryUtils.save(inventory);
+        InventoryUtils.save(getStructureLevel().registryAccess(), inventory);
         nbt.putString("state", LittleBlockRegistry.saveState(lastBlockState));
         nbt.putInt("grid", lastGrid);
         nbt.putString("type", lastStructureType);

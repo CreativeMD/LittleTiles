@@ -19,8 +19,8 @@ public class IngredientRules {
     }
     
     public static void loadRules() {
-        registerBlockRule(BlockFilters.block(LittleTilesRegistry.FLOWING_WATER.get()), x -> LittleTilesRegistry.WATER.get());
-        registerBlockRule(BlockFilters.block(LittleTilesRegistry.FLOWING_LAVA.get()), x -> LittleTilesRegistry.LAVA.get());
-        registerBlockRule(BlockFilters.block(LittleTilesRegistry.WHITE_FLOWING_LAVA.get()), x -> LittleTilesRegistry.WHITE_LAVA.get());
+        registerBlockRule(BlockFilters.block(LittleTilesRegistry.FLOWING_WATER.value()), x -> LittleTilesRegistry.WATER.value());
+        registerBlockRule(BlockFilters.block(LittleTilesRegistry.FLOWING_LAVA.value()), x -> LittleTilesRegistry.LAVA.value());
+        registerBlockRule(BlockFilters.block(LittleTilesRegistry.WHITE_FLOWING_LAVA.value()), x -> LittleTilesRegistry.WHITE_LAVA.value());
     }
 }

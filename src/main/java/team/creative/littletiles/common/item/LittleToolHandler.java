@@ -10,12 +10,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.HitResult.Type;
-import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
@@ -143,35 +144,33 @@ public class LittleToolHandler {
     
     @SubscribeEvent
     @OnlyIn(Dist.CLIENT)
-    public void onClientTick(ClientTickEvent event) {
-        if (event.phase == Phase.END) {
-            Minecraft mc = Minecraft.getInstance();
-            if (leftClicked && !mc.options.keyAttack.isDown()) {
-                leftClicked = false;
+    public void onClientTick(ClientTickEvent.Post event) {
+        Minecraft mc = Minecraft.getInstance();
+        if (leftClicked && !mc.options.keyAttack.isDown()) {
+            leftClicked = false;
+        }
+        
+        if (mc.player != null) {
+            ItemStack stack = mc.player.getMainHandItem();
+            
+            if (lastSelectedItem != null && lastSelectedItem.getItem() != stack.getItem()) {
+                tool.onDeselect(mc.level, lastSelectedItem, mc.player);
+                lastSelectedItem = null;
             }
             
-            if (mc.player != null) {
-                ItemStack stack = mc.player.getMainHandItem();
-                
-                if (lastSelectedItem != null && lastSelectedItem.getItem() != stack.getItem()) {
-                    tool.onDeselect(mc.level, lastSelectedItem, mc.player);
-                    lastSelectedItem = null;
+            while (LittleTilesClient.configure.consumeClick())
+                if (stack.getItem() instanceof ILittleTool) {
+                    GuiConfigure gui = ((ILittleTool) stack.getItem()).getConfigure(mc.player, ContainerSlotView.mainHand(mc.player));
+                    if (gui != null)
+                        LittleTilesGuiRegistry.OPEN_CONFIG.open(mc.player);
                 }
-                
-                while (LittleTilesClient.configure.consumeClick())
-                    if (stack.getItem() instanceof ILittleTool) {
-                        GuiConfigure gui = ((ILittleTool) stack.getItem()).getConfigure(mc.player, ContainerSlotView.mainHand(mc.player));
-                        if (gui != null)
-                            LittleTilesGuiRegistry.OPEN_CONFIG.open(mc.player);
-                    }
-            }
         }
     }
     
     @SubscribeEvent
-    public void onPickup(EntityItemPickupEvent event) {
-        Player player = event.getEntity();
-        ItemEntity entityItem = event.getItem();
+    public void onPickup(ItemEntityPickupEvent.Pre event) {
+        Player player = event.getPlayer();
+        ItemEntity entityItem = event.getItemEntity();
         ItemStack stack = entityItem.getItem();
         
         if (stack.getItem() instanceof ILittleIngredientInventory inv && inv.shouldBeMerged()) {
@@ -181,8 +180,7 @@ public class LittleToolHandler {
             
             if (ingredients == null) {
                 entityItem.kill();
-                event.setCanceled(true);
-                event.setResult(Result.DENY);
+                event.setCanPickup(TriState.FALSE);
                 return;
             }
             
@@ -193,8 +191,7 @@ public class LittleToolHandler {
                     player.onItemPickup(entityItem);
                     entityItem.kill();
                     
-                    event.setCanceled(true);
-                    event.setResult(Result.DENY);
+                    event.setCanPickup(TriState.FALSE);
                 }
             } catch (NotEnoughIngredientsException e1) {
                 

@@ -60,19 +60,19 @@ public class BlankOMaticRecipeRegistry {
         
         registerBleacher(new CreativeIngredientItem(Items.SUGAR), 1);
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 1, LittleTilesRegistry.GRAINY.get(), LittleTilesRegistry.GRAINY_BIG.get()));
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 2, LittleTilesRegistry.GRAINY_LOW.get()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 1, LittleTilesRegistry.GRAINY.value(), LittleTilesRegistry.GRAINY_BIG.value()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 2, LittleTilesRegistry.GRAINY_LOW.value()));
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 1, LittleTilesRegistry.GRAVEL.get(), LittleTilesRegistry.SAND.get(), LittleTilesRegistry.STONE
-                .get(), LittleTilesRegistry.CLAY.get()));
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 2, LittleTilesRegistry.CORK.get()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 1, LittleTilesRegistry.GRAVEL.value(), LittleTilesRegistry.SAND.value(), LittleTilesRegistry.STONE
+                .value(), LittleTilesRegistry.CLAY.value()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 2, LittleTilesRegistry.CORK.value()));
         
         Filter<Block> filter = BlockFilters.blocks(Blocks.STONE_BRICKS, Blocks.BRICKS);
-        registerBleachRecipe(new BleachRecipe(filter, 1, LittleTilesRegistry.BRICK.get(), LittleTilesRegistry.BRICK_BIG.get(), LittleTilesRegistry.BROKEN_BRICK_BIG
-                .get(), LittleTilesRegistry.CHISELED.get(), LittleTilesRegistry.STRIPS.get()));
-        registerBleachRecipe(new BleachRecipe(filter, 2, LittleTilesRegistry.BORDERED.get(), LittleTilesRegistry.FLOOR.get()));
+        registerBleachRecipe(new BleachRecipe(filter, 1, LittleTilesRegistry.BRICK.value(), LittleTilesRegistry.BRICK_BIG.value(), LittleTilesRegistry.BROKEN_BRICK_BIG
+                .value(), LittleTilesRegistry.CHISELED.value(), LittleTilesRegistry.STRIPS.value()));
+        registerBleachRecipe(new BleachRecipe(filter, 2, LittleTilesRegistry.BORDERED.value(), LittleTilesRegistry.FLOOR.value()));
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.tag(BlockTags.BASE_STONE_OVERWORLD), 4, LittleTilesRegistry.CLEAN.get()));
+        registerBleachRecipe(new BleachRecipe(BlockFilters.tag(BlockTags.BASE_STONE_OVERWORLD), 4, LittleTilesRegistry.CLEAN.value()));
     }
     
     public static class BleachVolume {

@@ -2,7 +2,6 @@ package team.creative.littletiles.common.structure.type.premade;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -29,7 +28,7 @@ public class LittleExporter extends LittleStructurePremade {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide)
             LittleTilesGuiRegistry.EXPORTER.open(player);
         return InteractionResult.SUCCESS;

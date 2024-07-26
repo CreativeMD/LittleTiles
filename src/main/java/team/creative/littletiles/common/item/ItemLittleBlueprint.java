@@ -18,6 +18,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -39,31 +40,51 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public static final String CONTENT_KEY = "c";
     public static final String SELECTION_KEY = "s";
     
+    public static CompoundTag getSelection(ItemStack stack) {
+        return ILittleTool.getData(stack).getCompound(SELECTION_KEY);
+    }
+    
+    public static void setSelection(ItemStack stack, CompoundTag selection) {
+        var data = ILittleTool.getData(stack);
+        data.put(SELECTION_KEY, selection);
+        ILittleTool.setData(stack, data);
+    }
+    
+    public static CompoundTag getContent(ItemStack stack) {
+        return ILittleTool.getData(stack).getCompound(CONTENT_KEY);
+    }
+    
+    public static void setContent(ItemStack stack, CompoundTag content) {
+        var data = ILittleTool.getData(stack);
+        data.put(CONTENT_KEY, content);
+        ILittleTool.setData(stack, data);
+    }
+    
     public ItemLittleBlueprint() {
         super(new Item.Properties());
     }
     
     @Override
     public Component getName(ItemStack stack) {
-        if (stack.getOrCreateTag().contains(CONTENT_KEY) && stack.getOrCreateTagElement(CONTENT_KEY).contains(LittleGroup.STRUCTURE_KEY) && stack.getOrCreateTagElement(CONTENT_KEY)
-                .getCompound(LittleGroup.STRUCTURE_KEY).contains("name"))
-            return Component.literal(stack.getOrCreateTagElement(CONTENT_KEY).getCompound(LittleGroup.STRUCTURE_KEY).getString("name"));
+        var content = getContent(stack);
+        if (content.contains(LittleGroup.STRUCTURE_KEY) && content.getCompound(LittleGroup.STRUCTURE_KEY).contains("name"))
+            return Component.literal(content.getCompound(LittleGroup.STRUCTURE_KEY).getString("name"));
         return super.getName(stack);
     }
     
     @Override
     public boolean hasTiles(ItemStack stack) {
-        return stack.getOrCreateTag().contains(CONTENT_KEY) && !stack.getTagElement(CONTENT_KEY).isEmpty();
+        return !getContent(stack).isEmpty();
     }
     
     @Override
     public LittleGroup getTiles(ItemStack stack) {
-        return LittleGroup.load(stack.getOrCreateTagElement(CONTENT_KEY));
+        return LittleGroup.load(getContent(stack));
     }
     
     @Override
     public LittleGroup getLow(ItemStack stack) {
-        return LittleGroup.loadLow(stack.getOrCreateTagElement(CONTENT_KEY));
+        return LittleGroup.loadLow(getContent(stack));
     }
     
     @Override
@@ -73,7 +94,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public void saveTiles(ItemStack stack, LittleGroup group) {
-        stack.getOrCreateTag().put(CONTENT_KEY, LittleGroup.save(group));
+        setContent(stack, LittleGroup.save(group));
     }
     
     @Override
@@ -116,7 +137,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (hasTiles(stack))
             return true;
-        getSelectionMode(stack).rightClick(player, stack.getOrCreateTagElement(SELECTION_KEY), result.getBlockPos());
+        getSelectionMode(stack).rightClick(player, getSelection(stack), result.getBlockPos());
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), true));
         return true;
     }
@@ -126,24 +147,24 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (hasTiles(stack))
             return true;
-        getSelectionMode(stack).leftClick(player, stack.getOrCreateTagElement(SELECTION_KEY), result.getBlockPos());
+        getSelectionMode(stack).leftClick(player, getSelection(stack), result.getBlockPos());
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), false));
         return true;
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
-        list.add(LittleGroup.printTooltip(stack.getOrCreateTagElement(CONTENT_KEY)));
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> list, TooltipFlag flag) {
+        list.add(LittleGroup.printTooltip(getContent(stack)));
     }
     
     @Override
     public LittleVec getCachedSize(ItemStack stack) {
-        return LittleGroup.getSize(stack.getOrCreateTagElement(CONTENT_KEY));
+        return LittleGroup.getSize(getContent(stack));
     }
     
     @Override
     public LittleVec getCachedMin(ItemStack stack) {
-        return LittleGroup.getMin(stack.getOrCreateTagElement(CONTENT_KEY));
+        return LittleGroup.getMin(getContent(stack));
     }
     
     @Override
@@ -162,10 +183,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     public static SelectionMode getSelectionMode(ItemStack stack) {
-        return SelectionMode.REGISTRY.get(stack.getOrCreateTagElement(SELECTION_KEY).getString("selmode"));
+        return SelectionMode.REGISTRY.get(getSelection(stack).getString("selmode"));
     }
     
     public static void setSelectionMode(ItemStack stack, SelectionMode mode) {
-        stack.getOrCreateTagElement(SELECTION_KEY).putString("selmode", mode.getName());
+        var selection = getSelection(stack);
+        selection.putString("selmode", mode.getName());
+        setSelection(stack, selection);
     }
 }

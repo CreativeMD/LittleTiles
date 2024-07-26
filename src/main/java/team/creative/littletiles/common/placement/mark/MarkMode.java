@@ -2,6 +2,7 @@ package team.creative.littletiles.common.placement.mark;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -90,7 +91,7 @@ public class MarkMode implements IMarkMode {
     @Override
     public void render(LittleGrid positionGrid, PoseStack pose) {
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.getBuilder();
+        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
         
         RenderSystem.depthMask(true);
         RenderSystem.disableCull();
@@ -101,17 +102,13 @@ public class MarkMode implements IMarkMode {
         AABB box = position.getBox(positionGrid).inflate(0.002);
         
         RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        
         RenderSystem.lineWidth(4.0F);
         LevelRenderer.renderLineBox(pose, bufferbuilder, box, 0, 0, 0, 1F);
-        tesselator.end();
         
         RenderSystem.disableDepthTest();
-        bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
         RenderSystem.lineWidth(1.0F);
         LevelRenderer.renderLineBox(pose, bufferbuilder, box, 1F, 0.3F, 0.0F, 1F);
-        tesselator.end();
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
         RenderSystem.enableDepthTest();
     }
     

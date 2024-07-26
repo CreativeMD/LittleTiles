@@ -1,7 +1,8 @@
 package team.creative.littletiles.common.structure.type.bed;
 
 import java.util.List;
-import java.util.Optional;
+
+import com.mojang.datafixers.util.Either;
 
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -10,7 +11,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.InteractionHand;
+import net.minecraft.util.Unit;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Pose;
@@ -21,9 +22,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.event.EventHooks;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
@@ -93,60 +94,57 @@ public class LittleBed extends LittleStructure {
             getInput(0).updateState(SignalState.of(player != null));
     }
     
-    public Player.BedSleepingProblem trySleep(Player player, Vec3d highest) {
-        BedSleepingProblem ret = ForgeEventFactory.onPlayerSleepInBed(player, Optional.of(getStructurePos()));
-        if (ret != null)
-            return ret;
-        
-        if (!player.isSleeping() && player.isAlive()) {
+    public Player.BedSleepingProblem trySleep(ServerPlayer player, Vec3d highest) {
+        BlockPos pos = getStructurePos();
+        var vanillaResult = ((java.util.function.Supplier<Either<BedSleepingProblem, Unit>>) () -> {
+            if (player.isSleeping() || !player.isAlive())
+                return Either.left(Player.BedSleepingProblem.OTHER_PROBLEM);
+            
             if (!player.level().dimensionType().natural())
-                return Player.BedSleepingProblem.NOT_POSSIBLE_HERE;
-            
-            if (player instanceof ServerPlayer sPlayer)
-                sPlayer.setRespawnPosition(player.level().dimension(), getStructurePos(), player.getYRot(), false, true);
-            
-            if (!ForgeEventFactory.fireSleepingTimeCheck(player, Optional.empty()))
-                return Player.BedSleepingProblem.NOT_POSSIBLE_NOW;
-            
+                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_HERE);
+            player.setRespawnPosition(player.level().dimension(), pos, player.getYRot(), false, true);
+            if (player.level().isDay())
+                return Either.left(Player.BedSleepingProblem.NOT_POSSIBLE_NOW);
             if (!player.isCreative()) {
                 Vec3 vec3 = highest.toVanilla();
-                List<Monster> list = player.level().getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0D, vec3.y() - 5.0D, vec3.z() - 8.0D, vec3.x() + 8.0D, vec3
-                        .y() + 5.0D, vec3.z() + 8.0D), (p_9062_) -> {
-                            return p_9062_.isPreventingPlayerRest(player);
-                        });
+                List<Monster> list = player.level().getEntitiesOfClass(Monster.class, new AABB(vec3.x() - 8.0, vec3.y() - 5.0, vec3.z() - 8.0, vec3.x() + 8.0, vec3.y() + 5.0, vec3
+                        .z() + 8.0), monster -> monster.isPreventingPlayerRest(player));
                 if (!list.isEmpty())
-                    return Player.BedSleepingProblem.NOT_SAFE;
+                    return Either.left(Player.BedSleepingProblem.NOT_SAFE);
             }
-            
-            ((ILittleBedPlayerExtension) player).setSleepingCounter(0);
-            
-            if (player.isPassenger())
-                player.stopRiding();
-            
-            setSleepingPlayer(player);
-            ((ILittleBedPlayerExtension) player).setBed(this);
-            broadcastPacket(new BedUpdate(getStructureLocation(), player));
-            
-            player.setPose(Pose.SLEEPING);
-            
-            player.setPos(highest.x, highest.y, highest.z);
-            player.setSleepingPos(getStructurePos());
-            player.setDeltaMovement(Vec3.ZERO);
-            player.hasImpulse = true;
-            
-            if (player instanceof ServerPlayer sPlayer) {
-                player.awardStat(Stats.SLEEP_IN_BED);
-                CriteriaTriggers.SLEPT_IN_BED.trigger(sPlayer);
-                
-                if (!sPlayer.serverLevel().canSleepThroughNights())
-                    player.displayClientMessage(Component.translatable("sleep.not_possible"), true);
-                
-                sPlayer.serverLevel().updateSleepingPlayerList();
-            }
-            return null;
-        }
+            return Either.right(Unit.INSTANCE);
+        }).get();
         
-        return Player.BedSleepingProblem.OTHER_PROBLEM;
+        vanillaResult = EventHooks.canPlayerStartSleeping(player, pos, vanillaResult);
+        if (vanillaResult.left().isPresent())
+            return vanillaResult.left().get();
+        
+        ((ILittleBedPlayerExtension) player).setSleepingCounter(0);
+        
+        if (player.isPassenger())
+            player.stopRiding();
+        
+        setSleepingPlayer(player);
+        ((ILittleBedPlayerExtension) player).setBed(this);
+        broadcastPacket(new BedUpdate(getStructureLocation(), player));
+        
+        player.setPose(Pose.SLEEPING);
+        
+        player.setPos(highest.x, highest.y, highest.z);
+        player.setSleepingPos(getStructurePos());
+        player.setDeltaMovement(Vec3.ZERO);
+        player.hasImpulse = true;
+        
+        if (player instanceof ServerPlayer sPlayer) {
+            player.awardStat(Stats.SLEEP_IN_BED);
+            CriteriaTriggers.SLEPT_IN_BED.trigger(sPlayer);
+            
+            if (!sPlayer.serverLevel().canSleepThroughNights())
+                player.displayClientMessage(Component.translatable("sleep.not_possible"), true);
+            
+            sPlayer.serverLevel().updateSleepingPlayerList();
+        }
+        return null;
     }
     
     @Override
@@ -162,7 +160,7 @@ public class LittleBed extends LittleStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         try {
             checkConnections();
             
@@ -180,7 +178,7 @@ public class LittleBed extends LittleStructure {
                     return InteractionResult.SUCCESS;
                 }
                 
-                BedSleepingProblem problem = trySleep(player, vec);
+                BedSleepingProblem problem = trySleep((ServerPlayer) player, vec);
                 
                 if (problem != null)
                     player.displayClientMessage(problem.getMessage(), true);

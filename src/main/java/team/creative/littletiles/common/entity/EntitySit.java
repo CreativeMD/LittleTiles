@@ -4,12 +4,10 @@ import org.joml.Vector3d;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
@@ -76,16 +74,11 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
     }
     
     @Override
-    public double getPassengersRidingOffset() {
-        return 0;
-    }
-    
-    @Override
-    protected void defineSynchedData() {
-        this.entityData.define(CONNECTION, new CompoundTag());
-        this.entityData.define(CHAIRX, 0F);
-        this.entityData.define(CHAIRY, 0F);
-        this.entityData.define(CHAIRZ, 0F);
+    protected void defineSynchedData(Builder builder) {
+        builder.define(CONNECTION, new CompoundTag());
+        builder.define(CHAIRX, 0F);
+        builder.define(CHAIRY, 0F);
+        builder.define(CHAIRZ, 0F);
     }
     
     @Override
@@ -117,8 +110,4 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
     @Override
     public void structureDestroyed() {}
     
-    @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
-    }
 }

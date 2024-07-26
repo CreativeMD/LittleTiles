@@ -30,6 +30,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.dimension.LevelStem;
+import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.storage.ServerLevelData;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -92,7 +93,7 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
             BlockState blockstate = this.getBlockState(pos);
             
             try {
-                blockstate.neighborChanged(this, pos, block, fromPos, false);
+                blockstate.handleNeighborChanged(this, pos, block, fromPos, false);
             } catch (Throwable throwable) {
                 CrashReport crashreport = CrashReport.forThrowable(throwable, "Exception while updating neighbours");
                 CrashReportCategory crashreportcategory = crashreport.addCategory("Block being updated");
@@ -148,8 +149,8 @@ public abstract class LittleServerLevel extends ServerLevel implements LittleLev
     }
     
     @Override
-    public int getFreeMapId() {
-        return 0;
+    public MapId getFreeMapId() {
+        return new MapId(0);
     }
     
     @Override

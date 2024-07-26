@@ -55,7 +55,7 @@ runs {
 dependencies {
     implementation "net.neoforged:neoforge:${forge_version}"
     
-    //minecraftLibrary fg.deobf("curse.maven:oculus-581495:5299671")
+    implementation "curse.maven:oculus-581495:5299671"
     implementation "org.embeddedt:embeddium-1.21:1.0.5-git-94b2378+mc1.21"
     
     implementation project(':CreativeCore')

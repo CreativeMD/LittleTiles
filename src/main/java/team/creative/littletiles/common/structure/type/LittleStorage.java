@@ -5,9 +5,9 @@ import java.util.List;
 import java.util.function.BiFunction;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.Container;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -65,7 +65,7 @@ public class LittleStorage extends LittleStructure {
         numberOfSlots = nbt.getInt("numberOfSlots");
         lastSlotStackSize = nbt.getInt("lastSlot");
         if (nbt.contains("inventory"))
-            inventory = InventoryUtils.load(nbt.getCompound("inventory"));
+            inventory = InventoryUtils.load(getStructureLevel().registryAccess(), nbt.getCompound("inventory"));
         else
             inventory = null;
         if (inventory != null)
@@ -81,7 +81,7 @@ public class LittleStorage extends LittleStructure {
             nbt.putInt("stackSizeLimit", stackSizeLimit);
             nbt.putInt("numberOfSlots", numberOfSlots);
             nbt.putInt("lastSlot", lastSlotStackSize);
-            nbt.put("inventory", InventoryUtils.save(inventory));
+            nbt.put("inventory", InventoryUtils.save(getStructureLevel().registryAccess(), inventory));
         }
         nbt.putBoolean("invisibleStorage", invisibleStorageTiles);
     }
@@ -99,7 +99,7 @@ public class LittleStorage extends LittleStructure {
     
     public static int getSizeOfInventory(LittleGroup previews) {
         double size = 0;
-        String name = LittleTilesRegistry.STORAGE_BLOCK.get().builtInRegistryHolder().key().location().toString();
+        String name = LittleTilesRegistry.STORAGE_BLOCK.value().builtInRegistryHolder().getRegisteredName();
         for (LittleTile tile : previews)
             if (tile.getBlock().blockName().equals(name))
                 size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.OVERALL_DEFAULT_COUNT3D * LittleTiles.CONFIG.general.storagePerPixel;
@@ -119,7 +119,7 @@ public class LittleStorage extends LittleStructure {
     }
     
     @Override
-    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
+    public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (!level.isClientSide && !hasPlayerOpened(player))
             LittleTilesGuiRegistry.STORAGE.open(player, this);
         return InteractionResult.SUCCESS;
@@ -168,7 +168,7 @@ public class LittleStorage extends LittleStructure {
         try {
             for (IStructureParentCollection list : blocksList())
                 for (LittleTile tile : list)
-                    if (tile.getBlock() == LittleTilesRegistry.STORAGE_BLOCK.get())
+                    if (tile.getBlock() == LittleTilesRegistry.STORAGE_BLOCK.value())
                         volume += tile.getPercentVolume(list.getGrid());
                     
             volume *= LittleGrid.OVERALL_DEFAULT_COUNT3D * LittleTiles.CONFIG.general.storagePerPixel;
@@ -186,10 +186,10 @@ public class LittleStorage extends LittleStructure {
         }
         
         @Override
-        public void addIngredients(LittleGroup previews, LittleIngredients ingredients) {
-            super.addIngredients(previews, ingredients);
+        public void addIngredients(HolderLookup.Provider provider, LittleGroup previews, LittleIngredients ingredients) {
+            super.addIngredients(provider, previews, ingredients);
             
-            Container inventory = InventoryUtils.load(previews.getStructureTag().getCompound("inventory"));
+            Container inventory = InventoryUtils.load(provider, previews.getStructureTag().getCompound("inventory"));
             if (inventory != null)
                 ingredients.add(new StackIngredient(inventory));
         }

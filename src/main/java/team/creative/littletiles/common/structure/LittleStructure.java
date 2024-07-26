@@ -16,9 +16,11 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
@@ -45,6 +47,7 @@ import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -354,7 +357,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return collectAllBlocksListSameWorld(new HashMapList<>());
     }
     
-    protected HashMapList<BlockPos, IStructureParentCollection> collectAllBlocksListSameWorld(HashMapList<BlockPos, IStructureParentCollection> map) throws CorruptedConnectionException, NotYetConnectedException {
+    protected HashMapList<BlockPos, IStructureParentCollection> collectAllBlocksListSameWorld(
+            HashMapList<BlockPos, IStructureParentCollection> map) throws CorruptedConnectionException, NotYetConnectedException {
         for (IStructureParentCollection list : blocksList())
             map.add(list.getPos(), list);
         for (StructureChildConnection child : children.all())
@@ -369,9 +373,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
      * 
      * @param stack */
     public void placedStructure(@Nullable ItemStack stack) {
-        CompoundTag nbt;
-        if (name == null && stack != null && (nbt = stack.getTagElement("display")) != null && nbt.contains("Name", 8))
-            name = nbt.getString("Name");
+        if (name == null && stack != null && stack.has(DataComponents.ITEM_NAME))
+            name = stack.get(DataComponents.ITEM_NAME).tryCollapseToString();
     }
     
     public void afterPlaced() {
@@ -946,14 +949,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         checkConnections();
         BlockPos pos = getMinPos(getStructurePos().mutable());
         
-        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
-        stack.setTag(LittleGroup.save(getPreviews(pos)));
+        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
+        ILittleTool.setData(stack, LittleGroup.save(getPreviews(pos)));
         
-        if (name != null) {
-            CompoundTag display = new CompoundTag();
-            display.putString("Name", name);
-            stack.getTag().put("display", display);
-        }
+        if (name != null)
+            stack.set(DataComponents.ITEM_NAME, Component.literal(name));
         return stack;
     }
     

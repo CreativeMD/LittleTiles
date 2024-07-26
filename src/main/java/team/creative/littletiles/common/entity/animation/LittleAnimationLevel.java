@@ -22,10 +22,12 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.TickRateManager;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.flag.FeatureFlagSet;
+import net.minecraft.world.item.alchemy.PotionBrewing;
 import net.minecraft.world.item.crafting.RecipeManager;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.biome.Biome;
@@ -37,15 +39,16 @@ import net.minecraft.world.level.entity.TransientEntitySectionManager;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEvent.Context;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.saveddata.maps.MapId;
 import net.minecraft.world.level.saveddata.maps.MapItemSavedData;
 import net.minecraft.world.level.storage.WritableLevelData;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.minecraft.world.ticks.BlackholeTickAccess;
 import net.minecraft.world.ticks.LevelTickAccess;
-import net.minecraftforge.common.MinecraftForge;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
@@ -209,7 +212,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
-    public void gameEvent(GameEvent event, Vec3 vec, Context context) {
+    public void gameEvent(Holder<GameEvent> event, Vec3 vec, Context context) {
         getRealLevel().gameEvent(event, vec, context);
     }
     
@@ -302,17 +305,17 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
-    public MapItemSavedData getMapData(String key) {
+    public MapItemSavedData getMapData(MapId key) {
         return getRealLevel().getMapData(key);
     }
     
     @Override
-    public void setMapData(String key, MapItemSavedData data) {
+    public void setMapData(MapId key, MapItemSavedData data) {
         getRealLevel().setMapData(key, data);
     }
     
     @Override
-    public int getFreeMapId() {
+    public MapId getFreeMapId() {
         return getRealLevel().getFreeMapId();
     }
     
@@ -365,7 +368,8 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
-    public void playSeededSound(Player p_262953_, double x, double y, double z, Holder<SoundEvent> p_263359_, SoundSource p_263020_, float p_263055_, float p_262914_, long p_262991_) {
+    public void playSeededSound(Player p_262953_, double x, double y, double z, Holder<SoundEvent> p_263359_, SoundSource p_263020_, float p_263055_, float p_262914_,
+            long p_262991_) {
         if (getOrigin() == null)
             return;
         Vector3d vec = new Vector3d(x, y, z);
@@ -415,7 +419,8 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
-    public void addAlwaysVisibleParticle(ParticleOptions p_217404_1_, boolean p_217404_2_, double x, double y, double z, double p_217404_9_, double p_217404_11_, double p_217404_13_) {
+    public void addAlwaysVisibleParticle(ParticleOptions p_217404_1_, boolean p_217404_2_, double x, double y, double z, double p_217404_9_, double p_217404_11_,
+            double p_217404_13_) {
         if (getOrigin() == null)
             return;
         Vector3d vec = getOrigin().transformPointToWorld(new Vector3d(x, y, z));
@@ -448,7 +453,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     @Override
-    public void gameEvent(Entity p_151549_, GameEvent p_151550_, BlockPos p_151551_) {
+    public void gameEvent(Entity p_151549_, Holder<GameEvent> p_151550_, BlockPos p_151551_) {
         getRealLevel().gameEvent(p_151549_, p_151550_, p_151551_);
     }
     
@@ -475,11 +480,11 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     }
     
     public void addFreshEntityFromPacket(Entity entity) {
-        if (MinecraftForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, this)))
+        if (NeoForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, this)).isCanceled())
             return;
         removeEntityById(entity.getId(), Entity.RemovalReason.DISCARDED);
         entities.addNewEntityWithoutEvent(entity);
-        entity.onAddedToWorld();
+        entity.onAddedToLevel();
     }
     
     @Override
@@ -504,9 +509,19 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
             return false;
         
         if (this.entities.addNewEntity(entity)) {
-            entity.onAddedToWorld();
+            entity.onAddedToLevel();
             return true;
         }
         return false;
+    }
+    
+    @Override
+    public TickRateManager tickRateManager() {
+        return parentLevel.tickRateManager();
+    }
+    
+    @Override
+    public PotionBrewing potionBrewing() {
+        return parentLevel.potionBrewing();
     }
 }

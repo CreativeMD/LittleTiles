@@ -18,7 +18,7 @@ import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.entity.LevelCallback;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import net.minecraft.world.phys.AABB;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 
 public class LittleAnimationLevelEntities implements LevelEntityGetter<Entity> {
@@ -40,7 +40,7 @@ public class LittleAnimationLevelEntities implements LevelEntityGetter<Entity> {
     }
     
     private boolean addEntity(Entity entity, boolean loadedFromDisk) {
-        if (MinecraftForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, entity.level(), loadedFromDisk)))
+        if (NeoForge.EVENT_BUS.post(new EntityJoinLevelEvent(entity, entity.level(), loadedFromDisk)).isCanceled())
             return false;
         return addEntityWithoutEvent(entity, loadedFromDisk);
     }

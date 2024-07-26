@@ -126,7 +126,7 @@ public class BlockPacket extends CreativePacket {
                         previews.addTile(be.getGrid(), context.tile.copy());
                 }
                 
-                stack.getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, LittleGroup.save(previews));
+                ItemLittleBlueprint.setContent(stack, LittleGroup.save(previews));
             }
         };
         

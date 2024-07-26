@@ -31,7 +31,7 @@ public class BlockUpdate extends CreativePacket {
         this.pos = pos;
         this.state = level.getBlockState(pos);
         if (be != null)
-            tag = be.saveWithoutMetadata();
+            tag = be.saveWithoutMetadata(level.registryAccess());
         if (level instanceof ISubLevel subLevel)
             uuid = subLevel.getHolder().getUUID();
     }
@@ -55,7 +55,7 @@ public class BlockUpdate extends CreativePacket {
         else
             level.setBlock(pos, state, 3);
         if (tag != null)
-            level.getBlockEntity(pos).load(tag);
+            level.getBlockEntity(pos).loadWithComponents(tag, level.registryAccess());
     }
     
     @Override

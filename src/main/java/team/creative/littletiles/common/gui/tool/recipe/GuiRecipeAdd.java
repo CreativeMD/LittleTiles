@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item.TooltipContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.phys.AABB;
@@ -256,7 +257,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
             GuiParent right = new GuiParent(GuiFlow.STACK_Y);
             add(right.setVAlign(VAlign.CENTER).setExpandable());
             
-            for (Component line : stack.getTooltipLines(player, TooltipFlag.NORMAL))
+            for (Component line : stack.getTooltipLines(TooltipContext.EMPTY, player, TooltipFlag.NORMAL))
                 right.add(new GuiLabel("label").setTitle(line));
         }
         

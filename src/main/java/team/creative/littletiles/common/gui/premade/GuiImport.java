@@ -28,6 +28,7 @@ import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
 import team.creative.littletiles.common.convertion.OldLittleTilesDataParser.LittleConvertException;
@@ -57,15 +58,16 @@ public class GuiImport extends GuiLayer {
         ItemStack stack = importSlot.getItem(0);
         if (stack.getItem() instanceof ItemLittleBlueprint || (getPlayer().isCreative() && stack.isEmpty())) {
             if (stack.isEmpty())
-                importSlot.setItem(0, stack = new ItemStack(LittleTilesRegistry.BLUEPRINT.get()));
+                importSlot.setItem(0, stack = new ItemStack(LittleTilesRegistry.BLUEPRINT));
             
             try {
                 if (OldLittleTilesDataParser.isOld(nbt))
                     nbt = OldLittleTilesDataParser.convert(nbt);
                 List<Component> errors = new ArrayList<>();
                 if (checkImport(errors, getPlayer(), LittleGroup.load(nbt))) {
-                    CompoundTag stackTag = stack.getOrCreateTag();
+                    CompoundTag stackTag = ILittleTool.getData(stack);
                     stackTag.put(ItemLittleBlueprint.CONTENT_KEY, nbt);
+                    ILittleTool.setData(stack, stackTag);
                     get("import", GuiInventoryGrid.class).setChanged();
                 } else {
                     LittleTiles.LOGGER.error("Failed to import structure ...");

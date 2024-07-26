@@ -12,6 +12,7 @@ import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
@@ -168,20 +169,19 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
                 boxes.add(box.getABB(grid));;
                 
             Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder bufferbuilder = tesselator.getBuilder();
+            BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
             
             RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
             
-            bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
             RenderSystem.lineWidth(1.0F);
             PreviewRenderer.renderShape(empty, bufferbuilder, BoxesVoxelShape.create(boxes), x, y, z, 1, 1, 1, 1);
-            tesselator.end();
+            BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
         }
         
         if (hasOverlap()) {
             RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
             Tesselator tesselator = Tesselator.getInstance();
-            BufferBuilder bufferbuilder = tesselator.getBuilder();
+            BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
             int colorAlpha = 102;
             LittleBoxesNoOverlap overlap = overlappingBoxes;
             LittleGrid grid = overlap.getGrid();
@@ -195,19 +195,16 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
                     
                     RenderSystem.disableDepthTest();
                     RenderSystem.lineWidth(4.0F);
-                    bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
                     renderBox.renderLines(empty, bufferbuilder, colorAlpha);
-                    tesselator.end();
                     
                     RenderSystem.enableDepthTest();
                     RenderSystem.lineWidth(2.0F);
                     renderBox.color = ColorUtils.RED;
-                    bufferbuilder.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
                     renderBox.renderLines(empty, bufferbuilder, colorAlpha);
-                    tesselator.end();
                 }
                 pose.popPose();
             }
+            BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
             RenderSystem.disableDepthTest();
         }
         selected = null;

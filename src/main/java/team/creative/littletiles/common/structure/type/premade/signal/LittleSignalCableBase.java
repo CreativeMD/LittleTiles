@@ -350,8 +350,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                 }
             } else if (blockEntity instanceof ISignalStructureBase && ((ISignalStructureBase) blockEntity).compatible(this)) {
                 LittleGrid grid = box.grid;
-                int minDistance = facing.positive ? 0 - grid.toGrid(VectorUtils.get(facing.axis, box.pos) - VectorUtils.get(facing.axis, pos)) - box.box
-                        .getMax(facing.axis) : box.box.getMin(facing.axis) - (grid.count - grid.toGrid(VectorUtils.get(facing.axis, box.pos) - VectorUtils.get(facing.axis, pos)));
+                int minDistance = facing.positive ? 0 - grid.toGrid(VectorUtils.get(facing.axis, box.pos) - VectorUtils.get(facing.axis, pos)) - box.box.getMax(
+                    facing.axis) : box.box.getMin(facing.axis) - (grid.count - grid.toGrid(VectorUtils.get(facing.axis, box.pos) - VectorUtils.get(facing.axis, pos)));
                 
                 box = box.createBoxFromFace(facing, minDistance);
                 
@@ -431,7 +431,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, IndexedCollector<LittleRenderBox> cubes) {
+    public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer,
+            IndexedCollector<LittleRenderBox> cubes) {
         if (positive) {
             renderBox.setMin(axis, renderBox.getMax(axis));
             renderBox.setMax(axis, renderBox.getMax(axis) + distance);
@@ -440,7 +441,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             renderBox.setMin(axis, renderBox.getMin(axis) - distance);
         }
         
-        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.SINGLE_CABLE.get().defaultBlockState().setValue(BlockStateProperties.AXIS, axis.toVanilla()));
+        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.SINGLE_CABLE.value().defaultBlockState().setValue(BlockStateProperties.AXIS, axis.toVanilla()));
         if (!oneSidedRenderer) {
             if (positive)
                 cube.setMax(axis, cube.getMin(axis) + cube.getSize(axis) / 2);
@@ -640,8 +641,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                         for (LittleStructure structure : ((BETiles) blockEntity).loadedStructures()) {
                             if (structure instanceof ISignalStructureBase && ((ISignalStructureBase) structure).getBandwidth() == bandwidth && ((ISignalStructureBase) structure)
                                     .canConnect(facing.opposite())) {
-                                RenderBox cube = new RenderBox(new AlignedBox(structure.getSurroundingBox().getAABB()
-                                        .move(-blockEntity.getBlockPos().getX(), -blockEntity.getBlockPos().getY(), -blockEntity.getBlockPos().getZ())));
+                                RenderBox cube = new RenderBox(new AlignedBox(structure.getSurroundingBox().getAABB().move(-blockEntity.getBlockPos().getX(), -blockEntity
+                                        .getBlockPos().getY(), -blockEntity.getBlockPos().getZ())));
                                 cube.setMin(facing.axis, 0);
                                 cube.setMax(facing.axis, 1);
                                 cubes.add(cube);
@@ -655,8 +656,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                 if (blockEntity instanceof BETiles) {
                     for (LittleStructure structure : ((BETiles) blockEntity).loadedStructures()) {
                         if (structure instanceof ISignalStructureBase && ((ISignalStructureBase) structure).getBandwidth() == bandwidth) {
-                            AABB box = structure.getSurroundingBox().getAABB()
-                                    .move(-blockEntity.getBlockPos().getX(), -blockEntity.getBlockPos().getY(), -blockEntity.getBlockPos().getZ());
+                            AABB box = structure.getSurroundingBox().getAABB().move(-blockEntity.getBlockPos().getX(), -blockEntity.getBlockPos().getY(), -blockEntity.getBlockPos()
+                                    .getZ());
                             RenderBox cube;
                             
                             if (((ISignalStructureBase) structure).canConnect(Facing.WEST) || ((ISignalStructureBase) structure).canConnect(Facing.EAST)) {

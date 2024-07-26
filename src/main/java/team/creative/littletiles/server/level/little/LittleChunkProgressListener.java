@@ -2,6 +2,7 @@ package team.creative.littletiles.server.level.little;
 
 import net.minecraft.server.level.progress.ChunkProgressListener;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 
 public class LittleChunkProgressListener implements ChunkProgressListener {
     

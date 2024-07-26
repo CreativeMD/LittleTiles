@@ -5,7 +5,8 @@ import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.level.LevelEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
@@ -21,12 +22,12 @@ public class LevelHandlers<T extends LevelHandler> {
     
     public LevelHandlers() {
         this.factory = createFactory();
-        MinecraftForge.EVENT_BUS.addListener(this::unloadEvent);
+        NeoForge.EVENT_BUS.addListener(this::unloadEvent);
     }
     
     public LevelHandlers(Function<Level, T> factory) {
         this.factory = factory;
-        MinecraftForge.EVENT_BUS.addListener(this::unloadEvent);
+        NeoForge.EVENT_BUS.addListener(this::unloadEvent);
     }
     
     protected Function<Level, T> createFactory() {

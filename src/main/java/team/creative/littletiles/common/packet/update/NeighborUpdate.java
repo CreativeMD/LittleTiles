@@ -45,7 +45,7 @@ public class NeighborUpdate extends CreativePacket {
             BlockPos pos = positions.get(i);
             BlockState state = level.getBlockState(pos);
             if (state.getBlock() instanceof BlockTile)
-                state.neighborChanged(level, pos, state.getBlock(), pos, false);
+                state.handleNeighborChanged(level, pos, state.getBlock(), pos, false);
         }
         
     }

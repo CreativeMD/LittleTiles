@@ -87,10 +87,12 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, IndexedCollector<LittleRenderBox> cubes) {
+    public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer,
+            IndexedCollector<LittleRenderBox> cubes) {
         super.renderFace(facing, grid, renderBox.copy(), distance, axis, one, two, positive, oneSidedRenderer, cubes);
         
-        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.INPUT_ARROW.get().defaultBlockState().setValue(BlockStateProperties.FACING, facing.toVanilla()));
+        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.INPUT_ARROW.value().defaultBlockState().setValue(BlockStateProperties.FACING, facing
+                .toVanilla()));
         //cube.color = color;
         cube.keepVU = true;
         cube.allowOverlap = true;
@@ -118,7 +120,7 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         super.render(box, overallBox, cubes);
         
         AlignedBox cube = new AlignedBox(overallBox.getBox(box.getGrid()));
-        BlockState cleanState = LittleTilesRegistry.CLEAN.get().defaultBlockState();
+        BlockState cleanState = LittleTilesRegistry.CLEAN.value().defaultBlockState();
         
         float sizePercentage = 0.25F;
         
@@ -304,8 +306,8 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
             List<RenderBox> cubes = new ArrayList<>();
             float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
             cubes = new ArrayList<>();
-            cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.get()).setColor(getColor(previews)));
-            cubes.add(new RenderBox(size * 2, 0.5F - size, 0.5F - size, size * 2.5F, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.get()).setColor(ColorUtils.LIGHT_BLUE));
+            cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.value()).setColor(getColor(previews)));
+            cubes.add(new RenderBox(size * 2, 0.5F - size, 0.5F - size, size * 2.5F, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.value()).setColor(ColorUtils.LIGHT_BLUE));
             return cubes;
         }
         

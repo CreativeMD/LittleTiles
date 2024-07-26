@@ -9,8 +9,7 @@ import javax.annotation.Nullable;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.common.util.LazyOptional;
+import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.creativecore.common.util.mc.LevelUtils;
@@ -33,7 +32,7 @@ public class LittleInventory implements Iterable<ItemStack> {
     public boolean allowDrop = true;
     
     public LittleInventory(Player player) {
-        this(player, player.getCapability(ForgeCapabilities.ITEM_HANDLER, null).orElse(null));
+        this(player, player.getCapability(Capabilities.ItemHandler.ENTITY, null));
     }
     
     public LittleInventory(IItemHandler inventory) {
@@ -64,9 +63,9 @@ public class LittleInventory implements Iterable<ItemStack> {
                     inventoriesId.add(i);
                 }
             } else if (!onlyIngredientInventories) {
-                LazyOptional<IItemHandler> optional = stack.getCapability(ForgeCapabilities.ITEM_HANDLER, null);
-                if (optional.isPresent())
-                    subInventories.add(new LittleInventory(player, optional.orElse(null)));
+                IItemHandler handler = stack.getCapability(Capabilities.ItemHandler.ITEM);
+                if (handler != null)
+                    subInventories.add(new LittleInventory(player, handler));
             }
         }
     }

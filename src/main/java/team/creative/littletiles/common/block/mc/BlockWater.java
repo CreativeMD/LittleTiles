@@ -9,9 +9,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BucketItem;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
@@ -71,7 +72,8 @@ public class BlockWater extends Block implements ILittleMCBlock, IFakeRenderingB
     public Vector3d getFogColor(IParentCollection parent, LittleTile tile, Entity entity, Vector3d originalColor, float partialTicks) {
         float f12 = 0.0F;
         if (entity instanceof LivingEntity living) {
-            f12 = EnchantmentHelper.getRespiration(living) * 0.2F;
+            AttributeInstance attributeinstance = living.getAttribute(Attributes.OXYGEN_BONUS);
+            f12 = (float) (attributeinstance != null ? attributeinstance.getValue() : 0) * 0.2F;
             
             if (living.hasEffect(MobEffects.WATER_BREATHING))
                 f12 = f12 * 0.3F + 0.6F;

@@ -38,6 +38,7 @@ import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.LittleTilesGuiRegistry;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.controls.GuiComboxMappedFlexible;
@@ -57,19 +58,21 @@ public class GuiRecipe extends GuiConfigure {
     public final GuiSyncLocal<EndTag> CLEAR_CONTENT = getSyncHolder().register("clear_content", tag -> {
         CompoundTag content = new CompoundTag();
         LittleGrid.MIN.set(content);
-        tool.get().getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, content);
+        ItemLittleBlueprint.setContent(tool.get(), content);
         tool.changed();
         LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
     });
     
     public final GuiSyncLocal<EndTag> REMOVE_CONTENT = getSyncHolder().register("remove_content", tag -> {
-        tool.get().getOrCreateTag().remove(ItemLittleBlueprint.CONTENT_KEY);
+        var data = ILittleTool.getData(tool.get());
+        data.remove(ItemLittleBlueprint.CONTENT_KEY);
+        ILittleTool.setData(tool.get(), data);
         tool.changed();
         LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
     });
     
     public final GuiSyncLocal<CompoundTag> SAVE = getSyncHolder().register("save", tag -> {
-        tool.get().getOrCreateTag().put(ItemLittleBlueprint.CONTENT_KEY, tag);
+        ItemLittleBlueprint.setContent(tool.get(), tag);
         tool.changed();
         GuiRecipe.super.closeThisLayer();
     });
@@ -165,7 +168,7 @@ public class GuiRecipe extends GuiConfigure {
         if (runTest()) {
             CompoundTag nbt = LittleGroup.save(reconstructBlueprint());
             
-            if (tool.get().getOrCreateTagElement(ItemLittleBlueprint.CONTENT_KEY).equals(nbt)) { // No need to save anything
+            if (ItemLittleBlueprint.getContent(tool.get()).equals(nbt)) { // No need to save anything
                 super.closeThisLayer();
                 return;
             }
@@ -194,7 +197,7 @@ public class GuiRecipe extends GuiConfigure {
         align = Align.STRETCH;
         
         // Load recipe content
-        LittleGroup group = LittleGroup.load(tool.get().getOrCreateTagElement(ItemLittleBlueprint.CONTENT_KEY));
+        LittleGroup group = LittleGroup.load(ItemLittleBlueprint.getContent(tool.get()));
         
         GuiParent top = new GuiParent(GuiFlow.STACK_X);
         add(top.setExpandableY());

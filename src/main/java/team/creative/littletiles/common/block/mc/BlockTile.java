@@ -9,6 +9,8 @@ import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
+import com.mojang.serialization.MapCodec;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -77,6 +79,7 @@ import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.LittlePhysicBlock;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.block.BlockTileRenderProperties;
@@ -175,6 +178,11 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         this.registerDefaultState(this.stateDefinition.any().setValue(WATERLOGGED, false));
         this.ticking = ticking;
         this.rendered = rendered;
+    }
+    
+    @Override
+    protected MapCodec<? extends BaseEntityBlock> codec() {
+        return null;
     }
     
     @Override
@@ -595,7 +603,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
                 LittleGroup group = new LittleGroup();
                 for (LittleTile tile : result.parent)
                     group.add(result.parent.getGrid(), tile, tile.copy());
-                drop.setTag(LittleGroup.save(group));
+                ILittleTool.setData(drop, LittleGroup.save(group));
                 return drop;
             }
             if (result.parent.isStructure())

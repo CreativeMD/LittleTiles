@@ -6,9 +6,7 @@ import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.ClientGamePacketListener;
-import net.minecraft.network.protocol.game.ClientboundAddEntityPacket;
+import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -96,7 +94,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     }
     
     @Override
-    protected void defineSynchedData() {}
+    protected void defineSynchedData(Builder builder) {}
     
     @Override
     public IVecOrigin getOrigin() {
@@ -255,19 +253,14 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     public abstract void saveEntity(CompoundTag nbt);
     
     @Override
-    public Packet<ClientGamePacketListener> getAddEntityPacket() {
-        return new ClientboundAddEntityPacket(this);
-    }
-    
-    @Override
-    public void onAddedToWorld() {
-        super.onAddedToWorld();
+    public void onAddedToLevel() {
+        super.onAddedToLevel();
         LittleTiles.ANIMATION_HANDLERS.get(level()).add(this);
     }
     
     @Override
-    public void onRemovedFromWorld() {
-        super.onRemovedFromWorld();
+    public void onRemovedFromLevel() {
+        super.onRemovedFromLevel();
         LittleTiles.ANIMATION_HANDLERS.get(level()).remove(this);
     }
     
@@ -361,7 +354,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         
         Vec3 newPos = origin.transformPointToFakeWorld(pos);
         Vec3 newLook = origin.transformPointToFakeWorld(look);
-        HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, null));
+        HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, (Entity) null));
         if (tempResult == null || tempResult.getType() != Type.BLOCK || !(tempResult instanceof BlockHitResult))
             return result;
         if (result == null || pos.distanceTo(tempResult.getLocation()) < distance)

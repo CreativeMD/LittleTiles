@@ -20,6 +20,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.LongArrayTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.NbtUtils;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
@@ -38,11 +39,14 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
 import net.minecraft.world.level.chunk.PalettedContainer;
 import net.minecraft.world.level.chunk.UpgradeData;
+import net.minecraft.world.level.chunk.status.ChunkType;
+import net.minecraft.world.level.chunk.storage.ChunkSerializer;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.ticks.LevelChunkTicks;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.attachment.AttachmentHolder;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.ChunkDataEvent;
 import team.creative.littletiles.mixin.server.level.ChunkSerializerAccessor;
 import team.creative.littletiles.server.level.little.LittleServerLevel;
@@ -71,13 +75,13 @@ public class LittleChunkSerializer {
             if (l >= 0 && l < alevelchunksection.length) {
                 PalettedContainer<BlockState> states;
                 if (compoundtag.contains("block_states", 10))
-                    states = BLOCK_STATE_CODEC.parse(NbtOps.INSTANCE, compoundtag.getCompound("block_states")).promotePartial(error -> logErrors(chunkpos, y, error))
-                            .getOrThrow(false, LOGGER::error);
+                    states = BLOCK_STATE_CODEC.parse(NbtOps.INSTANCE, compoundtag.getCompound("block_states")).promotePartial(error -> logErrors(chunkpos, y, error)).getOrThrow(
+                        ChunkSerializer.ChunkReadException::new);
                 else
                     states = new PalettedContainer<>(Block.BLOCK_STATE_REGISTRY, Blocks.AIR.defaultBlockState(), PalettedContainer.Strategy.SECTION_STATES);
                 
-                LevelChunkSection levelchunksection = new LevelChunkSection(states, new PalettedContainer<>(registry.asHolderIdMap(), registry
-                        .getHolderOrThrow(Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES));
+                LevelChunkSection levelchunksection = new LevelChunkSection(states, new PalettedContainer<>(registry.asHolderIdMap(), registry.getHolderOrThrow(
+                    Biomes.PLAINS), PalettedContainer.Strategy.SECTION_BIOMES));
                 alevelchunksection[l] = levelchunksection;
                 //poiManager.checkConsistencyWithBlocks(pos, levelchunksection);
             }
@@ -98,23 +102,23 @@ public class LittleChunkSerializer {
             }
         }
         
-        LevelChunkTicks<Block> blockTicks = LevelChunkTicks
-                .load(nbt.getList("block_ticks", 10), (x) -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse(x)), chunkpos);
-        LevelChunkTicks<Fluid> fluidTicks = LevelChunkTicks
-                .load(nbt.getList("fluid_ticks", 10), (x) -> BuiltInRegistries.FLUID.getOptional(ResourceLocation.tryParse(x)), chunkpos);
+        LevelChunkTicks<Block> blockTicks = LevelChunkTicks.load(nbt.getList("block_ticks", 10), (x) -> BuiltInRegistries.BLOCK.getOptional(ResourceLocation.tryParse(x)),
+            chunkpos);
+        LevelChunkTicks<Fluid> fluidTicks = LevelChunkTicks.load(nbt.getList("fluid_ticks", 10), (x) -> BuiltInRegistries.FLUID.getOptional(ResourceLocation.tryParse(x)),
+            chunkpos);
         
-        LevelChunk chunk = new LevelChunk(level.asLevel(), chunkpos, UpgradeData.EMPTY, blockTicks, fluidTicks, nbt
-                .getLong("InhabitedTime"), alevelchunksection, postLoadChunk(level, nbt), null);
+        LevelChunk chunk = new LevelChunk(level.asLevel(), chunkpos, UpgradeData.EMPTY, blockTicks, fluidTicks, nbt.getLong("InhabitedTime"), alevelchunksection, postLoadChunk(
+            level, nbt), null);
         
-        if (nbt.contains("ForgeCaps"))
-            chunk.readCapsFromNBT(nbt.getCompound("ForgeCaps"));
+        if (nbt.contains(AttachmentHolder.ATTACHMENTS_NBT_KEY, Tag.TAG_COMPOUND))
+            chunk.readAttachmentsFromNBT(level.registryAccess(), nbt.getCompound(AttachmentHolder.ATTACHMENTS_NBT_KEY));
         
         chunk.setLightCorrect(nbt.getBoolean("isLightOn"));
         
         CompoundTag heightmaps = nbt.getCompound("Heightmaps");
         EnumSet<Heightmap.Types> enumset = EnumSet.noneOf(Heightmap.Types.class);
         
-        for (Heightmap.Types type : chunk.getStatus().heightmapsAfter()) {
+        for (Heightmap.Types type : chunk.getPersistedStatus().heightmapsAfter()) {
             String s = type.getSerializationKey();
             if (heightmaps.contains(s, 12))
                 chunk.setHeightmap(type, heightmaps.getLongArray(s));
@@ -132,7 +136,7 @@ public class LittleChunkSerializer {
         for (int j = 0; j < blockEntities.size(); ++j)
             chunk.setBlockEntityNbt(blockEntities.getCompound(j));
         
-        MinecraftForge.EVENT_BUS.post(new ChunkDataEvent.Load(chunk, nbt, ChunkStatus.ChunkType.LEVELCHUNK));
+        NeoForge.EVENT_BUS.post(new ChunkDataEvent.Load(chunk, nbt, ChunkType.LEVELCHUNK));
         return chunk;
     }
     
@@ -162,7 +166,7 @@ public class LittleChunkSerializer {
                 CompoundTag sectionTag = new CompoundTag();
                 if (flag1) {
                     LevelChunkSection levelchunksection = alevelchunksection[j];
-                    sectionTag.put("block_states", BLOCK_STATE_CODEC.encodeStart(NbtOps.INSTANCE, levelchunksection.getStates()).getOrThrow(false, LOGGER::error));
+                    sectionTag.put("block_states", BLOCK_STATE_CODEC.encodeStart(NbtOps.INSTANCE, levelchunksection.getStates()).getOrThrow());
                 }
                 
                 if (blockLight != null && !blockLight.isEmpty())
@@ -184,7 +188,7 @@ public class LittleChunkSerializer {
         
         ListTag blockEntities = new ListTag();
         for (BlockPos blockpos : chunk.getBlockEntitiesPos()) {
-            CompoundTag blockEntityTag = chunk.getBlockEntityNbtForSaving(blockpos);
+            CompoundTag blockEntityTag = chunk.getBlockEntityNbtForSaving(blockpos, level.registryAccess());
             if (blockEntityTag != null)
                 blockEntities.add(blockEntityTag);
         }
@@ -192,9 +196,9 @@ public class LittleChunkSerializer {
         
         LevelChunk levelChunk = (LevelChunk) chunk;
         try {
-            final CompoundTag capTag = levelChunk.writeCapsToNBT();
+            final CompoundTag capTag = levelChunk.writeAttachmentsToNBT(level.registryAccess());
             if (capTag != null)
-                nbt.put("ForgeCaps", capTag);
+                nbt.put(AttachmentHolder.ATTACHMENTS_NBT_KEY, capTag);
         } catch (Exception exception) {
             LOGGER.error("A capability provider has thrown an exception trying to write state. It will not persist. Report this to the mod author", exception);
         }
@@ -203,11 +207,11 @@ public class LittleChunkSerializer {
         
         CompoundTag heightmaps = new CompoundTag();
         for (Map.Entry<Heightmap.Types, Heightmap> entry : chunk.getHeightmaps())
-            if (chunk.getStatus().heightmapsAfter().contains(entry.getKey()))
+            if (chunk.getPersistedStatus().heightmapsAfter().contains(entry.getKey()))
                 heightmaps.put(entry.getKey().getSerializationKey(), new LongArrayTag(entry.getValue().getRawData()));
         nbt.put("Heightmaps", heightmaps);
         
-        MinecraftForge.EVENT_BUS.post(new ChunkDataEvent.Save(chunk, level, nbt));
+        NeoForge.EVENT_BUS.post(new ChunkDataEvent.Save(chunk, level, nbt));
         return nbt;
     }
     
@@ -232,7 +236,7 @@ public class LittleChunkSerializer {
                         x.setBlockEntityNbt(blockTag);
                     else {
                         BlockPos blockpos = BlockEntity.getPosFromTag(blockTag);
-                        BlockEntity blockentity = BlockEntity.loadStatic(blockpos, x.getBlockState(blockpos), blockTag);
+                        BlockEntity blockentity = BlockEntity.loadStatic(blockpos, x.getBlockState(blockpos), blockTag, level.registryAccess());
                         if (blockentity != null)
                             x.setBlockEntity(blockentity);
                     }

@@ -31,7 +31,7 @@ public class LittlePlaceBoxFacing extends LittlePlaceBox {
     public LittleRenderBox getRenderBox(LittleGrid grid, LittleVec offset) {
         LittleBox box = this.box.copy();
         box.add(offset);
-        LittleRenderBox cube = new LittleRenderBox(grid, box, new LittleElement(LittleTilesRegistry.CLEAN.get().defaultBlockState(), color));
+        LittleRenderBox cube = new LittleRenderBox(grid, box, new LittleElement(LittleTilesRegistry.CLEAN.value().defaultBlockState(), color));
         float thickness = 1 / 32F;
         Axis axis = facing.axis;
         if (facing.positive) {

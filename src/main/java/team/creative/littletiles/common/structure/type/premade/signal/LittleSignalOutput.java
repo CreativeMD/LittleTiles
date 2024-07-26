@@ -83,10 +83,11 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer, IndexedCollector<LittleRenderBox> cubes) {
+    public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer,
+            IndexedCollector<LittleRenderBox> cubes) {
         super.renderFace(facing, grid, renderBox.copy(), distance, axis, one, two, positive, oneSidedRenderer, cubes);
         
-        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.OUTPUT_ARROW.get().defaultBlockState().setValue(BlockStateProperties.FACING, facing
+        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.OUTPUT_ARROW.value().defaultBlockState().setValue(BlockStateProperties.FACING, facing
                 .toVanilla()));
         cube.keepVU = true;
         cube.allowOverlap = true;
@@ -114,11 +115,11 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
         super.render(box, overallBox, cubes);
         
         AlignedBox structureBox = new AlignedBox(overallBox.getBox(box.getGrid()));
-        LittleRenderBox block = new LittleRenderBox(structureBox, LittleTilesRegistry.CLEAN.get().defaultBlockState()).setColor(color);
+        LittleRenderBox block = new LittleRenderBox(structureBox, LittleTilesRegistry.CLEAN.value().defaultBlockState()).setColor(color);
         block.allowOverlap = true;
         cubes.add(block);
         
-        LittleRenderBox cube = new LittleRenderBox(structureBox, LittleTilesRegistry.CLEAN.get().defaultBlockState());
+        LittleRenderBox cube = new LittleRenderBox(structureBox, LittleTilesRegistry.CLEAN.value().defaultBlockState());
         cube.setColor(ColorUtils.ORANGE);
         
         float thickness = cube.getSize(facing.axis) * 0.25F;
@@ -197,8 +198,8 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
             List<RenderBox> cubes = new ArrayList<>();
             float size = (float) ((Math.sqrt(bandwidth) * 1F / 32F + 0.05) * 1.4);
             cubes = new ArrayList<>();
-            cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.get()).setColor(getColor(previews)));
-            cubes.add(new RenderBox(size * 2, 0.5F - size, 0.5F - size, size * 2.5F, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.get()).setColor(ColorUtils.ORANGE));
+            cubes.add(new RenderBox(0, 0.5F - size, 0.5F - size, size * 2, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.value()).setColor(getColor(previews)));
+            cubes.add(new RenderBox(size * 2, 0.5F - size, 0.5F - size, size * 2.5F, 0.5F + size, 0.5F + size, LittleTilesRegistry.CLEAN.value()).setColor(ColorUtils.ORANGE));
             return cubes;
         }
         

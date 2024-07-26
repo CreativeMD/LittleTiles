@@ -47,13 +47,13 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
             if (be.isClient())
                 be.handleUpdate(nbt, false);
             else {
-                be.load(nbt);
+                be.loadWithComponents(nbt, level.registryAccess());
                 be.updateTiles(false);
             }
     }
     
     public static CompoundTag saveBE(BETiles tiles) {
-        CompoundTag nbt = tiles.serializeNBT();
+        CompoundTag nbt = tiles.saveWithFullMetadata(tiles.getLevel().registryAccess());
         nbt.putBoolean("ticking", tiles.isTicking());
         nbt.putBoolean("rendered", tiles.isRendered());
         return nbt;

@@ -22,7 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.event.level.BlockEvent.EntityMultiPlaceEvent;
@@ -196,7 +196,7 @@ public class Placement {
             
             EntityMultiPlaceEvent event = new BlockEvent.EntityMultiPlaceEvent(snaps, level.getBlockState(preview.position.facing == null ? preview.position
                     .getPos() : preview.position.getPos().relative(preview.position.facing.toVanilla())), player);
-            MinecraftForge.EVENT_BUS.post(event);
+            NeoForge.EVENT_BUS.post(event);
             if (event.isCanceled()) {
                 for (BlockPos snapPos : blocks.keySet())
                     LittleAction.sendBlockResetToClient(level, player, snapPos);

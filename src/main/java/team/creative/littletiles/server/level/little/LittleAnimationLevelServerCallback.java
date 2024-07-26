@@ -17,7 +17,7 @@ import net.minecraft.world.entity.animal.WaterAnimal;
 import net.minecraft.world.entity.npc.Npc;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
-import net.minecraftforge.common.MinecraftForge;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.entity.PartEntity;
 import net.neoforged.neoforge.event.entity.EntityLeaveLevelEvent;
 import team.creative.littletiles.LittleTiles;
@@ -74,8 +74,8 @@ public class LittleAnimationLevelServerCallback extends LittleAnimationLevelCall
         
         entity.updateDynamicGameEventListener(DynamicGameEventListener::remove);
         
-        entity.onRemovedFromWorld();
-        MinecraftForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, level));
+        entity.onRemovedFromLevel();
+        NeoForge.EVENT_BUS.post(new EntityLeaveLevelEvent(entity, level));
     }
     
     @Override
@@ -142,13 +142,10 @@ public class LittleAnimationLevelServerCallback extends LittleAnimationLevelCall
             if (entity instanceof Player || tickingEntities.contains(entity)) {
                 entity.setOldPosAndRot();
                 ++entity.tickCount;
-                if (entity.canUpdate())
-                    entity.rideTick();
+                entity.rideTick();
                 
-                for (Entity passenger : entity.getPassengers()) {
+                for (Entity passenger : entity.getPassengers())
                     this.tickPassenger(entity, passenger);
-                }
-                
             }
         } else {
             entity.stopRiding();
