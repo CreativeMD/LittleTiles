@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -57,8 +58,8 @@ public class PlacementPreview {
     @OnlyIn(Dist.CLIENT)
     public static PlacementPreview relative(Level level, ItemStack stack, PlacementPosition position, boolean low) {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
-        return relative(level, stack, iTile.get(stack, low), position, LittleTilesClient.PREVIEW_RENDERER.isCentered(stack, iTile), LittleTilesClient.PREVIEW_RENDERER
-                .isFixed(stack, iTile));
+        return relative(level, stack, iTile.get(stack, low), position, LittleTilesClient.PREVIEW_RENDERER.isCentered(stack, iTile), LittleTilesClient.PREVIEW_RENDERER.isFixed(
+            stack, iTile));
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -243,7 +244,7 @@ public class PlacementPreview {
         previews.mirror(axis, box.getDoubledCenter(position.getPos()));
     }
     
-    public LittleIngredients getBeforePlaceIngredients() {
-        return mode.getBeforePlaceIngredients(previews);
+    public LittleIngredients getBeforePlaceIngredients(HolderLookup.Provider provider) {
+        return mode.getBeforePlaceIngredients(provider, previews);
     }
 }

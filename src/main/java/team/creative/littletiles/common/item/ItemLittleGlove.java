@@ -16,6 +16,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiGlove;
@@ -27,11 +28,13 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip {
     
     public static GloveMode getMode(ItemStack stack) {
-        return GloveMode.REGISTRY.get(stack.getOrCreateTag().getString("mode"));
+        return GloveMode.REGISTRY.get(ILittleTool.getData(stack).getString("mode"));
     }
     
     public static void setMode(ItemStack stack, GloveMode mode) {
-        setMode(stack.getOrCreateTag(), mode);
+        var data = ILittleTool.getData(stack);
+        setMode(data, mode);
+        ILittleTool.setData(stack, data);
     }
     
     public static void setMode(CompoundTag nbt, GloveMode mode) {
@@ -53,8 +56,8 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        getMode(stack).addExtraInformation(stack.getTag(), tooltip);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        getMode(stack).addExtraInformation(ILittleTool.getData(stack), tooltip);
     }
     
     @Override

@@ -132,7 +132,7 @@ public class Placement {
     }
     
     public LittleIngredients overflow() {
-        LittleIngredients ingredients = LittleAction.getIngredients(removedTiles);
+        LittleIngredients ingredients = LittleAction.getIngredients(level.registryAccess(), removedTiles);
         ingredients.add(this.removedIngredients);
         return ingredients;
     }

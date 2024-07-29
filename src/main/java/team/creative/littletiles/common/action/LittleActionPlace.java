@@ -98,7 +98,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
                 drainIngredientsAfterPlacing(player, inventory, result, preview.previews);
                 
                 if (!level.isClientSide) {
-                    checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
+                    checkAndGive(player, inventory, getIngredients(player.registryAccess(), placement.unplaceableTiles));
                     checkAndGive(player, inventory, placement.overflow());
                 }
                 
@@ -124,7 +124,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
         
         if (needIngredients(player))
             if (!iTile.containsIngredients(stack))
-                canTake(player, inventory, preview.getBeforePlaceIngredients());
+                canTake(player, inventory, preview.getBeforePlaceIngredients(player.registryAccess()));
             
         isAllowedToUse(player, preview.previews);
         isAllowedToUse(player, preview.position);
@@ -138,10 +138,10 @@ public class LittleActionPlace extends LittleAction<Boolean> {
                 
                 if (iTile.containsIngredients(stack)) {
                     stack.shrink(1);
-                    checkAndGive(player, inventory, getIngredients(placement.unplaceableTiles));
+                    checkAndGive(player, inventory, getIngredients(player.registryAccess(), placement.unplaceableTiles));
                 } else {
-                    LittleIngredients ingredients = LittleIngredient.extractStructureOnly(preview.previews);
-                    ingredients.add(getIngredients(result.placedPreviews));
+                    LittleIngredients ingredients = LittleIngredient.extractStructureOnly(player.registryAccess(), preview.previews);
+                    ingredients.add(getIngredients(player.registryAccess(), result.placedPreviews));
                     take(player, inventory, ingredients);
                 }
             }
@@ -154,7 +154,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     
     protected boolean canDrainIngredientsBeforePlacing(Player player, LittleInventory inventory) throws LittleActionException {
         if (action != PlaceAction.PREMADE)
-            return canTake(player, inventory, preview.getBeforePlaceIngredients());
+            return canTake(player, inventory, preview.getBeforePlaceIngredients(player.registryAccess()));
         
         LittlePremadePreview entry = LittlePremadeRegistry.getPreview(preview.previews.getStructureId());
         
@@ -171,8 +171,8 @@ public class LittleActionPlace extends LittleAction<Boolean> {
             take(player, inventory, LittlePremadeRegistry.getPreview(previews.getStructureId()).stack);
             return;
         }
-        LittleIngredients ingredients = LittleIngredient.extractStructureOnly(previews);
-        ingredients.add(getIngredients(placedTiles.placedPreviews));
+        LittleIngredients ingredients = LittleIngredient.extractStructureOnly(player.registryAccess(), previews);
+        ingredients.add(getIngredients(player.registryAccess(), placedTiles.placedPreviews));
         take(player, inventory, ingredients);
     }
     

@@ -2,7 +2,6 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.player.Player;
@@ -11,13 +10,11 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.AirBlock;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
-import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 
@@ -28,20 +25,17 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
     }
     
     public static ItemStack of(BlockIngredientEntry entry) {
-        ItemStack stack = new ItemStack(LittleTilesRegistry.BLOCK_INGREDIENT.get());
-        stack.setTag(new CompoundTag());
+        ItemStack stack = new ItemStack(LittleTilesRegistry.BLOCK_INGREDIENT.value());
         saveIngredient(stack, entry);
         return stack;
     }
     
     public static BlockIngredientEntry loadIngredient(ItemStack stack) {
-        if (stack.hasTag())
-            return IngredientUtils.loadBlockIngredient(stack.getTag());
-        return null;
+        return stack.get(LittleTilesRegistry.BLOCK_INGREDIENT_ENTRY);
     }
     
     public static void saveIngredient(ItemStack stack, BlockIngredientEntry entry) {
-        entry.save(stack.getTag());
+        stack.set(LittleTilesRegistry.BLOCK_INGREDIENT_ENTRY, entry);
     }
     
     @Override
@@ -55,7 +49,7 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
             BlockIngredientEntry meEntry = loadIngredient(me);
             BlockIngredientEntry otherEntry = loadIngredient(other);
             if (meEntry.equals(otherEntry)) {
-                double amount = Math.min(Item.MAX_STACK_SIZE - meEntry.value, otherEntry.value);
+                double amount = Math.min(Item.DEFAULT_MAX_STACK_SIZE - meEntry.value, otherEntry.value);
                 otherEntry.value -= amount;
                 meEntry.value += amount;
                 
@@ -84,12 +78,7 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
     }
     
     @Override
-    public boolean shouldOverrideMultiplayerNbt() {
-        return true;
-    }
-    
-    @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flagIn) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flagIn) {
         BlockIngredientEntry entry = loadIngredient(stack);
         if (entry != null)
             tooltip.add(BlockIngredient.printVolume(entry.value, false));
@@ -135,7 +124,7 @@ public class ItemBlockIngredient extends Item implements ILittleIngredientInvent
                     }
                 }
             
-        stack.setTag(null);
+        stack.remove(LittleTilesRegistry.BLOCK_INGREDIENT_ENTRY);
         stack.setCount(0);
     }
     

@@ -22,6 +22,7 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.gui.controls.filter.GuiElementFilter;
+import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleHammer;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
@@ -67,7 +68,7 @@ public class GuiPaintBrush extends GuiConfigureTool {
         
         GuiComboBoxMapped<LittleShape> box = new GuiComboBoxMapped<>("shape", new TextMapBuilder<LittleShape>().addComponent(ShapeRegistry.REGISTRY.values(), x -> Component
                 .translatable(x.getTranslatableName())));
-        box.select(ItemLittleHammer.getShape(tool.get()));
+        box.select(ItemLittleChisel.getShape(tool.get()));
         GuiScrollY scroll = new GuiScrollY("settings").setExpandable();
         add(box);
         add(scroll);

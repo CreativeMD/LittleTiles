@@ -11,7 +11,9 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.math.LittleUtils;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -113,6 +115,10 @@ public class LittleGrid {
             throw new RuntimeException("Grid " + nbt.getInt(GRID_KEY) + " is not available.");
         }
         return LittleGrid.overallDefault();
+    }
+    
+    public static LittleGrid get(ItemStack stack) {
+        return get(ILittleTool.getData(stack));
     }
     
     public static LittleGrid get(CompoundTag nbt) {

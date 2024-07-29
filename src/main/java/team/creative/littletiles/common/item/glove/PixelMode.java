@@ -33,10 +33,12 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 public class PixelMode extends ElementGloveMode {
     
     public static LittleBox getBox(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("box"))
-            return LittleBox.create(stack.getTag().getIntArray("box"));
+        var data = ILittleTool.getData(stack);
+        if (data.contains("box"))
+            return LittleBox.create(data.getIntArray("box"));
         LittleBox box = new LittleBox(0, 0, 0, 1, 1, 1);
-        setBox(stack.getOrCreateTag(), box);
+        setBox(data, box);
+        ILittleTool.setData(stack, data);
         return box;
     }
     
@@ -51,7 +53,7 @@ public class PixelMode extends ElementGloveMode {
         ILittleTool tool = (ILittleTool) stack.getItem();
         LittleElement element = getElement(stack);
         LittleBox box = PixelMode.getBox(stack);
-        LittleGrid oldContext = LittleGrid.get(stack.getTag());
+        LittleGrid oldContext = LittleGrid.get(stack);
         LittleGrid grid = tool.getPositionGrid(gui.getPlayer(), stack);
         
         if (oldContext != grid)
@@ -142,7 +144,7 @@ public class PixelMode extends ElementGloveMode {
     @Override
     public LittleGroup getTiles(ItemStack stack) {
         LittleGroup group = new LittleGroup();
-        group.addTile(LittleGrid.get(stack.getTag()), new LittleTile(getElement(stack), getBox(stack)));
+        group.addTile(LittleGrid.get(stack), new LittleTile(getElement(stack), getBox(stack)));
         return group;
     }
     

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -140,8 +141,8 @@ public abstract class PlacementMode {
         return Component.translatable(translatableKey());
     }
     
-    public LittleIngredients getBeforePlaceIngredients(LittleGroup previews) {
-        return LittleAction.getIngredients(previews);
+    public LittleIngredients getBeforePlaceIngredients(HolderLookup.Provider provider, LittleGroup previews) {
+        return LittleAction.getIngredients(provider, previews);
     }
     
     public static enum PreviewMode {

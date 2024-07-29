@@ -13,6 +13,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
@@ -36,25 +37,28 @@ public class BlueprintGloveMode extends GloveMode {
     public static final String CONTENT = "c";
     
     public static LittleGroup getPreviews(ItemStack stack) {
-        if (stack.getOrCreateTag().contains(CONTENT))
-            return LittleGroup.load(stack.getOrCreateTagElement(CONTENT));
+        var data = ILittleTool.getData(stack);
+        if (data.contains(CONTENT))
+            return LittleGroup.load(data.getCompound(CONTENT));
         
         LittleGroup group = new LittleGroup();
         group.add(LittleGrid.MIN, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, 0, 0, 1, 1, 1));
-        stack.getOrCreateTag().put(CONTENT, LittleGroup.save(group));
+        data.put(CONTENT, LittleGroup.save(group));
+        ILittleTool.setData(stack, data);
         return group;
     }
     
     public static BlockPos getOrigin(ItemStack stack) {
-        CompoundTag nbt = stack.getOrCreateTag();
+        CompoundTag nbt = ILittleTool.getData(stack);
         return new BlockPos(nbt.getInt("ox"), nbt.getInt("oy"), nbt.getInt("oz"));
     }
     
     public static void setOrigin(ItemStack stack, BlockPos pos) {
-        CompoundTag nbt = stack.getOrCreateTag();
+        CompoundTag nbt = ILittleTool.getData(stack);
         nbt.putInt("ox", pos.getX());
         nbt.putInt("oy", pos.getY());
         nbt.putInt("oz", pos.getZ());
+        ILittleTool.setData(stack, nbt);
     }
     
     @Override
@@ -111,7 +115,9 @@ public class BlueprintGloveMode extends GloveMode {
     
     @Override
     public void setTiles(LittleGroup previews, ItemStack stack) {
-        stack.getOrCreateTag().put(CONTENT, LittleGroup.save(previews));
+        var data = ILittleTool.getData(stack);
+        data.put(CONTENT, LittleGroup.save(previews));
+        ILittleTool.setData(stack, data);
     }
     
     @Override

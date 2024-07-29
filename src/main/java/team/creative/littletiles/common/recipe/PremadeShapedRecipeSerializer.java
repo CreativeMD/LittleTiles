@@ -1,40 +1,32 @@
 package team.creative.littletiles.common.recipe;
 
-import org.jetbrains.annotations.Nullable;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 
-import com.google.gson.JsonObject;
-
-import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
-import net.neoforged.neoforge.common.conditions.ICondition.IContext;
+import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 
 public class PremadeShapedRecipeSerializer implements RecipeSerializer<ShapedRecipe> {
     
+    public static final MapCodec<ShapedRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(Codec.STRING.optionalFieldOf("group", "").forGetter(x -> x
+            .getGroup()), CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(x -> x.category()), ShapedRecipePattern.MAP_CODEC.forGetter(
+                x -> x.pattern), Codec.STRING.fieldOf("structure").forGetter(x -> ""), Codec.BOOL.optionalFieldOf("show_notification", Boolean.valueOf(true)).forGetter(x -> x
+                        .showNotification())).apply(instance, (a, b, c, structure, e) -> new ShapedRecipe(a, b, c, ItemPremadeStructure.of(structure), e)));
+    
     @Override
-    public ShapedRecipe fromJson(ResourceLocation recipeLoc, JsonObject recipeJson, IContext context) {
-        ShapedRecipe recipe = RecipeSerializer.SHAPED_RECIPE.fromJson(recipeLoc, recipeJson, context);
-        
-        return new ShapedRecipe(recipe.getId(), recipe.getGroup(), recipe.category(), recipe.getWidth(), recipe.getHeight(), recipe.getIngredients(), ItemPremadeStructure.of(
-            GsonHelper.getAsString(GsonHelper.getAsJsonObject(recipeJson, "result"), "structure")), recipe.showNotification());
+    public MapCodec<ShapedRecipe> codec() {
+        return CODEC;
     }
     
     @Override
-    public ShapedRecipe fromJson(ResourceLocation location, JsonObject object) {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public @Nullable ShapedRecipe fromNetwork(ResourceLocation location, FriendlyByteBuf buffer) {
-        return RecipeSerializer.SHAPED_RECIPE.fromNetwork(location, buffer);
-    }
-    
-    @Override
-    public void toNetwork(FriendlyByteBuf buffer, ShapedRecipe recipe) {
-        RecipeSerializer.SHAPED_RECIPE.toNetwork(buffer, recipe);
+    public StreamCodec<RegistryFriendlyByteBuf, ShapedRecipe> streamCodec() {
+        return ShapedRecipe.Serializer.STREAM_CODEC;
     }
     
 }

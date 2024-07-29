@@ -24,6 +24,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
@@ -50,6 +51,53 @@ import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
 public class ItemLittleChisel extends Item implements ILittlePlacer, IItemTooltip {
     
+    public static LittleShape getShape(ItemStack stack) {
+        return getShape(ILittleTool.getData(stack));
+    }
+    
+    public static LittleShape getShape(CompoundTag nbt) {
+        return ShapeRegistry.REGISTRY.get(nbt.getString("shape"));
+    }
+    
+    public static void setShape(ItemStack stack, LittleShape shape) {
+        var data = ILittleTool.getData(stack);
+        setShape(data, shape);
+        ILittleTool.setData(stack, data);
+    }
+    
+    public static void setShape(CompoundTag nbt, LittleShape shape) {
+        nbt.putString("shape", shape.getKey());
+    }
+    
+    public static LittleElement getElement(ItemStack stack) {
+        var data = ILittleTool.getData(stack);
+        if (data.contains("element"))
+            return new LittleElement(data.getCompound("element"));
+        
+        LittleElement element = new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
+        setElement(stack, element);
+        return element;
+    }
+    
+    public static LittleElement getElement(CompoundTag nbt) {
+        if (nbt.contains("element"))
+            return new LittleElement(nbt.getCompound("element"));
+        
+        return new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
+    }
+    
+    public static void setElement(ItemStack stack, LittleElement element) {
+        var data = ILittleTool.getData(stack);
+        element.save(data.getCompound("element"));
+        ILittleTool.setData(stack, data);
+    }
+    
+    public static void setElement(CompoundTag nbt, LittleElement element) {
+        CompoundTag tag = new CompoundTag();
+        element.save(tag);
+        nbt.put("element", tag);
+    }
+    
     public static ShapeSelection selection;
     
     public ItemLittleChisel() {
@@ -67,53 +115,11 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         LittleShape shape = getShape(stack);
         tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getTranslatableName())));
-        shape.addExtraInformation(stack.getTag(), tooltip);
+        shape.addExtraInformation(ILittleTool.getData(stack), tooltip);
         tooltip.add(Component.literal(TooltipUtils.printColor(getElement(stack).color)));
-    }
-    
-    public static LittleShape getShape(ItemStack stack) {
-        return getShape(stack.getOrCreateTag());
-    }
-    
-    public static LittleShape getShape(CompoundTag nbt) {
-        return ShapeRegistry.REGISTRY.get(nbt.getString("shape"));
-    }
-    
-    public static void setShape(ItemStack stack, LittleShape shape) {
-        setShape(stack.getOrCreateTag(), shape);
-    }
-    
-    public static void setShape(CompoundTag nbt, LittleShape shape) {
-        nbt.putString("shape", shape.getKey());
-    }
-    
-    public static LittleElement getElement(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("element"))
-            return new LittleElement(stack.getOrCreateTagElement("element"));
-        
-        LittleElement element = new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
-        setElement(stack, element);
-        return element;
-    }
-    
-    public static LittleElement getElement(CompoundTag nbt) {
-        if (nbt.contains("element"))
-            return new LittleElement(nbt.getCompound("element"));
-        
-        return new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
-    }
-    
-    public static void setElement(ItemStack stack, LittleElement element) {
-        element.save(stack.getOrCreateTagElement("element"));
-    }
-    
-    public static void setElement(CompoundTag nbt, LittleElement element) {
-        CompoundTag tag = new CompoundTag();
-        element.save(tag);
-        nbt.put("element", tag);
     }
     
     @Override

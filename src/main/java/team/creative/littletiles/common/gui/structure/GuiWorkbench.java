@@ -59,7 +59,7 @@ public class GuiWorkbench extends GuiLayer {
                 
                 Player player = getPlayer();
                 LittleInventory inventory = new LittleInventory(player);
-                LittleIngredients ingredients = LittleAction.getIngredients(group);
+                LittleIngredients ingredients = LittleAction.getIngredients(getPlayer().registryAccess(), group);
                 
                 try {
                     if (LittleAction.checkAndTake(player, inventory, ingredients)) {

@@ -7,6 +7,8 @@ import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import com.mojang.serialization.Codec;
+
 import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.minecraft.ResourceLocationException;
@@ -25,6 +27,8 @@ import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
 import team.creative.littletiles.mixin.common.block.StateHolderAccessor;
 
 public class LittleBlockRegistry {
+    
+    public static final Codec<LittleBlock> CODEC = Codec.STRING.xmap(LittleBlockRegistry::get, LittleBlock::blockName);
     
     private static final HashMap<Block, LittleBlock> BLOCK_MAP = new HashMap<>();
     private static final HashMap<String, LittleBlock> NAME_MAP = new HashMap<>();

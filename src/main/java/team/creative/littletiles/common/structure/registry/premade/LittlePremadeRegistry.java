@@ -17,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.NBTUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
@@ -56,20 +57,20 @@ public class LittlePremadeRegistry {
                 ItemStack stack = type.createItemStackEmpty();
                 CompoundTag structureNBT = new CompoundTag();
                 structureNBT.putString("id", type.id);
-                CompoundTag nbt = TagParser.parseTag(IOUtils
-                        .toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("data/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
+                CompoundTag nbt = TagParser.parseTag(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream(
+                    "data/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
                 
                 CompoundTag originalNBT = nbt.contains(LittleGroup.STRUCTURE_KEY) ? nbt.getCompound(LittleGroup.STRUCTURE_KEY) : null;
                 nbt.put(LittleGroup.STRUCTURE_KEY, structureNBT);
                 if (originalNBT != null)
                     NBTUtils.mergeNotOverwrite(structureNBT, originalNBT);
-                stack.setTag(nbt);
+                ILittleTool.setData(stack, nbt);
                 
-                LittleGroup previews = LittleGroup.load(stack.getOrCreateTag());
+                LittleGroup previews = LittleGroup.load(ILittleTool.getData(stack));
                 
                 CompoundTag stackNBT = new CompoundTag();
                 stackNBT.put(LittleGroup.STRUCTURE_KEY, structureNBT);
-                stack.setTag(stackNBT);
+                ILittleTool.setData(stack, stackNBT);
                 
                 PREVIEWS.put(type.id, new LittlePremadePreview(previews, stack));
                 loaded++;
@@ -81,11 +82,13 @@ public class LittlePremadeRegistry {
         LittleTiles.LOGGER.info("Loaded {} premade structure models", loaded);
     }
     
-    public static <T extends LittleStructurePremade> LittlePremadeType register(String id, String modid, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory) {
+    public static <T extends LittleStructurePremade> LittlePremadeType register(String id, String modid, Class<T> structureClass,
+            BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory) {
         return register(id, modid, structureClass, factory, new LittleAttributeBuilder());
     }
     
-    public static <T extends LittleStructurePremade> LittlePremadeType register(String id, String modid, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
+    public static <T extends LittleStructurePremade> LittlePremadeType register(String id, String modid, Class<T> structureClass,
+            BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
         LittlePremadeType type = (LittlePremadeType) LittleStructureRegistry.register(new LittlePremadeType(id, structureClass, factory, attribute, modid));
         STRUCTURES.add(type);
         return type;
@@ -166,8 +169,8 @@ public class LittlePremadeRegistry {
         register(new LittleStructureTypeInput("single_input16", LittleSignalInput.class, LittleSignalInput::new, new LittleAttributeBuilder()
                 .extraRendering(), LittleTiles.MODID, 16));
         
-        register("signal_display_16", LittleTiles.MODID, LittleSignalDisplay.class, LittleSignalDisplay::new, new LittleAttributeBuilder().tickRendering())
-                .addOutput("pixels", 16, SignalMode.EQUAL, true);
+        register("signal_display_16", LittleTiles.MODID, LittleSignalDisplay.class, LittleSignalDisplay::new, new LittleAttributeBuilder().tickRendering()).addOutput("pixels", 16,
+            SignalMode.EQUAL, true);
         
         register("structure_builder", LittleTiles.MODID, LittleStructureBuilder.class, LittleStructureBuilder::new);
         

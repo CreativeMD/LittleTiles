@@ -1,19 +1,19 @@
 package team.creative.littletiles.common.structure.type.bed;
 
 import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.event.entity.player.SleepingLocationCheckEvent;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.event.entity.player.CanPlayerSleepEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerEvent.PlayerLoggedOutEvent;
 import net.neoforged.neoforge.event.entity.player.PlayerWakeUpEvent;
 
 public class LittleBedEventHandler {
     
     @SubscribeEvent
-    public void isSleepingLocationAllowed(SleepingLocationCheckEvent event) {
+    public void isSleepingLocationAllowed(CanPlayerSleepEvent event) {
         if (event.getEntity() instanceof Player player) {
             LittleBed bed = ((ILittleBedPlayerExtension) player).getBed();
             if (bed != null && bed.getSleepingPlayer() == player)
-                event.setResult(Result.ALLOW);
+                event.setProblem(null);
         }
     }
     

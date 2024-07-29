@@ -5,7 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.ItemStack;
@@ -48,17 +48,17 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         return types.size();
     }
     
-    static void extract(LittleIngredients ingredients, LittleGroup group, boolean onlyStructure) {
+    static void extract(HolderLookup.Provider provider, LittleIngredients ingredients, LittleGroup group, boolean onlyStructure) {
         if (!onlyStructure && (!group.hasStructure() || group.getStructureType().tileCountAsIngredient(group)))
             for (IngredientConvertionHandler handler : converationHandlers)
                 ingredients.add(handler.extract(group));
             
         if (group.hasStructure())
-            group.getStructureType().addIngredients(group, ingredients);
+            group.getStructureType().addIngredients(provider, group, ingredients);
         
         if (group.hasChildren())
             for (LittleGroup child : group.children.all())
-                extract(ingredients, child, onlyStructure);
+                extract(provider, ingredients, child, onlyStructure);
     }
     
     public static LittleIngredients extract(LittleElement tile, double volume) {
@@ -68,25 +68,25 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
         return ingredients;
     }
     
-    public static LittleIngredients extract(LittleGroup group) {
+    public static LittleIngredients extract(HolderLookup.Provider provider, LittleGroup group) {
         LittleIngredients ingredients = new LittleIngredients();
-        extract(ingredients, group, false);
+        extract(provider, ingredients, group, false);
         return ingredients;
     }
     
-    public static LittleIngredients extractStructureOnly(LittleGroup group) {
+    public static LittleIngredients extractStructureOnly(HolderLookup.Provider provider, LittleGroup group) {
         LittleIngredients ingredients = new LittleIngredients();
-        extract(ingredients, group, true);
+        extract(provider, ingredients, group, true);
         return ingredients;
     }
     
-    public static LittleIngredients extractWithoutCount(ItemStack stack, boolean useLTStructures) {
+    public static LittleIngredients extractWithoutCount(HolderLookup.Provider provider, ItemStack stack, boolean useLTStructures) {
         LittleIngredients ingredients = new LittleIngredients();
         ILittlePlacer tile = PlacementHelper.getLittleInterface(stack);
         
         if (tile != null) {
             if (useLTStructures && tile.hasTiles(stack) && tile.containsIngredients(stack))
-                extract(ingredients, tile.getTiles(stack), false);
+                extract(provider, ingredients, tile.getTiles(stack), false);
         } else
             for (IngredientConvertionHandler handler : converationHandlers)
                 ingredients.add(handler.extract(stack));
@@ -175,25 +175,21 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                 List<ItemStack> stacks = new ArrayList<>();
                 if (overflow.black > 0) {
                     ItemStack stack = new ItemStack(LittleTilesRegistry.BLACK_COLOR.value());
-                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.cyan > 0) {
                     ItemStack stack = new ItemStack(LittleTilesRegistry.CYAN_COLOR.value());
-                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.magenta > 0) {
                     ItemStack stack = new ItemStack(LittleTilesRegistry.MAGENTA_COLOR.value());
-                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
                 if (overflow.yellow > 0) {
                     ItemStack stack = new ItemStack(LittleTilesRegistry.YELLOW_COLOR.value());
-                    stack.setTag(new CompoundTag());
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }

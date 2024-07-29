@@ -3,9 +3,13 @@ package team.creative.littletiles.common.structure.type.premade;
 import java.util.function.BiFunction;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
@@ -33,15 +37,12 @@ public abstract class LittleStructurePremade extends LittleStructure {
         CompoundTag structureNBT = new CompoundTag();
         this.savePreview(structureNBT, pos);
         
-        if (!stack.hasTag())
-            stack.setTag(new CompoundTag());
-        stack.getTag().put(LittleGroup.STRUCTURE_KEY, structureNBT);
+        var data = ILittleTool.getData(stack);
+        data.put(LittleGroup.STRUCTURE_KEY, structureNBT);
+        ILittleTool.setData(stack, data);
         
-        if (name != null) {
-            CompoundTag display = new CompoundTag();
-            display.putString("Name", name);
-            stack.getTag().put("display", display);
-        }
+        if (name != null)
+            stack.set(DataComponents.ITEM_NAME, Component.literal(name));
         return stack;
     }
     
@@ -61,7 +62,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         }
         
         public ItemStack createItemStackEmpty() {
-            return new ItemStack(LittleTilesRegistry.PREMADE.get());
+            return new ItemStack(LittleTilesRegistry.PREMADE.value());
         }
         
         public ItemStack createItemStack() {
@@ -70,7 +71,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
             structureNBT.putString("id", id);
             CompoundTag stackNBT = new CompoundTag();
             stackNBT.put(LittleGroup.STRUCTURE_KEY, structureNBT);
-            stack.setTag(stackNBT);
+            ILittleTool.setData(stack, stackNBT);
             return stack;
         }
         
@@ -99,8 +100,8 @@ public abstract class LittleStructurePremade extends LittleStructure {
         }
         
         @Override
-        public void addIngredients(LittleGroup group, LittleIngredients ingredients) {
-            super.addIngredients(group, ingredients);
+        public void addIngredients(Provider provider, LittleGroup group, LittleIngredients ingredients) {
+            super.addIngredients(provider, group, ingredients);
             ingredients.add(new StackIngredient(createItemStack()));
         }
         

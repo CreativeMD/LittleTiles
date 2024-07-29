@@ -2,13 +2,18 @@ package team.creative.littletiles;
 
 import java.util.function.Supplier;
 
+import com.mojang.serialization.Codec;
+
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
@@ -25,8 +30,10 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.material.MapColor;
+import net.neoforged.neoforge.common.crafting.IngredientType;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.entity.BETilesRendered;
@@ -41,6 +48,7 @@ import team.creative.littletiles.common.entity.EntitySit;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
+import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient.ColorIngredientType;
@@ -57,6 +65,7 @@ import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.recipe.PremadeShapedRecipeSerializer;
+import team.creative.littletiles.common.recipe.StructureIngredient;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
@@ -84,6 +93,17 @@ public class LittleTilesRegistry {
     public static final Holder<Item> CYAN_COLOR = ITEMS.register("bottle_cyan", () -> new ItemColorIngredient(ColorIngredientType.cyan));
     public static final Holder<Item> MAGENTA_COLOR = ITEMS.register("bottle_magenta", () -> new ItemColorIngredient(ColorIngredientType.magenta));
     public static final Holder<Item> YELLOW_COLOR = ITEMS.register("bottle_yellow", () -> new ItemColorIngredient(ColorIngredientType.yellow));
+    
+    // DATA COMPONENTS
+    
+    public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(BuiltInRegistries.DATA_COMPONENT_TYPE, LittleTiles.MODID);
+    
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COLOR_AMOUNT = DATA_COMPONENTS.register("color_amount", x -> DataComponentType
+            .<Integer>builder().persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.INT).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COLOR = DATA_COMPONENTS.register("color", x -> DataComponentType.<Integer>builder()
+            .persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockIngredientEntry>> BLOCK_INGREDIENT_ENTRY = DATA_COMPONENTS.register("block_ingredient",
+        x -> DataComponentType.<BlockIngredientEntry>builder().persistent(BlockIngredientEntry.CODEC).networkSynchronized(BlockIngredientEntry.STREAM_CODEC).build());
     
     // BLOCKS
     
@@ -232,4 +252,12 @@ public class LittleTilesRegistry {
                 output.accept(LittleTilesRegistry.WHITE_LAVA.value());
                 
             }).build());
+    
+    // INGREDIENT_TYPES
+    
+    public static final DeferredRegister<IngredientType<?>> INGREDIENT_TYPES = DeferredRegister.create(NeoForgeRegistries.Keys.INGREDIENT_TYPES, LittleTiles.MODID);
+    
+    public static final DeferredHolder<IngredientType<?>, IngredientType<StructureIngredient>> STRUCTURE_INGREDIENT_TYPE = INGREDIENT_TYPES.register("structure",
+        () -> new IngredientType<>(StructureIngredient.CODEC));
+    
 }

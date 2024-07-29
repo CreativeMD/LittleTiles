@@ -58,7 +58,8 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     }
     
     @Override
-    protected Boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException {
+    protected Boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos,
+            boolean secondMode) throws LittleActionException {
         if (context.parent.isStructure()) {
             try {
                 LittleStructure structure = context.parent.getStructure();
@@ -81,12 +82,12 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
                 for (LittleTile toDestroy : context.parent)
                     destroyedTiles.add(context.parent, toDestroy);
                 
-                checkAndGive(player, inventory, getIngredients(destroyedTiles));
+                checkAndGive(player, inventory, getIngredients(player.registryAccess(), destroyedTiles));
                 be.updateTiles(x -> x.noneStructureTiles().clear());
             } else {
                 destroyedTiles.add(context.parent, context.tile, context.box);
                 
-                checkAndGive(player, inventory, getIngredients(destroyedTiles));
+                checkAndGive(player, inventory, getIngredients(player.registryAccess(), destroyedTiles));
                 
                 be.updateTiles((x) -> x.get(context.parent).remove(context.tile, context.box));
             }

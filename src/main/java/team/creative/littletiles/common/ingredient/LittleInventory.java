@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -200,7 +201,7 @@ public class LittleInventory implements Iterable<ItemStack> {
         return ingredient;
     }
     
-    protected boolean takeFromStacks(LittleIngredients ingredients, LittleIngredients overflow) {
+    protected boolean takeFromStacks(HolderLookup.Provider provider, LittleIngredients ingredients, LittleIngredients overflow) {
         for (int i = 0; i < size(); i++) {
             
             if (ingredients.isEmpty())
@@ -211,7 +212,7 @@ public class LittleInventory implements Iterable<ItemStack> {
             if (stack.isEmpty())
                 continue;
             
-            LittleIngredients stackIngredients = LittleIngredient.extractWithoutCount(stack, false);
+            LittleIngredients stackIngredients = LittleIngredient.extractWithoutCount(provider, stack, false);
             if (stackIngredients != null) {
                 int amount = ingredients.getMinimumCount(stackIngredients, stack.getCount());
                 if (amount > -1) {
@@ -234,7 +235,7 @@ public class LittleInventory implements Iterable<ItemStack> {
         }
         
         for (int i = 0; i < subInventories.size(); i++)
-            if (subInventories.get(i).takeFromStacks(ingredients, overflow))
+            if (subInventories.get(i).takeFromStacks(provider, ingredients, overflow))
                 return true;
             
         for (int i = 0; i < size(); i++) {
@@ -250,14 +251,14 @@ public class LittleInventory implements Iterable<ItemStack> {
         return ingredients.isEmpty();
     }
     
-    public void take(LittleIngredients ingredients) throws NotEnoughIngredientsException {
+    public void take(HolderLookup.Provider provider, LittleIngredients ingredients) throws NotEnoughIngredientsException {
         for (LittleIngredient ingredient : ingredients.getContent())
             if (ingredient != null)
                 ingredients.set(ingredient.getClass(), take(ingredient));
             
         if (!ingredients.isEmpty()) { // Try to drain remaining ingredients from inventory
             LittleIngredients overflow = new LittleIngredients();
-            takeFromStacks(ingredients, overflow);
+            takeFromStacks(provider, ingredients, overflow);
             
             if (!ingredients.isEmpty())
                 throw new NotEnoughIngredientsException(ingredients);

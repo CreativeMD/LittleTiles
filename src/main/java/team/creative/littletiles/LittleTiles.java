@@ -29,7 +29,6 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeConfig;
-import net.neoforged.neoforge.common.crafting.CraftingHelper;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
@@ -97,7 +96,6 @@ import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
-import team.creative.littletiles.common.recipe.StructureIngredient.StructureIngredientSerializer;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
@@ -128,10 +126,12 @@ public class LittleTiles {
         
         LittleTilesRegistry.BLOCKS.register(bus);
         LittleTilesRegistry.ITEMS.register(bus);
+        LittleTilesRegistry.DATA_COMPONENTS.register(bus);
         LittleTilesRegistry.BLOCK_ENTITIES.register(bus);
         LittleTilesRegistry.ENTITIES.register(bus);
         LittleTilesRegistry.CREATIVE_TABS.register(bus);
         LittleTilesRegistry.RECIPE_SERIALIZERS.register(bus);
+        LittleTilesRegistry.INGREDIENT_TYPES.register(bus);
         ILittleTool.DATA_COMPONENTS.register(bus);
         
         LittlePacketTypes.init();
@@ -201,8 +201,6 @@ public class LittleTiles {
         NeoForge.EVENT_BUS.register(EntitySizeHandler.class);
         
         STORAGE_BLOCKS = BlockTags.create(ResourceLocation.tryBuild(MODID, "storage_blocks"));
-        
-        CraftingHelper.register(ResourceLocation.tryBuild(MODID, "structure"), StructureIngredientSerializer.INSTANCE);
         
         LittleTilesGuiRegistry.init();
         LittleBlocks.init();

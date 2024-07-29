@@ -12,6 +12,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -27,8 +28,9 @@ import team.creative.littletiles.common.packet.action.VanillaBlockPacket.Vanilla
 public abstract class ElementGloveMode extends GloveMode {
     
     public static LittleElement getElement(ItemStack stack) {
-        if (stack.getOrCreateTag().contains("element"))
-            return new LittleElement(stack.getOrCreateTagElement("element"));
+        var data = ILittleTool.getData(stack);
+        if (data.contains("element"))
+            return new LittleElement(data.getCompound("element"));
         LittleElement element = new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
         setElement(stack, element);
         return element;
@@ -43,7 +45,9 @@ public abstract class ElementGloveMode extends GloveMode {
     }
     
     public static void setElement(ItemStack stack, LittleElement element) {
-        element.save(stack.getOrCreateTagElement("element"));
+        var data = ILittleTool.getData(stack);
+        element.save(data.getCompound("element"));
+        ILittleTool.setData(stack, data);
     }
     
     public static void setElement(CompoundTag nbt, LittleElement element) {
@@ -69,7 +73,7 @@ public abstract class ElementGloveMode extends GloveMode {
     }
     
     public LittleGrid getGrid(ItemStack stack) {
-        return LittleGrid.get(stack.getTag());
+        return LittleGrid.get(stack);
     }
     
     @Override

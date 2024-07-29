@@ -26,7 +26,9 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittleEditor;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
@@ -43,7 +45,6 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
 import team.creative.littletiles.common.placement.shape.LittleShape;
-import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
 public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTooltip {
@@ -53,19 +54,15 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     public static int getColor(ItemStack stack) {
         if (stack == null)
             return ColorUtils.WHITE;
-        if (!stack.hasTag())
-            stack.setTag(new CompoundTag());
-        if (!stack.getTag().contains("color"))
+        if (!stack.has(LittleTilesRegistry.COLOR))
             setColor(stack, ColorUtils.WHITE);
-        return stack.getTag().getInt("color");
+        return stack.get(LittleTilesRegistry.COLOR);
     }
     
     public static void setColor(ItemStack stack, int color) {
         if (stack == null)
             return;
-        if (!stack.hasTag())
-            stack.setTag(new CompoundTag());
-        stack.getTag().putInt("color", color);
+        stack.set(LittleTilesRegistry.COLOR, color);
     }
     
     public ItemLittlePaintBrush() {
@@ -83,10 +80,10 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        LittleShape shape = getShape(stack);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        LittleShape shape = ItemLittleChisel.getShape(stack);
         tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getTranslatableName())));
-        shape.addExtraInformation(stack.getTag(), tooltip);
+        shape.addExtraInformation(ILittleTool.getData(stack), tooltip);
         tooltip.add(Component.literal(TooltipUtils.printColor(getColor(stack))));
     }
     
@@ -102,10 +99,6 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         return new GuiPaintBrush(view);
-    }
-    
-    public static LittleShape getShape(ItemStack stack) {
-        return ShapeRegistry.REGISTRY.get(stack.getOrCreateTag().getString("shape"));
     }
     
     @Override
@@ -188,7 +181,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getTranslatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
+        return new Object[] { ItemLittleChisel.getShape(stack).getTranslatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
                 .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
 }

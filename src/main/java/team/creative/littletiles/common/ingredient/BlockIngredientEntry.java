@@ -1,11 +1,34 @@
 package team.creative.littletiles.common.ingredient;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.littletiles.api.common.block.LittleBlock;
+import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 
 public class BlockIngredientEntry {
+    
+    public static final Codec<BlockIngredientEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(LittleBlockRegistry.CODEC.fieldOf("b").forGetter(x -> x.block),
+        Codec.DOUBLE.fieldOf("v").forGetter(x -> x.value)).apply(instance, BlockIngredientEntry::new));
+    
+    public static final StreamCodec<FriendlyByteBuf, BlockIngredientEntry> STREAM_CODEC = new StreamCodec<>() {
+        
+        @Override
+        public BlockIngredientEntry decode(FriendlyByteBuf buf) {
+            return new BlockIngredientEntry(LittleBlockRegistry.get(buf.readUtf()), buf.readDouble());
+        }
+        
+        @Override
+        public void encode(FriendlyByteBuf buffer, BlockIngredientEntry entry) {
+            buffer.writeUtf(entry.block.blockName());
+            buffer.writeDouble(entry.value);
+        }
+    };
     
     public final LittleBlock block;
     public double value;

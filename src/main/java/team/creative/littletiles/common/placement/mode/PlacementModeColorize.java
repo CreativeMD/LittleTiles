@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -37,8 +38,8 @@ public class PlacementModeColorize extends PlacementMode {
     }
     
     @Override
-    public LittleIngredients getBeforePlaceIngredients(LittleGroup previews) {
-        LittleIngredients ingredients = super.getBeforePlaceIngredients(previews);
+    public LittleIngredients getBeforePlaceIngredients(HolderLookup.Provider provider, LittleGroup previews) {
+        LittleIngredients ingredients = super.getBeforePlaceIngredients(provider, previews);
         return new LittleIngredients(ingredients.get(ColorIngredient.class));
     }
     

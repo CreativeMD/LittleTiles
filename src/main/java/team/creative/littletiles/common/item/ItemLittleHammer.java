@@ -25,6 +25,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.api.common.tool.ILittleEditor;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
@@ -41,7 +42,6 @@ import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
 import team.creative.littletiles.common.placement.shape.LittleShape;
-import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
 public class ItemLittleHammer extends Item implements ILittleEditor, IItemTooltip, ItemGuiCreator {
@@ -68,10 +68,10 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        LittleShape shape = getShape(stack);
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        LittleShape shape = ItemLittleChisel.getShape(stack);
         tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getTranslatableName())));
-        shape.addExtraInformation(stack.getTag(), tooltip);
+        shape.addExtraInformation(ILittleTool.getData(stack), tooltip);
     }
     
     @Override
@@ -171,13 +171,9 @@ public class ItemLittleHammer extends Item implements ILittleEditor, IItemToolti
         return selection;
     }
     
-    public static LittleShape getShape(ItemStack stack) {
-        return ShapeRegistry.REGISTRY.get(stack.getOrCreateTag().getString("shape"));
-    }
-    
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { getShape(stack).getTranslatable(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.configure
-                .getTranslatedKeyMessage() };
+        return new Object[] { ItemLittleChisel.getShape(stack).getTranslatable(), LittleTilesClient.mark.getTranslatedKeyMessage(), LittleTilesClient
+                .arrowKeysTooltip(), LittleTilesClient.configure.getTranslatedKeyMessage() };
     }
 }

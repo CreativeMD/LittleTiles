@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -33,7 +34,7 @@ public class PlacementModeStencil extends PlacementMode {
     }
     
     @Override
-    public LittleIngredients getBeforePlaceIngredients(LittleGroup previews) {
+    public LittleIngredients getBeforePlaceIngredients(HolderLookup.Provider provider, LittleGroup previews) {
         return new LittleIngredients();
     }
     

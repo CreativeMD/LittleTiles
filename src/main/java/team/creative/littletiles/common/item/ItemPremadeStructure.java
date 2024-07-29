@@ -13,6 +13,7 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.NBTUtils;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -33,25 +34,25 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     private static HashMap<String, LittleGroup> cachedPreviews = new HashMap<>();
     
     public static ItemStack of(String structure) {
-        ItemStack stack = new ItemStack(LittleTilesRegistry.PREMADE.get());
+        ItemStack stack = new ItemStack(LittleTilesRegistry.PREMADE.value());
         CompoundTag nbt = new CompoundTag();
         CompoundTag structNbt = new CompoundTag();
         structNbt.putString("id", structure);
         nbt.put(LittleGroup.STRUCTURE_KEY, structNbt);
-        stack.setTag(nbt);
+        ILittleTool.setData(stack, nbt);
         return stack;
     }
     
     public static String getPremadeId(ItemStack stack) {
-        return stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("id");
+        return ILittleTool.getData(stack).getCompound(LittleGroup.STRUCTURE_KEY).getString("id");
     }
     
     public static LittlePremadeType get(ItemStack stack) {
-        return LittlePremadeRegistry.get(stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("id"));
+        return LittlePremadeRegistry.get(ILittleTool.getData(stack).getCompound(LittleGroup.STRUCTURE_KEY).getString("id"));
     }
     
     public static LittlePremadePreview getPremade(ItemStack stack) {
-        return LittlePremadeRegistry.getPreview(stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("id"));
+        return LittlePremadeRegistry.getPreview(ILittleTool.getData(stack).getCompound(LittleGroup.STRUCTURE_KEY).getString("id"));
     }
     
     public ItemPremadeStructure() {
@@ -81,11 +82,13 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     }
     
     public void removeUnnecessaryData(ItemStack stack) {
-        if (stack.hasTag()) {
-            stack.getTag().remove("tiles");
-            stack.getTag().remove("size");
-            stack.getTag().remove("min");
+        var data = ILittleTool.getData(stack);
+        if (!data.isEmpty()) {
+            data.remove("tiles");
+            data.remove("size");
+            data.remove("min");
         }
+        ILittleTool.setData(stack, data);
     }
     
     public static void clearCache() {
@@ -105,8 +108,9 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     public LittleGroup getTiles(ItemStack stack) {
         String id = getPremadeId(stack);
         LittleGroup previews = getPreviews(id);
-        if (previews != null && previews.getStructureTag() != null && stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY))
-            NBTUtils.mergeNotOverwrite(previews.getStructureTag(), stack.getTag().getCompound(LittleGroup.STRUCTURE_KEY));
+        var data = ILittleTool.getData(stack);
+        if (previews != null && previews.getStructureTag() != null && data.contains(LittleGroup.STRUCTURE_KEY))
+            NBTUtils.mergeNotOverwrite(previews.getStructureTag(), data.getCompound(LittleGroup.STRUCTURE_KEY));
         return previews;
     }
     

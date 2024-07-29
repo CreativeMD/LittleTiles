@@ -18,6 +18,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -41,16 +42,16 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     }
     
     public static ItemStack of(LittleGroup group) {
-        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
-        stack.setTag(LittleGroup.save(group));
+        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
+        ILittleTool.setData(stack, LittleGroup.save(group));
         return stack;
     }
     
     public static ItemStack of(LittleElement element, LittleGrid grid, LittleBox box) {
-        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
+        ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
         LittleGroup group = new LittleGroup();
         group.add(grid, element, box);
-        stack.setTag(LittleGroup.save(group));
+        ILittleTool.setData(stack, LittleGroup.save(group));
         return stack;
     }
     
@@ -59,15 +60,17 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     }
     
     public static String getStructure(ItemStack stack) {
-        if (stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY))
-            return stack.getTag().getCompound(LittleGroup.STRUCTURE_KEY).getString("id");
+        var data = ILittleTool.getData(stack);
+        if (data.contains(LittleGroup.STRUCTURE_KEY))
+            return data.getCompound(LittleGroup.STRUCTURE_KEY).getString("id");
         return "";
     }
     
     @Override
     public Component getName(ItemStack stack) {
-        if (stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY) && stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).contains("name"))
-            return Component.literal(stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("name"));
+        var data = ILittleTool.getData(stack);
+        if (data.contains(LittleGroup.STRUCTURE_KEY) && data.getCompound(LittleGroup.STRUCTURE_KEY).contains("name"))
+            return Component.literal(data.getCompound(LittleGroup.STRUCTURE_KEY).getString("name"));
         return super.getName(stack);
     }
     
@@ -78,12 +81,12 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     
     @Override
     public LittleGroup getTiles(ItemStack stack) {
-        return LittleGroup.load(stack.getOrCreateTag());
+        return LittleGroup.load(ILittleTool.getData(stack));
     }
     
     @Override
     public LittleGroup getLow(ItemStack stack) {
-        return LittleGroup.loadLow(stack.getOrCreateTag());
+        return LittleGroup.loadLow(ILittleTool.getData(stack));
     }
     
     @Override
@@ -93,16 +96,17 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     
     @Override
     public void saveTiles(ItemStack stack, LittleGroup group) {
-        stack.setTag(LittleGroup.save(group));
+        ILittleTool.setData(stack, LittleGroup.save(group));
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         String id = "none";
-        if (stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY))
-            id = stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("id");
+        var data = ILittleTool.getData(stack);
+        if (data.contains(LittleGroup.STRUCTURE_KEY))
+            id = data.getCompound(LittleGroup.STRUCTURE_KEY).getString("id");
         tooltip.add(Component.translatable("gui.structure").append(": ").append(Component.translatable("structure." + id)));
-        tooltip.add(LittleGroup.printTooltip(stack.getOrCreateTag()));
+        tooltip.add(LittleGroup.printTooltip(data));
     }
     
     @Override
@@ -125,12 +129,12 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     
     @Override
     public LittleVec getCachedSize(ItemStack stack) {
-        return LittleGroup.getSize(stack.getOrCreateTag());
+        return LittleGroup.getSize(ILittleTool.getData(stack));
     }
     
     @Override
     public LittleVec getCachedMin(ItemStack stack) {
-        return LittleGroup.getMin(stack.getOrCreateTag());
+        return LittleGroup.getMin(ILittleTool.getData(stack));
     }
     
     @Override
@@ -146,11 +150,11 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     public static void reloadExampleStructures() {
         for (ExampleStructures example : ExampleStructures.values()) {
             try {
-                example.stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.get());
+                example.stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
                 CompoundTag nbt = TagParser.parseTag(IOUtils.toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream(example.getFileName()), Charsets.UTF_8));
                 if (OldLittleTilesDataParser.isOld(nbt))
                     nbt = OldLittleTilesDataParser.convert(nbt);
-                example.stack.setTag(nbt);
+                ILittleTool.setData(example.stack, nbt);
             } catch (Exception e) {
                 e.printStackTrace();
                 LittleTiles.LOGGER.error("Could not load '{}' example structure!", example.name());

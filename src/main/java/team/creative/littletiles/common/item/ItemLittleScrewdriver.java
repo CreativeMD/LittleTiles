@@ -4,7 +4,6 @@ import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -33,17 +32,17 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     }
     
     public void onClick(Player player, boolean rightClick, BlockPos pos, ItemStack stack) {
-        if (!stack.hasTag())
-            stack.setTag(new CompoundTag());
+        var data = ILittleTool.getData(stack);
         if (rightClick) {
-            stack.getOrCreateTag().putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+            data.putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
             if (!player.level().isClientSide)
                 player.sendSystemMessage(Component.translatable("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
         } else {
-            stack.getOrCreateTag().putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+            data.putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
             if (!player.level().isClientSide)
                 player.sendSystemMessage(Component.translatable("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
         }
+        ILittleTool.setData(stack, data);
     }
     
     @Override
@@ -76,16 +75,17 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     }
     
     @Override
-    public void appendHoverText(ItemStack stack, Level level, List<Component> tooltip, TooltipFlag flag) {
-        if (stack.getOrCreateTag().contains("pos1")) {
-            int[] array = stack.getOrCreateTag().getIntArray("pos1");
+    public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
+        var data = ILittleTool.getData(stack);
+        if (data.contains("pos1")) {
+            int[] array = data.getIntArray("pos1");
             if (array.length == 3)
                 tooltip.add(Component.literal("1: " + array[0] + " " + array[1] + " " + array[2]));
         } else
             tooltip.add(Component.literal("1: ").append(Component.translatable("gui.click.left")));
         
-        if (stack.getOrCreateTag().contains("pos2")) {
-            int[] array = stack.getOrCreateTag().getIntArray("pos2");
+        if (data.contains("pos2")) {
+            int[] array = data.getIntArray("pos2");
             if (array.length == 3)
                 tooltip.add(Component.literal("2: " + array[0] + " " + array[1] + " " + array[2]));
         } else

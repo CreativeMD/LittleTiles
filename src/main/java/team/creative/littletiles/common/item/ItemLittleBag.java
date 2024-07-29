@@ -16,6 +16,7 @@ import team.creative.creativecore.common.gui.creator.ItemGuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiBag;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
@@ -47,7 +48,7 @@ public class ItemLittleBag extends Item implements ILittleIngredientInventory, I
     
     @Override
     public LittleIngredients getInventory(ItemStack stack) {
-        CompoundTag nbt = stack.getOrCreateTag();
+        CompoundTag nbt = ILittleTool.getData(stack);
         
         LittleIngredients ingredients = new LittleIngredients() {
             
@@ -57,7 +58,7 @@ public class ItemLittleBag extends Item implements ILittleIngredientInventory, I
             }
             
         };
-        BlockIngredient blocks = new BlockIngredient().setLimits(LittleTiles.CONFIG.general.bag.inventorySize, Item.MAX_STACK_SIZE);
+        BlockIngredient blocks = new BlockIngredient().setLimits(LittleTiles.CONFIG.general.bag.inventorySize, Item.DEFAULT_MAX_STACK_SIZE);
         
         ListTag list = nbt.getList("inv", Tag.TAG_COMPOUND);
         int size = Math.min(LittleTiles.CONFIG.general.bag.inventorySize, list.size());
@@ -77,7 +78,7 @@ public class ItemLittleBag extends Item implements ILittleIngredientInventory, I
     
     @Override
     public void setInventory(ItemStack stack, LittleIngredients ingredients, LittleInventory inventory) {
-        CompoundTag nbt = stack.getOrCreateTag();
+        CompoundTag nbt = ILittleTool.getData(stack);
         
         ListTag list = new ListTag();
         int i = 0;
@@ -97,6 +98,7 @@ public class ItemLittleBag extends Item implements ILittleIngredientInventory, I
         nbt.putInt("cyan", color.cyan);
         nbt.putInt("magenta", color.magenta);
         nbt.putInt("yellow", color.yellow);
+        ILittleTool.setData(stack, nbt);
     }
     
 }

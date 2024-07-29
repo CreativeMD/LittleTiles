@@ -136,7 +136,7 @@ public class GuiBag extends GuiConfigure {
                 inv.setInventory(input, remaining, null);
                 saveBagInventory();
             } else {
-                LittleIngredients ingredients = LittleIngredient.extractWithoutCount(input, true);
+                LittleIngredients ingredients = LittleIngredient.extractWithoutCount(provider(), input, true);
                 if (ingredients != null) {
                     ingredients.scale(input.getCount());
                     
@@ -183,8 +183,8 @@ public class GuiBag extends GuiConfigure {
         bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
         
         bagInventory = new SimpleContainer(LittleTiles.CONFIG.general.bag.inventorySize);
-        left.add(
-            bagInventoryGui = new GuiInventoryGrid(name, bagInventory, LittleTiles.CONFIG.general.bag.inventoryWidth, LittleTiles.CONFIG.general.bag.inventoryHeight, (c, i) -> new BagSlot(c, i)));
+        left.add(bagInventoryGui = new GuiInventoryGrid(name, bagInventory, LittleTiles.CONFIG.general.bag.inventoryWidth, LittleTiles.CONFIG.general.bag.inventoryHeight, (c,
+                i) -> new BagSlot(c, i)));
         
         add(addInventory(new GuiPlayerInventoryGrid(getPlayer())).disableSlot(tool.index));
         

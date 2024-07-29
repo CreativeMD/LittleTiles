@@ -9,6 +9,7 @@ import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -324,12 +325,12 @@ public abstract class LittleAction<T> extends CreativePacket {
         return ingredients;
     }
     
-    public static LittleIngredients getIngredients(LittleGroup previews) {
-        return LittleIngredient.extract(previews);
+    public static LittleIngredients getIngredients(HolderLookup.Provider provider, LittleGroup previews) {
+        return LittleIngredient.extract(provider, previews);
     }
     
-    public static LittleIngredients getIngredients(LittleGroupAbsolute previews) {
-        return LittleIngredient.extract(previews.group);
+    public static LittleIngredients getIngredients(HolderLookup.Provider provider, LittleGroupAbsolute previews) {
+        return LittleIngredient.extract(provider, previews.group);
     }
     
     public static LittleIngredients getIngredients(LittleTile tile, double volume) {
@@ -340,7 +341,7 @@ public abstract class LittleAction<T> extends CreativePacket {
         if (needIngredients(player)) {
             try {
                 inventory.startSimulation();
-                inventory.take(ingredients.copy());
+                inventory.take(player.registryAccess(), ingredients.copy());
                 return true;
             } finally {
                 inventory.stopSimulation();
@@ -353,18 +354,18 @@ public abstract class LittleAction<T> extends CreativePacket {
         if (needIngredients(player)) {
             try {
                 inventory.startSimulation();
-                inventory.take(ingredients.copy());
+                inventory.take(player.registryAccess(), ingredients.copy());
             } finally {
                 inventory.stopSimulation();
             }
-            inventory.take(ingredients.copy());
+            inventory.take(player.registryAccess(), ingredients.copy());
         }
         return true;
     }
     
     public static boolean take(Player player, LittleInventory inventory, LittleIngredients ingredients) throws NotEnoughIngredientsException {
         if (needIngredients(player))
-            inventory.take(ingredients.copy());
+            inventory.take(player.registryAccess(), ingredients.copy());
         return true;
     }
     
