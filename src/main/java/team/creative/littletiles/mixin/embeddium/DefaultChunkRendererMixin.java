@@ -28,8 +28,6 @@ import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.mod.embeddium.entity.LittleAnimationRenderManagerEmbeddium;
 import team.creative.littletiles.client.mod.embeddium.renderer.DefaultChunkRendererExtender;
-import team.creative.littletiles.client.mod.oculus.OculusInteractor;
-import team.creative.littletiles.client.mod.oculus.OculusManager;
 import team.creative.littletiles.common.entity.LittleEntity;
 
 @Mixin(DefaultChunkRenderer.class)
@@ -59,9 +57,9 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
     public void render(ChunkRenderMatrices matrices, CommandList commandList, ChunkRenderListIterable renderLists, TerrainRenderPass renderPass, CameraTransform camera,
             CallbackInfo info) {
         var bindings = vertexAttributeBindings;
-        if (bindings == null && OculusManager.installed()) {
-            bindings = (GlVertexAttributeBinding[]) OculusManager.createVertexFormat(vertexFormat);
-        }
+        //if (bindings == null && OculusManager.installed()) {
+        //    bindings = (GlVertexAttributeBinding[]) OculusManager.createVertexFormat(vertexFormat);
+        //}
         
         PoseStack pose = new PoseStack();
         pose.last().pose().set(matrices.modelView());
@@ -69,8 +67,8 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
         Minecraft mc = Minecraft.getInstance();
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
         ChunkShaderInterface shader = null;
-        if (OculusManager.installed())
-            shader = (ChunkShaderInterface) OculusInteractor.getShader(this);
+        //if (OculusManager.installed())
+        //    shader = (ChunkShaderInterface) OculusInteractor.getShader(this);
         if (shader == null)
             shader = this.activeProgram.getInterface();
         float partialTicks = mc.getTimer().getGameTimeDeltaPartialTick(false);

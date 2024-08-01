@@ -54,11 +54,9 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.mod.embeddium.EmbeddiumInteractor;
 import team.creative.littletiles.client.mod.embeddium.buffer.EmbeddiumBufferCache;
 import team.creative.littletiles.client.mod.embeddium.level.LittleWorldSlice;
-import team.creative.littletiles.client.mod.oculus.OculusManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
@@ -157,16 +155,16 @@ public class LittleRenderPipelineEmbeddium extends LittleRenderPipeline {
                 BlockState state = cube.state;
                 
                 context.update(pos, modelOffset, state, null, 0, ModelData.EMPTY, entry.key);
-                OculusManager.setLocalPos(buildBuffers, pos);
+                //OculusManager.setLocalPos(buildBuffers, pos);
                 cubeCenter.set((cube.maxX + cube.minX) * 0.5, (cube.maxY + cube.minY) * 0.5, (cube.maxZ + cube.minZ) * 0.5);
                 
                 ColorProvider<BlockState> colorizer = null;
                 
-                if (OculusManager.isShaders()) {
+                /*if (OculusManager.isShaders()) {
                     if (state.getBlock() instanceof IFakeRenderingBlock fake)
                         state = fake.getFakeState(state);
                     OculusManager.setMaterialId(buildBuffers, state);
-                }
+                }*/
                 
                 for (int h = 0; h < Facing.VALUES.length; h++) {
                     Facing facing = Facing.VALUES[h];
@@ -205,7 +203,7 @@ public class LittleRenderPipelineEmbeddium extends LittleRenderPipeline {
                 
                 bakedQuadWrapper.setElement(null);
                 
-                OculusManager.resetBlockContext(buildBuffers);
+                //OculusManager.resetBlockContext(buildBuffers);
                 
                 if (!LittleTiles.CONFIG.rendering.useQuadCache)
                     cube.deleteQuadCache();
