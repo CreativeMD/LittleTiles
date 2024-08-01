@@ -2,7 +2,6 @@ plugins {
     id 'eclipse'
     id 'idea'
     id 'com.modrinth.minotaur' version '2.+'
-    id 'com.matthewprenger.cursegradle' version '1.4+'
     id 'net.neoforged.gradle.userdev' version '7.0.+'
 }
 
@@ -16,6 +15,10 @@ repositories {
     maven {
         url "https://maven.blamejared.com"
     }
+}
+
+repositories {
+    maven { url = 'https://maven.fabricmc.net' }
 }
 
 group= "team.creative" + project.mod_id
@@ -57,8 +60,11 @@ dependencies {
     
     implementation "curse.maven:oculus-581495:5299671"
     implementation "org.embeddedt:embeddium-1.21:1.0.5-git-94b2378+mc1.21"
+    implementation "curse.maven:theoneprobe-245211:5502323"
     
     implementation project(':CreativeCore')
+    
+    compileOnly "net.fabricmc:fabric-loader:${fabric_version}"
 }
 
 modDependencies = [
