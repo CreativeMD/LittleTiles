@@ -9,7 +9,7 @@ import net.irisshaders.iris.vertices.ExtendedDataHelper;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
+import team.creative.littletiles.client.mod.embeddium.EmbeddiumManager;
 
 public class OculusInteractor {
     
@@ -43,7 +43,7 @@ public class OculusInteractor {
     }
     
     public static Object createVertexFormat(Object format) {
-        if (RubidiumManager.installed())
+        if (EmbeddiumManager.installed())
             return OculusSodiumInteractor.createVertexFormatEmbeddium(format);
         return null;
     }

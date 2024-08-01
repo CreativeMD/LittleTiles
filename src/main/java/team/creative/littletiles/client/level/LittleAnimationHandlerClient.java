@@ -63,7 +63,7 @@ import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.entity.LevelTransitionListener;
-import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
+import team.creative.littletiles.client.mod.embeddium.EmbeddiumManager;
 import team.creative.littletiles.client.render.level.LittleRenderChunk;
 import team.creative.littletiles.client.render.level.RenderUploader;
 import team.creative.littletiles.common.block.mc.BlockTile;
@@ -367,7 +367,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     @SubscribeEvent
     public void renderChunkLayer(RenderLevelStageEvent event) {
-        if (RubidiumManager.installed())
+        if (EmbeddiumManager.installed())
             return;
         
         RenderType layer = null;
