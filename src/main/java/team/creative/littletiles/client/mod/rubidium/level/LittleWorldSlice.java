@@ -1,9 +1,7 @@
 package team.creative.littletiles.client.mod.rubidium.level;
 
-import org.embeddedt.embeddium.impl.world.WorldSlice;
-import org.embeddedt.embeddium.impl.world.cloned.ChunkRenderContext;
+import org.embeddedt.embeddium.api.render.chunk.EmbeddiumBlockAndTintGetter;
 
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.ColorResolver;
@@ -11,35 +9,18 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.minecraft.world.level.material.FluidState;
-import team.creative.creativecore.common.util.unsafe.CreativeHackery;
 
-public class LittleWorldSlice extends WorldSlice {
-    
-    public static LittleWorldSlice createEmptySlice() {
-        return CreativeHackery.allocateInstance(LittleWorldSlice.class);
-    }
+public class LittleWorldSlice implements EmbeddiumBlockAndTintGetter {
     
     public Level parent;
     
-    public LittleWorldSlice(ClientLevel world) {
-        super(world);
-    }
-    
-    @Override
-    public void copyData(ChunkRenderContext context) {}
-    
-    @Override
-    public void reset() {}
+    public LittleWorldSlice() {}
     
     @Override
     public BlockState getBlockState(BlockPos pos) {
         return parent.getBlockState(pos);
-    }
-    
-    @Override
-    public BlockState getBlockState(int x, int y, int z) {
-        return parent.getBlockState(new BlockPos(x, y, z));
     }
     
     @Override
@@ -68,11 +49,6 @@ public class LittleWorldSlice extends WorldSlice {
     }
     
     @Override
-    public BlockEntity getBlockEntity(int x, int y, int z) {
-        return parent.getBlockEntity(new BlockPos(x, y, z));
-    }
-    
-    @Override
     public int getBlockTint(BlockPos pos, ColorResolver resolver) {
         return parent.getBlockTint(pos, resolver);
     }
@@ -85,6 +61,11 @@ public class LittleWorldSlice extends WorldSlice {
     @Override
     public int getMinBuildHeight() {
         return parent.getMinBuildHeight();
+    }
+    
+    @Override
+    public LevelLightEngine getLightEngine() {
+        return parent.getLightEngine();
     }
     
 }

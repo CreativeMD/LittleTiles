@@ -1,16 +1,22 @@
 package team.creative.littletiles.mixin.rubidium;
 
 import org.embeddedt.embeddium.api.render.chunk.BlockRenderContext;
-import org.embeddedt.embeddium.impl.world.WorldSlice;
+import org.embeddedt.embeddium.api.render.chunk.EmbeddiumBlockAndTintGetter;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Mutable;
 import org.spongepowered.asm.mixin.gen.Accessor;
+
+import net.minecraft.world.level.BlockAndTintGetter;
 
 @Mixin(BlockRenderContext.class)
 public interface BlockRenderContextAccessor {
     
     @Accessor(remap = false)
     @Mutable
-    public void setWorld(WorldSlice world);
+    public void setWorld(EmbeddiumBlockAndTintGetter world);
+    
+    @Accessor(remap = false)
+    @Mutable
+    public void setLocalSlice(BlockAndTintGetter world);
     
 }

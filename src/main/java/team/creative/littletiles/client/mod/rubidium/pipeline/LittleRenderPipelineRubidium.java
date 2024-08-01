@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.embeddedt.embeddium.api.render.chunk.BlockRenderContext;
+import org.embeddedt.embeddium.api.render.texture.SpriteUtil;
 import org.embeddedt.embeddium.api.util.ColorABGR;
 import org.embeddedt.embeddium.impl.model.color.ColorProvider;
 import org.embeddedt.embeddium.impl.model.color.ColorProviderRegistry;
@@ -26,7 +27,6 @@ import org.embeddedt.embeddium.impl.render.chunk.compile.pipeline.BlockRenderer;
 import org.embeddedt.embeddium.impl.render.chunk.terrain.material.DefaultMaterials;
 import org.embeddedt.embeddium.impl.render.chunk.terrain.material.Material;
 import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkVertexType;
-import org.embeddedt.embeddium.impl.render.texture.SpriteUtil;
 import org.lwjgl.system.MemoryUtil;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -89,7 +89,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
     
     private ChunkBuildBuffers buildBuffers;
     private ChunkVertexType type;
-    private LittleWorldSlice slice = LittleWorldSlice.createEmptySlice();
+    private LittleWorldSlice slice = new LittleWorldSlice();
     private BlockRenderer renderer;
     private LittleLightDataAccess lightAccess;
     private LightPipelineProvider lighters;
@@ -119,6 +119,7 @@ public class LittleRenderPipelineRubidium extends LittleRenderPipeline {
         
         slice.parent = renderLevel;
         ((BlockRenderContextAccessor) context).setWorld(slice);
+        ((BlockRenderContextAccessor) context).setLocalSlice(slice);
         
         BlockPos pos = data.be.getBlockPos();
         
