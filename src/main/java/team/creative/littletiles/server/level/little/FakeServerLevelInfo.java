@@ -107,4 +107,20 @@ public class FakeServerLevelInfo extends FakeLevelInfo implements ServerLevelDat
         return null;
     }
     
+    @Override
+    public float getDayTimeFraction() {
+        return 0;
+    }
+    
+    @Override
+    public float getDayTimePerTick() {
+        return 0;
+    }
+    
+    @Override
+    public void setDayTimeFraction(float dayTimeFraction) {}
+    
+    @Override
+    public void setDayTimePerTick(float dayTimePerTick) {}
+    
 }

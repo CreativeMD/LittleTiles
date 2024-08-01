@@ -524,4 +524,25 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     public PotionBrewing potionBrewing() {
         return parentLevel.potionBrewing();
     }
+    
+    @Override
+    public void setDayTimeFraction(float dayTimeFraction) {
+        parentLevel.setDayTimeFraction(dayTimeFraction);
+    }
+    
+    @Override
+    public float getDayTimeFraction() {
+        return parentLevel.getDayTimeFraction();
+    }
+    
+    @Override
+    public float getDayTimePerTick() {
+        return parentLevel.getDayTimePerTick();
+    }
+    
+    @Override
+    public void setDayTimePerTick(float dayTimePerTick) {
+        parentLevel.setDayTimePerTick(dayTimePerTick);
+    }
+    
 }

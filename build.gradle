@@ -59,7 +59,7 @@ dependencies {
     implementation "net.neoforged:neoforge:${forge_version}"
     
     implementation "curse.maven:oculus-581495:5299671"
-    implementation "org.embeddedt:embeddium-1.21:1.0.5-git-94b2378+mc1.21"
+    implementation "org.embeddedt:embeddium-1.21:1.0.8-beta.344+mc1.21"
     implementation "curse.maven:theoneprobe-245211:5502323"
     
     implementation project(':CreativeCore')
