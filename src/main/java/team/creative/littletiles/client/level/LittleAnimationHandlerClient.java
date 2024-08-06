@@ -58,7 +58,7 @@ import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
@@ -98,6 +98,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     public LittleAnimationHandlerClient(Level level) {
         super(level);
+        NeoForge.EVENT_BUS.register(this);
         int threadCount = LittleTiles.CONFIG.rendering.entityCacheBuildThreads;
         this.fixedBuffers = mc.renderBuffers().fixedBufferPack();
         List<SectionBufferBuilderPack> list = Lists.newArrayListWithExpectedSize(threadCount);
@@ -321,8 +322,8 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     @Override
-    public void tick(LevelTickEvent.Post event) {
-        super.tick(event);
+    public void tick() {
+        super.tick();
         
         longTickCounter--;
         if (longTickCounter <= 0) {
@@ -457,6 +458,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         super.unload();
         transitions.clear();
         RenderUploader.unload();
+        NeoForge.EVENT_BUS.unregister(this);
     }
     
     @Override

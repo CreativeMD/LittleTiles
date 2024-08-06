@@ -18,6 +18,11 @@ public class BETilesRenderer implements BlockEntityRenderer<BETiles> {
     }
     
     @Override
+    public AABB getRenderBoundingBox(BETiles be) {
+        return be.render.getRenderBoundingBox();
+    }
+    
+    @Override
     public boolean shouldRenderOffScreen(BETiles be) {
         AABB box = be.render.getRenderBoundingBox();
         if (box.maxX - box.minX > 16)

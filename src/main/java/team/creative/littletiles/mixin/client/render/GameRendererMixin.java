@@ -12,8 +12,8 @@ import team.creative.littletiles.common.math.vec.LittleHitResult;
 @Mixin(GameRenderer.class)
 public class GameRendererMixin {
     
-    @Redirect(method = "pick", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getLocation()Lnet/minecraft/world/phys/Vec3;"), require = 1)
-    private Vec3 hitLocation(HitResult hit) {
+    @Redirect(method = "filterHitResult", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getLocation()Lnet/minecraft/world/phys/Vec3;"), require = 1)
+    private static Vec3 hitLocation(HitResult hit) {
         if (hit instanceof LittleHitResult result)
             return result.getRealLocation();
         return hit.getLocation();

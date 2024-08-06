@@ -15,9 +15,6 @@ repositories {
     maven {
         url "https://maven.blamejared.com"
     }
-}
-
-repositories {
     maven { url = 'https://maven.fabricmc.net' }
 }
 
@@ -64,6 +61,7 @@ dependencies {
     implementation project(':CreativeCore')
     
     compileOnly "net.fabricmc:fabric-loader:${fabric_version}"
+    compileOnly "net.fabricmc.fabric-api:fabric-api:${fabric_api_version}"
 }
 
 modDependencies = [

@@ -25,7 +25,7 @@ import team.creative.littletiles.client.render.mc.SectionCompilerResultsExtender
 @Mixin(targets = "net/minecraft/client/renderer/chunk/SectionRenderDispatcher$RenderSection$RebuildTask")
 public abstract class RebuildTaskMixin {
     
-    public static final String COMPILE_CALL = "Lnet/minecraft/client/renderer/chunk/SectionCompiler;compile(Lnet/minecraft/core/SectionPos;Lnet/minecraft/client/renderer/chunk/RenderChunkRegion;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;Ljava/util/List;)Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;";
+    private static final String COMPILE_CALL = "Lnet/minecraft/client/renderer/chunk/SectionCompiler;compile(Lnet/minecraft/core/SectionPos;Lnet/minecraft/client/renderer/chunk/RenderChunkRegion;Lcom/mojang/blaze3d/vertex/VertexSorting;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;Ljava/util/List;)Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;";
     
     @Shadow(aliases = { "this$0" })
     public RenderSection this$1;
@@ -42,9 +42,10 @@ public abstract class RebuildTaskMixin {
         LittleRenderPipelineType.endCompile((RenderChunkExtender) this$1);
     }
     
-    @Inject(method = "doTask(Lnet/minecraft/client/renderer/ChunkBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", at = @At("RETURN"), cancellable = true, require = 1,
+    @Inject(method = "doTask(Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", at = @At("TAIL"), cancellable = true, require = 1,
             locals = LocalCapture.CAPTURE_FAILHARD)
-    private void injected(SectionBufferBuilderPack pack, CallbackInfoReturnable<CompletableFuture> cir, RenderChunkRegion renderchunkregion, SectionPos sectionpos, SectionCompiler.Results results) {
+    private void injected(SectionBufferBuilderPack pack, CallbackInfoReturnable<CompletableFuture> cir, RenderChunkRegion renderchunkregion, SectionPos sectionpos,
+            SectionCompiler.Results results) {
         cir.setReturnValue(cir.getReturnValue().whenComplete((result, exception) -> {
             if (((Enum) result).ordinal() == 0) { // Successful
                 ((RenderChunkExtender) this$1).prepareUpload();

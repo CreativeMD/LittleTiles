@@ -1,5 +1,6 @@
 package team.creative.littletiles.mixin.embeddium;
 
+import org.embeddedt.embeddium.api.render.chunk.EmbeddiumBlockAndTintGetter;
 import org.embeddedt.embeddium.impl.render.chunk.RenderSection;
 import org.embeddedt.embeddium.impl.render.chunk.compile.ChunkBuildBuffers;
 import org.embeddedt.embeddium.impl.render.chunk.compile.ChunkBuildContext;
@@ -64,7 +65,7 @@ public class ChunkBuilderMeshingTaskMixin {
                     target = "Lorg/embeddedt/embeddium/impl/world/WorldSlice;getBlockEntity(Lnet/minecraft/core/BlockPos;)Lnet/minecraft/world/level/block/entity/BlockEntity;",
                     remap = true))
     public BlockEntity getBlockEntity(WorldSlice slice, BlockPos pos) {
-        BlockEntity entity = slice.getBlockEntity(pos);
+        BlockEntity entity = ((EmbeddiumBlockAndTintGetter) slice).getBlockEntity(pos);
         if (entity instanceof BETiles be)
             LittleRenderPipelineType.compile(SectionPos.asLong(render.getChunkX(), render.getChunkY(), render.getChunkZ()), be, x -> (ChunkBufferUploader) buildContext.buffers.get(
                 DefaultMaterials.forRenderLayer(x)), x -> getOrCreateBuffers(x));

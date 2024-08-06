@@ -33,7 +33,9 @@ import team.creative.littletiles.common.block.entity.BETiles;
 @Mixin(SectionCompiler.class)
 public abstract class SectionCompilerMixin {
     
-    @Inject(method = RebuildTaskMixin.COMPILE_CALL, at = @At(value = "INVOKE",
+    private static final String COMPILE_CALL = "Lnet/minecraft/client/renderer/chunk/SectionCompiler;compile(Lnet/minecraft/core/SectionPos;Lnet/minecraft/client/renderer/chunk/RenderChunkRegion;Lcom/mojang/blaze3d/vertex/VertexSorting;Lnet/minecraft/client/renderer/SectionBufferBuilderPack;Ljava/util/List;)Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;";
+    
+    @Inject(method = COMPILE_CALL, at = @At(value = "INVOKE",
             target = "Lnet/minecraft/client/renderer/chunk/SectionCompiler;handleBlockEntity(Lnet/minecraft/client/renderer/chunk/SectionCompiler$Results;Lnet/minecraft/world/level/block/entity/BlockEntity;)V"),
             require = 1, locals = LocalCapture.CAPTURE_FAILHARD)
     public void compile(SectionPos pos, RenderChunkRegion region, VertexSorting sorting, SectionBufferBuilderPack pack, List<AdditionalSectionRenderer> additionalRenderers,

@@ -10,6 +10,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Camera;
+import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
@@ -36,11 +37,12 @@ public class LevelRendererMixin {
     
     @Inject(at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = "ldc=blockentities"),
             method = "renderLevel")
-    public void renderBlockEntities(PoseStack pose, float frameTime, long time, boolean outOfMemory, Camera cam, GameRenderer renderer, LightTexture lightTexture, Matrix4f matrix, CallbackInfo info) {
+    public void renderBlockEntities(DeltaTracker timer, boolean p_109603_, Camera cam, GameRenderer renderer, LightTexture lightTexture, Matrix4f modelViewMatrix,
+            Matrix4f projectionMatrix, CallbackInfo info) {
         Frustum frustum = ((LevelRendererAccessor) this).getCapturedFrustum() != null ? ((LevelRendererAccessor) this).getCapturedFrustum() : ((LevelRendererAccessor) this)
                 .getCullingFrustum();
         if (LittleTilesClient.ANIMATION_HANDLER != null)
-            LittleTilesClient.ANIMATION_HANDLER.renderBlockEntitiesAndDestruction(pose, frustum, frameTime);
+            LittleTilesClient.ANIMATION_HANDLER.renderBlockEntitiesAndDestruction(new PoseStack(), frustum, timer.getGameTimeDeltaPartialTick(false));
     }
     
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;zTransparentOld:D", opcode = Opcodes.PUTFIELD), method = "renderChunkLayer")

@@ -22,8 +22,8 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.neoforged.api.distmarker.Dist;
+import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
-import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
@@ -34,7 +34,6 @@ import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
@@ -116,8 +115,7 @@ public class LittleTiles {
     
     public static TagKey<Block> STORAGE_BLOCKS;
     
-    public LittleTiles(ModLoadingContext context) {
-        var bus = context.getActiveContainer().getEventBus();
+    public LittleTiles(IEventBus bus) {
         bus.addListener(this::init);
         if (FMLLoader.getDist() == Dist.CLIENT)
             LittleTilesClient.load(bus);
@@ -132,13 +130,11 @@ public class LittleTiles {
         LittleTilesRegistry.CREATIVE_TABS.register(bus);
         LittleTilesRegistry.RECIPE_SERIALIZERS.register(bus);
         LittleTilesRegistry.INGREDIENT_TYPES.register(bus);
-        ILittleTool.DATA_COMPONENTS.register(bus);
         
         LittlePacketTypes.init();
     }
     
     private void init(final FMLCommonSetupEvent event) {
-        
         IngredientRules.loadRules();
         LittleStructureRegistry.initStructures();
         
@@ -189,7 +185,6 @@ public class LittleTiles {
         LittleActionRegistry.register(LittleActionDestroy.class, LittleActionDestroy::new);
         
         NeoForge.EVENT_BUS.register(new LittleBedEventHandler());
-        NeoForge.EVENT_BUS.register(LittleAnimationHandlers.class);
         NeoForge.EVENT_BUS.register(new LittleToolHandler());
         
         LittleTilesServer.init(event);

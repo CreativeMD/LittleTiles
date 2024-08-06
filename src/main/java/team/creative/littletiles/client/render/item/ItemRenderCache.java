@@ -80,7 +80,7 @@ public class ItemRenderCache implements LevelAwareHandler {
         THREAD.items.clear();
     }
     
-    public void tick(ClientTickEvent event) {
+    public void tick(ClientTickEvent.Post event) {
         slowTicker++;
         if (slowTicker >= timeToCheckSlowTick) {
             for (Iterator<ItemModelCache> iterator = caches.values().iterator(); iterator.hasNext();)

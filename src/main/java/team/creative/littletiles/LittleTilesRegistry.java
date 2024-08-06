@@ -21,6 +21,7 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.block.Block;
@@ -98,6 +99,8 @@ public class LittleTilesRegistry {
     
     public static final DeferredRegister<DataComponentType<?>> DATA_COMPONENTS = DeferredRegister.create(BuiltInRegistries.DATA_COMPONENT_TYPE, LittleTiles.MODID);
     
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<CustomData>> DATA = DATA_COMPONENTS.register("tool_config", x -> DataComponentType
+            .<CustomData>builder().persistent(CustomData.CODEC).networkSynchronized(CustomData.STREAM_CODEC).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COLOR_AMOUNT = DATA_COMPONENTS.register("color_amount", x -> DataComponentType
             .<Integer>builder().persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.INT).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COLOR = DATA_COMPONENTS.register("color", x -> DataComponentType.<Integer>builder()

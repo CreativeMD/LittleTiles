@@ -23,7 +23,7 @@ public class EmbeddiumInteractor {
     public static final LittleRenderPipelineTypeEmbeddium PIPELINE = new LittleRenderPipelineTypeEmbeddium();
     
     public static void init() {
-        LittleTiles.LOGGER.info("Loaded Rubidium extension");
+        LittleTiles.LOGGER.info("Loaded Embeddium extension");
         EmbeddiumManager.RENDERING_LEVEL = new RenderingLevelHandler() {
             
             @Override

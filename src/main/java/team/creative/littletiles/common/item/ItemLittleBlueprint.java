@@ -137,7 +137,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (hasTiles(stack))
             return true;
-        getSelectionMode(stack).rightClick(player, getSelection(stack), result.getBlockPos());
+        setSelection(stack, getSelectionMode(stack).rightClick(player, getSelection(stack), result.getBlockPos()));
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), true));
         return true;
     }
@@ -147,7 +147,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (hasTiles(stack))
             return true;
-        getSelectionMode(stack).leftClick(player, getSelection(stack), result.getBlockPos());
+        setSelection(stack, getSelectionMode(stack).leftClick(player, getSelection(stack), result.getBlockPos()));
         LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), false));
         return true;
     }

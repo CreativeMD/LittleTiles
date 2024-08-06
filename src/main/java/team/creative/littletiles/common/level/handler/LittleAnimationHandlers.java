@@ -50,7 +50,7 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
     }
     
     public void tick(LevelTickEvent.Post event) {
-        get(event.getLevel()).tick(event);
+        get(event.getLevel()).tick();
     }
     
     public void trackEntity(StartTracking event) {

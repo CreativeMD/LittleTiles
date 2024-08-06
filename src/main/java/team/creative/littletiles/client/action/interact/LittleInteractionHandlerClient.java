@@ -34,7 +34,7 @@ public class LittleInteractionHandlerClient implements LevelAwareHandler {
         interaction = null;
     }
     
-    public void clientTick(RenderFrameEvent event) {
+    public void clientTick(RenderFrameEvent.Pre event) {
         if (interaction != null)
             finish();
     }

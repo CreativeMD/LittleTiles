@@ -467,7 +467,6 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     
     @Override
     public InteractionResult useWithoutItem(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result) {
-        ;
         if (level.isClientSide)
             return useClient(state, level, pos, player, result);
         return InteractionResult.PASS;

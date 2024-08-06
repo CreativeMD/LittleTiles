@@ -15,9 +15,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.box.ABB;
@@ -32,14 +29,12 @@ public abstract class LittleAnimationHandler extends LevelHandler {
     
     public LittleAnimationHandler(Level level) {
         super(level);
-        NeoForge.EVENT_BUS.register(this);
     }
     
     @Override
     public void unload() {
         super.unload();
         entities.clear();
-        NeoForge.EVENT_BUS.unregister(this);
     }
     
     protected void tickEntity(LittleEntity entity) {
@@ -48,8 +43,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         entity.performTick();
     }
     
-    @SubscribeEvent
-    public void tick(LevelTickEvent.Post event) {
+    public void tick() {
         for (LittleEntity entity : entities)
             tickEntity(entity);
     }

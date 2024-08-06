@@ -40,13 +40,14 @@ public abstract class SelectionMode {
     
     public abstract SelectionResult generateResult(Level level, CompoundTag nbt);
     
-    public abstract void leftClick(Player player, CompoundTag nbt, BlockPos pos);
+    public abstract CompoundTag leftClick(Player player, CompoundTag nbt, BlockPos pos);
     
-    public abstract void rightClick(Player player, CompoundTag nbt, BlockPos pos);
+    public abstract CompoundTag rightClick(Player player, CompoundTag nbt, BlockPos pos);
     
     public abstract void clear(ItemStack stack);
     
-    public abstract LittleGroup getGroup(Level world, Player player, CompoundTag nbt, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws LittleActionException;
+    public abstract LittleGroup getGroup(Level world, Player player, CompoundTag nbt, boolean includeVanilla, boolean includeCB, boolean includeLT,
+            boolean rememberStructure) throws LittleActionException;
     
     public void save(ItemStack stack) {}
     

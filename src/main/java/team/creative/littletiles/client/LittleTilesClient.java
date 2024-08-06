@@ -244,9 +244,9 @@ public class LittleTilesClient {
     }
     
     public static void modelLoader(RegisterAdditional event) {
-        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "glove_background"), "inventory"));
-        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel_background"), "inventory"));
-        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint_background"), "inventory"));
+        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT));
+        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT));
+        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT));
     }
     
     public static void modelEvent(RegisterGeometryLoaders event) {
@@ -286,7 +286,7 @@ public class LittleTilesClient {
             }
         });
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
-            LittleTiles.MODID, "glove_background"), "inventory"), null) {
+            LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT), null) {
             
             @Override
             public boolean shouldRenderFake(ItemStack stack) {
@@ -309,16 +309,16 @@ public class LittleTilesClient {
             }
         });
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
-            LittleTiles.MODID, "chisel_background"), "inventory"), stack -> ItemLittleChisel.getElement(stack)));
+            LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> ItemLittleChisel.getElement(stack)));
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
-                .tryBuild(LittleTiles.MODID, "blueprint_background"), "inventory"), x -> {
+                .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT), x -> {
                     ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
                     ILittleTool.setData(stack, ILittleTool.getData(stack).getCompound(ItemLittleBlueprint.CONTENT_KEY));
                     return stack;
                 }));
         
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blockingredient"), new CreativeItemBoxModel(new ModelResourceLocation(ResourceLocation
-                .tryBuild("minecraft", "stone"), "inventory")) {
+                .tryBuild("minecraft", "stone"), ModelResourceLocation.STANDALONE_VARIANT)) {
             
             @Override
             public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
