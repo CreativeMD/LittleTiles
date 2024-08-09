@@ -182,7 +182,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
     }
     
     @Override
-    public void compileChunks(Camera camera) {
+    public void compileSections(Camera camera) {
         mc.getProfiler().push("compile_animation_chunks");
         List<LittleRenderChunk> schedule = Lists.newArrayList();
         

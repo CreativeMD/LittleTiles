@@ -9,7 +9,6 @@ import it.unimi.dsi.fastutil.objects.Object2BooleanLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import it.unimi.dsi.fastutil.objects.Object2BooleanMap.Entry;
 import net.minecraft.world.level.Level;
-import net.neoforged.neoforge.common.NeoForge;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.handler.LevelHandler;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -35,7 +34,6 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     
     public LittleTicker(Level level) {
         super(level);
-        NeoForge.EVENT_BUS.register(this);
     }
     
     protected LittleTickTicket pollUnused() {
@@ -186,7 +184,6 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     @Override
     public void unload() {
         super.unload();
-        NeoForge.EVENT_BUS.unregister(this);
     }
     
 }

@@ -334,7 +334,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
     }
     
-    public void compileChunks(Camera camera) {
+    public void compileSections(Camera camera) {
         mc.getProfiler().push("compile_animation_chunks");
         
         Runnable run;
@@ -343,7 +343,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         for (LittleEntity animation : entities)
             if (animation.hasLoaded())
-                animation.getRenderManager().compileChunks(camera);
+                animation.getRenderManager().compileSections(camera);
             
         mc.getProfiler().pop();
     }

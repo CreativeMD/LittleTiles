@@ -109,11 +109,8 @@ public class GuiAnimationViewer extends GuiControl {
         initialized = false;
     }
     
-    public PoseStack getProjectionMatrix(Minecraft mc, double fov, float width, float height) {
-        PoseStack posestack = new PoseStack();
-        posestack.setIdentity();
-        posestack.mulPose(new Matrix4f().setPerspective((float) (fov * Math.PI / 180F), width / height, 0.05F, mc.gameRenderer.getDepthFar()));
-        return posestack;
+    public static Matrix4f getProjectionMatrix(Minecraft mc, double fov, float width, float height) {
+        return new Matrix4f().perspective((float) (fov * Math.PI / 180F), width / height, 0.05F, mc.gameRenderer.getDepthFar());
     }
     
     @Override
@@ -200,8 +197,14 @@ public class GuiAnimationViewer extends GuiControl {
         if (down)
             projection.up(-amount, this);
         
+        var view = RenderSystem.getModelViewStack();
+        view.pushMatrix();
+        view.identity();
+        RenderSystem.applyModelViewMatrix();
+        
         PoseStack pose = new PoseStack(); //RenderSystem.getModelViewStack(); TODO CHECK IF THIS ACTUALLY WORKS
         pose.pushPose();
+        pose.setIdentity();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
@@ -211,17 +214,15 @@ public class GuiAnimationViewer extends GuiControl {
         int height = (int) (rect.getHeight() * scale);
         RenderSystem.viewport((int) (rect.minX * scale), (int) (window.getHeight() - rect.minY * scale - height), (int) (rect.getWidth() * scale), height);
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
-        PoseStack projection = getProjectionMatrix(mc, 70, (float) rect.getWidth(), (float) rect.getHeight());
-        RenderSystem.setProjectionMatrix(projection.last().pose(), VertexSorting.DISTANCE_TO_ORIGIN);
-        
-        pose.setIdentity();
+        Matrix4f projection = getProjectionMatrix(mc, 70, (float) rect.getWidth(), (float) rect.getHeight());
+        RenderSystem.setProjectionMatrix(projection, VertexSorting.DISTANCE_TO_ORIGIN);
         
         RenderSystem.enableDepthTest();
         
         Vec3d center = storage.center();
         this.projection.prepareRendering(pose, center, this);
         
-        storage.renderAll(pose, projection.last().pose(), mc);
+        storage.renderAll(pose, projection, mc);
         
         pose.popPose();
         
@@ -230,9 +231,11 @@ public class GuiAnimationViewer extends GuiControl {
         
         RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()),
             0.0F, 1000.0F, ClientHooks.getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
-        RenderSystem.applyModelViewMatrix();
+        
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();
+        view.popMatrix();
+        RenderSystem.applyModelViewMatrix();
     }
     
     @Override

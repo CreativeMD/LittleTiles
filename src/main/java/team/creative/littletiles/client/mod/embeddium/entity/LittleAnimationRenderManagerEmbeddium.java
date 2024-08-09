@@ -13,7 +13,6 @@ import org.embeddedt.embeddium.impl.render.viewport.CameraTransform;
 import org.joml.Matrix4f;
 import org.lwjgl.opengl.GL20C;
 import org.lwjgl.opengl.GL30C;
-import org.spongepowered.asm.mixin.Unique;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -60,7 +59,7 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
     }
     
     @Override
-    public void compileChunks(Camera camera) {
+    public void compileSections(Camera camera) {
         if (!needsUpdate || vertexAttributeBindings == null)
             return;
         
@@ -115,7 +114,6 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
         return buffer;
     }
     
-    @Unique
     private void uploadVertexBuffer(VertexBufferExtender buffer, ByteBuffer byteBuffer) {
         GlStateManager._glBindBuffer(34962, buffer.getVertexBufferId());
         for (GlVertexAttributeBinding attrib : vertexAttributeBindings) {

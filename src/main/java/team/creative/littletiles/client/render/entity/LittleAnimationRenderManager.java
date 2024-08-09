@@ -119,7 +119,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     @Override
-    public void compileChunks(Camera camera) {
+    public void compileSections(Camera camera) {
         if (needsUpdate) {
             needsUpdate = false;
             hasBlocks.clear();

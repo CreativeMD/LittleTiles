@@ -40,14 +40,10 @@ import team.creative.littletiles.mixin.client.render.BufferBuilderAccessor;
 public class LittleRenderPipelineForge extends LittleRenderPipeline {
     
     private final ByteBufferBuilder byteBuilder = new ByteBufferBuilder(131072);
-    private BufferBuilder builder;
     private final MutableBlockPos modelOffset = new MutableBlockPos();
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferCache> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
-        if (builder == null)
-            reload();
-        
         Level renderLevel = data.be.getLevel();
         while (renderLevel instanceof LittleSubLevel sub && !sub.shouldUseLightingForRenderig())
             renderLevel = sub.getParent();
@@ -71,6 +67,8 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             IndexedCollector<LittleRenderBox> cubes = entry.value;
             if (cubes == null || cubes.isEmpty())
                 continue;
+            
+            BufferBuilder builder = new BufferBuilder(byteBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
             
             IntArrayList indexes = new IntArrayList();
             for (Iterator<LittleRenderBox> iterator = cubes.sectionIterator(x -> {
@@ -115,9 +113,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
     }
     
     @Override
-    public void reload() {
-        builder = new BufferBuilder(byteBuilder, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
-    }
+    public void reload() {}
     
     @Override
     public void release() {}

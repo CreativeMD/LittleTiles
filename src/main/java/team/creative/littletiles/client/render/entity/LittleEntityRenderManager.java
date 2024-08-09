@@ -142,7 +142,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
             this.destructionProgress.remove(i);
     }
     
-    public abstract void compileChunks(Camera camera);
+    public abstract void compileSections(Camera camera);
     
     protected MultiBufferSource prepareBlockEntity(PoseStack pose, LittleSubLevel level, BlockPos pos, MultiBufferSource bufferSource) {
         SortedSet<BlockDestructionProgress> sortedset = getDestructionProgress(pos);

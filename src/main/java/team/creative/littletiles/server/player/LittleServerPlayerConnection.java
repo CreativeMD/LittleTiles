@@ -54,7 +54,7 @@ public class LittleServerPlayerConnection {
     }
     
     @SubscribeEvent
-    public static void tick(ServerTickEvent event) {
+    public static void tick(ServerTickEvent.Post event) {
         for (LittleServerPlayerHandler handler : LISTENERS.values())
             handler.tick();
     }

@@ -359,7 +359,6 @@ public class PreviewRenderer implements LevelAwareHandler {
         PoseStack pose = event.getPoseStack();
         
         Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
         
         if ((event.getTarget().getType() == Type.BLOCK || marked != null) && stack.getItem() instanceof ILittleTool) {
             
@@ -384,6 +383,8 @@ public class PreviewRenderer implements LevelAwareHandler {
                     
                     RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
                     
+                    BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                    
                     pose.pushPose();
                     pose.translate(boxes.pos.getX() - cam.x, boxes.pos.getY() - cam.y, boxes.pos.getZ() - cam.z);
                     RenderSystem.lineWidth(2.0F);
@@ -396,6 +397,8 @@ public class PreviewRenderer implements LevelAwareHandler {
                     }
                     BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
                     pose.popPose();
+                    
+                    bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
                     
                     RenderSystem.lineWidth(1.0F);
                     renderHitOutline(pose, level, bufferbuilder, player, vec.x, vec.y, vec.z, pos);
@@ -422,6 +425,8 @@ public class PreviewRenderer implements LevelAwareHandler {
                         
                         RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
                         RenderSystem.lineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
+                        
+                        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
                         
                         int colorAlpha = 255;
                         for (RenderBox box : result.previews.getPlaceBoxes(result.position.getVec()))

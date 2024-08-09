@@ -64,10 +64,10 @@ public class LevelRendererMixin {
             LittleTilesClient.ANIMATION_HANDLER.setupRender(camera, frustum, capturedFrustum, spectator);
     }
     
-    @Inject(at = @At("TAIL"), method = "compileChunks(Lnet/minecraft/client/Camera;)V")
-    public void compileChunks(Camera camera, CallbackInfo info) {
+    @Inject(at = @At("TAIL"), method = "compileSections(Lnet/minecraft/client/Camera;)V", require = 1)
+    public void compileSections(Camera camera, CallbackInfo info) {
         if (LittleTilesClient.ANIMATION_HANDLER != null)
-            LittleTilesClient.ANIMATION_HANDLER.compileChunks(camera);
+            LittleTilesClient.ANIMATION_HANDLER.compileSections(camera);
     }
     
 }
