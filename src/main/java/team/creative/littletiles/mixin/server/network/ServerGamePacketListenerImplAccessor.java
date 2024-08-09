@@ -15,6 +15,9 @@ import net.minecraft.world.phys.Vec3;
 public interface ServerGamePacketListenerImplAccessor {
     
     @Accessor
+    public int getAckBlockChangesUpTo();
+    
+    @Accessor
     public Vec3 getAwaitingPositionFromClient();
     
     @Invoker

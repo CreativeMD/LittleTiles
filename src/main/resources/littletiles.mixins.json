@@ -34,6 +34,7 @@
         "client.level.ClientLevelMixin",
         "client.level.ClientChunkCacheAccessor",
         "client.level.BlockStatePredictionHandlerMixin",
+        "client.level.ServerVerifiedStateAccessor",
         "client.network.ClientPacketListenerAccessor",
         "client.network.ClientPacketListenerMixin",
         "client.render.BufferBuilderAccessor",

@@ -50,6 +50,8 @@ import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
+import team.creative.littletiles.client.level.BlockStatePredictionHandlerExtender;
+import team.creative.littletiles.client.level.ClientLevelExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
@@ -148,6 +150,24 @@ public abstract class LittleAction<T> extends CreativePacket {
         return false;
     }
     
+    public static boolean setBlockPreventPredict(Level level, BlockPos pos, BlockState state, int notification) {
+        if (level.isClientSide)
+            return setBlockPreventPredictClient(level, pos, state, notification);
+        return level.setBlock(pos, state, notification);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    private static boolean setBlockPreventPredictClient(Level level, BlockPos pos, BlockState state, int notification) {
+        BlockStatePredictionHandlerExtender b = level instanceof ClientLevelExtender e && e.blockStatePredictionHandler().isPredicting() ? (BlockStatePredictionHandlerExtender) e
+                .blockStatePredictionHandler() : null;
+        if (b != null)
+            b.setPredicting(false);
+        boolean result = level.setBlock(pos, state, notification);
+        if (b != null)
+            b.setPredicting(true);
+        return result;
+    }
+    
     public static BETiles loadBE(Player player, Level level, BlockPos pos, MutableInt affected, boolean shouldConvert, int attribute) throws LittleActionException {
         BlockEntity blockEntity = level.getBlockEntity(pos);
         
@@ -163,14 +183,14 @@ public abstract class LittleAction<T> extends CreativePacket {
                     LittleBox box = new LittleBox(0, 0, 0, tiles.getGrid().count, tiles.getGrid().count, tiles.getGrid().count);
                     tiles.add(tiles.getGrid(), new LittleElement(state, ColorUtils.WHITE), box);
                 } else if (state.is(BlockTags.REPLACEABLE)) {
-                    if (!level.setBlock(pos, BlockTile.getStateByAttribute(level, pos, attribute), 3))
+                    if (!setBlockPreventPredict(level, pos, BlockTile.getStateByAttribute(level, pos, attribute), 3))
                         return null;
                     blockEntity = level.getBlockEntity(pos);
                 }
             }
             
             if (tiles != null && !tiles.isEmpty()) {
-                level.setBlock(pos, BlockTile.getStateByAttribute(level, pos, attribute), 3);
+                setBlockPreventPredict(level, pos, BlockTile.getStateByAttribute(level, pos, attribute), 3);
                 BETiles te = (BETiles) level.getBlockEntity(pos);
                 te.convertTo(tiles.getGrid());
                 final LittleGroup toAdd = tiles;

@@ -65,6 +65,18 @@ import team.creative.littletiles.common.structure.attribute.LittleStructureAttri
 
 public class BETiles extends BlockEntityCreative implements IGridBased, ILittleBlockEntity {
     
+    public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
+        if (blockEntity instanceof BETiles be) {
+            if (!be.tiles.hasTicking() && !be.level.isClientSide) {
+                be.customTilesUpdate();
+                System.out.println("Ticking tileentity which shouldn't " + be.getBlockPos());
+                return;
+            }
+            
+            be.tick();
+        }
+    }
+    
     private boolean hasLoaded = false;
     private boolean preventUnload = false;
     protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
@@ -145,18 +157,6 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles())
             size = Math.max(size, pair.value.getSmallest(grid));
         return size;
-    }
-    
-    public static void tick(Level level, BlockPos pos, BlockState state, BlockEntity blockEntity) {
-        if (blockEntity instanceof BETiles be) {
-            if (!be.tiles.hasTicking() && !be.level.isClientSide) {
-                be.customTilesUpdate();
-                System.out.println("Ticking tileentity which shouldn't " + be.getBlockPos());
-                return;
-            }
-            
-            be.tick();
-        }
     }
     
     public Iterable<LittleStructure> ticking() {

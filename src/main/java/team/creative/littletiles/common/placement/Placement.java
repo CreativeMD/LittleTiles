@@ -351,8 +351,8 @@ public class Placement {
             tiles = new LittleCollection[structures.size()];
             
             BlockEntity blockEntity = level.getBlockEntity(pos);
-            if (blockEntity instanceof BETiles) {
-                cached = (BETiles) blockEntity;
+            if (blockEntity instanceof BETiles b) {
+                cached = b;
                 cached.fillUsedIds(availableIds);
             }
         }
@@ -491,7 +491,7 @@ public class Placement {
                 if (cached == null) {
                     if (!(level.getBlockState(pos).getBlock() instanceof BlockTile) && level.getBlockState(pos).is(BlockTags.REPLACEABLE)) {
                         requiresCollisionTest = false;
-                        level.setBlock(pos, BlockTile.getStateByAttribute(level, pos, attribute), 0);
+                        LittleAction.setBlockPreventPredict(level, pos, BlockTile.getStateByAttribute(level, pos, attribute), 0);
                     }
                     
                     cached = LittleAction.loadBE(player, level, pos, affectedBlocks, Placement.this.preview.mode.shouldConvertBlock(), attribute);
