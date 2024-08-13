@@ -143,8 +143,10 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
                     if (buffers != null)
                         uploaded(entry.getKey(), buffers);
                     hasBlocks.add(entry.getKey());
-                } else
+                } else {
+                    buffer.close();
                     LittleTiles.LOGGER.error("Could not upload chunk render data due to invalid buffer");
+                }
             }
         }
     }
@@ -213,9 +215,6 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             vertexbuffer.bind();
             vertexbuffer.draw();
         }
-        
-        if (offset != null)
-            offset.set(0F, 0F, 0F);
     }
     
     @Override

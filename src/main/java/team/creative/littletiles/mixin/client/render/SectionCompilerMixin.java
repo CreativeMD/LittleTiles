@@ -1,5 +1,6 @@
 package team.creative.littletiles.mixin.client.render;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public abstract class SectionCompilerMixin {
             require = 1, locals = LocalCapture.CAPTURE_FAILHARD)
     public void compile(SectionPos pos, RenderChunkRegion region, VertexSorting sorting, SectionBufferBuilderPack pack, List<AdditionalSectionRenderer> additionalRenderers,
             CallbackInfoReturnable<SectionCompiler.Results> info, SectionCompiler.Results results, BlockPos blockpos, BlockPos blockpos1, VisGraph visgraph, PoseStack posestack,
-            Map<RenderType, BufferBuilder> map, RandomSource randomsource, BlockPos blockpos2, BlockState blockstate, BlockEntity blockentity) {
+            Map<RenderType, BufferBuilder> map, RandomSource randomsource, Iterator iterator, BlockPos blockpos2, BlockState blockstate, BlockEntity blockentity) {
         if (blockentity instanceof BETiles tiles)
             LittleRenderPipelineType.compile(pos.asLong(), tiles, x -> (ChunkBufferUploader) getOrBeginLayer(map, pack, x), x -> ((SectionCompilerResultsExtender) (Object) results)
                     .getOrCreate(x));

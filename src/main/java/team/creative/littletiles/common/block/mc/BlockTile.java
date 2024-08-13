@@ -251,7 +251,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         BETiles be = loadBE(level, pos);
         if (be != null)
             return be.sideCache.isCollisionFullBlock() ? 0.2F : 1.0F;
-        return 0.2F;
+        return 1;
     }
     
     @Override

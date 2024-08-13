@@ -31,6 +31,9 @@ public abstract class BufferBuilderMixin implements ChunkBufferUploader {
     @Shadow
     private long vertexPointer = -1L;
     
+    @Shadow
+    private int vertexSize;
+    
     @Override
     public int uploadIndex() {
         return ((ByteBufferBuilderAccessor) buffer).getWriteOffset();
@@ -41,10 +44,10 @@ public abstract class BufferBuilderMixin implements ChunkBufferUploader {
         this.ensureBuilding();
         this.endLastVertex();
         
-        this.vertices += buffer.limit() / this.format.getVertexSize();
+        this.vertices += buffer.limit() / vertexSize;
         this.vertexPointer = this.buffer.reserve(buffer.capacity());
         long address = MemoryUtil.memAddress(buffer);
-        MemoryUtil.memPutAddress(this.vertexPointer, address);
+        MemoryUtil.memCopy(address, vertexPointer, buffer.capacity());
     }
     
     @Shadow

@@ -5,6 +5,7 @@ import org.joml.Matrix4f;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
+import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
@@ -77,7 +78,7 @@ public interface GuiAnimationViewerStorage {
         preview.animation.getRenderManager().compileSections(FAKE_CAMERA);
         
         renderChunkLayer(preview, RenderType.solid(), pose, projection);
-        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // FORGE: fix flickering leaves when mods mess up the blurMipmap settings
+        mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).setBlurMipmap(false, mc.options.mipmapLevels().get() > 0); // Neo: fix flickering leaves when mods mess up the blurMipmap settings
         renderChunkLayer(preview, RenderType.cutoutMipped(), pose, projection);
         mc.getModelManager().getAtlas(TextureAtlas.LOCATION_BLOCKS).restoreLastBlurMipmap();
         renderChunkLayer(preview, RenderType.cutout(), pose, projection);
@@ -88,38 +89,8 @@ public interface GuiAnimationViewerStorage {
     public default void renderChunkLayer(AnimationPreview preview, RenderType layer, PoseStack pose, Matrix4f matrix) {
         layer.setupRenderState();
         ShaderInstance shaderinstance = RenderSystem.getShader();
-        
-        for (int i = 0; i < 12; ++i)
-            shaderinstance.setSampler("Sampler" + i, RenderSystem.getShaderTexture(i));
-        
-        if (shaderinstance.MODEL_VIEW_MATRIX != null)
-            shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
-        
-        if (shaderinstance.PROJECTION_MATRIX != null)
-            shaderinstance.PROJECTION_MATRIX.set(matrix);
-        
-        if (shaderinstance.COLOR_MODULATOR != null)
-            shaderinstance.COLOR_MODULATOR.set(RenderSystem.getShaderColor());
-        
-        if (shaderinstance.FOG_START != null)
-            shaderinstance.FOG_START.set(RenderSystem.getShaderFogStart());
-        
-        if (shaderinstance.FOG_END != null)
-            shaderinstance.FOG_END.set(RenderSystem.getShaderFogEnd());
-        
-        if (shaderinstance.FOG_COLOR != null)
-            shaderinstance.FOG_COLOR.set(RenderSystem.getShaderFogColor());
-        
-        if (shaderinstance.FOG_SHAPE != null)
-            shaderinstance.FOG_SHAPE.set(RenderSystem.getShaderFogShape().getIndex());
-        
-        if (shaderinstance.TEXTURE_MATRIX != null)
-            shaderinstance.TEXTURE_MATRIX.set(RenderSystem.getTextureMatrix());
-        
-        if (shaderinstance.GAME_TIME != null)
-            shaderinstance.GAME_TIME.set(RenderSystem.getShaderGameTime());
-        
         RenderSystem.setupShaderLights(shaderinstance);
+        shaderinstance.setDefaultUniforms(Mode.QUADS, pose.last().pose(), matrix, Minecraft.getInstance().getWindow());
         shaderinstance.apply();
         
         preview.animation.getRenderManager().renderChunkLayer(layer, pose, 0, 0, 0, matrix, shaderinstance.CHUNK_OFFSET);

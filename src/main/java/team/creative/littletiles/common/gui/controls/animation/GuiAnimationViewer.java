@@ -202,9 +202,7 @@ public class GuiAnimationViewer extends GuiControl {
         view.identity();
         RenderSystem.applyModelViewMatrix();
         
-        PoseStack pose = new PoseStack(); //RenderSystem.getModelViewStack(); TODO CHECK IF THIS ACTUALLY WORKS
-        pose.pushPose();
-        pose.setIdentity();
+        PoseStack pose = new PoseStack();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
@@ -224,13 +222,11 @@ public class GuiAnimationViewer extends GuiControl {
         
         storage.renderAll(pose, projection, mc);
         
-        pose.popPose();
-        
         RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         
-        RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()),
-            0.0F, 1000.0F, ClientHooks.getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.setProjectionMatrix(new Matrix4f().ortho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()), 0.0F,
+            1000.0F, ClientHooks.getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
         
         Lighting.setupFor3DItems();
         RenderSystem.disableDepthTest();

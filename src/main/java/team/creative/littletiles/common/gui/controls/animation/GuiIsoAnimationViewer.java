@@ -248,10 +248,8 @@ public class GuiIsoAnimationViewer extends GuiControl {
         Minecraft mc = Minecraft.getInstance();
         Window window = mc.getWindow();
         
-        PoseStack pose = new PoseStack(); //RenderSystem.getModelViewStack(); TODO CHECK IF THIS ACTUALLY WORKS
-        pose.pushPose();
-        
         RenderSystem.applyModelViewMatrix();
+        PoseStack pose = new PoseStack();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableBlend();
@@ -263,12 +261,8 @@ public class GuiIsoAnimationViewer extends GuiControl {
         int height = (int) (rect.getHeight() * guiScale);
         RenderSystem.viewport((int) (rect.minX * guiScale), (int) (window.getHeight() - rect.minY * guiScale - height), (int) (rect.getWidth() * guiScale), height);
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
-        PoseStack projection = new PoseStack();
-        projection.setIdentity();
-        projection.mulPose(new Matrix4f().setOrtho(0.0F, (float) rect.getWidth(), 0, (float) rect.getHeight(), 1000.0F, ClientHooks.getGuiFarPlane()));
-        RenderSystem.setProjectionMatrix(projection.last().pose(), VertexSorting.DISTANCE_TO_ORIGIN);
-        //Matrix3f matrix3f = new Matrix3f(projection.last().normal()).invert();
-        //RenderSystem.setInverseViewRotationMatrix(matrix3f);
+        Matrix4f projection = new Matrix4f().ortho(0.0F, (float) rect.getWidth(), 0, (float) rect.getHeight(), -1000.0F, ClientHooks.getGuiFarPlane());
+        RenderSystem.setProjectionMatrix(projection, VertexSorting.DISTANCE_TO_ORIGIN);
         
         Vec3d center = storage.center();
         
@@ -284,9 +278,8 @@ public class GuiIsoAnimationViewer extends GuiControl {
         pose.mulPose(Axis.ZP.rotationDegrees((float) rotZ.current()));
         pose.translate(-center.x, -center.y, -center.z);
         
-        storage.renderAll(pose, projection.last().pose(), mc);
+        storage.renderAll(pose, projection, mc);
         
-        RenderSystem.applyModelViewMatrix();
         RenderSystem.depthMask(true);
         RenderSystem.disableCull();
         RenderSystem.enableBlend();
@@ -294,25 +287,19 @@ public class GuiIsoAnimationViewer extends GuiControl {
         RenderSystem.setShaderColor(1, 1, 1, 1);
         if (visibleAxis) {
             RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-            PoseStack empty = new PoseStack();
-            empty.setIdentity();
-            
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
             int colorAlpha = 255;
             RenderBox renderBox = box.getRenderingBox(grid);
             RenderSystem.disableDepthTest();
             RenderSystem.lineWidth(16.0F);
-            renderBox.renderLines(empty, bufferbuilder, colorAlpha);
+            renderBox.renderLines(pose, bufferbuilder, colorAlpha);
             BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-            
         }
         
-        pose.popPose();
-        
         RenderSystem.viewport(0, 0, window.getWidth(), window.getHeight());
-        RenderSystem.setProjectionMatrix(new Matrix4f().setOrtho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()),
-            0.0F, 1000.0F, ClientHooks.getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
+        RenderSystem.setProjectionMatrix(new Matrix4f().ortho(0.0F, (float) (window.getWidth() / window.getGuiScale()), (float) (window.getHeight() / window.getGuiScale()), 0.0F,
+            1000.0F, ClientHooks.getGuiFarPlane()), VertexSorting.ORTHOGRAPHIC_Z);
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
         
         Lighting.setupFor3DItems();
@@ -321,7 +308,6 @@ public class GuiIsoAnimationViewer extends GuiControl {
         pose = graphics.pose();
         {
             pose.pushPose();
-            RenderSystem.applyModelViewMatrix();
             
             int axisWidth = 20;
             int axisHeight = 16;
@@ -341,7 +327,6 @@ public class GuiIsoAnimationViewer extends GuiControl {
             
             pose.popPose();
             pose.pushPose();
-            RenderSystem.applyModelViewMatrix();
             
             graphics.drawString(font, view.yAxis.axis.name(), 5, (int) rect.getHeight() / 2 - axisHeight / 2, ColorUtils.WHITE);
             icon = view.yAxis.positive ? Icon.ARROW_UP : Icon.ARROW_DOWN;
@@ -355,8 +340,6 @@ public class GuiIsoAnimationViewer extends GuiControl {
             
             pose.popPose();
         }
-        
-        RenderSystem.applyModelViewMatrix();
         
     }
     

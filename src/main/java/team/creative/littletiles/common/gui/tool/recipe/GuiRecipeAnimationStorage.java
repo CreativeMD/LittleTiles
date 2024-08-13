@@ -119,7 +119,6 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             
             s.prepareRendering(preview);
             
-            RenderSystem.applyModelViewMatrix();
             LittleVecGrid offset = s.getOffset();
             if (offset != null)
                 pose.translate(offset.getPosX(), offset.getPosY(), offset.getPosZ());
@@ -145,9 +144,6 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
         RenderSystem.defaultBlendFunc();
         RenderSystem.setShaderColor(1, 1, 1, 1);
         
-        PoseStack empty = new PoseStack();
-        empty.setIdentity();
-        
         RenderSystem.applyModelViewMatrix();
         
         GuiTreeItemStructure selected = (GuiTreeItemStructure) tree.selected();
@@ -166,15 +162,15 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             LittleGrid grid = selected.group.getGrid();
             List<ABB> boxes = new ArrayList<>();
             for (LittleBox box : selected.group.allBoxes())
-                boxes.add(box.getABB(grid));;
-                
+                boxes.add(box.getABB(grid));
+            
             Tesselator tesselator = Tesselator.getInstance();
             BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
             
             RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
             
             RenderSystem.lineWidth(1.0F);
-            PreviewRenderer.renderShape(empty, bufferbuilder, BoxesVoxelShape.create(boxes), x, y, z, 1, 1, 1, 1);
+            PreviewRenderer.renderShape(pose, bufferbuilder, BoxesVoxelShape.create(boxes), x, y, z, 1, 1, 1, 1);
             BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
         }
         
@@ -195,12 +191,12 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
                     
                     RenderSystem.disableDepthTest();
                     RenderSystem.lineWidth(4.0F);
-                    renderBox.renderLines(empty, bufferbuilder, colorAlpha);
+                    renderBox.renderLines(pose, bufferbuilder, colorAlpha);
                     
                     RenderSystem.enableDepthTest();
                     RenderSystem.lineWidth(2.0F);
                     renderBox.color = ColorUtils.RED;
-                    renderBox.renderLines(empty, bufferbuilder, colorAlpha);
+                    renderBox.renderLines(pose, bufferbuilder, colorAlpha);
                 }
                 pose.popPose();
             }

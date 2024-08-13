@@ -10,7 +10,7 @@ import org.embeddedt.embeddium.impl.gl.attribute.GlVertexAttributeBinding;
 import org.embeddedt.embeddium.impl.gl.attribute.GlVertexFormat;
 import org.embeddedt.embeddium.impl.render.chunk.shader.ChunkShaderInterface;
 import org.embeddedt.embeddium.impl.render.viewport.CameraTransform;
-import org.joml.Matrix4f;
+import org.joml.Matrix4fc;
 import org.lwjgl.opengl.GL20C;
 import org.lwjgl.opengl.GL30C;
 
@@ -115,7 +115,7 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
     }
     
     private void uploadVertexBuffer(VertexBufferExtender buffer, ByteBuffer byteBuffer) {
-        GlStateManager._glBindBuffer(34962, buffer.getVertexBufferId());
+        GlStateManager._glBindBuffer(GL20C.GL_ARRAY_BUFFER, buffer.getVertexBufferId());
         for (GlVertexAttributeBinding attrib : vertexAttributeBindings) {
             if (attrib.isIntType())
                 GL30C.glVertexAttribIPointer(attrib.getIndex(), attrib.getCount(), attrib.getFormat(), attrib.getStride(), attrib.getPointer());
@@ -123,7 +123,7 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
                 GL20C.glVertexAttribPointer(attrib.getIndex(), attrib.getCount(), attrib.getFormat(), attrib.isNormalized(), attrib.getStride(), attrib.getPointer());
             GL20C.glEnableVertexAttribArray(attrib.getIndex());
         }
-        RenderSystem.glBufferData(34962, byteBuffer, /*this.usage.id*/ 35044);
+        RenderSystem.glBufferData(GL20C.GL_ARRAY_BUFFER, byteBuffer, /*this.usage.id*/ 35044);
     }
     
     @Override
@@ -131,13 +131,13 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
         return true;
     }
     
-    public void renderChunkLayerRubidium(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, ChunkShaderInterface shader,
+    public void renderChunkLayerEmbeddium(RenderType layer, PoseStack pose, double camx, double camy, double camz, Matrix4fc projectionMatrix, ChunkShaderInterface shader,
             CameraTransform camera) {
         if (hasBlocks.contains(layer)) {
             VertexBuffer vertexbuffer = buffers.get(layer);
             if (vertexbuffer == null)
                 return;
-            DefaultChunkRendererExtender.setRenderRegionOffset(shader, entity.getCenter().baseOffset, camera);
+            DefaultChunkRendererExtender.setRenderRegionOffset(shader, entity.getCenter().chunkOffset.origin(), camera);
             vertexbuffer.bind();
             vertexbuffer.draw();
         }

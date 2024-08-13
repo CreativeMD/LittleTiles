@@ -19,12 +19,10 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.mod.embeddium.entity.LittleAnimationRenderManagerEmbeddium;
 import team.creative.littletiles.client.mod.embeddium.renderer.DefaultChunkRendererExtender;
@@ -65,7 +63,6 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
         pose.last().pose().set(matrices.modelView());
         
         Minecraft mc = Minecraft.getInstance();
-        Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
         ChunkShaderInterface shader = null;
         //if (OculusManager.installed())
         //    shader = (ChunkShaderInterface) OculusInteractor.getShader(this);
@@ -78,9 +75,9 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
                 r.prepare(bindings, vertexFormat);
                 
                 pose.pushPose();
-                animation.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, partialTicks);
+                animation.getOrigin().setupRendering(pose, camera.x, camera.y, camera.z, partialTicks);
                 shader.setModelViewMatrix(pose.last().pose());
-                r.renderChunkLayerRubidium(((TerrainRenderPassAccessor) renderPass).getLayer(), pose, cam.x, cam.y, cam.z, RenderSystem.getProjectionMatrix(), shader, camera);
+                r.renderChunkLayerEmbeddium(((TerrainRenderPassAccessor) renderPass).getLayer(), pose, camera.x, camera.y, camera.z, matrices.projection(), shader, camera);
                 pose.popPose();
                 
             }

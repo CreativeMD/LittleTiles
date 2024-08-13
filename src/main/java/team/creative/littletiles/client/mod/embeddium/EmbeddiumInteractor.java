@@ -11,6 +11,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.mod.embeddium.entity.LittleAnimationRenderManagerEmbeddium;
 import team.creative.littletiles.client.mod.embeddium.pipeline.LittleRenderPipelineEmbeddium;
 import team.creative.littletiles.client.mod.embeddium.pipeline.LittleRenderPipelineTypeEmbeddium;
+import team.creative.littletiles.client.mod.embeddium.renderer.DefaultChunkRendererExtender;
 import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
@@ -59,14 +60,15 @@ public class EmbeddiumInteractor {
             
             @Override
             public void prepareModelOffset(Level level, MutableBlockPos modelOffset, BlockPos pos) {
-                LittleAnimationEntity entity = (LittleAnimationEntity) ((LittleLevel) level).getHolder();
-                modelOffset.set(pos.getX() - (entity.getCenter().chunkOffset.minBlockX()), pos.getY() - (entity.getCenter().chunkOffset.minBlockY()), pos.getZ() - (entity
-                        .getCenter().chunkOffset.minBlockZ()));
+                int x = ((pos.getX() >> 4 >> DefaultChunkRendererExtender.REGION_WIDTH_SH) << DefaultChunkRendererExtender.REGION_WIDTH_SH) << 4;
+                int y = ((pos.getY() >> 4 >> DefaultChunkRendererExtender.REGION_HEIGHT_SH) << DefaultChunkRendererExtender.REGION_HEIGHT_SH) << 4;
+                int z = ((pos.getZ() >> 4 >> DefaultChunkRendererExtender.REGION_LENGTH_SH) << DefaultChunkRendererExtender.REGION_LENGTH_SH) << 4;
+                modelOffset.set(pos.getX() - x, pos.getY() - y, pos.getZ() - z);
             }
             
             @Override
             public RenderChunkExtender getRenderChunk(Level level, long pos) {
-                return LittleRenderPipelineEmbeddium.getChunk(pos);
+                return ((LittleLevel) level).getRenderManager().getRenderChunk(pos);
             }
             
             @Override
@@ -81,6 +83,11 @@ public class EmbeddiumInteractor {
             @Override
             public BlockPos standardOffset(SectionPos pos) {
                 return null;
+            }
+            
+            @Override
+            public long prepareQueue(long pos) {
+                return 0;
             }
         };
     }

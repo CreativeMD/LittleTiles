@@ -52,6 +52,8 @@
         "client.render.RebuildTaskMixin",
         "client.render.RenderChunkMixin",
         "client.render.RenderChunkRegionMixin",
+        "client.render.SectionCompilerMixin",
+        "client.render.SectionCompilerResultsMixin",
         "client.render.VertexBufferMixin",
         "client.render.ViewAreaMixin",
         "embeddium.BakedChunkModelBuilderAccessor",
