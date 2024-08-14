@@ -40,6 +40,7 @@ import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.ILittleBlockEntity;
 import team.creative.littletiles.client.render.block.BERenderManager;
@@ -69,7 +70,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (blockEntity instanceof BETiles be) {
             if (!be.tiles.hasTicking() && !be.level.isClientSide) {
                 be.customTilesUpdate();
-                System.out.println("Ticking tileentity which shouldn't " + be.getBlockPos());
+                LittleTiles.LOGGER.warn("Ticking tileentity which shouldn't " + be.getBlockPos());
                 return;
             }
             
