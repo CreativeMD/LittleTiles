@@ -95,8 +95,9 @@ public class PreviewRenderer implements LevelAwareHandler {
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
         
         var tag = ILittleTool.getData(stack);
-        
-        PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(tag) && lastMode == mode ? lastPreviews.copy() : null;
+        PlacementMode mode = iTile.getPlacementMode(stack);
+        PlacementPreview preview = allowLowResolution == lastLowResolution && iTile.shouldCache() && lastCached != null && lastCached.equals(tag) && lastMode == mode ? lastPreviews
+                .copy() : null;
         if (preview != null)
             try {
                 preview.moveRelative(entity, stack, position, centered, fixed);

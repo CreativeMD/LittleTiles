@@ -9,8 +9,6 @@ import java.util.stream.Collectors;
 
 import com.mojang.serialization.Codec;
 
-import it.unimi.dsi.fastutil.objects.Object2BooleanArrayMap;
-import it.unimi.dsi.fastutil.objects.Object2BooleanMap;
 import net.minecraft.ResourceLocationException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +29,6 @@ public class LittleBlockRegistry {
     
     public static final Codec<LittleBlock> CODEC = Codec.STRING.xmap(LittleBlockRegistry::get, LittleBlock::blockName);
     
-    private static final HashMap<Block, LittleBlock> BLOCK_MAP = new HashMap<>();
     private static final HashMap<String, LittleBlock> NAME_MAP = new HashMap<>();
     private static final PairList<Filter<Block>, Function<Block, LittleBlock>> BLOCK_HANDLERS = new PairList<>();
     private static final Function<Block, LittleBlock> FALLBACK = x -> new LittleMCBlock(x);
