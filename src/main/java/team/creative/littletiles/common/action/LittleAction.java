@@ -181,8 +181,8 @@ public abstract class LittleAction<T> extends CreativePacket {
             }
         }
         
-        if (blockEntity instanceof BETiles)
-            return (BETiles) blockEntity;
+        if (blockEntity instanceof BETiles b)
+            return b;
         return null;
     }
     

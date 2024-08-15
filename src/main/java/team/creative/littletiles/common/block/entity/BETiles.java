@@ -65,7 +65,6 @@ import team.creative.littletiles.common.structure.attribute.LittleStructureAttri
 
 public class BETiles extends BlockEntityCreative implements IGridBased, ILittleBlockEntity, IForgeBlockEntity {
     
-    private boolean hasLoaded = false;
     private boolean preventUnload = false;
     protected final BlockEntityInteractor interactor = new BlockEntityInteractor();
     private LittleGrid grid = LittleGrid.MIN;
@@ -173,11 +172,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public boolean hasLoaded() {
-        return hasLoaded && level != null && tiles != null;
-    }
-    
-    public void setLoaded() {
-        hasLoaded = true;
+        return level != null && tiles != null;
     }
     
     public boolean shouldCheckForCollision() {
@@ -553,11 +548,6 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (tileFocus == null)
             return LittleTileContext.FAILED;
         return new LittleTileContext(parent, tileFocus, boxFocus);
-    }
-    
-    @Override
-    public void onLoad() {
-        setLoaded();
     }
     
     public boolean isTicking() {
