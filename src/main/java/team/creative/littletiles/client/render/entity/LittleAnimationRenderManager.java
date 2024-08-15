@@ -33,6 +33,7 @@ import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -224,6 +225,22 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
         
         if (offset != null)
             offset.set(0F, 0F, 0F);
+    }
+    
+    @Override
+    protected void setBlockDirty(BlockPos pos, boolean playerChanged) {
+        needsUpdate = true;
+    }
+    
+    @Override
+    public void setBlocksDirty(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        needsUpdate = true;
+        
+    }
+    
+    @Override
+    public void setBlockDirty(BlockPos pos, BlockState actualState, BlockState setState) {
+        needsUpdate = true;
     }
     
     @Override
