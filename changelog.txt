@@ -1,3 +1,9 @@
+1.6.0-pre111
+Ported to 1.21
+Fixed unnecessary multiplication of update render calls for animations
+Fixed not clearing additional when setting block buffer to be empty
+Removed setLoaded behavior (hopefully not necessary anymore and onLoad call has been moved to tick which is way too late)
+
 1.6.0-pre110
 Removed unnecessary logs
 Fixed error when trying to download translucent data when embeddium is installed (+ special translucent sorting)
