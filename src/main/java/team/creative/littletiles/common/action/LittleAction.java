@@ -203,11 +203,8 @@ public abstract class LittleAction<T> extends CreativePacket {
             }
         }
         
-        if (blockEntity instanceof BETiles b) {
-            if (!b.hasLoaded())
-                b.setLoaded();
+        if (blockEntity instanceof BETiles b)
             return b;
-        }
         return null;
     }
     
