@@ -39,6 +39,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     
     public GuiSoundEventPanel soundPanel;
     public GuiChildEventPanel childPanel;
+    private boolean created = false;
     
     public LittleDoorBaseGui(LittleStructureGui gui, GuiTreeItemStructure item) {
         super(gui, item);
@@ -113,6 +114,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         
         childPanel = new GuiChildEventPanel(item, item.recipe.animation, opening, duration);
         extraSettings.add(childPanel);
+        created = true;
         
         updateTimeline();
         
@@ -178,6 +180,8 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
     protected abstract void save(PhysicalState state);
     
     public void updateTimeline() {
+        if (!created)
+            return;
         int duration = get("duration", GuiSteppedSlider.class).getIntValue();
         AnimationTimeline timeline = saveEventTimeline(duration, true);
         if (timeline == null)
