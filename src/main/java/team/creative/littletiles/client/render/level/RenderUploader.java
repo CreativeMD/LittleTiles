@@ -41,7 +41,7 @@ public class RenderUploader {
     
     public static void queue(Level targetLevel, LittleAnimationEntity entity) {
         synchronized (CACHES) {
-            getOrCreate(entity.level()).queue(targetLevel, entity);
+            getOrCreate(targetLevel).queue(entity.getSubLevel(), entity.getSubLevel());
         }
     }
     
@@ -69,14 +69,14 @@ public class RenderUploader {
     
     public static class RenderDataLevel {
         
-        public final Level level;
-        public final RenderingLevelHandler origin;
+        public final Level targetLevel;
+        public final RenderingLevelHandler target;
         private final HashMap<BlockPos, RenderDataToAdd> caches = new HashMap<>();
         private int waitTill;
         
         public RenderDataLevel(Level level) {
-            this.level = level;
-            this.origin = RenderingLevelHandler.of(level);
+            this.targetLevel = level;
+            this.target = RenderingLevelHandler.of(level);
         }
         
         private RenderDataToAdd getOrCreateBlock(RenderChunkUploader section, BlockPos pos) {
@@ -88,22 +88,24 @@ public class RenderUploader {
             return data;
         }
         
-        private RenderChunkUploader getOrCreateSection(RenderingLevelHandler target, Long2ObjectMap<RenderChunkUploader> sections, BlockPos pos) {
+        private RenderChunkUploader getOrCreateSection(RenderingLevelHandler origin, Level originLevel, Long2ObjectMap<RenderChunkUploader> sections, BlockPos pos) {
             long section = SectionPos.asLong(pos);
             var s = sections.get(section);
-            if (s == null)
-                sections.put(section, s = new RenderChunkUploader(target.getRenderChunk(level, section), SectionPos.of(section)));
+            if (s == null) {
+                origin.getRenderChunk(originLevel, section).backToRAM(); // Make sure data is available
+                sections.put(section, s = new RenderChunkUploader(target.getRenderChunk(targetLevel, section), SectionPos.of(pos)));
+            }
             return s;
         }
         
-        public void queue(Level targetLevel, LittleAnimationEntity entity) {
-            RenderingLevelHandler target = RenderingLevelHandler.of(targetLevel);
+        public void queue(Level originLevel, Iterable<BETiles> blocks) {
+            RenderingLevelHandler origin = RenderingLevelHandler.of(originLevel);
             Long2ObjectMap<RenderChunkUploader> sections = new Long2ObjectOpenHashMap<>();
             for (Entry<BlockPos, RenderDataToAdd> entry : caches.entrySet())
-                getOrCreateSection(target, sections, entry.getKey()).queue(entry.getValue());
-            for (BETiles be : entity.getSubLevel()) {
-                var section = getOrCreateSection(target, sections, be.getBlockPos());
-                getOrCreateBlock(section, be.getBlockPos()).queueNew(target, be, section.pos);
+                getOrCreateSection(origin, originLevel, sections, entry.getKey()).queue(entry.getValue());
+            for (BETiles be : blocks) {
+                var section = getOrCreateSection(origin, originLevel, sections, be.getBlockPos());
+                getOrCreateBlock(section, be.getBlockPos()).queueNew(origin, be, section.pos);
             }
             waitTill = LittleTilesClient.ANIMATION_HANDLER.longTickIndex + LittleAnimationHandlerClient.MAX_INTERVALS_WAITING;
             
@@ -135,7 +137,7 @@ public class RenderUploader {
                 return holders.get(layer);
             }
             
-            public void queueNew(RenderingLevelHandler target, BETiles be, SectionPos pos) {
+            public void queueNew(RenderingLevelHandler origin, BETiles be, SectionPos pos) {
                 BlockBufferCache cache = be.render.getBufferCache();
                 Vec3 vec = RenderingLevelHandler.offsetCorrection(target, origin, pos);
                 
