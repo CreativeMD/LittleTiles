@@ -37,6 +37,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.mod.embeddium.buffer.EmbeddiumChunkBufferDownloader;
 import team.creative.littletiles.client.mod.embeddium.buffer.EmbeddiumChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
