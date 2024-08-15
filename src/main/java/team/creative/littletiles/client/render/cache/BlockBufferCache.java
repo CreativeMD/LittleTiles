@@ -80,6 +80,7 @@ public class BlockBufferCache {
     public synchronized void setEmpty() {
         queue.clear();
         uploaded.clear();
+        additional = null;
     }
     
     public boolean hasAdditional() {
