@@ -16,6 +16,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.gui.controls.GuiGridConfig;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
+import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -96,6 +97,7 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
         }));
         
         registerEvent(GuiAnimationAxisChangedEvent.class, x -> item.setNewCenter(new StructureAbsolute(new BlockPos(0, 0, 0), viewer.getBox().copy(), viewer.getGrid())));
+        registerEvent(GuiAnimationViewChangedEvent.class, x -> updateTimeline());
         raiseEvent(new GuiAnimationAxisChangedEvent(viewer));
     }
     
