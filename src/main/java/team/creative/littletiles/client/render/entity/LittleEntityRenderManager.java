@@ -225,7 +225,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
         this.setBlockDirty(pos, (updateType & 8) != 0);
     }
     
-    private void setBlockDirty(BlockPos pos, boolean playerChanged) {
+    protected void setBlockDirty(BlockPos pos, boolean playerChanged) {
         for (int i = pos.getZ() - 1; i <= pos.getZ() + 1; ++i)
             for (int j = pos.getX() - 1; j <= pos.getX() + 1; ++j)
                 for (int k = pos.getY() - 1; k <= pos.getY() + 1; ++k)

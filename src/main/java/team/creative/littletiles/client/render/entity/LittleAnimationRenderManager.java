@@ -30,7 +30,9 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.SectionBufferBuilderPack;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -215,6 +217,22 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             vertexbuffer.bind();
             vertexbuffer.draw();
         }
+    }
+    
+    @Override
+    protected void setBlockDirty(BlockPos pos, boolean playerChanged) {
+        needsUpdate = true;
+    }
+    
+    @Override
+    public void setBlocksDirty(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        needsUpdate = true;
+        
+    }
+    
+    @Override
+    public void setBlockDirty(BlockPos pos, BlockState actualState, BlockState setState) {
+        needsUpdate = true;
     }
     
     @Override
