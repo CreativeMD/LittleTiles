@@ -27,7 +27,7 @@ public interface ILittleTool {
     public static CompoundTag getData(ItemStack stack) {
         var data = stack.get(LittleTilesRegistry.DATA.value());
         if (data != null)
-            return data.getUnsafe();
+            return data.copyTag();
         return new CompoundTag();
     }
     

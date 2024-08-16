@@ -88,14 +88,12 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     public static void setElement(ItemStack stack, LittleElement element) {
         var data = ILittleTool.getData(stack);
-        element.save(data.getCompound("element"));
+        data.put("element", element.save(new CompoundTag()));
         ILittleTool.setData(stack, data);
     }
     
     public static void setElement(CompoundTag nbt, LittleElement element) {
-        CompoundTag tag = new CompoundTag();
-        element.save(tag);
-        nbt.put("element", tag);
+        nbt.put("element", element.save(new CompoundTag()));
     }
     
     public static ShapeSelection selection;
