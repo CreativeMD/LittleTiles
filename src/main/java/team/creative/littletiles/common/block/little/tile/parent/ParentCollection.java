@@ -2,6 +2,7 @@ package team.creative.littletiles.common.block.little.tile.parent;
 
 import java.util.Iterator;
 
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.type.itr.IterableIterator;
@@ -87,6 +88,11 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     
     @Override
     public abstract BETiles getBE();
+    
+    @Override
+    public Provider registryAccess() {
+        return getLevel().registryAccess();
+    }
     
     @Override
     public abstract boolean isStructure();

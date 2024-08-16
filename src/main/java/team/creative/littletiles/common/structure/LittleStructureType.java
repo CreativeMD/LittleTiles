@@ -19,7 +19,6 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
@@ -107,7 +106,7 @@ public class LittleStructureType {
         return this;
     }
     
-    public LittleStructure createStructure(StructureParentCollection mainBlock) {
+    public LittleStructure createStructure(IStructureParentCollection mainBlock) {
         return factory.apply(type(), mainBlock);
     }
     

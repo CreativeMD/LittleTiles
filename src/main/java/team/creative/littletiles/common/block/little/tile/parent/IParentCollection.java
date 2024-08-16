@@ -2,6 +2,7 @@ package team.creative.littletiles.common.block.little.tile.parent;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -45,6 +46,8 @@ public interface IParentCollection extends Iterable<LittleTile>, ILevelProvider 
     public boolean isClient();
     
     public BETiles getBE();
+    
+    public HolderLookup.Provider registryAccess();
     
     @Override
     public default Level getLevel() {

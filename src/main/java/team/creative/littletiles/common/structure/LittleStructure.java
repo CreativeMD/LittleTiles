@@ -16,6 +16,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -126,6 +127,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         if (mainBlock == null || mainBlock.isRemoved())
             return null;
         return mainBlock.getLevel();
+    }
+    
+    public HolderLookup.Provider registryAccess() {
+        return mainBlock.registryAccess();
     }
     
     @Override
