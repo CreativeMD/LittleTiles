@@ -1,3 +1,6 @@
+1.6.0-pre112
+Fixed axis door animation not getting update when switching axis
+
 1.6.0-pre111
 Fixed unnecessary multiplication of update render calls for animations
 Fixed not clearing additional when setting block buffer to be empty
