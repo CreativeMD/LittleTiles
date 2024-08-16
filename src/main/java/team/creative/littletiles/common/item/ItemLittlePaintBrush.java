@@ -97,6 +97,13 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
+    public void configured(ItemStack stack, CompoundTag nbt) {
+        stack.set(LittleTilesRegistry.COLOR, nbt.getInt("color"));
+        nbt.remove("color");
+        ILittleEditor.super.configured(stack, nbt);
+    }
+    
+    @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
         return new GuiPaintBrush(view);
     }
