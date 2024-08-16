@@ -1,3 +1,10 @@
+1.6.0-pre112
+Fixed not being able to load storage structure in recipe gui
+Fixed paintbrush not saving color
+Fixed chisel pick function not working properly
+Fixed axis door animation not getting update when switching axis
+Fixed colored water not being displayed properly in inventory
+
 1.6.0-pre111
 Ported to 1.21
 Fixed unnecessary multiplication of update render calls for animations
