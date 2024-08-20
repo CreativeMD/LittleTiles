@@ -140,7 +140,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
             FakeClientLevel fakeLevel = FakeServerLevel.createClient("animationViewer");
             CompletableFuture.supplyAsync(() -> {
                 try {
-                    return new AnimationPreview(fakeLevel, null, group);
+                    return new AnimationPreview(fakeLevel, null, group, provider());
                 } catch (LittleActionException e) {
                     throw new RuntimeException(e);
                 }

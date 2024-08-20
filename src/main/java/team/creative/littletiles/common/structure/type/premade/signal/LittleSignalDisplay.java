@@ -16,6 +16,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
@@ -54,10 +55,10 @@ public class LittleSignalDisplay extends LittleStructurePremade {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {}
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {}
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {}
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {}
     
     @Override
     public void receiveInternalOutputChange(InternalSignalOutput output) {

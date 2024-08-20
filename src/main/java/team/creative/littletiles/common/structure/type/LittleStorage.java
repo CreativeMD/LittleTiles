@@ -59,13 +59,13 @@ public class LittleStorage extends LittleStructure {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         inventorySize = nbt.getInt("inventorySize");
         stackSizeLimit = nbt.getInt("stackSizeLimit");
         numberOfSlots = nbt.getInt("numberOfSlots");
         lastSlotStackSize = nbt.getInt("lastSlot");
         if (nbt.contains("inventory"))
-            inventory = InventoryUtils.load(registryAccess(), nbt.getCompound("inventory"));
+            inventory = InventoryUtils.load(provider, nbt.getCompound("inventory"));
         else
             inventory = null;
         if (inventory != null)
@@ -75,13 +75,13 @@ public class LittleStorage extends LittleStructure {
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         if (inventory != null) {
             nbt.putInt("inventorySize", inventorySize);
             nbt.putInt("stackSizeLimit", stackSizeLimit);
             nbt.putInt("numberOfSlots", numberOfSlots);
             nbt.putInt("lastSlot", lastSlotStackSize);
-            nbt.put("inventory", InventoryUtils.save(registryAccess(), inventory));
+            nbt.put("inventory", InventoryUtils.save(provider, inventory));
         }
         nbt.putBoolean("invisibleStorage", invisibleStorageTiles);
     }

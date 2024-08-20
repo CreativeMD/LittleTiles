@@ -6,6 +6,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -87,8 +88,8 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
-        super.loadExtra(nbt);
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadExtra(nbt, provider);
         
         ListTag transList = nbt.getList("t", Tag.TAG_COMPOUND);
         AnimationTransition[] transitions = new AnimationTransition[transList.size()];
@@ -107,8 +108,8 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
-        super.saveExtra(nbt);
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.saveExtra(nbt, provider);
         
         nbt.putInt("cT", currentTransition);
         

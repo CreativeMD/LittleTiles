@@ -443,7 +443,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         grid = LittleGrid.getOrThrow(nbt);
         
-        tiles.load(nbt.getCompound("content"));
+        tiles.load(nbt.getCompound("content"), provider);
         sideCache.load(nbt);
         
         if (level != null && !level.isClientSide) {
@@ -466,7 +466,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     protected void saveAdditional(CompoundTag nbt, Provider provider) {
         super.saveAdditional(nbt, provider);
         grid.set(nbt);
-        nbt.put("content", tiles.save(new LittleServerFace(this)));
+        nbt.put("content", tiles.save(new LittleServerFace(this), provider));
         sideCache.write(nbt);
     }
     

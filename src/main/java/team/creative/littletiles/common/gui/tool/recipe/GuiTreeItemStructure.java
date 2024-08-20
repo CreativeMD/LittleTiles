@@ -3,7 +3,6 @@ package team.creative.littletiles.common.gui.tool.recipe;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
@@ -31,10 +30,7 @@ import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
-import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.common.gui.signal.GuiComponentSearch;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
@@ -45,8 +41,6 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.animation.context.AnimationContext;
-import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
-import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
@@ -77,8 +71,8 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         this.recipe = recipe;
         this.group = group;
         if (group.hasStructure()) {
-            this.structure = group.getStructureType().createStructure(new GuiStructureParent());
-            this.structure.load(group.getStructureTag());
+            this.structure = group.getStructureType().createStructure(null);
+            this.structure.load(group.getStructureTag(), recipe.provider());
         }
         this.index = index;
         refreshAnimation();
@@ -324,7 +318,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         FakeClientLevel fakeLevel = FakeServerLevel.createClient("animationViewer");
         CompletableFuture.supplyAsync(() -> {
             try {
-                return new AnimationPreview(fakeLevel, structure, group);
+                return new AnimationPreview(fakeLevel, structure, group, provider());
             } catch (LittleActionException e) {
                 throw new RuntimeException(e);
             }
@@ -348,7 +342,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
             nbt = null;
         else {
             nbt = new CompoundTag();
-            structure.save(nbt);
+            structure.save(nbt, recipe.provider());
         }
         GuiTreeItemStructure item = new GuiTreeItemStructure(recipe, tree, new LittleGroup(nbt, group.copy(), Collections.EMPTY_LIST), getParentItem().itemsCount());
         for (GuiTreeItem child : items())
@@ -429,75 +423,8 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         return ((GuiTreeItemStructure) getItem(id)).structure;
     }
     
-    private class GuiStructureParent implements IStructureParentCollection {
-        
-        @Override
-        public int size() {
-            return 0;
-        }
-        
-        @Override
-        public int totalSize() {
-            return 0;
-        }
-        
-        @Override
-        public boolean isStructure() {
-            return false;
-        }
-        
-        @Override
-        public boolean isStructureChild(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
-            return false;
-        }
-        
-        @Override
-        public boolean isMain() {
-            return false;
-        }
-        
-        @Override
-        public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException {
-            return null;
-        }
-        
-        @Override
-        public int getAttribute() {
-            return 0;
-        }
-        
-        @Override
-        public void setAttribute(int attribute) {}
-        
-        @Override
-        public boolean isClient() {
-            return true;
-        }
-        
-        @Override
-        public BETiles getBE() {
-            return null;
-        }
-        
-        @Override
-        public Provider registryAccess() {
-            return recipe.provider();
-        }
-        
-        @Override
-        public Iterator<LittleTile> iterator() {
-            return null;
-        }
-        
-        @Override
-        public int getIndex() {
-            return 0;
-        }
-        
-        @Override
-        public boolean isRemoved() {
-            return true;
-        }
-        
+    @Override
+    public Provider provider() {
+        return recipe.provider();
     }
 }

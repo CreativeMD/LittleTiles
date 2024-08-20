@@ -8,6 +8,7 @@ import java.util.function.BiFunction;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.item.ItemStack;
@@ -110,13 +111,13 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void loadUpdatePacket(CompoundTag nbt) {
-        super.loadUpdatePacket(nbt);
+    public void loadUpdatePacket(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadUpdatePacket(nbt, provider);
         mainBlock.getBE().render.tilesChanged();
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         int[] result = nbt.getIntArray("faces");
         if (result != null && result.length == getNumberOfConnections() * 3) {
             for (int i = 0; i < faces.length; i++) {
@@ -148,8 +149,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
-    protected void saveInternalExtra(CompoundTag nbt, boolean preview) {
-        super.saveInternalExtra(nbt, preview);
+    protected void saveInternalExtra(CompoundTag nbt, HolderLookup.Provider provider, boolean preview) {
+        super.saveInternalExtra(nbt, provider, preview);
         if (!preview && faces != null) {
             int[] result = new int[getNumberOfConnections() * 3];
             for (int i = 0; i < faces.length; i++) {
@@ -170,7 +171,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {}
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {}
     
     public abstract Facing getFacing(int index);
     

@@ -129,10 +129,6 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return mainBlock.getLevel();
     }
     
-    public HolderLookup.Provider registryAccess() {
-        return mainBlock.registryAccess();
-    }
-    
     @Override
     public Level getComponentLevel() {
         return getStructureLevel();
@@ -391,7 +387,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     // ================Save and loading================
     
-    public void load(CompoundTag nbt) {
+    public void load(CompoundTag nbt, HolderLookup.Provider provider) {
         blocks.clear();
         
         // LoadTiles
@@ -428,7 +424,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
                 }
             }
         }
-        loadExtra(nbt);
+        loadExtra(nbt, provider);
         if (inputs != null)
             for (int i = 0; i < inputs.length; i++)
                 inputs[i].load(nbt);
@@ -438,17 +434,17 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void loadUpdatePacket(CompoundTag nbt) {
-        load(nbt);
+    public void loadUpdatePacket(CompoundTag nbt, HolderLookup.Provider provider) {
+        load(nbt, provider);
     }
     
     protected Object failedLoadingRelative(CompoundTag nbt, StructureDirectionalField field) {
         return field.getDefault(this);
     }
     
-    protected abstract void loadExtra(CompoundTag nbt);
+    protected abstract void loadExtra(CompoundTag nbt, HolderLookup.Provider provider);
     
-    public CompoundTag savePreview(CompoundTag nbt, BlockPos newCenter) {
+    public CompoundTag savePreview(CompoundTag nbt, HolderLookup.Provider provider, BlockPos newCenter) {
         LittleVecGrid vec = new LittleVecGrid(new LittleVec(mainBlock.getGrid(), getStructurePos().subtract(newCenter)), mainBlock.getGrid());
         
         LittleVecGrid inverted = vec.copy();
@@ -461,11 +457,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             field.set(this, field.move(value, inverted));
         }
         
-        saveInternalExtra(nbt, true);
+        saveInternalExtra(nbt, provider, true);
         return nbt;
     }
     
-    public void save(CompoundTag nbt) {
+    public void save(CompoundTag nbt, HolderLookup.Provider provider) {
         children.save(nbt);
         
         int[] array = new int[blocks.size() * 3];
@@ -483,10 +479,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             field.save(nbt, value);
         }
         
-        saveInternalExtra(nbt, false);
+        saveInternalExtra(nbt, provider, false);
     }
     
-    protected void saveInternalExtra(CompoundTag nbt, boolean preview) {
+    protected void saveInternalExtra(CompoundTag nbt, HolderLookup.Provider provider, boolean preview) {
         nbt.putString("id", type.id);
         if (name != null)
             nbt.putString("n", name);
@@ -507,10 +503,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             for (int i = 0; i < outputs.length; i++)
                 nbt.put(outputs[i].component.identifier, outputs[i].save(preview, new CompoundTag()));
             
-        saveExtra(nbt);
+        saveExtra(nbt, provider);
     }
     
-    protected abstract void saveExtra(CompoundTag nbt);
+    protected abstract void saveExtra(CompoundTag nbt, HolderLookup.Provider provider);
     
     public void unload() {}
     
@@ -842,7 +838,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public LittleGroup getPreviews(BlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
         CompoundTag structureNBT = new CompoundTag();
-        this.savePreview(structureNBT, pos);
+        HolderLookup.Provider provider = getStructureLevel().registryAccess();
+        this.savePreview(structureNBT, provider, pos);
         
         List<LittleGroup> childrenGroup = new ArrayList<>();
         for (StructureChildConnection child : children.children())
@@ -866,7 +863,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public LittleGroup getPreviewsSameLevelOnly(BlockPos pos) throws CorruptedConnectionException, NotYetConnectedException {
         CompoundTag structureNBT = new CompoundTag();
-        this.savePreview(structureNBT, pos);
+        HolderLookup.Provider provider = getStructureLevel().registryAccess();
+        this.savePreview(structureNBT, provider, pos);
         
         List<LittleGroup> childrenGroup = new ArrayList<>();
         for (StructureChildConnection child : children.children())
@@ -937,7 +935,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public CreativePacket generateUpdatePacket(boolean notifyNeighbours) {
         CompoundTag nbt = new CompoundTag();
-        save(nbt);
+        HolderLookup.Provider provider = getStructureLevel().registryAccess();
+        save(nbt, provider);
         return new StructureUpdate(getStructureLocation(), nbt, notifyNeighbours);
     }
     

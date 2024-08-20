@@ -35,7 +35,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         BlockPos pos = getMinPos(getStructurePos().mutable());
         
         CompoundTag structureNBT = new CompoundTag();
-        this.savePreview(structureNBT, pos);
+        this.savePreview(structureNBT, getStructureLevel().registryAccess(), pos);
         
         var data = ILittleTool.getData(stack);
         data.put(LittleGroup.STRUCTURE_KEY, structureNBT);

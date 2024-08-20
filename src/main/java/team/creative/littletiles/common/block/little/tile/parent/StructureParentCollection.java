@@ -3,6 +3,7 @@ package team.creative.littletiles.common.block.little.tile.parent;
 import java.security.InvalidParameterException;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -37,9 +38,9 @@ public class StructureParentCollection extends ParentCollection implements IStru
         this.attribute = attribute;
     }
     
-    public StructureParentCollection(BlockParentCollection parent, CompoundTag nbt) {
+    public StructureParentCollection(BlockParentCollection parent, CompoundTag nbt, HolderLookup.Provider provider) {
         this.parent = parent;
-        load(nbt);
+        load(nbt, provider);
     }
     
     public void setParent(BlockParentCollection parent) {
@@ -47,9 +48,9 @@ public class StructureParentCollection extends ParentCollection implements IStru
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         if (nbt.contains("structure"))
-            cache = setStructureNBT(nbt.getCompound("structure"));
+            cache = setStructureNBT(nbt.getCompound("structure"), provider);
         else {
             int[] array = nbt.getIntArray("coord");
             if (array.length == 3)
@@ -62,10 +63,10 @@ public class StructureParentCollection extends ParentCollection implements IStru
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt, LittleServerFace face) {
+    protected void saveExtra(CompoundTag nbt, LittleServerFace face, HolderLookup.Provider provider) {
         if (isMain()) {
             CompoundTag structureNBT = new CompoundTag();
-            ((LittleStructure) cache).save(structureNBT);
+            ((LittleStructure) cache).save(structureNBT, provider);
             nbt.put("structure", structureNBT);
         } else
             nbt.putIntArray("coord", new int[] { relativePos.getX(), relativePos.getY(), relativePos.getZ() });
@@ -106,13 +107,13 @@ public class StructureParentCollection extends ParentCollection implements IStru
         return relativePos.offset(getPos());
     }
     
-    public LittleStructure setStructureNBT(CompoundTag nbt) {
+    public LittleStructure setStructureNBT(CompoundTag nbt, HolderLookup.Provider provider) {
         if (this.cache instanceof LittleStructure structure && structure.type.id.equals(nbt.getString("id")))
-            structure.loadUpdatePacket(nbt);
+            structure.loadUpdatePacket(nbt, provider);
         else {
             if (this.cache instanceof LittleStructure structure)
                 structure.unload();
-            this.cache = create(nbt, this);
+            this.cache = create(nbt, this, provider);
         }
         return (LittleStructure) cache;
     }
@@ -217,14 +218,14 @@ public class StructureParentCollection extends ParentCollection implements IStru
             list.relativePos = null;
     }
     
-    public static LittleStructure create(CompoundTag nbt, StructureParentCollection mainBlock) {
+    public static LittleStructure create(CompoundTag nbt, StructureParentCollection mainBlock, HolderLookup.Provider provider) {
         if (nbt == null)
             return null;
         
         String id = nbt.getString("id");
         LittleStructureType type = LittleStructureRegistry.REGISTRY.get(id);
         LittleStructure structure = type.createStructure(mainBlock);
-        structure.load(nbt);
+        structure.load(nbt, provider);
         return structure;
     }
     

@@ -370,7 +370,7 @@ public class GuiRecipe extends GuiConfigure {
             nbt = null;
         else {
             nbt = new CompoundTag();
-            item.structure.save(nbt);
+            item.structure.save(nbt, provider());
         }
         return new LittleGroup(nbt, item.group.copyExceptChildren(), children);
     }

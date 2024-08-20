@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.structure.type;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerChunkCache;
@@ -39,13 +40,13 @@ public class LittleStructureMessage extends LittleStructure {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         text = nbt.getString("text");
         allowRightClick = nbt.getBoolean("right");
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.putString("text", text);
         nbt.putBoolean("right", allowRightClick);
     }

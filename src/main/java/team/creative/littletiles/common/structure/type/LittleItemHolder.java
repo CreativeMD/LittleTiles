@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.type;
 
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -42,13 +43,13 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
-        stack = ItemStack.parseOptional(getStructureLevel().registryAccess(), nbt.getCompound("stack"));
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        stack = ItemStack.parseOptional(provider, nbt.getCompound("stack"));
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
-        nbt.put("stack", stack.saveOptional(getStructureLevel().registryAccess()));
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        nbt.put("stack", stack.saveOptional(provider));
     }
     
     @Override

@@ -3,6 +3,7 @@ package team.creative.littletiles.common.structure.type.animation;
 import java.util.function.BiFunction;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -55,8 +56,8 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
-        super.loadExtra(nbt);
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadExtra(nbt, provider);
         duration = nbt.getInt("du");
         interpolation = ValueInterpolation.values()[nbt.getInt("in")];
         
@@ -67,8 +68,8 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
-        super.saveExtra(nbt);
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.saveExtra(nbt, provider);
         
         nbt.putInt("du", duration);
         nbt.putInt("in", interpolation.ordinal());

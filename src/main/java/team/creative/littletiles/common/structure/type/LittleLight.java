@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.structure.type;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -25,13 +26,13 @@ public class LittleLight extends LittleStructure {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         level = nbt.getInt("level");
         allowRightClick = nbt.getBoolean("right");
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.putInt("level", level);
         nbt.putBoolean("right", allowRightClick);
     }

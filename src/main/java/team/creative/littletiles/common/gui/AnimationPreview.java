@@ -8,6 +8,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -41,7 +42,7 @@ public class AnimationPreview {
     public final LittleGrid grid;
     public final AABB box;
     
-    public AnimationPreview(LittleLevel fakeLevel, LittleStructure structure, LittleGroup previews) throws LittleActionException {
+    public AnimationPreview(LittleLevel fakeLevel, LittleStructure structure, LittleGroup previews, HolderLookup.Provider provider) throws LittleActionException {
         this.previews = previews;
         this.grid = previews.getGrid();
         BlockPos pos = new BlockPos(0, 0, 0);
@@ -51,7 +52,7 @@ public class AnimationPreview {
         
         if (!previews.hasStructure()) {
             CompoundTag nbt = new CompoundTag();
-            new LittleFixedStructure(LittleStructureRegistry.REGISTRY.get("fixed"), null).save(nbt);
+            new LittleFixedStructure(LittleStructureRegistry.REGISTRY.get("fixed"), null).save(nbt, provider);
             List<LittleGroup> newChildren = new ArrayList<>();
             for (LittleGroup group : previews.children.children())
                 newChildren.add(group.copy());

@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.structure.type.premade;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -17,10 +18,10 @@ public class LittleExporter extends LittleStructurePremade {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {}
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {}
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {}
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {}
     
     @Override
     public boolean canInteract() {

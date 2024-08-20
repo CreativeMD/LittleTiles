@@ -3,6 +3,7 @@ package team.creative.littletiles.common.structure.type;
 import java.util.HashSet;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
@@ -27,12 +28,12 @@ public class LittleNoClipStructure extends LittleStructure {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         web = nbt.getBoolean("web");
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.putBoolean("web", web);
     }
     

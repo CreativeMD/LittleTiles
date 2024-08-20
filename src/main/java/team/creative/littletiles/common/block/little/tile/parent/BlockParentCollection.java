@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -35,7 +36,7 @@ public class BlockParentCollection extends ParentCollection {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         ListTag list = nbt.getList("children", Tag.TAG_COMPOUND);
         HashMap<Integer, StructureParentCollection> previous = new HashMap<>(structures);
         structures.clear();
@@ -43,9 +44,9 @@ public class BlockParentCollection extends ParentCollection {
             CompoundTag childNBT = list.getCompound(i);
             StructureParentCollection child = previous.remove(childNBT.getInt("index"));
             if (child == null)
-                child = new StructureParentCollection(this, childNBT);
+                child = new StructureParentCollection(this, childNBT, provider);
             else
-                child.load(childNBT);
+                child.load(childNBT, provider);
             structures.put(child.getIndex(), child);
         }
         for (StructureParentCollection child : previous.values())
@@ -54,10 +55,10 @@ public class BlockParentCollection extends ParentCollection {
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt, LittleServerFace face) {
+    protected void saveExtra(CompoundTag nbt, LittleServerFace face, HolderLookup.Provider provider) {
         ListTag list = new ListTag();
         for (StructureParentCollection child : structures.values())
-            list.add(child.save(face));
+            list.add(child.save(face, provider));
         nbt.put("children", list);
     }
     

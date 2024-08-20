@@ -8,6 +8,7 @@ import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -194,7 +195,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         ListTag stateList = nbt.getList("s", Tag.TAG_COMPOUND);
         List<T> states = new ArrayList<>(stateList.size());
         for (int i = 0; i < stateList.size(); i++)
@@ -226,7 +227,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.putInt("cS", currentState);
         nbt.putInt("aS", aimedState);
         

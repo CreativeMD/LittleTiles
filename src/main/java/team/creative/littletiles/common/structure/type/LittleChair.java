@@ -3,6 +3,7 @@ package team.creative.littletiles.common.structure.type;
 import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
@@ -35,7 +36,7 @@ public class LittleChair extends LittleStructure {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         if (nbt.contains("sit"))
             sitUUID = UUID.fromString(nbt.getString("sit"));
         else
@@ -43,7 +44,7 @@ public class LittleChair extends LittleStructure {
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         if (sitUUID != null)
             nbt.putString("sit", sitUUID.toString());
         else

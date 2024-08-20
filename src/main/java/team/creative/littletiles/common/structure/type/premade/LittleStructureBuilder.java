@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -58,7 +59,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         if (nbt.contains("sizeX"))
             lastSizeX = nbt.getInt("sizeX");
         else
@@ -84,7 +85,7 @@ public class LittleStructureBuilder extends LittleStructurePremade {
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.putInt("sizeX", lastSizeX);
         nbt.putInt("sizeY", lastSizeY);
         nbt.putInt("thickness", lastThickness);

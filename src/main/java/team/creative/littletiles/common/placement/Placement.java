@@ -14,6 +14,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang3.mutable.MutableInt;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.world.entity.player.Player;
@@ -523,7 +524,7 @@ public class Placement {
                                     PlacementStructurePreview structure = structures.get(i);
                                     if (structure.isStructure()) {
                                         StructureParentCollection list = x.addStructure(structure.getIndex(), structure.getAttribute());
-                                        structure.place(list);
+                                        structure.place(list, level.registryAccess());
                                         parent = list;
                                     }
                                     context.setParent(parent);
@@ -603,9 +604,9 @@ public class Placement {
             extensions.put(key, child);
         }
         
-        public void place(StructureParentCollection parent) {
+        public void place(StructureParentCollection parent, HolderLookup.Provider provider) {
             if (cachedStructure == null) {
-                cachedStructure = parent.setStructureNBT(previews.getStructureTag());
+                cachedStructure = parent.setStructureNBT(previews.getStructureTag(), provider);
                 cachedStructure.children.initAfterPlacing(children.size());
             } else {
                 StructureParentCollection.setRelativePos(parent, cachedStructure.mainBlock.getPos().subtract(parent.getPos()));

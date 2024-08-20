@@ -24,7 +24,7 @@ public class StructureUpdate extends StructurePacket {
     @Override
     public void execute(Player player, LittleStructure structure) {
         requiresClient(player);
-        Consumer<BlockEntityInteractor> action = x -> x.get(structure.mainBlock).setStructureNBT(structureNBT);
+        Consumer<BlockEntityInteractor> action = x -> x.get(structure.mainBlock).setStructureNBT(structureNBT, player.registryAccess());
         if (notifyNeighbours)
             structure.mainBlock.getBE().updateTiles(action);
         else

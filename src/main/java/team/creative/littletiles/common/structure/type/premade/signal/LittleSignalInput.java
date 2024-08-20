@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.BiFunction;
 
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -61,14 +62,14 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
-        super.loadExtra(nbt);
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadExtra(nbt, provider);
         state = state.load(nbt.get("state"));
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
-        super.saveExtra(nbt);
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.saveExtra(nbt, provider);
         nbt.put("state", state.save());
     }
     

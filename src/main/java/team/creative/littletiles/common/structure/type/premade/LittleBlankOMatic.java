@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.structure.type.premade;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -22,14 +23,14 @@ public class LittleBlankOMatic extends LittleStructurePremade {
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         inventory = InventoryUtils.load(getStructureLevel().registryAccess(), nbt.getCompound("inv"), 1);
         inventory.addListener(x -> markDirty());
         whiteColor = nbt.getInt("white");
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         nbt.put("inv", InventoryUtils.save(getStructureLevel().registryAccess(), inventory));
         nbt.putInt("white", whiteColor);
     }

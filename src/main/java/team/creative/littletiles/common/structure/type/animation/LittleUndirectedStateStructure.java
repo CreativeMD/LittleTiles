@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -31,8 +32,8 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     }
     
     @Override
-    protected void loadExtra(CompoundTag nbt) {
-        super.loadExtra(nbt);
+    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.loadExtra(nbt, provider);
         ListTag transitionList = nbt.getList("t", Tag.TAG_COMPOUND);
         transitions = new ArrayList<>(transitionList.size());
         for (int i = 0; i < transitionList.size(); i++)
@@ -40,8 +41,8 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     }
     
     @Override
-    protected void saveExtra(CompoundTag nbt) {
-        super.saveExtra(nbt);
+    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
+        super.saveExtra(nbt, provider);
         ListTag transitionList = new ListTag();
         for (int i = 0; i < transitions.size(); i++)
             transitionList.add(transitions.get(i).save());

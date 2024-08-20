@@ -2,7 +2,7 @@ package team.creative.littletiles.common.block.little.tile.parent;
 
 import java.util.Iterator;
 
-import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.type.itr.IterableIterator;
@@ -43,22 +43,22 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
             collisionChecks--;
     }
     
-    public void load(CompoundTag nbt) {
+    public void load(CompoundTag nbt, HolderLookup.Provider provider) {
         this.clear();
         LittleCollection.loadExtended(this, nbt.getCompound("tiles"));
-        loadExtra(nbt);
+        loadExtra(nbt, provider);
     }
     
-    protected abstract void loadExtra(CompoundTag nbt);
+    protected abstract void loadExtra(CompoundTag nbt, HolderLookup.Provider provider);
     
-    public CompoundTag save(LittleServerFace face) {
+    public CompoundTag save(LittleServerFace face, HolderLookup.Provider provider) {
         CompoundTag nbt = new CompoundTag();
         nbt.put("tiles", LittleCollection.saveExtended(this, face));
-        saveExtra(nbt, face);
+        saveExtra(nbt, face, provider);
         return nbt;
     }
     
-    protected abstract void saveExtra(CompoundTag nbt, LittleServerFace face);
+    protected abstract void saveExtra(CompoundTag nbt, LittleServerFace face, HolderLookup.Provider provider);
     
     public Iterable<LittleTile> filter(BiFilter<IParentCollection, LittleTile> selector) {
         return new IterableIterator<LittleTile>() {
@@ -88,11 +88,6 @@ public abstract class ParentCollection extends LittleCollectionSafe implements I
     
     @Override
     public abstract BETiles getBE();
-    
-    @Override
-    public Provider registryAccess() {
-        return getLevel().registryAccess();
-    }
     
     @Override
     public abstract boolean isStructure();
