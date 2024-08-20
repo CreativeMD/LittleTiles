@@ -313,7 +313,7 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
                 .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT), x -> {
                     ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
-                    ILittleTool.setData(stack, ILittleTool.getData(stack).getCompound(ItemLittleBlueprint.CONTENT_KEY));
+                    ILittleTool.setData(stack, ILittleTool.getData(x).getCompound(ItemLittleBlueprint.CONTENT_KEY));
                     return stack;
                 }));
         
