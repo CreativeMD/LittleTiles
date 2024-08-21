@@ -28,4 +28,6 @@ public interface BufferCache {
     
     public int lengthToUpload(int facing);
     
+    public void markAsAdditional();
+    
 }

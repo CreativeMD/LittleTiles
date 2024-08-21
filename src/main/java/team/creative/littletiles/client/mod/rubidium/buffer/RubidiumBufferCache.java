@@ -208,4 +208,11 @@ public class RubidiumBufferCache implements BufferCache {
         return true;
     }
     
+    @Override
+    public void markAsAdditional() {
+        for (int i = 0; i < buffers.length; i++)
+            if (buffers[i] != null)
+                buffers[i].markAsAdditional();
+    }
+    
 }

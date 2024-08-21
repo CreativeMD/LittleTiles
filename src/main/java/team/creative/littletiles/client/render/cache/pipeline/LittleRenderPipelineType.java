@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 import net.minecraft.client.renderer.RenderType;
-import team.creative.littletiles.client.render.cache.BlockBufferCache;
+import team.creative.littletiles.client.render.cache.IBlockBufferCache;
 import team.creative.littletiles.client.render.mc.RebuildTaskExtender;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -30,7 +30,7 @@ public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
     public static void compile(RenderChunkExtender chunk, BETiles be, RebuildTaskExtender rebuildTask) {
         be.updateQuadCache(chunk);
         
-        BlockBufferCache cache = be.render.getBufferCache();
+        IBlockBufferCache cache = be.render.buffers();
         synchronized (be.render) {
             for (RenderType layer : RenderType.chunkBufferLayers()) {
                 if (!cache.has(layer))

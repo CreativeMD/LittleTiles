@@ -94,7 +94,7 @@ public class RenderingThread extends Thread {
             int index = be.render.startBuildingCache();
             synchronized (be.render) {
                 be.render.boxCache.clear();
-                be.render.getBufferCache().setEmpty();
+                be.render.setBuffersEmpty();
             }
             if (!be.render.finishBuildingCache(index, EMPTY_HOLDERS, CURRENT_RENDERING_INDEX, true))
                 return queue(be, chunk);

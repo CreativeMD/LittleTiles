@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.packet.structure;
 
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.UUID;
 
@@ -8,10 +7,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.render.cache.BlockBufferCache;
-import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.action.LittleActionException;
@@ -32,8 +28,8 @@ public class StructureBlockToEntityPacket extends StructurePacket {
         this.uuid = entity.getUUID();
     }
     
-    private void queueStructure(HashMap<RenderChunkExtender, RenderCacheHolder> chunks, LittleStructure structure, LittleAnimationEntity entity) throws LittleActionException {
-        HashSet<RenderChunkExtender> backToRAM = new HashSet<>();
+    private void queueStructure(LittleStructure structure, LittleAnimationEntity entity, HashSet<RenderChunkExtender> backToRAM) throws LittleActionException {
+        
         for (BETiles be : structure.blocks()) {
             
             BlockEntity block = entity.getSubLevel().getBlockEntity(be.getBlockPos());
@@ -48,17 +44,26 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             RenderChunkExtender chunk = target.render.getRenderChunk();
             
             Vec3 offset = chunk.offsetCorrection(toRam);
-            RenderCacheHolder holder = chunks.get(chunk);
-            if (holder == null)
-                chunks.put(chunk, holder = new RenderCacheHolder());
-            holder.add(target, be.render.getBufferCache(), structure.getIndex(), offset);
+            
+            target.render.additionalBuffers(x -> {
+                for (RenderType layer : RenderType.chunkBufferLayers()) {
+                    BufferCache holder = be.render.buffers().extract(layer, structure.getIndex());
+                    if (holder == null)
+                        continue;
+                    
+                    if (offset != null)
+                        holder.applyOffset(offset);
+                    holder.markAsAdditional();
+                    x.additional(layer, holder);
+                }
+            });
         }
         
         for (StructureChildConnection child : structure.children.all()) {
             if (child.isLinkToAnotherWorld())
                 continue;
             try {
-                queueStructure(chunks, child.getStructure(), entity);
+                queueStructure(child.getStructure(), entity, backToRAM);
             } catch (LittleActionException e) {}
         }
     }
@@ -67,34 +72,10 @@ public class StructureBlockToEntityPacket extends StructurePacket {
     public void execute(Player player, LittleStructure structure) {
         try {
             requiresClient(player);
-            HashMap<RenderChunkExtender, RenderCacheHolder> chunks = new HashMap<>();
-            queueStructure(chunks, structure, (LittleAnimationEntity) LittleTilesClient.ANIMATION_HANDLER.find(uuid));
+            HashSet<RenderChunkExtender> backToRAM = new HashSet<>();
+            queueStructure(structure, (LittleAnimationEntity) LittleTilesClient.ANIMATION_HANDLER.find(uuid), backToRAM);
         } catch (LittleActionException | ClassCastException e) {
             e.printStackTrace();
-        }
-    }
-    
-    private static class RenderCacheHolder implements LayeredBufferCache {
-        
-        private final ChunkLayerMap<BufferCache> holders = new ChunkLayerMap<>();
-        
-        @Override
-        public BufferCache get(RenderType layer) {
-            return holders.get(layer);
-        }
-        
-        public void add(BETiles target, BlockBufferCache cache, int index, Vec3 offset) {
-            for (RenderType layer : RenderType.chunkBufferLayers()) {
-                BufferCache holder = cache.extract(layer, index);
-                if (holder == null)
-                    continue;
-                
-                if (offset != null)
-                    holder.applyOffset(offset);
-                
-                target.render.getBufferCache().additional(layer, holder);
-                holders.put(layer, BlockBufferCache.combine(holders.get(layer), holder));
-            }
         }
     }
     

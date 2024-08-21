@@ -2,6 +2,7 @@ package team.creative.littletiles.client.render.block;
 
 import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -19,7 +20,9 @@ import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.mod.rubidium.RubidiumManager;
 import team.creative.littletiles.client.mod.rubidium.pipeline.LittleRenderPipelineRubidium;
+import team.creative.littletiles.client.render.cache.AdditionalBufferReceiver;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
+import team.creative.littletiles.client.render.cache.IBlockBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
@@ -216,8 +219,29 @@ public class BERenderManager {
         }
     }
     
-    public BlockBufferCache getBufferCache() {
+    public IBlockBufferCache buffers() {
         return bufferCache;
+    }
+    
+    /** This method has to be called before block receives update and has possibly rendered. Otherwise problems will occur. If not sure rather use {@link BERenderManager.additionalBuffers()} */
+    public void additionalBuffersEarly(Consumer<AdditionalBufferReceiver> consumer) {
+        bufferCache.executeAdditional(consumer);
+    }
+    
+    public void additionalBuffers(Consumer<AdditionalBufferReceiver> consumer) {
+        if (isInQueue()) {
+            bufferCache.executeAdditional(consumer);
+            if (!isInQueue()) // The rendering has been finished in the meantime ... in that case the additional should be removed again
+                bufferCache.clearAdditional();
+        }
+    }
+    
+    public void setBuffersEmpty() {
+        bufferCache.setEmpty();
+    }
+    
+    public boolean hasAdditionalBuffers() {
+        return bufferCache.hasAdditional();
     }
     
     public void beforeBuilding(RenderingBlockContext context) {
