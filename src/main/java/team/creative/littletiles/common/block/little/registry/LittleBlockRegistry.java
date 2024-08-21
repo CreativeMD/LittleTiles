@@ -152,6 +152,11 @@ public class LittleBlockRegistry {
     /** Do not call this method. Should only be used by {@link BlockMixin} **/
     @Deprecated
     public static void calculateCache(Block block) {
+        if (block instanceof LittleBlock b) {
+            ((LittleBlockProvider) block).setCache(b, true);
+            return;
+        }
+        
         for (Pair<Filter<Block>, Function<Block, LittleBlock>> pair : BLOCK_HANDLERS)
             if (pair.key.is(block)) {
                 ((LittleBlockProvider) block).setCache(pair.value.apply(block), true);
