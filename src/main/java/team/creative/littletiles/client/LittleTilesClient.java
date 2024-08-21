@@ -368,7 +368,7 @@ public class LittleTilesClient {
     }
     
     public static void initBlockColors(RegisterColorHandlersEvent.Block event) {
-        event.register((state, level, pos, tint) -> level != null && pos != null ? BiomeColors.getAverageWaterColor(level, pos) : 4159204, LittleTilesRegistry.WATER.get(),
+        event.register((state, level, pos, tint) -> level != null && pos != null ? ColorUtils.setAlpha(BiomeColors.getAverageWaterColor(level, pos), 255) : -12618012, LittleTilesRegistry.WATER.get(),
             LittleTilesRegistry.FLOWING_WATER.get());
     }
     
