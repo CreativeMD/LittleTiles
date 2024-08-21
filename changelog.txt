@@ -1,3 +1,11 @@
+1.6.0-pre113
+Fixed additional buffers from animation transition staying after forever
+Fixed existing blocks receiving additional buffers from animation transition too late
+Fixed additional buffers getting erased when used once
+Reorganized block buffer interaction
+Fixed dyable water being invisible when color has not been changed
+Fixed blocks from littletiles itself not being usable
+
 1.6.0-pre112
 Fixed axis door animation not getting update when switching axis
 
