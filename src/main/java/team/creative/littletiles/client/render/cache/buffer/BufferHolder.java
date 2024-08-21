@@ -55,7 +55,13 @@ public class BufferHolder implements BufferCache {
     
     @Override
     public void eraseBuffer() {
-        buffer = null;
+        if (uploadIndex >= 0)
+            buffer = null;
+    }
+    
+    @Override
+    public void markAsAdditional() {
+        uploadIndex = -2;
     }
     
     @Override
@@ -65,7 +71,10 @@ public class BufferHolder implements BufferCache {
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return false;
+        boolean additional = uploadIndex == -2;
         uploadIndex = uploader.uploadIndex();
+        if (additional)
+            uploadIndex = -2;
         uploader.upload(buffer);
         buffer.rewind();
         return true;
@@ -77,7 +86,10 @@ public class BufferHolder implements BufferCache {
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return false;
+        boolean additional = uploadIndex == -2;
         uploadIndex = uploader.uploadIndex(facing);
+        if (additional)
+            uploadIndex = -2;
         uploader.upload(facing, buffer);
         buffer.rewind();
         return true;
@@ -146,7 +158,7 @@ public class BufferHolder implements BufferCache {
     }
     
     public boolean download(ByteBuffer buffer) {
-        if (uploadIndex != -1 && buffer.capacity() >= uploadIndex + length()) {
+        if (uploadIndex >= 0 && buffer.capacity() >= uploadIndex + length()) {
             ByteBuffer downloaded = ByteBuffer.allocateDirect(length);
             downloaded.put(0, buffer, uploadIndex, length);
             downloaded.rewind();

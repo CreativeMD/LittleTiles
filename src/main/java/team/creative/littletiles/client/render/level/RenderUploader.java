@@ -20,11 +20,13 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
+import team.creative.littletiles.client.render.cache.IBlockBufferCache;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 
 @OnlyIn(Dist.CLIENT)
@@ -131,6 +133,8 @@ public class RenderUploader {
         private class RenderDataToAdd implements LayeredBufferCache {
             
             private final ChunkLayerMap<BufferCache> holders = new ChunkLayerMap<>();
+            private BETiles cached = null;
+            private boolean toSearch = true;
             
             @Override
             public BufferCache get(RenderType layer) {
@@ -138,7 +142,7 @@ public class RenderUploader {
             }
             
             public void queueNew(RenderingLevelHandler origin, BETiles be, SectionPos pos) {
-                BlockBufferCache cache = be.render.getBufferCache();
+                IBlockBufferCache cache = be.render.buffers();
                 Vec3 vec = RenderingLevelHandler.offsetCorrection(target, origin, pos);
                 
                 for (RenderType layer : RenderType.chunkBufferLayers()) {
@@ -147,12 +151,22 @@ public class RenderUploader {
                         continue;
                     if (vec != null)
                         holder.applyOffset(vec);
+                    holder.markAsAdditional();
                     holders.put(layer, BlockBufferCache.combine(holders.get(layer), holder));
+                }
+                
+                if (toSearch) {
+                    cached = BlockTile.loadBE(targetLevel, be.getBlockPos());
+                    if (cached != null) {
+                        cached.render.additionalBuffersEarly(x -> x.additional(this));
+                    }
+                    toSearch = false;
                 }
             }
             
             public void receiveUpdate(BETiles be) {
-                be.render.getBufferCache().additional(this);
+                if (cached != be)
+                    be.render.additionalBuffers(x -> x.additional(this));
             }
             
         }

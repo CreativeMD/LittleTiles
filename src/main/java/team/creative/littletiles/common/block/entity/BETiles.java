@@ -631,7 +631,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     
     @OnlyIn(Dist.CLIENT)
     public boolean isRenderingEmpty() {
-        return tiles.isCompletelyEmpty() && !render.getBufferCache().hasAdditional();
+        return tiles.isCompletelyEmpty() && !render.hasAdditionalBuffers();
     }
     
     @Override

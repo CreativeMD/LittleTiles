@@ -6,7 +6,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.minecraft.client.renderer.RenderType;
-import team.creative.littletiles.client.render.cache.BlockBufferCache;
+import team.creative.littletiles.client.render.cache.IBlockBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
@@ -41,7 +41,7 @@ public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
     public static void compile(long pos, BETiles be, Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
         be.updateQuadCache(pos);
         
-        BlockBufferCache cache = be.render.getBufferCache();
+        IBlockBufferCache cache = be.render.buffers();
         synchronized (be.render) {
             for (RenderType layer : RenderType.chunkBufferLayers()) {
                 if (!cache.has(layer))
@@ -60,7 +60,7 @@ public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
     public static void compileUploaded(long pos, BETiles be, Function<RenderType, BufferCollection> bufferSupplier) {
         be.updateQuadCache(pos);
         
-        BlockBufferCache cache = be.render.getBufferCache();
+        IBlockBufferCache cache = be.render.buffers();
         synchronized (be.render) {
             for (RenderType layer : RenderType.chunkBufferLayers()) {
                 if (!cache.has(layer))

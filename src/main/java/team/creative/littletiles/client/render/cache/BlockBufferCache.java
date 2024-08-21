@@ -1,12 +1,13 @@
 package team.creative.littletiles.client.render.cache;
 
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 
-public class BlockBufferCache {
+public class BlockBufferCache implements IBlockBufferCache, AdditionalBufferReceiver {
     
     public static BufferCache combine(BufferCache first, BufferCache second) {
         if (first == null && second == null)
@@ -17,13 +18,13 @@ public class BlockBufferCache {
             return first;
         
         return first.combine(second);
-        
     }
     
     private ChunkLayerMap<BufferCache> queue = new ChunkLayerMap<>();
     private ChunkLayerMap<BufferCache> uploaded = new ChunkLayerMap<>();
     
     private transient ChunkLayerMap<BufferCache> additional = null;
+    private transient boolean newAdditional = false;
     
     public BlockBufferCache() {}
     
@@ -43,6 +44,7 @@ public class BlockBufferCache {
         return queued;
     }
     
+    @Override
     public BufferCache get(RenderType layer) {
         BufferCache original = getOriginal(layer);
         if (additional != null)
@@ -51,6 +53,7 @@ public class BlockBufferCache {
         
     }
     
+    @Override
     public BufferCache extract(RenderType layer, int index) {
         BufferCache holder = getOriginal(layer);
         if (holder == null)
@@ -65,10 +68,12 @@ public class BlockBufferCache {
         return extracted;
     }
     
+    @Override
     public boolean has(RenderType layer) {
         return queue.containsKey(layer) || getUploaded(layer) != null || (additional != null && additional.containsKey(layer));
     }
     
+    @Override
     public void setUploaded(RenderType layer, BufferCache uploadable) {
         queue.remove(layer);
         if (uploadable == null)
@@ -99,24 +104,30 @@ public class BlockBufferCache {
                 queue.put(layer, buffer);
         }
         
-        if (additional != null)
-            additional = null;
+        additional = null;
     }
     
+    public synchronized void executeAdditional(Consumer<AdditionalBufferReceiver> consumer) {
+        newAdditional = additional != null;
+        if (!newAdditional)
+            additional = new ChunkLayerMap<>();
+        consumer.accept(this);
+        newAdditional = false;
+    }
+    
+    public void clearAdditional() {
+        additional = null;
+    }
+    
+    @Override
     public synchronized void additional(RenderType layer, BufferCache holder) {
-        boolean already = additional != null;
-        if (!already)
-            additional = new ChunkLayerMap<>();
-        additional.put(layer, already ? combine(additional.get(layer), holder) : holder);
+        additional.put(layer, newAdditional ? combine(additional.get(layer), holder) : holder);
     }
     
+    @Override
     public synchronized void additional(LayeredBufferCache cache) {
-        boolean already = additional != null;
-        if (!already)
-            additional = new ChunkLayerMap<>();
-        
         for (RenderType layer : RenderType.chunkBufferLayers())
-            additional.put(layer, already ? combine(additional.get(layer), cache.get(layer)) : cache.get(layer));
+            additional.put(layer, newAdditional ? combine(additional.get(layer), cache.get(layer)) : cache.get(layer));
     }
     
     public boolean hasInvalidBuffers() {
