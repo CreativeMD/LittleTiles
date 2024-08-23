@@ -1,3 +1,8 @@
+1.6.0-pre115
+Fixed issue with buffer holder extract method not creating direct buffer
+Fixed mirror of tiles not working correctly when structure has children
+Fixed not displaying hit particles when mining tiles
+
 1.6.0-pre113
 Fixed additional buffers from animation transition staying after forever
 Fixed existing blocks receiving additional buffers from animation transition too late
