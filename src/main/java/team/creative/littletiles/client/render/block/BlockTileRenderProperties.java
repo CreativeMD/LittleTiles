@@ -77,7 +77,7 @@ public class BlockTileRenderProperties implements IClientBlockExtensions {
                 int j = pos.getY();
                 int k = pos.getZ();
                 
-                AABB aabb = context.box.getBB(context.parent.getGrid(), pos);
+                AABB aabb = context.box.getBB(context.parent.getGrid());
                 double d0 = i + random.nextDouble() * (aabb.maxX - aabb.minX - 0.2F) + 0.1F + aabb.minX;
                 double d1 = j + random.nextDouble() * (aabb.maxY - aabb.minY - 0.2F) + 0.1F + aabb.minY;
                 double d2 = k + random.nextDouble() * (aabb.maxZ - aabb.minZ - 0.2F) + 0.1F + aabb.minZ;
