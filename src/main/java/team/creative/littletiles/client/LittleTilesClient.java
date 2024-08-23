@@ -40,6 +40,7 @@ import net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
+import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.settings.IKeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
@@ -60,6 +61,7 @@ import team.creative.littletiles.client.level.LittleVanillaInteractionHandlerCli
 import team.creative.littletiles.client.mod.embeddium.EmbeddiumManager;
 import team.creative.littletiles.client.player.LittleClientPlayerConnection;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
+import team.creative.littletiles.client.render.block.BlockTileRenderProperties;
 import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderer;
@@ -160,6 +162,7 @@ public class LittleTilesClient {
         bus.addListener(LittleTilesClient::registerKeys);
         bus.addListener(LittleTilesClient::modelEvent);
         bus.addListener(LittleTilesClient::modelLoader);
+        bus.addListener(LittleTilesClient::initBlockClient);
     }
     
     private static void registerKeys(RegisterKeyMappingsEvent event) {
@@ -380,6 +383,11 @@ public class LittleTilesClient {
                 LittleTilesProfilerOverlay.start();
             return Command.SINGLE_SUCCESS;
         }));
+    }
+    
+    public static void initBlockClient(RegisterClientExtensionsEvent event) {
+        event.registerBlock(BlockTileRenderProperties.INSTANCE, LittleTilesRegistry.BLOCK_TILES, LittleTilesRegistry.BLOCK_TILES_RENDERED, LittleTilesRegistry.BLOCK_TILES_TICKING,
+            LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED);
     }
     
     public static class LittleKeyMapping extends KeyMapping {
