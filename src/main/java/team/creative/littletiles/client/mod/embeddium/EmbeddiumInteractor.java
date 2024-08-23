@@ -47,8 +47,8 @@ public class EmbeddiumInteractor {
             }
             
             @Override
-            public BlockPos standardOffset(SectionPos pos) {
-                return null;
+            public BlockPos standardOffset(Level level, SectionPos pos) {
+                return pos.origin();
             }
         };
         EmbeddiumManager.RENDERING_ANIMATION = new RenderingLevelHandler() {
@@ -60,10 +60,8 @@ public class EmbeddiumInteractor {
             
             @Override
             public void prepareModelOffset(Level level, MutableBlockPos modelOffset, BlockPos pos) {
-                int x = ((pos.getX() >> 4 >> DefaultChunkRendererExtender.REGION_WIDTH_SH) << DefaultChunkRendererExtender.REGION_WIDTH_SH) << 4;
-                int y = ((pos.getY() >> 4 >> DefaultChunkRendererExtender.REGION_HEIGHT_SH) << DefaultChunkRendererExtender.REGION_HEIGHT_SH) << 4;
-                int z = ((pos.getZ() >> 4 >> DefaultChunkRendererExtender.REGION_LENGTH_SH) << DefaultChunkRendererExtender.REGION_LENGTH_SH) << 4;
-                modelOffset.set(pos.getX() - x, pos.getY() - y, pos.getZ() - z);
+                BlockPos chunkOffset = ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOrigin;
+                modelOffset.set(pos.getX() - chunkOffset.getX(), pos.getY() - chunkOffset.getY(), pos.getZ() - chunkOffset.getZ());
             }
             
             @Override
@@ -73,16 +71,16 @@ public class EmbeddiumInteractor {
             
             @Override
             public int sectionIndex(Level level, long pos) {
-                int rX = SectionPos.x(pos) & (RenderRegion.REGION_WIDTH - 1);
-                int rY = SectionPos.y(pos) & (RenderRegion.REGION_HEIGHT - 1);
-                int rZ = SectionPos.z(pos) & (RenderRegion.REGION_LENGTH - 1);
+                int rX = SectionPos.x(pos) & DefaultChunkRendererExtender.REGION_WIDTH_M;
+                int rY = SectionPos.y(pos) & DefaultChunkRendererExtender.REGION_HEIGHT_M;
+                int rZ = SectionPos.z(pos) & DefaultChunkRendererExtender.REGION_LENGTH_M;
                 
                 return LocalSectionIndex.pack(rX, rY, rZ);
             }
             
             @Override
-            public BlockPos standardOffset(SectionPos pos) {
-                return null;
+            public BlockPos standardOffset(Level level, SectionPos pos) {
+                return ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOrigin;
             }
             
             @Override

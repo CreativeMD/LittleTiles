@@ -28,6 +28,11 @@ public interface DefaultChunkRendererExtender {
         shader.setRegionOffset(x, y, z);
     }
     
+    public static BlockPos regionOffset(BlockPos pos) {
+        return new BlockPos(((pos.getX() >> 4 >> REGION_WIDTH_SH) << REGION_WIDTH_SH) << 4, ((pos.getY() >> 4 >> REGION_HEIGHT_SH) << REGION_HEIGHT_SH) << 4, ((pos
+                .getZ() >> 4 >> REGION_LENGTH_SH) << REGION_LENGTH_SH) << 4);
+    }
+    
     private static float getCameraTranslation(int chunkBlockPos, int cameraBlockPos, float cameraPos) {
         return (chunkBlockPos - cameraBlockPos) - cameraPos;
     }

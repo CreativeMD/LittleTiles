@@ -137,7 +137,7 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
             VertexBuffer vertexbuffer = buffers.get(layer);
             if (vertexbuffer == null)
                 return;
-            DefaultChunkRendererExtender.setRenderRegionOffset(shader, entity.getCenter().chunkOffset.origin(), camera);
+            DefaultChunkRendererExtender.setRenderRegionOffset(shader, entity.getCenter().chunkOrigin, camera);
             vertexbuffer.bind();
             vertexbuffer.draw();
         }

@@ -43,7 +43,8 @@ public class RenderUploader {
     
     public static void queue(Level targetLevel, LittleAnimationEntity entity) {
         synchronized (CACHES) {
-            getOrCreate(targetLevel).queue(entity.getSubLevel(), entity.getSubLevel());
+            if (getOrCreate(targetLevel).queue(entity.getSubLevel(), entity.getSubLevel())) // Delete it if all cache has already been added to the blocks otherwise wait
+                CACHES.remove(entity.getSubLevel());
         }
     }
     
@@ -100,23 +101,35 @@ public class RenderUploader {
             return s;
         }
         
-        public void queue(Level originLevel, Iterable<BETiles> blocks) {
+        public boolean queue(Level originLevel, Iterable<BETiles> blocks) {
             RenderingLevelHandler origin = RenderingLevelHandler.of(originLevel);
             Long2ObjectMap<RenderChunkUploader> sections = new Long2ObjectOpenHashMap<>();
             for (Entry<BlockPos, RenderDataToAdd> entry : caches.entrySet())
                 getOrCreateSection(origin, originLevel, sections, entry.getKey()).queue(entry.getValue());
             for (BETiles be : blocks) {
                 var section = getOrCreateSection(origin, originLevel, sections, be.getBlockPos());
-                getOrCreateBlock(section, be.getBlockPos()).queueNew(origin, be, section.pos);
+                getOrCreateBlock(section, be.getBlockPos()).queueNew(origin, originLevel, be, section.pos);
             }
+            
             waitTill = LittleTilesClient.ANIMATION_HANDLER.longTickIndex + LittleAnimationHandlerClient.MAX_INTERVALS_WAITING;
             
-            if (LittleTiles.CONFIG.rendering.uploadToVBODirectly) {
+            if (LittleTiles.CONFIG.rendering.uploadToVBODirectly)
                 for (RenderChunkUploader section : sections.values())
                     section.appendRenderData();
-            } else
+            else
                 for (RenderChunkUploader section : sections.values())
                     section.markReadyForUpdate();
+                
+            for (Iterator<Entry<BlockPos, RenderDataToAdd>> iterator = caches.entrySet().iterator(); iterator.hasNext();) {
+                var entry = iterator.next();
+                if (entry.getValue().isDone())
+                    iterator.remove();
+            }
+            return caches.isEmpty();
+        }
+        
+        public boolean isEmpty() {
+            return caches.isEmpty();
         }
         
         public boolean notifyReceiveClientUpdate(BETiles be) {
@@ -133,17 +146,16 @@ public class RenderUploader {
         private class RenderDataToAdd implements LayeredBufferCache {
             
             private final ChunkLayerMap<BufferCache> holders = new ChunkLayerMap<>();
-            private BETiles cached = null;
-            private boolean toSearch = true;
+            private boolean done;
             
             @Override
             public BufferCache get(RenderType layer) {
                 return holders.get(layer);
             }
             
-            public void queueNew(RenderingLevelHandler origin, BETiles be, SectionPos pos) {
+            public void queueNew(RenderingLevelHandler origin, Level originLevel, BETiles be, SectionPos pos) {
                 IBlockBufferCache cache = be.render.buffers();
-                Vec3 vec = RenderingLevelHandler.offsetCorrection(target, origin, pos);
+                Vec3 vec = RenderingLevelHandler.offsetCorrection(target, targetLevel, origin, originLevel, pos);
                 
                 for (RenderType layer : RenderType.chunkBufferLayers()) {
                     BufferCache holder = cache.get(layer);
@@ -155,18 +167,19 @@ public class RenderUploader {
                     holders.put(layer, BlockBufferCache.combine(holders.get(layer), holder));
                 }
                 
-                if (toSearch) {
-                    cached = BlockTile.loadBE(targetLevel, be.getBlockPos());
-                    if (cached != null) {
-                        cached.render.additionalBuffersEarly(x -> x.additional(this));
-                    }
-                    toSearch = false;
+                var target = BlockTile.loadBE(targetLevel, be.getBlockPos());
+                if (target != null) {
+                    target.render.additionalBuffers(x -> x.additional(this));
+                    done = true;
                 }
             }
             
+            public boolean isDone() {
+                return done;
+            }
+            
             public void receiveUpdate(BETiles be) {
-                if (cached != be)
-                    be.render.additionalBuffers(x -> x.additional(this));
+                be.render.additionalBuffers(x -> x.additional(this));
             }
             
         }

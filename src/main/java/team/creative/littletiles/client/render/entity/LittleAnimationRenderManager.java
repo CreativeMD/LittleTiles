@@ -182,7 +182,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     
     @Override
     public VertexSorting createVertexSorting(double x, double y, double z) {
-        return VertexSorting.byDistance((float) x, (float) y, (float) z);
+        BlockPos chunkOffset = entity.getCenter().chunkOrigin;
+        return VertexSorting.byDistance((float) x - chunkOffset.getX(), (float) y - chunkOffset.getY(), (float) z - chunkOffset.getZ());
     }
     
     @Override
@@ -210,7 +211,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             if (vertexbuffer == null)
                 return;
             if (offset != null) {
-                offset.set((float) -x, (float) -y, (float) -z);
+                BlockPos chunkOffset = entity.getCenter().chunkOrigin;
+                offset.set(chunkOffset.getX() - (float) x, chunkOffset.getY() - (float) y, chunkOffset.getZ() - (float) z);
                 offset.upload();
             }
             

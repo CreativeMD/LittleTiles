@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.embeddedt.embeddium.impl.Embeddium;
 import org.embeddedt.embeddium.impl.gl.attribute.GlVertexAttributeFormat;
 import org.embeddedt.embeddium.impl.model.quad.properties.ModelQuadFacing;
 import org.embeddedt.embeddium.impl.render.chunk.compile.buffers.ChunkModelBuilder;
@@ -12,6 +13,7 @@ import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkMeshAttribut
 import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkVertexEncoder;
 import org.embeddedt.embeddium.impl.render.chunk.vertex.format.ChunkVertexType;
 import org.embeddedt.embeddium.impl.render.chunk.vertex.format.impl.CompactChunkVertex;
+import org.lwjgl.system.MemoryUtil;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.phys.Vec3;
@@ -21,6 +23,7 @@ import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloader;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.mixin.embeddium.ChunkMeshBufferBuilderAccessor;
+import team.creative.littletiles.mixin.embeddium.CompactChunkVertexAccessor;
 import team.creative.littletiles.mixin.embeddium.TranslucentQuadAnalyzerAccessor;
 
 public class EmbeddiumBufferCache implements BufferCache {
@@ -78,11 +81,35 @@ public class EmbeddiumBufferCache implements BufferCache {
         return new EmbeddiumBufferCache(buffers, textures, groupCount + cache.groupCount());
     }
     
+    private void applyEmbeddiumOffset(ByteBuffer buffer, Vec3 vec) {
+        if (buffer == null)
+            return;
+        
+        long ptr = MemoryUtil.memAddress(buffer);
+        int i = 0;
+        while (i < buffer.limit()) {
+            float x = CompactChunkVertex.decodePosition(MemoryUtil.memGetShort(ptr + 0));
+            MemoryUtil.memPutShort(ptr + 0, CompactChunkVertexAccessor.callEncodePosition(x + (float) vec.x));
+            float y = CompactChunkVertex.decodePosition(MemoryUtil.memGetShort(ptr + 2));
+            MemoryUtil.memPutShort(ptr + 2, CompactChunkVertexAccessor.callEncodePosition(y + (float) vec.y));
+            float z = CompactChunkVertex.decodePosition(MemoryUtil.memGetShort(ptr + 4));
+            MemoryUtil.memPutShort(ptr + 4, CompactChunkVertexAccessor.callEncodePosition(z + (float) vec.z));
+            ptr += CompactChunkVertex.STRIDE;
+            i += CompactChunkVertex.STRIDE;
+        }
+    }
+    
     @Override
     public void applyOffset(Vec3 vec) {
+        if (Embeddium.canUseVanillaVertices()) {
+            for (int i = 0; i < buffers.length; i++)
+                if (buffers[i] != null)
+                    buffers[i].applyOffset(vec);
+            return;
+        }
         for (int i = 0; i < buffers.length; i++)
             if (buffers[i] != null)
-                buffers[i].applyOffset(vec);
+                applyEmbeddiumOffset(buffers[i].byteBuffer(), vec);
     }
     
     @Override

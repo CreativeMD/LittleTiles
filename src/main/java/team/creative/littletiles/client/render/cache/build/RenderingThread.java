@@ -264,7 +264,6 @@ public class RenderingThread extends Thread {
             chunk.markReadyForUpdate(false);
         }
         return true;
-        
     }
     
     public static class RemovedBlockEntityException extends Exception {

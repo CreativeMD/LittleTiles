@@ -13,6 +13,7 @@ import team.creative.littletiles.client.mod.embeddium.EmbeddiumManager;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.ViewAreaExtender;
+import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.client.render.LevelRendererAccessor;
 
@@ -30,9 +31,9 @@ public abstract class RenderingLevelHandler {
         return new Vec3(x - to.getX(), y - to.getY(), z - to.getZ());
     }
     
-    public static Vec3 offsetCorrection(RenderingLevelHandler target, RenderingLevelHandler origin, SectionPos pos) {
-        var targetOffset = target.standardOffset(pos);
-        var originOffset = origin.standardOffset(pos);
+    public static Vec3 offsetCorrection(RenderingLevelHandler target, Level targetLevel, RenderingLevelHandler origin, Level originLevel, SectionPos pos) {
+        var targetOffset = target.standardOffset(targetLevel, pos);
+        var originOffset = origin.standardOffset(originLevel, pos);
         if (targetOffset != null && originOffset != null)
             return offsetCorrection(targetOffset, originOffset);
         return null;
@@ -51,7 +52,7 @@ public abstract class RenderingLevelHandler {
         }
         
         @Override
-        public BlockPos standardOffset(SectionPos pos) {
+        public BlockPos standardOffset(Level level, SectionPos pos) {
             return pos.origin();
         }
     };
@@ -69,7 +70,7 @@ public abstract class RenderingLevelHandler {
         }
         
         @Override
-        public BlockPos standardOffset(SectionPos pos) {
+        public BlockPos standardOffset(Level level, SectionPos pos) {
             return pos.origin();
         }
     };
@@ -83,7 +84,8 @@ public abstract class RenderingLevelHandler {
         
         @Override
         public void prepareModelOffset(Level level, MutableBlockPos modelOffset, BlockPos pos) {
-            modelOffset.set(pos.getX(), pos.getY(), pos.getZ());
+            BlockPos chunkOffset = ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOrigin;
+            modelOffset.set(pos.getX() - chunkOffset.getX(), pos.getY() - chunkOffset.getY(), pos.getZ() - chunkOffset.getZ());
         }
         
         @Override
@@ -92,8 +94,8 @@ public abstract class RenderingLevelHandler {
         }
         
         @Override
-        public BlockPos standardOffset(SectionPos pos) {
-            return BlockPos.ZERO;
+        public BlockPos standardOffset(Level level, SectionPos pos) {
+            return ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOrigin;
         }
         
         @Override
@@ -132,6 +134,6 @@ public abstract class RenderingLevelHandler {
         return -1;
     }
     
-    public abstract BlockPos standardOffset(SectionPos pos);
+    public abstract BlockPos standardOffset(Level level, SectionPos pos);
     
 }

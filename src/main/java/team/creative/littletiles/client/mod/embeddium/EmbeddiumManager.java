@@ -7,7 +7,7 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 
 public class EmbeddiumManager {
     
-    private static final String[] MODIDS = new String[] { "rubidium", "sodiumforged", "embeddium" };
+    private static final String[] MODIDS = new String[] { "embeddium" };
     private static final boolean INSTALLED = check();
     public static RenderingLevelHandler RENDERING_LEVEL;
     public static RenderingLevelHandler RENDERING_ANIMATION;

@@ -66,6 +66,7 @@
         "embeddium.ChunkBuilderMeshingTaskMixin",
         "embeddium.ChunkMeshBufferBuilderAccessor",
         "embeddium.ChunkModelBuilderMixin",
+        "embeddium.CompactChunkVertexAccessor",
         "embeddium.DefaultChunkRendererMixin",
         "embeddium.EmbeddiumWorldRendererAccessor",
         "embeddium.GlBufferMixin",

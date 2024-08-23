@@ -208,16 +208,8 @@ public class BERenderManager {
     }
     
     /** This method has to be called before block receives update and has possibly rendered. Otherwise problems will occur. If not sure rather use {@link BERenderManager.additionalBuffers()} */
-    public void additionalBuffersEarly(Consumer<AdditionalBufferReceiver> consumer) {
-        bufferCache.executeAdditional(consumer);
-    }
-    
     public void additionalBuffers(Consumer<AdditionalBufferReceiver> consumer) {
-        if (isInQueue()) {
-            bufferCache.executeAdditional(consumer);
-            if (!isInQueue()) // The rendering has been finished in the meantime ... in that case the additional should be removed again
-                bufferCache.clearAdditional();
-        }
+        bufferCache.executeAdditional(consumer);
     }
     
     public void setBuffersEmpty() {

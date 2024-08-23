@@ -19,7 +19,7 @@ public class RenderingBlockContext {
     
     public final BETiles be;
     public final BlockState state;
-    public final long pos;
+    private final long pos;
     private final RenderingLevelHandler handler;
     public int index;
     
@@ -85,5 +85,9 @@ public class RenderingBlockContext {
     
     public int sectionIndex() {
         return handler.sectionIndex(getLevel(), pos);
+    }
+    
+    public long queuedSection() {
+        return handler.prepareQueue(pos);
     }
 }

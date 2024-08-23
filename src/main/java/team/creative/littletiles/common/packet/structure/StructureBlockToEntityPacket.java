@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -30,15 +31,15 @@ public class StructureBlockToEntityPacket extends StructurePacket {
         this.uuid = entity.getUUID();
     }
     
-    private void queueStructure(Long2ObjectMap<SectionPos> chunks, RenderingLevelHandler targetLevel, RenderingLevelHandler origin, LittleStructure structure,
-            LittleAnimationEntity entity) throws LittleActionException {
+    private void queueStructure(Long2ObjectMap<SectionPos> chunks, RenderingLevelHandler target, Level targetLevel, RenderingLevelHandler origin, Level originLevel,
+            LittleStructure structure, LittleAnimationEntity entity) throws LittleActionException {
         for (BETiles be : structure.blocks()) {
             
             BlockEntity block = entity.getSubLevel().getBlockEntity(be.getBlockPos());
             if (!(block instanceof BETiles))
                 continue;
             
-            BETiles target = (BETiles) block;
+            BETiles targetBE = (BETiles) block;
             
             var pos = SectionPos.asLong(be.getBlockPos());
             SectionPos section = chunks.get(pos);
@@ -47,9 +48,9 @@ public class StructureBlockToEntityPacket extends StructurePacket {
                 chunks.put(pos, section = SectionPos.of(be.getBlockPos()));
             }
             
-            Vec3 offset = RenderingLevelHandler.offsetCorrection(targetLevel, origin, section);
+            Vec3 offset = RenderingLevelHandler.offsetCorrection(target, targetLevel, origin, originLevel, section);
             
-            target.render.additionalBuffers(x -> {
+            targetBE.render.additionalBuffers(x -> {
                 for (RenderType layer : RenderType.chunkBufferLayers()) {
                     BufferCache holder = be.render.buffers().extract(layer, structure.getIndex());
                     if (holder == null)
@@ -67,7 +68,7 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             if (child.isLinkToAnotherWorld())
                 continue;
             try {
-                queueStructure(chunks, targetLevel, origin, child.getStructure(), entity);
+                queueStructure(chunks, target, targetLevel, origin, originLevel, child.getStructure(), entity);
             } catch (LittleActionException e) {}
         }
     }
@@ -78,7 +79,8 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             requiresClient(player);
             Long2ObjectMap<SectionPos> chunks = new Long2ObjectOpenHashMap<>();
             LittleAnimationEntity ani = (LittleAnimationEntity) LittleTilesClient.ANIMATION_HANDLER.find(uuid);
-            queueStructure(chunks, RenderingLevelHandler.of(ani.getSubLevel()), RenderingLevelHandler.of(structure.getStructureLevel()), structure, ani);
+            queueStructure(chunks, RenderingLevelHandler.of(ani.getSubLevel()), ani.getSubLevel(), RenderingLevelHandler.of(structure.getStructureLevel()), structure
+                    .getStructureLevel(), structure, ani);
         } catch (LittleActionException | ClassCastException e) {
             e.printStackTrace();
         }

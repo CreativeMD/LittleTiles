@@ -19,6 +19,7 @@ public class StructureAbsolute extends StructureRelative {
     public final LittleVecGrid inBlockOffset;
     public final BlockPos baseOffset;
     public final SectionPos chunkOffset;
+    public final BlockPos chunkOrigin;
     public final BlockPos inChunkOffset;
     
     public final Vec3d rotationCenter;
@@ -36,6 +37,7 @@ public class StructureAbsolute extends StructureRelative {
         this.baseOffset = pos.offset(minPosOffset);
         
         this.chunkOffset = SectionPos.of(baseOffset);
+        this.chunkOrigin = chunkOffset.origin();
         int chunkX = intFloorDiv(baseOffset.getX(), 16);
         int chunkY = intFloorDiv(baseOffset.getY(), 16);
         int chunkZ = intFloorDiv(baseOffset.getZ(), 16);
@@ -63,6 +65,7 @@ public class StructureAbsolute extends StructureRelative {
         this.baseOffset = pos.getPos().offset(minPosOffset);
         
         this.chunkOffset = SectionPos.of(baseOffset);
+        this.chunkOrigin = chunkOffset.origin();
         int chunkX = intFloorDiv(baseOffset.getX(), 16);
         int chunkY = intFloorDiv(baseOffset.getY(), 16);
         int chunkZ = intFloorDiv(baseOffset.getZ(), 16);

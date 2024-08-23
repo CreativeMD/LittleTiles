@@ -22,9 +22,10 @@ public class RenderingBlockQueue {
     public synchronized void queue(BETiles tiles, long pos) {
         var level = tiles.getLevel();
         var handler = RenderingLevelHandler.of(level);
-        pos = handler.prepareQueue(pos);
+        
         RenderingBlockContext context = new RenderingBlockContext(tiles, pos, handler);
         var sections = levels.computeIfAbsent(level, x -> new Long2IntOpenHashMap());
+        pos = context.queuedSection(); // get rid of different render chunks if it is just one in cause of an animation
         int count = sections.getOrDefault(pos, 0);
         count++;
         sections.put(pos, count);
@@ -36,15 +37,16 @@ public class RenderingBlockQueue {
         var sections = levels.get(level);
         if (sections == null)
             return null;
-        int count = sections.get(context.pos);
+        long pos = context.queuedSection(); // get rid of different render chunks if it is just one in cause of an animation
+        int count = sections.get(pos);
         count--;
         if (count <= 0) {
-            sections.remove(context.pos);
+            sections.remove(pos);
             if (sections.isEmpty())
                 levels.remove(level);
             return context.getRenderChunk();
         }
-        sections.put(context.pos, count);
+        sections.put(pos, count);
         return null;
     }
     
