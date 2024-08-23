@@ -1,3 +1,11 @@
+1.6.0-pre115
+Fixed mirror of tiles not working correctly when structure has children
+Fixed not displaying hit particles when mining tiles
+Fixed using deprecated method to register block client extension
+Fixed recipes not working
+Fixed several issues related to door transition
+Fixed embeddium door rendering issues
+
 1.6.0-pre113
 Fixed additional buffers from animation transition staying after forever
 Fixed existing blocks receiving additional buffers from animation transition too late
