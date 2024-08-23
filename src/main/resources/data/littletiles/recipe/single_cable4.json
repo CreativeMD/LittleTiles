@@ -1,11 +1,13 @@
 {
     "result": {
-        "item": "littletiles:premade",
-        "structure": "particle_emitter"
+        "id": "littletiles:premade",
+        "count": 32
     },
+    "structure": "single_cable4",
+    "category": "redstone",
     "pattern": [
-        "CDC",
-        "GRG",
+        "CCC",
+        "CRC",
         "CCC"
     ],
     "type": "littletiles:crafting_shaped_premade",
@@ -15,12 +17,6 @@
         },
         "C": {
             "item": "minecraft:black_concrete"
-        },
-        "G": {
-            "item": "minecraft:fire_charge"
-        },
-        "D": {
-            "item": "minecraft:dispenser"
         }
     }
 }

@@ -1,7 +1,8 @@
 {
     "result": {
-        "item": "littletiles:storage"
+        "id": "littletiles:storage"
     },
+    "category": "building",
     "pattern": [
         "C"
     ],

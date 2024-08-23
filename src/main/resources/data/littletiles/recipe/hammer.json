@@ -1,11 +1,12 @@
 {
     "result": {
-        "item": "littletiles:chisel"
+        "id": "littletiles:hammer"
     },
+    "category": "equipment",
     "pattern": [
-        "X",
-        "X",
-        "L"
+        "XXX",
+        " L ",
+        " L "
     ],
     "type": "minecraft:crafting_shaped",
     "key": {

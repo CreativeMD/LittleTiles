@@ -1,8 +1,9 @@
 {
     "result": {
-        "item": "littletiles:premade",
-        "structure": "signal_display_16"
+        "id": "littletiles:premade"
     },
+    "structure": "signal_display_16",
+    "category": "redstone",
     "pattern": [
         "SSS",
         "GRG",

@@ -1,16 +1,19 @@
 {
     "result": {
-        "item": "littletiles:premade",
-        "structure": "single_cable4",
-        "count": 32
+        "id": "littletiles:premade"
     },
+    "structure": "structure_builder",
+    "category": "building",
     "pattern": [
         "CCC",
         "CRC",
-        "CCC"
+        "CXC"
     ],
     "type": "littletiles:crafting_shaped_premade",
     "key": {
+        "X": {
+            "tag": "minecraft:planks"
+        },
         "R": {
             "item": "minecraft:redstone_block"
         },

@@ -1,8 +1,9 @@
 {
     "result": {
-        "item": "littletiles:blueprint",
+        "id": "littletiles:blueprint",
         "count": 4
     },
+    "category": "equipment",
     "pattern": [
         "XXX",
         "XLX",

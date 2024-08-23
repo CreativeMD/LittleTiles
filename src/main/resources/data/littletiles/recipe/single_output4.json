@@ -1,23 +1,25 @@
 {
     "result": {
-        "item": "littletiles:premade",
-        "structure": "structure_builder"
+        "id": "littletiles:premade",
+        "count": 32
     },
+    "structure": "single_output4",
     "pattern": [
         "CCC",
-        "CRC",
-        "CXC"
+        "YRY",
+        "CCC"
     ],
+    "category": "redstone",
     "type": "littletiles:crafting_shaped_premade",
     "key": {
-        "X": {
-            "tag": "minecraft:planks"
-        },
         "R": {
             "item": "minecraft:redstone_block"
         },
         "C": {
             "item": "minecraft:black_concrete"
+        },
+        "Y": {
+            "item": "minecraft:yellow_concrete"
         }
     }
 }

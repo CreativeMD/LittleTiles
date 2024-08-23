@@ -1,8 +1,9 @@
 {
     "result": {
-        "item": "littletiles:premade",
-        "structure": "blankomatic"
+        "id": "littletiles:premade"
     },
+    "structure": "workbench",
+    "category": "building",
     "pattern": [
         "XWX",
         "XLX",
@@ -14,10 +15,10 @@
             "tag": "minecraft:planks"
         },
         "W": {
-            "item": "minecraft:iron_ingot"
+            "item": "minecraft:crafting_table"
         },
         "L": {
-            "item": "littletiles:paint_brush"
+            "item": "littletiles:wrench"
         }
     }
 }

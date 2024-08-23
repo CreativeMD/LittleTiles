@@ -1,11 +1,12 @@
 {
     "result": {
-        "item": "littletiles:hammer"
+        "id": "littletiles:wrench"
     },
+    "category": "equipment",
     "pattern": [
-        "XXX",
-        " L ",
-        " L "
+        "X",
+        "L",
+        "L"
     ],
     "type": "minecraft:crafting_shaped",
     "key": {

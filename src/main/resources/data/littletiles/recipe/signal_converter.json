@@ -1,7 +1,8 @@
 {
     "result": {
-        "item": "littletiles:signal_converter"
+        "id": "littletiles:signal_converter"
     },
+    "category": "redstone",
     "pattern": [
         "R",
         "C"

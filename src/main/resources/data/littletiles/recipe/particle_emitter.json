@@ -1,12 +1,12 @@
 {
     "result": {
-        "item": "littletiles:premade",
-        "structure": "single_output4",
-        "count": 32
+        "id": "littletiles:premade"
     },
+    "structure": "particle_emitter",
+    "category": "building",
     "pattern": [
-        "CCC",
-        "YRY",
+        "CDC",
+        "GRG",
         "CCC"
     ],
     "type": "littletiles:crafting_shaped_premade",
@@ -17,8 +17,11 @@
         "C": {
             "item": "minecraft:black_concrete"
         },
-        "Y": {
-            "item": "minecraft:yellow_concrete"
+        "G": {
+            "item": "minecraft:fire_charge"
+        },
+        "D": {
+            "item": "minecraft:dispenser"
         }
     }
 }

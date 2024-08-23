@@ -1,9 +1,10 @@
 {
     "result": {
-        "item": "littletiles:premade",
-        "structure": "single_input4",
+        "id": "littletiles:premade",
         "count": 32
     },
+    "structure": "single_input4",
+    "category": "redstone",
     "pattern": [
         "CCC",
         "YRY",

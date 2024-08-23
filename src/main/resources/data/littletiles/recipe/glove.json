@@ -1,18 +1,19 @@
 {
     "result": {
-        "item": "littletiles:wrench"
+        "id": "littletiles:glove"
     },
+    "category": "equipment",
     "pattern": [
-        "X",
-        "L",
-        "L"
+        " L ",
+        "LIL",
+        " L "
     ],
     "type": "minecraft:crafting_shaped",
     "key": {
-        "X": {
-            "item": "minecraft:iron_ingot"
-        },
         "L": {
+            "item": "minecraft:leather"
+        },
+        "I": {
             "item": "minecraft:lapis_lazuli"
         }
     }

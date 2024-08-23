@@ -1,18 +1,19 @@
 {
     "result": {
-        "item": "littletiles:glove"
+        "id": "littletiles:saw"
     },
+    "category": "equipment",
     "pattern": [
-        " L ",
-        "LIL",
-        " L "
+        "LX",
+        "LX",
+        "L "
     ],
     "type": "minecraft:crafting_shaped",
     "key": {
-        "L": {
-            "item": "minecraft:leather"
+        "X": {
+            "item": "minecraft:iron_ingot"
         },
-        "I": {
+        "L": {
             "item": "minecraft:lapis_lazuli"
         }
     }

@@ -1,7 +1,8 @@
 {
     "result": {
-        "item": "littletiles:colored_lava"
+        "id": "littletiles:colored_lava"
     },
+    "category": "building",
     "ingredients": [
         {
             "item": "minecraft:lava_bucket"

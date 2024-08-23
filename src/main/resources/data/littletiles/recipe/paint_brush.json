@@ -1,8 +1,8 @@
 {
     "result": {
-        "item": "littletiles:paint_brush",
-        "data": 0
+        "id": "littletiles:paint_brush"
     },
+    "category": "equipment",
     "pattern": [
         "XXX",
         " L ",

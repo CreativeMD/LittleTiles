@@ -1,8 +1,8 @@
 {
     "result": {
-        "item": "littletiles:bag",
-        "data": 0
+        "id": "littletiles:bag"
     },
+    "category": "equipment",
     "pattern": [
         " S ",
         "LIL",
