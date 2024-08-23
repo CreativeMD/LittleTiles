@@ -244,7 +244,7 @@ public class BufferHolder implements BufferCache {
         
         int div = length() / vertexCount();
         int vertexCount = length / div;
-        ByteBuffer newBuffer = ByteBuffer.allocate(length); // Create new vertex buffer
+        ByteBuffer newBuffer = ByteBuffer.allocateDirect(length); // Create new vertex buffer
         newBuffer.put(0, buffer, start, length);
         newBuffer.rewind();
         removeEntry(length, vertexCount); // Notify buffer holder of changed length and vertexCount
