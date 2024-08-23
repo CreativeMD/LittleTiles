@@ -300,7 +300,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         if (!transformable())
             throw new RuntimeException("Cannot transform group with links");
         
-        for (LittleBox box : allBoxes())
+        for (LittleBox box : boxes())
             box.mirror(axis, doubledCenter);
         
         if (hasStructure())
