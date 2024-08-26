@@ -24,6 +24,9 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.box.LittlePlaceBoxRelative;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.animation.AnimationState;
+import team.creative.littletiles.common.structure.animation.AnimationStateDirected;
+import team.creative.littletiles.common.structure.animation.AnimationTransition;
 import team.creative.littletiles.common.structure.relative.StructureRelative;
 
 public abstract class StructureDirectionalType<T> {
@@ -345,6 +348,118 @@ public abstract class StructureDirectionalType<T> {
             public Vec3f getDefault() {
                 return new Vec3f();
             }
+        });
+        register(AnimationTransition.class, new StructureDirectionalTypeSimple<AnimationTransition>() {
+            
+            @Override
+            public AnimationTransition read(Tag nbt) {
+                if (nbt instanceof CompoundTag c)
+                    return new AnimationTransition(c);
+                return null;
+            }
+            
+            @Override
+            public Tag write(AnimationTransition value) {
+                return value.save();
+            }
+            
+            @Override
+            public AnimationTransition move(AnimationTransition value, LittleVecGrid vec) {
+                return value;
+            }
+            
+            @Override
+            public AnimationTransition mirror(AnimationTransition value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
+                value.timeline.mirror(axis);
+                return value;
+            }
+            
+            @Override
+            public AnimationTransition rotate(AnimationTransition value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
+                value.timeline.rotate(rotation);
+                return value;
+            }
+            
+            @Override
+            public AnimationTransition getDefault() {
+                throw new UnsupportedOperationException();
+            }
+            
+        });
+        
+        register(AnimationState.class, new StructureDirectionalTypeSimple<AnimationState>() {
+            
+            @Override
+            public AnimationState read(Tag nbt) {
+                if (nbt instanceof CompoundTag c)
+                    return new AnimationState(c);
+                return null;
+            }
+            
+            @Override
+            public Tag write(AnimationState value) {
+                return value.save();
+            }
+            
+            @Override
+            public AnimationState move(AnimationState value, LittleVecGrid vec) {
+                return value;
+            }
+            
+            @Override
+            public AnimationState mirror(AnimationState value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
+                value.mirror(axis);
+                return value;
+            }
+            
+            @Override
+            public AnimationState rotate(AnimationState value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
+                value.rotate(rotation);
+                return value;
+            }
+            
+            @Override
+            public AnimationState getDefault() {
+                throw new UnsupportedOperationException();
+            }
+            
+        });
+        register(AnimationStateDirected.class, new StructureDirectionalTypeSimple<AnimationStateDirected>() {
+            
+            @Override
+            public AnimationStateDirected read(Tag nbt) {
+                if (nbt instanceof CompoundTag c)
+                    return new AnimationStateDirected(c);
+                return null;
+            }
+            
+            @Override
+            public Tag write(AnimationStateDirected value) {
+                return value.save();
+            }
+            
+            @Override
+            public AnimationStateDirected move(AnimationStateDirected value, LittleVecGrid vec) {
+                return value;
+            }
+            
+            @Override
+            public AnimationStateDirected mirror(AnimationStateDirected value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
+                value.mirror(axis);
+                return value;
+            }
+            
+            @Override
+            public AnimationStateDirected rotate(AnimationStateDirected value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
+                value.rotate(rotation);
+                return value;
+            }
+            
+            @Override
+            public AnimationStateDirected getDefault() {
+                throw new UnsupportedOperationException();
+            }
+            
         });
     }
     
