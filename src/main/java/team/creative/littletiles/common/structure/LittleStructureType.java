@@ -1,7 +1,9 @@
 package team.creative.littletiles.common.structure;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 import java.util.function.Supplier;
@@ -38,6 +40,15 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 
 public class LittleStructureType {
     
+    private static List<Field> listAllFields(Class clazz) {
+        List<Field> fieldList = new ArrayList<Field>();
+        while (clazz != null) {
+            fieldList.addAll(Arrays.asList(clazz.getDeclaredFields()));
+            clazz = clazz.getSuperclass();
+        }
+        return fieldList;
+    }
+    
     public final String id;
     public final Class<? extends LittleStructure> clazz;
     public final BiFunction<? extends LittleStructureType, IStructureParentCollection, ? extends LittleStructure> factory;
@@ -54,9 +65,14 @@ public class LittleStructureType {
         this.attribute = attribute.build();
         
         this.directional = new ArrayList<>();
-        for (Field field : structureClass.getFields())
-            if (field.isAnnotationPresent(StructureDirectional.class))
-                directional.add(new StructureDirectionalField(field, field.getAnnotation(StructureDirectional.class)));
+        for (Field field : listAllFields(structureClass)) {
+            if (!field.isAnnotationPresent(StructureDirectional.class))
+                continue;
+            if (Modifier.isFinal(field.getModifiers()))
+                throw new RuntimeException("Field inside " + structureClass.getName() + " has final field marked as directional " + field);
+            field.setAccessible(true);
+            directional.add(new StructureDirectionalField(structureClass, field, field.getAnnotation(StructureDirectional.class)));
+        }
     }
     
     public InternalSignalInput[] createInputs(LittleStructure structure) {
