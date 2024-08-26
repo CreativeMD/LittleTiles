@@ -1,3 +1,10 @@
+1.6.0-pre116
+Fixed doors not reacting properly to mirror and rotation
+-Fixed LittleStateStructure making incorrect use of structure directional
+-Added structure directional support for AnimationTransition, AnimationState and AnimationStateDirected
+-Made structure directional support generic type parameters of classes
+-Fixed structure directional ignoring private, protected and fields from super classes
+
 1.6.0-pre115
 Fixed issue with buffer holder extract method not creating direct buffer
 Fixed mirror of tiles not working correctly when structure has children
