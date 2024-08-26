@@ -2,11 +2,13 @@ package team.creative.littletiles.common.structure.directional;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.TypeVariable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.function.Function;
+import java.util.function.BiFunction;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.IntTag;
 import net.minecraft.nbt.ListTag;
@@ -27,15 +29,15 @@ import team.creative.littletiles.common.structure.relative.StructureRelative;
 public abstract class StructureDirectionalType<T> {
     
     private static HashMap<Class, StructureDirectionalType> types = new HashMap<>();
-    private static List<Function<Field, StructureDirectionalType>> specialFactories = new ArrayList<>();
+    private static List<BiFunction<Field, Class, StructureDirectionalType>> specialFactories = new ArrayList<>();
     
-    public static StructureDirectionalType getType(Field field) {
+    public static StructureDirectionalType getType(Class origin, Field field) {
         StructureDirectionalType type = types.get(field.getType());
         if (type != null)
             return type;
         
-        for (Function<Field, StructureDirectionalType> factory : specialFactories) {
-            type = factory.apply(field);
+        for (BiFunction<Field, Class, StructureDirectionalType> factory : specialFactories) {
+            type = factory.apply(field, origin);
             if (type != null)
                 return type;
         }
@@ -57,12 +59,53 @@ public abstract class StructureDirectionalType<T> {
         types.put(clazz, type);
     }
     
-    public static void register(Function<Field, StructureDirectionalType> factory) {
+    public static void register(BiFunction<Field, Class, StructureDirectionalType> factory) {
         specialFactories.add(factory);
     }
     
+    private static int searchIndex(Class clazz, TypeVariable toFind) {
+        var typeParamters = clazz.getTypeParameters();
+        for (int i = 0; i < typeParamters.length; i++)
+            if (typeParamters[i] == toFind) {
+                return i;
+            }
+        
+        throw new IllegalArgumentException("Type parameter " + toFind + " could not be found in " + clazz);
+    }
+    
+    private static Class searchType(Class origin, Class clazz, TypeVariable toFind) {
+        List<Class> classTree = new ArrayList<>();
+        classTree.add(origin);
+        Class temp = origin;
+        while (temp.getSuperclass() != null) {
+            var newTemp = temp.getSuperclass();
+            if (newTemp == clazz)
+                break;
+            else if (newTemp == null)
+                throw new IllegalArgumentException(origin + " does not extend " + clazz);
+            classTree.add(newTemp);
+            temp = newTemp;
+        }
+        
+        int paramIndex = searchIndex(clazz, toFind);
+        
+        int index = classTree.size() - 1;
+        while (index >= 0) {
+            ParameterizedType genericType = (ParameterizedType) classTree.get(index).getGenericSuperclass(); // has to parameterized as it does extend origin
+            var actual = genericType.getActualTypeArguments()[paramIndex];
+            if (actual instanceof Class c)
+                return c;
+            if (actual instanceof TypeVariable t) {
+                paramIndex = searchIndex(classTree.get(index), t);
+                index--;
+            }
+        }
+        
+        throw new IllegalArgumentException("Could not find valid class type of " + toFind + " in " + clazz);
+    }
+    
     static {
-        register(x -> {
+        register((x, y) -> {
             if (List.class.isAssignableFrom(x.getType()))
                 return new StructureDirectionalType<List>() {
                     
@@ -70,7 +113,13 @@ public abstract class StructureDirectionalType<T> {
                     
                     {
                         ParameterizedType type = (ParameterizedType) x.getGenericType();
-                        subType = getSubType((Class) type.getActualTypeArguments()[0]);
+                        var actualType = type.getActualTypeArguments()[0];
+                        if (actualType instanceof Class c)
+                            subType = getSubType(c);
+                        else if (actualType instanceof TypeVariable t)
+                            subType = getSubType(searchType(y, (Class) t.getGenericDeclaration(), t));
+                        else
+                            throw new IllegalArgumentException("Could not find subtype of " + x);
                     }
                     
                     @Override

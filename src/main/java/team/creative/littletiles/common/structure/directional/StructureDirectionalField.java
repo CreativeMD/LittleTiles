@@ -21,12 +21,12 @@ public class StructureDirectionalField {
     public final StructureDirectionalType type;
     private Object defaultValue;
     
-    public StructureDirectionalField(Field field, StructureDirectional annotation) {
+    public StructureDirectionalField(Class structureClass, Field field, StructureDirectional annotation) {
         this.field = field;
         this.key = field.getName();
         this.saveKey = annotation.saveKey().isEmpty() ? key : annotation.saveKey();
         this.annotation = annotation;
-        this.type = StructureDirectionalType.getType(field);
+        this.type = StructureDirectionalType.getType(structureClass, field);
     }
     
     public void set(LittleStructure structure, Object value) {
