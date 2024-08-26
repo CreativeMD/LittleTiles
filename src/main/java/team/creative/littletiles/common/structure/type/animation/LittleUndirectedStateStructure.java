@@ -50,11 +50,6 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     }
     
     @Override
-    protected AnimationState createState(CompoundTag nbt) {
-        return new AnimationState(nbt);
-    }
-    
-    @Override
     protected AnimationState getEmptyState() {
         return EMPTY;
     }

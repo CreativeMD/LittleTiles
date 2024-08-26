@@ -6,11 +6,8 @@ import java.util.function.BiFunction;
 
 import javax.annotation.Nullable;
 
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraftforge.api.distmarker.Dist;
@@ -45,7 +42,7 @@ import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public abstract class LittleStateStructure<T extends AnimationState> extends LittleStructure implements AnimationContext {
     
-    @StructureDirectional
+    @StructureDirectional(saveKey = "s")
     private List<T> states = new ArrayList<>();
     private int currentState;
     private int aimedState = -1;
@@ -64,6 +61,8 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     protected abstract AnimationTimeline generateTimeline(T start, T end);
     
     protected abstract ValueCurve<Vec1d> createEmptyCurve();
+    
+    protected abstract T getEmptyState();
     
     protected boolean startTransition(AnimationTransition transition) {
         return startTransition(transition.start, transition.end, transition.timeline);
@@ -182,10 +181,6 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         return aimedState != -1;
     }
     
-    protected abstract T createState(CompoundTag nbt);
-    
-    protected abstract T getEmptyState();
-    
     @OnlyIn(Dist.CLIENT)
     public void setClientTimeline(AnimationTimeline timeline) {
         this.timeline = timeline;
@@ -195,12 +190,6 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     @Override
     protected void loadExtra(CompoundTag nbt) {
-        ListTag stateList = nbt.getList("s", Tag.TAG_COMPOUND);
-        List<T> states = new ArrayList<>(stateList.size());
-        for (int i = 0; i < stateList.size(); i++)
-            states.add(createState(stateList.getCompound(i)));
-        this.states = new ObjectImmutableList<>(states);
-        
         currentState = nbt.getInt("cS");
         //if (currentState < 0 || currentState >= states.size())
         //throw new RuntimeException("Invalid state structure! State " + currentState + " not found. Only got " + states.size() + " states");
@@ -235,11 +224,6 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         
         if (physical != null)
             nbt.put("cP", physical.save());
-        
-        ListTag stateList = new ListTag();
-        for (int i = 0; i < states.size(); i++)
-            stateList.add(states.get(i).save());
-        nbt.put("s", stateList);
         
         if (stayAnimated)
             nbt.putBoolean("stay", stayAnimated);

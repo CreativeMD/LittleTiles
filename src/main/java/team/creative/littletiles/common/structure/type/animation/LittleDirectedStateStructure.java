@@ -32,11 +32,6 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     }
     
     @Override
-    protected AnimationStateDirected createState(CompoundTag nbt) {
-        return new AnimationStateDirected(nbt);
-    }
-    
-    @Override
     protected AnimationStateDirected getEmptyState() {
         return EMPTY;
     }
