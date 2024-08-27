@@ -11,6 +11,7 @@ import net.minecraft.network.syncher.SynchedEntityData.Builder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -71,6 +72,11 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
                 }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
+    }
+    
+    @Override
+    public Vec3 getPassengerRidingPosition(Entity entity) {
+        return position();
     }
     
     @Override

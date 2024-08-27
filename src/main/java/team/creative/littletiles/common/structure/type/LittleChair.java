@@ -105,7 +105,7 @@ public class LittleChair extends LittleStructure {
                 if (vec != null) {
                     if (level instanceof ISubLevel)
                         level = ((ISubLevel) level).getRealLevel();
-                    EntitySit sit = new EntitySit(this, level, vec.getPosX(), vec.getPosY() - 0.25, vec.getPosZ());
+                    EntitySit sit = new EntitySit(this, level, vec.getPosX(), vec.getPosY(), vec.getPosZ());
                     sitUUID = sit.getUUID();
                     player.startRiding(sit);
                     level.addFreshEntity(sit);
