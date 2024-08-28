@@ -1,3 +1,7 @@
+1.6.0-pre117
+Fixed crash when calling BlockTile.getCloneItemStack on server side
+Fixed chair sit position
+
 1.6.0-pre116
 Fixed doors not reacting properly to mirror and rotation
 -Fixed LittleStateStructure making incorrect use of structure directional
