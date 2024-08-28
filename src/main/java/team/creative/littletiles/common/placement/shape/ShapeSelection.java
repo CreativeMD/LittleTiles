@@ -80,6 +80,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         return ILittleTool.getData(stack);
     }
     
+    public void setNBT(CompoundTag nbt) {
+        ILittleTool.setData(stack, nbt);
+    }
+    
     protected boolean requiresCacheUpdate(LittleGrid grid) {
         if (cache == null)
             return true;
@@ -230,12 +234,16 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     }
     
     public void rotate(Player player, ItemStack stack, Rotation rotation) {
-        shape.rotate(getNBT(), rotation);
+        var nbt = getNBT();
+        shape.rotate(nbt, rotation);
+        setNBT(nbt);
         deleteCache();
     }
     
     public void mirror(Player player, ItemStack stack, Axis axis) {
-        shape.mirror(getNBT(), axis);
+        var nbt = getNBT();
+        shape.mirror(nbt, axis);
+        setNBT(nbt);
         deleteCache();
     }
     
