@@ -586,6 +586,9 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     
     @Override
     public ItemStack getCloneItemStack(BlockState state, HitResult target, LevelReader level, BlockPos pos, Player player) {
+        if (!level.isClientSide())
+            return ItemStack.EMPTY;
+        
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player);
         if (result.isComplete()) {
             if (selectEntireBlock(player, LittleActionHandlerClient.isUsingSecondMode())) {
