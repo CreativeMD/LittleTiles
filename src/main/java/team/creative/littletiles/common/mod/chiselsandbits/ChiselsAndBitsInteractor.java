@@ -30,8 +30,11 @@ public class ChiselsAndBitsInteractor {
         LittleGroup group = new LittleGroup();
         LittleGrid grid = LittleGrid.get(ChiselsAndBitsManager.convertingFrom);
         stream.forEach(state -> {
+            var block = state.getBlockInformation().getBlockState();
+            if (block.isAir())
+                return;
             LittleBox box = new LittleBox(new LittleVec(grid, state.getStartPoint()), new LittleVec(grid, state.getEndPoint()));
-            group.add(grid, new LittleElement(state.getBlockInformation().getBlockState(), ColorUtils.WHITE), box);
+            group.add(grid, new LittleElement(block, ColorUtils.WHITE), box);
         });
         
         group.combine();
