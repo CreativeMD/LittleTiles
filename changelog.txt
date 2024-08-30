@@ -1,3 +1,6 @@
+1.6.0-pre119
+Fixed LittleStateStructure making incorrect use of structure directional
+
 1.6.0-pre118
 Fixed chisel and bits convertion creating air tiles (caused missing texture error)
 
