@@ -1,3 +1,9 @@
+1.6.0-pre120
+Fixed weird paint brush undo behavior causing endless amounts of actions to be performed
+Fixed an issue with face culling if the face is at the edge of another block with a different grid size
+Fixed little collection could contain empty tiles, which caused issues when removing a block
+Exclude frameblocks as being valid blocks to build with
+
 1.6.0-pre118
 Fixed chisel and bits convertion creating air tiles (caused missing texture error)
 
