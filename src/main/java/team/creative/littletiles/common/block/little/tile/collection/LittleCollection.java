@@ -37,7 +37,9 @@ public class LittleCollection implements Iterable<LittleTile> {
                 return;
             }
         
-        content.add(new LittleTile(element, boxes));
+        var tile = new LittleTile(element, boxes);
+        if (!tile.isEmpty())
+            content.add(tile);
     }
     
     public void add(LittleElement element, LittleBox box) {
