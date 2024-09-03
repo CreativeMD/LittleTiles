@@ -464,9 +464,17 @@ public abstract class LittleAction<T> extends CreativePacket {
         return block instanceof TransparentBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock || block instanceof LeavesBlock;
     }
     
+    private static boolean isBlockInvalid(Block block) {
+        var location = block.builtInRegistryHolder().unwrapKey().get().location();
+        return location.getNamespace().equals("framedblocks");
+    }
+    
     public static boolean isBlockValid(BlockState state) {
         if (isBlockValid(state.getBlock()))
             return true;
+        if (isBlockInvalid(state.getBlock()))
+            return false;
+        
         if (state.isSolid() && state.isCollisionShapeFullBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
             return true;
         if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))
