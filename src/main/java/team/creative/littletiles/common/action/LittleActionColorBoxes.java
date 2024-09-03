@@ -3,10 +3,11 @@ package team.creative.littletiles.common.action;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map.Entry;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -15,7 +16,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.entity.BETiles.BlockEntityInteractor;
@@ -44,7 +44,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     public boolean toVanilla;
     public transient boolean doneSomething;
     private transient double colorVolume;
-    public transient HashMapList<Integer, LittleBoxes> revertList;
+    public transient Int2ObjectMap<LittleBoxes> revertList;
     
     public LittleActionColorBoxes(Level level, LittleBoxes boxes, int color, boolean toVanilla) {
         super(level, boxes);
@@ -61,10 +61,10 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     public LittleActionColorBoxes() {}
     
     public void addRevert(int color, BlockPos pos, LittleGrid grid, Iterable<LittleBox> boxes) {
-        LittleBoxes newBoxes = new LittleBoxesSimple(pos, grid);
-        for (LittleBox box : boxes)
-            newBoxes.add(box.copy());
-        revertList.add(color, newBoxes);
+        var reverted = revertList.get(color);
+        if (reverted == null)
+            revertList.put(color, reverted = new LittleBoxesSimple(pos, grid));
+        reverted.addBoxes(grid, pos, boxes);
     }
     
     public boolean shouldSkipTile(IParentCollection parent, LittleTile tile) {
@@ -238,7 +238,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     
     @Override
     public Boolean action(Player player) throws LittleActionException {
-        revertList = new HashMapList<>();
+        revertList = new Int2ObjectOpenHashMap<>();
         return super.action(player);
     }
     
@@ -250,12 +250,13 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     @Override
     public LittleAction revert(Player player) {
         List<LittleAction> actions = new ArrayList<>();
-        for (Entry<Integer, ArrayList<LittleBoxes>> entry : revertList.entrySet()) {
-            for (LittleBoxes boxes : entry.getValue()) {
-                boxes.convertToSmallest();
-                actions.add(new LittleActionColorBoxes(levelUUID, boxes, entry.getKey(), true));
-            }
+        for (var entry : revertList.int2ObjectEntrySet()) {
+            var boxes = entry.getValue().copy();
+            boxes.convertToSmallest();
+            actions.add(new LittleActionColorBoxes(levelUUID, boxes, entry.getIntKey(), true));
         }
+        if (actions.size() == 1)
+            return actions.get(0);
         return new LittleActions(actions.toArray(new LittleAction[0]));
     }
     
