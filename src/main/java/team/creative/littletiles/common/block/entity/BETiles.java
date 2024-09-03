@@ -373,16 +373,25 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public boolean shouldFaceBeRendered(LittleFace face, LittleTile rendered) {
-        return unsafeSameGridRestore(face, () -> {
+        LittleGrid previous = getGrid();
+        if (face.getGrid() != previous)
+            if (previous.count < face.getGrid().count)
+                convertTo(face.getGrid());
+            else
+                face.convertTo(previous);
+            
+        try {
             for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
                 if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
                     continue;
                 if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
                     pair.value.fillFace(pair.key, face, grid);
             }
-            
             return !face.isFilled(rendered.isTranslucent());
-        });
+        } finally {
+            if (getGrid() != previous)
+                convertTo(previous);
+        }
     }
     
     /** @param box
