@@ -66,6 +66,7 @@ public non-sealed class LittleFace implements ILittleFace {
     }
     
     @Override
+    /** converting a face to another grid will remove all the filled in information */
     public void convertTo(LittleGrid to) {
         int ratio = to.count / this.grid.count;
         this.minOne *= ratio;
