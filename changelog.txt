@@ -1,3 +1,7 @@
+1.6.0-pre121
+Made all lt blocks considered blocked for mob navigation
+Fixed crash when shape has no boxes
+
 1.6.0-pre120
 Fixed weird paint brush undo behavior causing endless amounts of actions to be performed
 Fixed an issue with face culling if the face is at the edge of another block with a different grid size
