@@ -37,7 +37,6 @@ import net.minecraft.world.level.LevelReader;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.BedBlock;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
@@ -338,7 +337,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     @Override
     @Nullable
     public PathType getBlockPathType(BlockState state, BlockGetter level, BlockPos pos, @Nullable Mob mob) {
-        return state.getBlock() == Blocks.LAVA ? PathType.LAVA : state.isBurning(level, pos) ? PathType.DAMAGE_FIRE : null;
+        return PathType.BLOCKED;
     }
     
     @Override
