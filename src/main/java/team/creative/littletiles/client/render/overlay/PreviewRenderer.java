@@ -385,25 +385,26 @@ public class PreviewRenderer implements LevelAwareHandler {
                 
                 if (selector.hasCustomBoxes(level, stack, player, state, result, blockHit) || marked != null) {
                     LittleBoxes boxes = selector.getBoxes(level, stack, player, result, blockHit);
-                    
-                    RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+                    if (!boxes.isEmpty()) {
+                        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+                        
+                        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+                        
+                        pose.pushPose();
+                        pose.translate(boxes.pos.getX() - cam.x, boxes.pos.getY() - cam.y, boxes.pos.getZ() - cam.z);
+                        RenderSystem.lineWidth(2.0F);
+                        for (LittleBox box : boxes.all()) {
+                            LittleRenderBox cube = box.getRenderingBox(boxes.getGrid());
+                            if (cube != null) {
+                                cube.color = 0;
+                                cube.renderLines(pose, bufferbuilder, 255, cube.getCenter(), 0.002);
+                            }
+                        }
+                        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+                        pose.popPose();
+                    }
                     
                     BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-                    
-                    pose.pushPose();
-                    pose.translate(boxes.pos.getX() - cam.x, boxes.pos.getY() - cam.y, boxes.pos.getZ() - cam.z);
-                    RenderSystem.lineWidth(2.0F);
-                    for (LittleBox box : boxes.all()) {
-                        LittleRenderBox cube = box.getRenderingBox(boxes.getGrid());
-                        if (cube != null) {
-                            cube.color = 0;
-                            cube.renderLines(pose, bufferbuilder, 255, cube.getCenter(), 0.002);
-                        }
-                    }
-                    BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-                    pose.popPose();
-                    
-                    bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
                     
                     RenderSystem.lineWidth(1.0F);
                     renderHitOutline(pose, level, bufferbuilder, player, vec.x, vec.y, vec.z, pos);
@@ -411,6 +412,7 @@ public class PreviewRenderer implements LevelAwareHandler {
                     
                     RenderSystem.lineWidth(2.0F);
                     event.setCanceled(true);
+                    
                 }
             } else if (stack.getItem() instanceof ILittlePlacer iTile) {
                 PlacementMode mode = iTile.getPlacementMode(stack);
