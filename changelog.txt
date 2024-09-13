@@ -1,3 +1,9 @@
+1.6.0-pre122
+Fixed crash when iterating through grid to find distance
+Fixed crash with vivecraft
+Fixed doors not performing animation when start and end are axis aligned
+Removed getting back transformable box overflow causing duplication
+
 1.6.0-pre121
 Made all lt blocks considered blocked for mob navigation
 Fixed crash when shape has no boxes
