@@ -270,7 +270,7 @@ public class LittleGrid {
     }
     
     public LittleGrid next() {
-        if (index >= GRIDS.size())
+        if (index + 1 >= GRIDS.size())
             return null;
         return GRIDS.get(index + 1);
     }
