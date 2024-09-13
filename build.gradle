@@ -93,13 +93,18 @@ dependencies {
     implementation project(':CreativeCore')
     
     annotationProcessor 'org.spongepowered:mixin:0.8.5:processor'
+    
+    compileOnly(annotationProcessor("io.github.llamalad7:mixinextras-common:0.4.1"))
+    implementation(jarJar("io.github.llamalad7:mixinextras-forge:0.4.1")) {
+        jarJar.ranged(it, "[0.4.1,)")
+    }
 }
 
 modDependencies = [
     [ modId: "creativecore", mandatory: true, ordering: "NONE", side: "BOTH", versionRange: "[" + creativecore_version + ",)" ]
 ]
 
-jar {
+tasks.named('jarJar') {
     duplicatesStrategy = DuplicatesStrategy.INCLUDE
     archiveFileName.set(project.mod_name + "_" + project.mod_release_suffix + "_v" + project.mod_version + "_mc" + project.minecraft_version + ".jar")
     manifest {
@@ -168,7 +173,7 @@ modrinth {
     projectId = project.mod_id
     versionNumber = project.mod_version
     versionType = project.release_type
-    uploadFile = jar
+    uploadFile = tasks.named('jarJar')
     gameVersions = [ project.minecraft_version ]
     changelog = getChangelogText()
     loaders = [ "forge", "neoforge" ]
@@ -189,7 +194,8 @@ curseforge {
         addGameVersion "Forge"
         addGameVersion "NeoForge"
         releaseType = project.release_type
-        mainArtifact(jar) {
+        mainArtifact(tasks.getByName('jarJar').archiveFile) {
+            
         }
         relations {
             requiredLibrary "creativecore"
