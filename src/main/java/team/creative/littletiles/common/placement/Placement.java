@@ -325,10 +325,7 @@ public class Placement {
         if (current.previews != null) {
             LittleBlockCollection collection = new LittleBlockCollection(preview.position.getPos(), preview.previews.getGrid());
             
-            LittleVolumes volumes = new LittleVolumes();
-            collection.add(current.previews, inBlockOffset, volumes);
-            
-            addRemovedIngredient(volumes);
+            collection.add(current.previews, inBlockOffset);
             
             for (Entry<BlockPos, LittleCollection> entry : collection.entrySet())
                 getOrCreateBlock(entry.getKey()).addPlacePreviews(current, current.index, entry.getValue());

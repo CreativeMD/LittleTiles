@@ -11,8 +11,6 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
-import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
-import team.creative.littletiles.common.math.box.volume.LittleVolumes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleBlockCollection {
@@ -26,12 +24,11 @@ public class LittleBlockCollection {
         this.grid = grid;
     }
     
-    public void add(LittleGroup group, LittleVec offset, LittleVolumes removedVolume) {
-        LittleBoxReturnedVolume volume = new LittleBoxReturnedVolume();
+    public void add(LittleGroup group, LittleVec offset) {
         
         HashMapList<BlockPos, LittleBox> map = new HashMapList<>();
         for (LittleTile tile : group) {
-            tile.split(map, pos, grid, offset, volume);
+            tile.split(map, pos, grid, offset, null);
             
             for (Entry<BlockPos, ArrayList<LittleBox>> entry : map.entrySet()) {
                 LittleCollection collection = content.get(entry.getKey());
@@ -42,10 +39,6 @@ public class LittleBlockCollection {
                 collection.add(tile.copy(entry.getValue()));
             }
             
-            if (volume.has())
-                removedVolume.add(grid, tile, volume.getVolume());
-            
-            volume.clear();
             map.clear();
         }
     }
