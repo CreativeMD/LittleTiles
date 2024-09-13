@@ -93,7 +93,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         
         try {
             LittleStateStructure structure = this;
-            if (!states.get(end).isAligned() && !isAnimated())
+            if ((!states.get(end).isAligned() || !states.get(start).equals(states.get(end))) && !isAnimated())
                 structure = (LittleStateStructure) changeToEntityForm().getStructure();
             
             structure.aimedState = end;
