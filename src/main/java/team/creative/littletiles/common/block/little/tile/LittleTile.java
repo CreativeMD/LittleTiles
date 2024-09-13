@@ -158,7 +158,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         }
     }
     
-    public void split(HashMapList<BlockPos, LittleBox> boxes, BlockPos pos, LittleGrid grid, LittleVec offset, LittleBoxReturnedVolume volume) {
+    public void split(HashMapList<BlockPos, LittleBox> boxes, BlockPos pos, LittleGrid grid, LittleVec offset, @Nullable LittleBoxReturnedVolume volume) {
         for (LittleBox box : this.boxes)
             box.split(grid, pos, offset, boxes, volume);
     }
