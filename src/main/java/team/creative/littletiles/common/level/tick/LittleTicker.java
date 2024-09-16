@@ -111,8 +111,10 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
                     last = null;
                 LittleTickTicket temp = next;
                 next = temp.next;
-                if (unused != null)
+                if (unused != null) // store tickets as unused to prevent unnecessary creation of new tickets. This might cause usage of ram which is not required anymore.
                     temp.next = unused;
+                else
+                    temp.next = null;
                 unused = temp;
             }
             tick++;
