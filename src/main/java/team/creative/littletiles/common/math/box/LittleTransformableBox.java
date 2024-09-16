@@ -548,7 +548,8 @@ public class LittleTransformableBox extends LittleBox {
                         otherPoint = null;
                 }
                 
-                if (point != null && otherPoint != null && (point.getAbsolute(one) != otherPoint.getAbsolute(one) || point.getAbsolute(two) != otherPoint.getAbsolute(two)))
+                if (point != null && otherPoint != null && point.corner == otherPoint.corner && (point.getAbsolute(one) != otherPoint.getAbsolute(one) || point.getAbsolute(
+                    two) != otherPoint.getAbsolute(two)))
                     return null;
             }
             
@@ -1096,15 +1097,11 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         public int getAbsolute(Axis axis) {
-            switch (axis) {
-                case X:
-                    return getAbsoluteX();
-                case Y:
-                    return getAbsoluteY();
-                case Z:
-                    return getAbsoluteZ();
-            }
-            return 0;
+            return switch (axis) {
+                case X -> getAbsoluteX();
+                case Y -> getAbsoluteY();
+                case Z -> getAbsoluteZ();
+            };
         }
         
         public int getAbsoluteX() {
@@ -1120,15 +1117,11 @@ public class LittleTransformableBox extends LittleBox {
         }
         
         public int getRelative(Axis axis) {
-            switch (axis) {
-                case X:
-                    return getRelativeX();
-                case Y:
-                    return getRelativeY();
-                case Z:
-                    return getRelativeZ();
-            }
-            return 0;
+            return switch (axis) {
+                case X -> getRelativeX();
+                case Y -> getRelativeY();
+                case Z -> getRelativeZ();
+            };
         }
         
         public BoxCorner getCorner() {
