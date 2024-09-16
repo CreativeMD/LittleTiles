@@ -4,9 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -24,29 +21,11 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     
     private static final AnimationState EMPTY = new AnimationState("");
     
-    @StructureDirectional
+    @StructureDirectional(saveKey = "t")
     private List<AnimationTransition> transitions = new ArrayList<>();
     
     public LittleUndirectedStateStructure(LittleStateStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
-    }
-    
-    @Override
-    protected void loadExtra(CompoundTag nbt) {
-        super.loadExtra(nbt);
-        ListTag transitionList = nbt.getList("t", Tag.TAG_COMPOUND);
-        transitions = new ArrayList<>(transitionList.size());
-        for (int i = 0; i < transitionList.size(); i++)
-            transitions.add(new AnimationTransition(transitionList.getCompound(i)));
-    }
-    
-    @Override
-    protected void saveExtra(CompoundTag nbt) {
-        super.saveExtra(nbt);
-        ListTag transitionList = new ListTag();
-        for (int i = 0; i < transitions.size(); i++)
-            transitionList.add(transitions.get(i).save());
-        nbt.put("t", transitionList);
     }
     
     @Override
