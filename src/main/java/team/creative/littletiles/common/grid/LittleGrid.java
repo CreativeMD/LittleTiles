@@ -213,7 +213,7 @@ public class LittleGrid {
     }
     
     public boolean isAtEdge(double pos) {
-        double result = pos % pixelLength;
+        double result = Math.abs(pos % pixelLength);
         return LittleUtils.equals(result, 0) || LittleUtils.equals(result, pixelLength);
     }
     
