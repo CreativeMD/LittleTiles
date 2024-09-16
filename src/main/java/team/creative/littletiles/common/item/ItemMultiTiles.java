@@ -66,8 +66,8 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     
     @Override
     public Component getName(ItemStack stack) {
-        if (stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY) && stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).contains("name"))
-            return Component.literal(stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("name"));
+        if (stack.getOrCreateTag().contains(LittleGroup.STRUCTURE_KEY) && stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).contains("n"))
+            return Component.literal(stack.getOrCreateTagElement(LittleGroup.STRUCTURE_KEY).getString("n"));
         return super.getName(stack);
     }
     
