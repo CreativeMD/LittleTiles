@@ -1,3 +1,17 @@
+1.6.0-pre124
+Fixed placement modes like replace, stencil and colorize having weird position calculations for chisel
+Fixed grid isAtEdge check not working with negative numbers (causing incorrect results when looking at sloped faces)
+Fixed edge detection epsilon being way too generous causing incorrect results
+Fixed issue with shape selection being different when placed/removed to what could be seen on screen
+Fixed premade structure vanishing when changing grid size
+Fixed still being able to sit on chair even after it has been removed
+Added missing structure type translations
+Fixed not displaying structure name
+Fixed crash when doing signal ticks due to error when storing unused tickets
+Fixed not rerendering animations when changing resourcepack/ shaderpack
+Fixed error when loading doors with customized transitions
+Fixed transformable boxes not combining because the moved corner iteration did not consider the lack of a moved corner due to the position of the other box
+
 1.6.0-pre123
 Fixed crash when interacting with item
 
