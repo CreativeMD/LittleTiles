@@ -248,6 +248,12 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
         this.buffers.forEach(VertexBuffer::close);
     }
     
+    @Override
+    public void allChanged() {
+        super.allChanged();
+        needsUpdate = true;
+    }
+    
     static final class CompileResults {
         
         public final List<BlockEntity> globalBlockEntities = new ArrayList<>();
