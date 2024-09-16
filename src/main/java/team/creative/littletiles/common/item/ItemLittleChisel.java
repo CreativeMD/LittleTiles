@@ -18,7 +18,6 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
@@ -42,8 +41,6 @@ import team.creative.littletiles.common.packet.action.VanillaBlockPacket.Vanilla
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mark.IMarkMode;
-import team.creative.littletiles.common.placement.mode.PlacementMode;
-import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
@@ -145,12 +142,16 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @Override
     public void saveTiles(ItemStack stack, LittleGroup group) {}
     
+    protected ShapeSelection createSelection(ItemStack stack) {
+        return new ShapeSelection(stack, getPlacementMode(stack).placeInside);
+    }
+    
     @Override
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
         if (client && selection != null)
             selection.rotate(player, stack, rotation);
         else
-            new ShapeSelection(stack, false).rotate(player, stack, rotation);
+            createSelection(stack).rotate(player, stack, rotation);
     }
     
     @Override
@@ -158,7 +159,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
         if (client && selection != null)
             selection.mirror(player, stack, axis);
         else
-            new ShapeSelection(stack, false).mirror(player, stack, axis);
+            createSelection(stack).mirror(player, stack, axis);
     }
     
     @Override
@@ -172,7 +173,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     public void tick(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (selection == null)
             selection = new ShapeSelection(stack, false);
-        selection.setLast(player, stack, getPosition(position, result, PlacementPlayerSetting.placementMode(player)), result);
+        selection.setLast(player, stack, position, result);
     }
     
     @Override
@@ -184,18 +185,6 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @Override
     public void onDeselect(Level level, ItemStack stack, Player player) {
         selection = null;
-    }
-    
-    protected static PlacementPosition getPosition(PlacementPosition position, BlockHitResult result, PlacementMode mode) {
-        position = position.copy();
-        
-        Facing facing = position.facing;
-        if (mode.placeInside)
-            facing = facing.opposite();
-        if (!facing.positive)
-            position.getVec().add(facing);
-        
-        return position;
     }
     
     @Override
@@ -219,7 +208,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
             selection = null;
             LittleTilesClient.PREVIEW_RENDERER.removeMarked();
         } else if (selection != null)
-            return selection.addAndCheckIfPlace(player, getPosition(position, result, PlacementPlayerSetting.placementMode(player)), result);
+            return selection.addAndCheckIfPlace(player, position, result);
         return false;
     }
     
