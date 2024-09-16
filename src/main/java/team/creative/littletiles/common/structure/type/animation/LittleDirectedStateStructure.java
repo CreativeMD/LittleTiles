@@ -5,11 +5,8 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
-import it.unimi.dsi.fastutil.objects.ObjectImmutableList;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
@@ -24,7 +21,7 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     
     private static final AnimationStateDirected EMPTY = new AnimationStateDirected("");
     
-    @StructureDirectional
+    @StructureDirectional(saveKey = "t")
     private List<AnimationTransition> transitions = new ArrayList<>();
     private int currentTransition = -1;
     
@@ -86,15 +83,9 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         super.loadExtra(nbt, provider);
         
-        ListTag transList = nbt.getList("t", Tag.TAG_COMPOUND);
-        AnimationTransition[] transitions = new AnimationTransition[transList.size()];
-        for (int i = 0; i < transList.size(); i++)
-            transitions[i] = new AnimationTransition(transList.getCompound(i));
-        this.transitions = new ObjectImmutableList<>(transitions);
-        
         currentTransition = nbt.getInt("cT");
-        if (currentTransition > 0 && currentTransition >= transitions.length)
-            throw new RuntimeException("Invalid state structure! Transition " + currentTransition + " not found. Only got " + transitions.length + " transitions");
+        if (currentTransition > 0 && currentTransition >= transitions.size())
+            throw new RuntimeException("Invalid state structure! Transition " + currentTransition + " not found. Only got " + transitions.size() + " transitions");
     }
     
     @Override
@@ -105,13 +96,7 @@ public class LittleDirectedStateStructure extends LittleStateStructure<Animation
     @Override
     protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         super.saveExtra(nbt, provider);
-        
         nbt.putInt("cT", currentTransition);
-        
-        ListTag transList = new ListTag();
-        for (int i = 0; i < transitions.size(); i++)
-            transList.add(transitions.get(i).save());
-        nbt.put("t", transList);
     }
     
     @Override

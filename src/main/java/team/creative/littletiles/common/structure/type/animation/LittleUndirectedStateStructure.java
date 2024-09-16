@@ -4,10 +4,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.HolderLookup;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -24,29 +20,11 @@ public abstract class LittleUndirectedStateStructure extends LittleStateStructur
     
     private static final AnimationState EMPTY = new AnimationState("");
     
-    @StructureDirectional
+    @StructureDirectional(saveKey = "t")
     private List<AnimationTransition> transitions = new ArrayList<>();
     
     public LittleUndirectedStateStructure(LittleStateStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
-    }
-    
-    @Override
-    protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
-        super.loadExtra(nbt, provider);
-        ListTag transitionList = nbt.getList("t", Tag.TAG_COMPOUND);
-        transitions = new ArrayList<>(transitionList.size());
-        for (int i = 0; i < transitionList.size(); i++)
-            transitions.add(new AnimationTransition(transitionList.getCompound(i)));
-    }
-    
-    @Override
-    protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
-        super.saveExtra(nbt, provider);
-        ListTag transitionList = new ListTag();
-        for (int i = 0; i < transitions.size(); i++)
-            transitionList.add(transitions.get(i).save());
-        nbt.put("t", transitionList);
     }
     
     @Override
