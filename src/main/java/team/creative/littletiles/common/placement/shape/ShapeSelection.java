@@ -157,7 +157,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
     public boolean addAndCheckIfPlace(Player player, PlacementPosition position, BlockHitResult result) {
         if (marked)
             return true;
-        ShapeSelectPos pos = new ShapeSelectPos(player, position, result);
+        ShapeSelectPos pos = new ShapeSelectPos(player, position, result, true);
         if ((shape.pointsBeforePlacing > positions.size() + 1 || Screen.hasControlDown()) && (shape.maxAllowed() == -1 || shape.maxAllowed() > positions.size() + 1)) {
             positions.add(pos);
             ensureSameContext(pos);
@@ -175,7 +175,7 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             return;
         if (positions.isEmpty())
             pos = position.getPos();
-        last = new ShapeSelectPos(player, position, result);
+        last = new ShapeSelectPos(player, position, result, false);
         ensureSameContext(last);
     }
     
@@ -365,10 +365,10 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
         public final BlockHitResult ray;
         public final LittleTileContext result;
         
-        public ShapeSelectPos(Player player, PlacementPosition position, BlockHitResult result) {
+        public ShapeSelectPos(Player player, PlacementPosition position, BlockHitResult result, boolean whenClicked) {
             this.pos = position;
             this.ray = result;
-            this.result = LittleTileContext.selectFocused(player.level(), result.getBlockPos(), player);
+            this.result = LittleTileContext.selectFocused(player.level(), result.getBlockPos(), player, whenClicked ? 1 : TickUtils.getFrameTime(player.level()));
             if (inside && result.getDirection().getAxisDirection() == AxisDirection.POSITIVE && grid.isAtEdge(VectorUtils.get(result.getDirection().getAxis(), result
                     .getLocation())))
                 pos.getVec().sub(Facing.get(result.getDirection()));
