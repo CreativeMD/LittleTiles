@@ -2,7 +2,7 @@ package team.creative.littletiles.common.math;
 
 public class LittleUtils {
     
-    public static final float EPSILON = 0.01F;
+    public static final float EPSILON = 0.0001F;
     public static final int scale = 5;
     
     public static boolean smallerThanAndEquals(double a, double b) {
