@@ -90,7 +90,7 @@ public class MinecraftMixin {
     
     @WrapOperation(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/client/multiplayer/MultiPlayerGameMode;isDestroying()Z"), require = 1)
     private boolean isDestroying(MultiPlayerGameMode mode, Operation<Boolean> original) {
-        return original.call() || LittleTilesClient.INTERACTION_HANDLER.isDestroying();
+        return original.call(mode) || LittleTilesClient.INTERACTION_HANDLER.isDestroying();
     }
     
     @Inject(method = "startUseItem", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/phys/HitResult;getType()Lnet/minecraft/world/phys/HitResult$Type;"), require = 1,
