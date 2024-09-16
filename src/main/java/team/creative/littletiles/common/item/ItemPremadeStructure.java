@@ -70,7 +70,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
             @Override
             public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
                 LittleTilesClient.setPlace(grid, mode);
-                return nbt;
+                return null;
             }
         };
     }
