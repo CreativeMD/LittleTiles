@@ -17,6 +17,7 @@ import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.entity.EntitySit;
+import team.creative.littletiles.common.level.LittleUpdateCollector;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -60,33 +61,51 @@ public class LittleChair extends LittleStructure {
     }
     
     @Override
+    public void removeStructure(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
+        if (!isClient()) {
+            EntitySit sit = getSitEntity();
+            if (sit != null)
+                sit.kill();
+        }
+        super.removeStructure(neighbor);
+    }
+    
+    public EntitySit getSitEntity() {
+        if (sitUUID == null)
+            return null;
+        
+        LevelAccessor level = getStructureLevel();
+        if (level instanceof IOrientatedLevel) {
+            if (!(level instanceof ISubLevel))
+                return null;
+            level = ((ISubLevel) level).getRealLevel();
+        }
+        
+        if (!level.isClientSide()) {
+            Iterable<Entity> iterable;
+            if (level instanceof ServerLevel)
+                iterable = ((ServerLevel) level).getAllEntities();
+            else if (level instanceof LittleLevel little)
+                iterable = little.entities();
+            else
+                throw new UnsupportedOperationException();
+            
+            for (Entity entity : iterable)
+                if (entity.getUUID().equals(sitUUID) && entity instanceof EntitySit sit)
+                    return sit;
+        }
+        return null;
+    }
+    
+    @Override
     public void afterPlaced() {
         super.afterPlaced();
-        if (sitUUID != null) {
-            LevelAccessor level = getStructureLevel();
-            if (level instanceof IOrientatedLevel) {
-                if (!(level instanceof ISubLevel))
-                    return;
-                level = ((ISubLevel) level).getRealLevel();
+        if (!isClient()) {
+            EntitySit sit = getSitEntity();
+            if (sit != null) {
+                StructureChildConnection temp = this.children.generateConnection(sit);
+                sit.getEntityData().set(EntitySit.CONNECTION, temp.save(new CompoundTag()));
             }
-            if (!level.isClientSide()) {
-                Iterable<Entity> iterable;
-                if (level instanceof ServerLevel)
-                    iterable = ((ServerLevel) level).getAllEntities();
-                else if (level instanceof LittleLevel little)
-                    iterable = little.entities();
-                else
-                    throw new UnsupportedOperationException();
-                
-                for (Entity entity : iterable)
-                    if (entity.getUUID().equals(sitUUID) && entity instanceof EntitySit) {
-                        EntitySit sit = (EntitySit) entity;
-                        StructureChildConnection temp = this.children.generateConnection(sit);
-                        sit.getEntityData().set(EntitySit.CONNECTION, temp.save(new CompoundTag()));
-                        break;
-                    }
-            }
-            
         }
     }
     
