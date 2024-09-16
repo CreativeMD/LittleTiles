@@ -1,3 +1,6 @@
+1.6.0-pre123
+Fixed crash when interacting with item
+
 1.6.0-pre122
 Fixed crash when iterating through grid to find distance
 Fixed crash with vivecraft
