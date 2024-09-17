@@ -408,7 +408,9 @@ public class PreviewRenderer implements LevelAwareHandler {
                     
                     RenderSystem.lineWidth(1.0F);
                     renderHitOutline(pose, level, bufferbuilder, player, vec.x, vec.y, vec.z, pos);
-                    BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+                    var data = bufferbuilder.build();
+                    if (data != null)
+                        BufferUploader.drawWithShader(data);
                     
                     RenderSystem.lineWidth(2.0F);
                     event.setCanceled(true);
