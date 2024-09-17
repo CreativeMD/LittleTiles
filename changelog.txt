@@ -1,3 +1,6 @@
+1.6.0-pre125
+Fixed outside placement position of chisel not working in towards negative directions
+
 1.6.0-pre124
 Fixed placement modes like replace, stencil and colorize having weird position calculations for chisel
 Fixed grid isAtEdge check not working with negative numbers (causing incorrect results when looking at sloped faces)
