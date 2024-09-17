@@ -16,7 +16,6 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction.AxisDirection;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -28,7 +27,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.api.common.tool.ILittleTool;
@@ -360,9 +358,11 @@ public class ShapeSelection implements Iterable<ShapeSelectPos>, IGridBased, IMa
             this.pos = position;
             this.ray = result;
             this.result = LittleTileContext.selectFocused(player.level(), result.getBlockPos(), player, whenClicked ? 1 : TickUtils.getFrameTime(player.level()));
-            if (inside && result.getDirection().getAxisDirection() == AxisDirection.POSITIVE && grid.isAtEdge(VectorUtils.get(result.getDirection().getAxis(), result
-                    .getLocation())))
-                pos.getVec().sub(Facing.get(result.getDirection()));
+            if (inside) {
+                if (position.facing.positive && grid.isAtEdge(position.facing.axis.get(result.getLocation())))
+                    pos.getVec().sub(position.facing);
+            } else if (!position.facing.positive && grid.isAtEdge(position.facing.axis.get(result.getLocation())))
+                pos.getVec().add(position.facing);
         }
         
         public ShapeSelectPos(PlacementPosition position, BlockHitResult ray, LittleTileContext result) {
