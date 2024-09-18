@@ -172,7 +172,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @OnlyIn(Dist.CLIENT)
     public void tick(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
         if (selection == null)
-            selection = new ShapeSelection(stack, false);
+            selection = createSelection(stack);
         selection.setLast(player, stack, position, result);
     }
     
@@ -180,6 +180,13 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @OnlyIn(Dist.CLIENT)
     public boolean shouldCache() {
         return false;
+    }
+    
+    @Override
+    public void configured(ItemStack stack, CompoundTag nbt) {
+        ILittlePlacer.super.configured(stack, nbt);
+        if (selection.countPositions() <= 1)
+            selection = null;
     }
     
     @Override
