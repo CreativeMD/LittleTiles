@@ -22,7 +22,9 @@ import team.creative.littletiles.common.block.little.tile.parent.IStructureParen
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.packet.entity.EntityOriginChanged;
 import team.creative.littletiles.common.packet.structure.StructureStartAnimationPacket;
+import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.animation.AnimationState;
@@ -113,8 +115,22 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     @Override
     public boolean queuedTick() {
-        if (timeline == null || mainBlock.isRemoved())
+        if (mainBlock.isRemoved())
             return false;
+        
+        if (timeline == null) {
+            if (!isClient() && !states.get(currentState).isAligned() && !isAnimated())
+                try {
+                    LittleAnimationEntity animation = changeToEntityForm();
+                    if (animation != null) {
+                        animation.physic.ignoreCollision(() -> animation.physic.set(states.get(currentState)));
+                        LittleTiles.NETWORK.sendToClientTracking(new EntityOriginChanged(animation), animation);
+                    }
+                } catch (LittleActionException e) {
+                    e.printStackTrace();
+                }
+            return false;
+        }
         
         LittleAnimationEntity animation = getAnimationEntity();
         boolean done = timeline.tick(physical, this);
@@ -152,6 +168,8 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
                 if (!(e instanceof NotEnoughSpaceForStructureException))
                     e.printStackTrace();
             }
+        else
+            updateStructure();
     }
     
     @Override
@@ -292,6 +310,13 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     @OnlyIn(Dist.CLIENT)
     private void playClient(SoundEvent event, float volume, float pitch) {
         GuiControl.playSound(new EntitySound(event, getAnimationEntity(), volume, pitch, SoundSource.BLOCKS));
+    }
+    
+    @Override
+    public void finishedPlacement(Placement placement) {
+        super.finishedPlacement(placement);
+        if (!isClient() && !states.get(currentState).isAligned())
+            queueForNextTick();
     }
     
     public static class LittleStateStructureType extends LittleStructureType {
