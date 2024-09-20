@@ -114,12 +114,12 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
             return null;
         BlockEntity be = null;
         try {
-            be = level.getExistingBlockEntity(pos);
+            be = level.getBlockEntity(pos);
         } catch (Exception e) {
             return null;
         }
-        if (be instanceof BETiles && ((BETiles) be).hasLoaded())
-            return (BETiles) be;
+        if (be instanceof BETiles b && b.hasLoaded())
+            return b;
         return null;
     }
     
