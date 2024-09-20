@@ -1,3 +1,8 @@
+1.6.0-pre126
+Fixed chisel not properly setting placement mode setting
+Adapted CreativeCore 2.12.14
+Potential fix for weird loading issue
+
 1.6.0-pre125
 Fixed outside placement position of chisel not working in towards negative directions
 
