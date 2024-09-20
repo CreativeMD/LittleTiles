@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -179,6 +180,11 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     @Override
     public void unload() {
         actionDisplay.clearMessages();
+    }
+    
+    @Override
+    public Provider provider() {
+        return MC.level.registryAccess();
     }
     
     public static enum OverlayPosition {
