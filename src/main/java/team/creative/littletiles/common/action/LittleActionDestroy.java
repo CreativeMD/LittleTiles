@@ -164,8 +164,8 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
         
         @Override
         public boolean equals(Object paramObject) {
-            if (paramObject instanceof StructurePreview)
-                return structure == ((StructurePreview) paramObject).structure;
+            if (paramObject instanceof StructurePreview s)
+                return structure == s.structure;
             if (paramObject instanceof LittleStructure)
                 return structure == paramObject;
             return false;

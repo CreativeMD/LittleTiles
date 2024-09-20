@@ -601,13 +601,13 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
         LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(mainBlock.getPos(), mainBlock.getGrid()), placement);
+        if (getParent() != null)
+            entity.getStructure().updateConnectionToParent(getParent());
         level.addFreshEntity(entity);
         LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location, entity), entity);
         
         removeStructureSameLevel(collector);
         entity.getStructure().transferChildrenToAnimation(entity);
-        if (getParent() != null)
-            entity.getStructure().updateConnectionToParent(getParent());
         
         collector.process();
         entity.clearTrackingChanges();
