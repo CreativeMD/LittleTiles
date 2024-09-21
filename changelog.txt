@@ -1,3 +1,11 @@
+1.6.0-pre127
+Added optimization for combining algorithm (which solves edge cases where tiles do not combine even though they could be rearranged in theory)
+Added command /lt-optimize (please use with caution, backup your world first)
+Added performance improvement when cutting out transformable box on very high grid (will only do accurate computation where it is necessary)
+Made state structures immediately open and return to configured state
+Fixed animated door on client side not having proper connection to parent which broke undo behavior
+Fixed chisel not properly setting placement mode setting
+
 1.6.0-pre125
 Fixed outside placement position of chisel not working in towards negative directions
 Fixed crash when there is no outline but a shape selected
