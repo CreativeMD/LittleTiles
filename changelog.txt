@@ -1,3 +1,10 @@
+1.6.0-pre127
+Added optimization for combining algorithm (which solves edge cases where tiles do not combine even though they could be rearranged in theory)
+Added command /lt-optimize (please use with caution, backup your world first)
+Added performance improvement when cutting out transformable box on very high grid (will only do accurate computation where it is necessary)
+Made state structures immediately open and return to configured state
+Fixed animated door on client side not having proper connection to parent which broke undo behavior
+
 1.6.0-pre126
 Fixed chisel not properly setting placement mode setting
 Adapted CreativeCore 2.12.14

@@ -6,7 +6,7 @@ license="LGPL-3.0-only"
 [[mods]]
     modId="littletiles"
     logoFile="littletiles.png"
-    version="1.6.0-pre126"
+    version="1.6.0-pre127"
     displayName="LittleTiles"
     displayURL="https://modrinth.com/mod/littletiles"
     authors="CreativeMD, N247S"
@@ -31,5 +31,5 @@ license="LGPL-3.0-only"
    mandatory=true
    ordering="NONE"
    side="BOTH"
-   versionRange="[2.12.14,)"
+   versionRange="[2.12.15,)"
 
