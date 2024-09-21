@@ -206,6 +206,10 @@ public class LittleBox {
         return Math.max(maxX - minX, Math.max(maxY - minY, maxZ - minZ));
     }
     
+    public boolean isMinimumSize() {
+        return (maxX - minX) == 1 && (maxY - minY) == 1 && (maxZ - minZ) == 1;
+    }
+    
     public LittleVec getSize() {
         return new LittleVec(maxX - minX, maxY - minY, maxZ - minZ);
     }
@@ -574,9 +578,6 @@ public class LittleBox {
         
         for (LittleBox box : boxes) {
             
-            if (!box.isSolid())
-                return null;
-            
             if (box.intersectsWith(this)) {
                 set.add(box.getMin(axis));
                 set.add(box.getMax(axis));
@@ -597,120 +598,73 @@ public class LittleBox {
             return newBoxes;
         }
         
-        SplitRangeBoxes ranges;
-        if ((ranges = split(boxes)) != null) {
-            for (SplitRangeBox range : ranges) {
-                LittleBox box = extractBox(grid, range.x.min(), range.y.min(), range.z.min(), range.x.max(), range.y.max(), range.z.max(), volume);
+        SplitRangeBoxes ranges = split(boxes);
+        outer: for (SplitRangeBox range : ranges) {
+            LittleBox box = extractBox(grid, range.x.min(), range.y.min(), range.z.min(), range.x.max(), range.y.max(), range.z.max(), volume);
+            
+            if (box == null)
+                continue;
+            
+            for (LittleBox cutBox : boxes) {
                 
-                if (box != null) {
-                    boolean cutted = false;
-                    for (LittleBox cutBox : boxes) {
-                        if (cutBox.intersectsWith(box)) {
-                            cutted = true;
-                            break;
+                if (!cutBox.intersectsWith(box))
+                    continue;
+                
+                if (cutBox.isSolid() || box.isMinimumSize()) {
+                    cutout.add(box);
+                    continue outer;
+                }
+                
+                boolean[][][] filled = new boolean[box.getSize(Axis.X)][box.getSize(Axis.Y)][box.getSize(Axis.Z)];
+                
+                cutBox.fillInSpace(box, filled);
+                
+                boolean expected = filled[0][0][0];
+                boolean continuous = true;
+                
+                loop: for (int x = 0; x < filled.length; x++) {
+                    for (int y = 0; y < filled[x].length; y++) {
+                        for (int z = 0; z < filled[x][y].length; z++) {
+                            if (filled[x][y][z] != expected) {
+                                continuous = false;
+                                break loop;
+                            }
                         }
                     }
-                    if (cutted)
+                }
+                
+                if (continuous) {
+                    if (expected)
                         cutout.add(box);
                     else
                         newBoxes.add(box);
+                    continue outer;
                 }
                 
-            }
-        } else {
-            boolean[][][] filled = new boolean[getSize(Axis.X)][getSize(Axis.Y)][getSize(Axis.Z)];
-            
-            for (LittleBox box : boxes)
-                box.fillInSpace(this, filled);
-            
-            boolean expected = filled[0][0][0];
-            boolean continuous = true;
-            
-            loop: for (int x = 0; x < filled.length; x++) {
-                for (int y = 0; y < filled[x].length; y++) {
-                    for (int z = 0; z < filled[x][y].length; z++) {
-                        if (filled[x][y][z] != expected) {
-                            continuous = false;
-                            break loop;
+                for (int x = 0; x < filled.length; x++) {
+                    for (int y = 0; y < filled[x].length; y++) {
+                        for (int z = 0; z < filled[x][y].length; z++) {
+                            LittleBox box2 = box.extractBox(x + box.minX, y + box.minY, z + box.minZ, volume);
+                            if (box2 != null) {
+                                if (filled[x][y][z])
+                                    cutout.add(box2);
+                                else
+                                    newBoxes.add(box2);
+                            }
                         }
                     }
                 }
+                
+                continue outer;
             }
             
-            if (continuous) {
-                if (expected) {
-                    cutout.add(this.copy());
-                    return new ArrayList<>();
-                }
-                newBoxes.add(this.copy());
-                return newBoxes;
-            }
-            
-            for (int x = 0; x < filled.length; x++) {
-                for (int y = 0; y < filled[x].length; y++) {
-                    for (int z = 0; z < filled[x][y].length; z++) {
-                        LittleBox box = extractBox(x + minX, y + minY, z + minZ, volume);
-                        if (box != null) {
-                            if (filled[x][y][z])
-                                cutout.add(box);
-                            else
-                                newBoxes.add(box);
-                        }
-                    }
-                }
-            }
+            newBoxes.add(box); // If it is not intersecting with another box
         }
         
         LittleBoxCombiner.combine(newBoxes);
         LittleBoxCombiner.combine(cutout);
         
         return newBoxes;
-    }
-    
-    /** @return all remaining boxes or null if the box remains as it is */
-    public List<LittleBox> cutOut(LittleGrid grid, LittleBox box, LittleBoxReturnedVolume volume) {
-        if (intersectsWith(box)) {
-            List<LittleBox> boxes = new ArrayList<>();
-            
-            if (box.isSolid()) {
-                List<LittleBox> splitting = new ArrayList<>();
-                splitting.add(box);
-                
-                for (SplitRangeBox range : split(splitting)) {
-                    LittleBox tempBox = extractBox(grid, range.x.min(), range.y.min(), range.z.min(), range.x.max(), range.y.max(), range.z.max(), volume);
-                    
-                    boolean cutted = false;
-                    if (tempBox != null) {
-                        if (box.intersectsWith(tempBox)) {
-                            cutted = true;
-                            continue;
-                        }
-                        if (!cutted)
-                            boxes.add(tempBox);
-                    }
-                    
-                }
-                
-                return boxes;
-            } else {
-                LittleBox testBox = new LittleBox(0, 0, 0, 0, 0, 0);
-                for (int x = minX; x < maxX; x++) {
-                    for (int y = minY; y < maxY; y++) {
-                        for (int z = minZ; z < maxZ; z++) {
-                            testBox.set(x, y, z, x + 1, y + 1, z + 1);
-                            if (!intersectsWith(testBox))
-                                boxes.add(extractBox(x, y, z, volume));
-                        }
-                    }
-                }
-            }
-            
-            LittleBoxCombiner.combine(boxes);
-            
-            return boxes;
-        }
-        
-        return null;
     }
     
     protected boolean intersectsWith(LittleBox box) {
