@@ -229,7 +229,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
             take(player, inventory, drainedIngredients);
             action(be, boxes, gained, false, grid);
             
-            be.combineTiles();
+            be.combineAllTiles(true);
             
             if (toVanilla || !doneSomething)
                 be.convertBlockToVanilla();

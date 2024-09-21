@@ -169,7 +169,11 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public int tilesCount() {
-        return tiles.size();
+        return tiles.totalSize();
+    }
+    
+    public int boxesCount() {
+        return tiles.totalBoxesCount();
     }
     
     public boolean hasLoaded() {
@@ -568,26 +572,26 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         return false;
     }
     
-    public boolean combineTiles(int structureIndex) {
+    public boolean combineStructureTiles(int structureIndex) {
         if (getStructure(structureIndex) == null)
             return false;
-        boolean changed = ((StructureParentCollection) getStructure(structureIndex)).combine();
+        boolean changed = ((StructureParentCollection) getStructure(structureIndex)).combine(getGrid(), false);
         convertToSmallest();
         if (changed)
             updateTiles();
         return changed;
     }
     
-    public boolean combineTilesSecretly(int structureIndex) {
+    public boolean combineStructureTilesSecretly(int structureIndex) {
         if (getStructure(structureIndex) == null)
             return false;
-        boolean changed = ((StructureParentCollection) getStructure(structureIndex)).combine();
+        boolean changed = ((StructureParentCollection) getStructure(structureIndex)).combine(getGrid(), false);
         convertToSmallest();
         return changed;
     }
     
-    public boolean combineTiles() {
-        boolean changed = tiles.combine();
+    public boolean combineAllTiles(boolean optimized) {
+        boolean changed = tiles.combineAllTiles(optimized);
         
         convertToSmallest();
         if (changed)
@@ -595,8 +599,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         return changed;
     }
     
-    public boolean combineTilesSecretly() {
-        boolean changed = tiles.combine();
+    public boolean combineNoneTilesSecretly(boolean optimized) {
+        boolean changed = tiles.combineNoneTiles(optimized);
         convertToSmallest();
         return changed;
     }

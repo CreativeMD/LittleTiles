@@ -193,7 +193,8 @@ public class RecipeOverlapTest extends RecipeTestModule {
             return new SingleIterator<>(structure);
         }
         
-        private void add(LittleElement element, LittleBox box, MutableBlockPos pos, LittleGrid grid, List<LittleBox> temp, List<LittleBox> temp2, HashMap<BlockPos, LittleCollection> blocks) {
+        private void add(LittleElement element, LittleBox box, MutableBlockPos pos, LittleGrid grid, List<LittleBox> temp, List<LittleBox> temp2,
+                HashMap<BlockPos, LittleCollection> blocks) {
             LittleCollection collection = blocks.get(pos);
             if (collection == null)
                 blocks.put(pos.immutable(), collection = new LittleCollection());
@@ -235,7 +236,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
                     
                 }
                 group.convertToSmallest();
-                group.combine();
+                group.combine(false);
                 structure.group = group;
                 structure.refreshAnimation();
                 refresh.run();

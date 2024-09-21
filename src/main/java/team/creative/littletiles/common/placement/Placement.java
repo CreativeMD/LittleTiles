@@ -342,6 +342,7 @@ public class Placement {
         private LittleGrid grid;
         private final LittleCollection[] tiles;
         private int attribute = 0;
+        private boolean requiresCollisionTest;
         
         public PlacementBlock(BlockPos pos, LittleGrid grid) {
             this.pos = pos;
@@ -456,14 +457,19 @@ public class Placement {
         public boolean combineTilesSecretly() {
             if (cached == null)
                 return false;
+            boolean hasPlacedNoneTiles = false; // Only none tiles should be optimised to save performance. The tiles from the structure are hopefully fully optimised already. If not the wrench can be used anyway
             if (hasStructure()) {
                 for (int i = 0; i < tiles.length; i++)
-                    if (tiles[i] != null && structures.get(i).isStructure())
-                        cached.combineTilesSecretly(structures.get(i).getIndex());
+                    if (tiles[i] != null)
+                        if (structures.get(i).isStructure())
+                            cached.combineStructureTilesSecretly(structures.get(i).getIndex());
+                        else
+                            hasPlacedNoneTiles = true;
+                if (hasPlacedNoneTiles)
+                    cached.combineNoneTilesSecretly(requiresCollisionTest);
                 return false;
             }
-            
-            cached.combineTilesSecretly();
+            cached.combineNoneTilesSecretly(requiresCollisionTest);
             if (cached.tilesCount() == 1 && cached.convertBlockToVanilla())
                 return true;
             return false;
@@ -485,7 +491,7 @@ public class Placement {
                 }
             
             if (hascollideBlock) {
-                boolean requiresCollisionTest = true;
+                requiresCollisionTest = true;
                 if (cached == null) {
                     if (!(level.getBlockState(pos).getBlock() instanceof BlockTile) && level.getBlockState(pos).is(BlockTags.REPLACEABLE)) {
                         requiresCollisionTest = false;

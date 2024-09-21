@@ -78,7 +78,7 @@ public class BlockPacket extends CreativePacket {
             @Override
             public void action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult moving, BlockPos pos, CompoundTag nbt) {
                 player.sendSystemMessage(Component.literal("grid:" + be.getGrid()));
-                be.combineTiles();
+                be.combineAllTiles(true);
                 be.convertBlockToVanilla();
                 be.updateTiles();
             }
