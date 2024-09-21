@@ -316,19 +316,6 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return false;
     }
     
-    public void cutOut(LittleGrid grid, LittleBox cutter, @Nullable LittleBoxReturnedVolume volume) {
-        List<LittleBox> result = null;
-        for (LittleBox box : boxes) {
-            List<LittleBox> temp = box.cutOut(grid, cutter, volume);
-            if (result == null)
-                result = temp;
-            else if (temp != null)
-                result.addAll(temp);
-        }
-        boxes.clear();
-        boxes.addAll(result);
-    }
-    
     public void cutOut(LittleGrid grid, List<LittleBox> cutter, List<LittleBox> cutout, @Nullable LittleBoxReturnedVolume volume) {
         List<LittleBox> result = null;
         for (LittleBox box : boxes) {
