@@ -1,3 +1,6 @@
+1.6.0-pre128
+Fixed error when changing resourcepack in the main menu
+
 1.6.0-pre127
 Added optimization for combining algorithm (which solves edge cases where tiles do not combine even though they could be rearranged in theory)
 Added command /lt-optimize (please use with caution, backup your world first)
