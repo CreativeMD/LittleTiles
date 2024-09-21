@@ -219,7 +219,8 @@ public class LittleTilesClient {
             @Override
             public void onResourceManagerReload(ResourceManager manager) {
                 RenderingThread.CURRENT_RENDERING_INDEX++;
-                LittleTilesClient.ANIMATION_HANDLER.reload();
+                if (LittleTilesClient.ANIMATION_HANDLER != null)
+                    LittleTilesClient.ANIMATION_HANDLER.reload();
                 LittleBlockClientRegistry.clearCache();
                 ITEM_RENDER_CACHE.clearCache();
             }
