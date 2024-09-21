@@ -136,8 +136,10 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return boxes.size();
     }
     
-    public boolean combine() {
+    public boolean combine(LittleGrid grid, boolean optimized) {
         List<LittleBox> tempBoxes = new ArrayList<>(boxes);
+        if (optimized)
+            LittleBoxCombiner.separate(grid, tempBoxes);
         if (LittleBoxCombiner.combine(tempBoxes)) {
             boxes.clear();
             boxes.addAll(tempBoxes);

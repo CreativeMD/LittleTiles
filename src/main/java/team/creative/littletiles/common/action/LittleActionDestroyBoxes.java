@@ -189,7 +189,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
             if (checkAndGive(player, new LittleInventory(player), action(player, be, boxes, true, grid)))
                 action(player, be, boxes, false, grid);
             
-            be.combineTiles();
+            be.combineAllTiles(false); // Does not need to be optimised. Chance of this having an effect is a lot less.
             
             if (!doneSomething)
                 be.convertBlockToVanilla();

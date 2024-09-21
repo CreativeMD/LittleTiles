@@ -5,6 +5,7 @@ import java.util.List;
 
 import team.creative.creativecore.common.util.math.vec.RangedBitSet;
 import team.creative.creativecore.common.util.math.vec.RangedBitSet.BitRange;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> {
     
@@ -16,6 +17,12 @@ public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> 
         this.xList = x.getRanges();
         this.yList = y.getRanges();
         this.zList = z.getRanges();
+    }
+    
+    public SplitRangeBoxes(List<BitRange> xList, List<BitRange> yList, List<BitRange> zList) {
+        this.xList = xList;
+        this.yList = yList;
+        this.zList = zList;
     }
     
     @Override
@@ -67,6 +74,13 @@ public class SplitRangeBoxes implements Iterable<SplitRangeBoxes.SplitRangeBox> 
             this.z = z;
         }
         
+        public boolean intersectsWith(LittleBox box) {
+            return box.maxX > x.min() && box.minX < x.max() && box.maxY > y.min() && box.minY < y.max() && box.maxZ > z.min() && box.minZ < z.max();
+        }
+        
+        public boolean isSame(LittleBox box) {
+            return box.minX == x.min() && box.maxX == x.max() && box.minY == y.min() && box.maxY == y.max() && box.minZ == z.min() && box.maxZ == z.max();
+        }
     }
     
 }

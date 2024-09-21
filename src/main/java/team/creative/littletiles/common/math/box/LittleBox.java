@@ -3,6 +3,7 @@ package team.creative.littletiles.common.math.box;
 import java.security.InvalidParameterException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.function.BiConsumer;
 
@@ -1271,6 +1272,24 @@ public class LittleBox {
     }
     
     // ================Static Helpers================
+    
+    private static final Comparator<LittleBox> SORT_BY_FACHE_CACHE = (box1, box2) -> Integer.compare(box1.faceCache, box2.faceCache);
+    
+    /** sorts the list based on the position. Ensures that order is follows Z,Y,X ascending */
+    public static void sortListByPosition(List<LittleBox> boxes, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        int col = maxX - minX;
+        int row = col * (maxY - minY);
+        
+        for (int i = 0; i < boxes.size(); i++) {
+            var box = boxes.get(i);
+            box.faceCache = box.minX - minX + (box.minY - minY) * col + (box.minZ - minZ) * row;
+        }
+        
+        boxes.sort(SORT_BY_FACHE_CACHE);
+        
+        for (int i = 0; i < boxes.size(); i++)
+            boxes.get(i).resetFaceState();
+    }
     
     public static LittleBox createExtended(int[] array) {
         LittleBox box = create(1, array);

@@ -681,8 +681,8 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         convertToSmallest();
     }
     
-    public void combine() {
-        content.combine();
+    public void combine(boolean optimized) {
+        content.combine(grid, optimized);
     }
     
     public Set<BlockPos> getPositions(BlockPos pos) {

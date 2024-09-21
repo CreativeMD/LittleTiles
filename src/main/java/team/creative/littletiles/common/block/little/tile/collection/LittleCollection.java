@@ -150,10 +150,10 @@ public class LittleCollection implements Iterable<LittleTile> {
         return false;
     }
     
-    public boolean combine() {
+    public boolean combine(LittleGrid grid, boolean optimized) {
         boolean result = false;
         for (LittleTile tile : content)
-            result |= tile.combine();
+            result |= tile.combine(grid, optimized);
         return result;
     }
     

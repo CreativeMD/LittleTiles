@@ -37,7 +37,7 @@ public class ChiselsAndBitsInteractor {
             group.add(grid, new LittleElement(block, ColorUtils.WHITE), box);
         });
         
-        group.combine();
+        group.combine(false);
         return group;
     }
     

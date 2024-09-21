@@ -277,6 +277,13 @@ public class BlockParentCollection extends ParentCollection {
         return size;
     }
     
+    public int totalBoxesCount() {
+        int size = boxesCount();
+        for (StructureParentCollection list : structures.values())
+            size += list.boxesCount();
+        return size;
+    }
+    
     private void reloadAttributes() {
         attributes = LittleStructureAttribute.NONE;
         for (StructureParentCollection structure : structures.values())
@@ -353,12 +360,16 @@ public class BlockParentCollection extends ParentCollection {
         return super.isEmpty() && structures.isEmpty();
     }
     
-    @Override
-    public boolean combine() {
-        boolean result = super.combine();
+    public boolean combineAllTiles(boolean optimized) {
+        var grid = getGrid();
+        boolean result = super.combine(grid, optimized);
         for (StructureParentCollection list : structures.values())
-            result |= list.combine();
+            result |= list.combine(grid, optimized);
         return result;
+    }
+    
+    public boolean combineNoneTiles(boolean optimized) {
+        return super.combine(getGrid(), optimized);
     }
     
     @Override
