@@ -43,6 +43,7 @@ import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.IngredientUtils;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
+import team.creative.littletiles.common.math.box.LittleBoxSorting;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.ILittleFace;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -138,10 +139,30 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     public boolean combine(LittleGrid grid, boolean optimized) {
         List<LittleBox> tempBoxes = new ArrayList<>(boxes);
         if (optimized)
-            LittleBoxCombiner.separate(grid, tempBoxes);
+            LittleBoxCombiner.separate(grid, tempBoxes, true);
         if (LittleBoxCombiner.combine(tempBoxes)) {
             boxes.clear();
             boxes.addAll(tempBoxes);
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean optimize(LittleGrid grid) {
+        List<LittleBox> tempBoxes = new ArrayList<>(boxes);
+        LittleBoxCombiner.separate(grid, tempBoxes, false);
+        
+        List<LittleBox> best = null;
+        for (int i = 0; i < LittleBoxSorting.values().length; i++) {
+            List<LittleBox> temp = new ArrayList<>(tempBoxes);
+            LittleBoxCombiner.combine(tempBoxes);
+            if (best == null || best.size() > temp.size())
+                best = temp;
+        }
+        
+        if (boxes.size() > best.size()) {
+            boxes.clear();
+            boxes.addAll(best);
             return true;
         }
         return false;

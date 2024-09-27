@@ -599,6 +599,15 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         return changed;
     }
     
+    public boolean optimizeTiles() {
+        boolean changed = tiles.optimizeTiles();
+        
+        convertToSmallest();
+        if (changed)
+            updateTiles();
+        return changed;
+    }
+    
     public boolean combineNoneTilesSecretly(boolean optimized) {
         boolean changed = tiles.combineNoneTiles(optimized);
         convertToSmallest();
