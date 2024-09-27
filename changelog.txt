@@ -1,3 +1,11 @@
+1.6.0-pre129
+Added different sorting ways to improve optimization command
+Fixed blocks not being mineable via axe or pickaxe
+Fixed blocks not dropping themselves
+Fixed blocks having not destroy time and resistance
+Fixed player sleep position
+Fixed getting stuck on running backToRAM method on multiple threads
+
 1.6.0-pre128
 Fixed error when changing resourcepack in the main menu
 
