@@ -1,0 +1,28 @@
+{
+    "replace": false,
+    "values": [
+        "littletiles:colored_clean",
+        "littletiles:colored_floor",
+        "littletiles:colored_grainy_big",
+        "littletiles:colored_grainy",
+        "littletiles:colored_grainy_low",
+        "littletiles:colored_brick",
+        "littletiles:colored_brick_big",
+        "littletiles:colored_bordered",
+        "littletiles:colored_chiseled",
+        "littletiles:colored_broken_brick_big",
+        "littletiles:colored_clay",
+        "littletiles:colored_strips",
+        "littletiles:colored_gravel",
+        "littletiles:colored_sand",
+        "littletiles:colored_stone",
+        "littletiles:colored_cork",
+        "littletiles:colored_water",
+        "littletiles:colored_lava",
+        "littletiles:colored_white_lava",
+        "littletiles:colored_water_flowing",
+        "littletiles:colored_lava_flowing",
+        "littletiles:colored_white_lava_flowing",
+        "littletiles:signal_converter"
+    ]
+}
