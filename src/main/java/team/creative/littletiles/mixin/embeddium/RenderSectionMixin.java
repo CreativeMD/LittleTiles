@@ -210,12 +210,12 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             setLastUploaded(null);
         };
         try {
-            synchronized (this) {
-                if (Minecraft.getInstance().isSameThread())
-                    run.run();
-                else
+            if (Minecraft.getInstance().isSameThread())
+                run.run();
+            else
+                synchronized (this) {
                     CompletableFuture.runAsync(run, Minecraft.getInstance()).join();
-            }
+                }
         } catch (Exception e1) {
             e1.printStackTrace();
         }
