@@ -81,7 +81,8 @@ public class LittleBed extends LittleStructure {
     
     public void wakeUp() {
         setSleepingPlayer(null);
-        broadcastPacket(new BedUpdate(getStructureLocation()));
+        if (!isClient())
+            broadcastPacket(new BedUpdate(getStructureLocation()));
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -130,8 +131,7 @@ public class LittleBed extends LittleStructure {
         broadcastPacket(new BedUpdate(getStructureLocation(), player));
         
         player.setPose(Pose.SLEEPING);
-        
-        player.setPos(highest.x, highest.y, highest.z);
+        ((ILittleBedPlayerExtension) player).setPositionToBed();
         player.setSleepingPos(getStructurePos());
         player.setDeltaMovement(Vec3.ZERO);
         player.hasImpulse = true;
