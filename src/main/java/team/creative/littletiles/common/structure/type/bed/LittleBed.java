@@ -79,7 +79,8 @@ public class LittleBed extends LittleStructure {
     
     public void wakeUp() {
         setSleepingPlayer(null);
-        broadcastPacket(new BedUpdate(getStructureLocation()));
+        if (!isClient())
+            broadcastPacket(new BedUpdate(getStructureLocation()));
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -93,7 +94,7 @@ public class LittleBed extends LittleStructure {
             getInput(0).updateState(SignalState.of(player != null));
     }
     
-    public Player.BedSleepingProblem trySleep(Player player, Vec3d highest) {
+     public Player.BedSleepingProblem trySleep(Player player, Vec3d highest) {
         BedSleepingProblem ret = ForgeEventFactory.onPlayerSleepInBed(player, Optional.of(getStructurePos()));
         if (ret != null)
             return ret;
@@ -129,7 +130,7 @@ public class LittleBed extends LittleStructure {
             
             player.setPose(Pose.SLEEPING);
             
-            player.setPos(highest.x, highest.y, highest.z);
+            ((ILittleBedPlayerExtension) player).setPositionToBed();
             player.setSleepingPos(getStructurePos());
             player.setDeltaMovement(Vec3.ZERO);
             player.hasImpulse = true;

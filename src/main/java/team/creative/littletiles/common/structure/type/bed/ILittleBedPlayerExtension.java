@@ -8,4 +8,6 @@ public interface ILittleBedPlayerExtension {
     
     public void setSleepingCounter(int counter);
     
+    public boolean setPositionToBed();
+    
 }

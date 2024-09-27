@@ -10,6 +10,7 @@
         "common.collision.ForgeHooksMixin",
         "common.entity.EntityAccessor",
         "common.entity.EntityMixin",
+        "common.entity.LivingEntityBedMixin",
         "common.entity.PlayerBedMixin",
         "common.entity.PrimedTntAccessor",
         "common.level.BlockBehaviourAccessor",
