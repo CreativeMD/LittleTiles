@@ -368,6 +368,14 @@ public class BlockParentCollection extends ParentCollection {
         return result;
     }
     
+    public boolean optimizeTiles() {
+        var grid = getGrid();
+        boolean result = super.optimize(grid);
+        for (StructureParentCollection list : structures.values())
+            result |= list.optimize(grid);
+        return result;
+    }
+    
     public boolean combineNoneTiles(boolean optimized) {
         return super.combine(getGrid(), optimized);
     }

@@ -1275,14 +1275,18 @@ public class LittleBox {
     
     private static final Comparator<LittleBox> SORT_BY_FACHE_CACHE = (box1, box2) -> Integer.compare(box1.faceCache, box2.faceCache);
     
-    /** sorts the list based on the position. Ensures that order is follows Z,Y,X ascending */
-    public static void sortListByPosition(List<LittleBox> boxes, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
-        int col = maxX - minX;
-        int row = col * (maxY - minY);
+    /** sorts the list based on position */
+    public static void sortListByPosition(List<LittleBox> boxes, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, LittleBoxSorting sorting) {
+        LittleVec min = new LittleVec(minX, minY, minZ);
+        LittleVec max = new LittleVec(maxX, maxY, maxZ);
+        
+        int col = max.get(sorting.first) - min.get(sorting.first);
+        int row = col * (max.get(sorting.second) - min.get(sorting.second));
         
         for (int i = 0; i < boxes.size(); i++) {
             var box = boxes.get(i);
-            box.faceCache = box.minX - minX + (box.minY - minY) * col + (box.minZ - minZ) * row;
+            box.faceCache = box.getMin(sorting.first) - min.get(sorting.first) + (box.getMin(sorting.second) - min.get(sorting.second)) * col + (box.getMin(sorting.third) - min
+                    .get(sorting.third)) * row;
         }
         
         boxes.sort(SORT_BY_FACHE_CACHE);

@@ -329,7 +329,7 @@ public class LittleTiles {
             int i = 0;
             for (BETiles be : blocks) {
                 totalTiles += be.boxesCount();
-                be.combineAllTiles(true);
+                be.optimizeTiles();
                 if (be.convertBlockToVanilla())
                     toVanilla++;
                 else

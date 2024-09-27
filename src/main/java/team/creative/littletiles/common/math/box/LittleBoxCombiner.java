@@ -27,7 +27,7 @@ public class LittleBoxCombiner {
     
     /** cuts the boxes into shapes that can be combined again. Resolves edge cases where this is not possible, but also costs some more performance.
      * Returns whether the resulted list has changed in size */
-    public static boolean separate(LittleGrid grid, List<LittleBox> boxes) {
+    public static boolean separate(LittleGrid grid, List<LittleBox> boxes, boolean sort) {
         LineBitSet xAxis = new LineBitSet();
         LineBitSet yAxis = new LineBitSet();
         LineBitSet zAxis = new LineBitSet();
@@ -73,7 +73,8 @@ public class LittleBoxCombiner {
                 
             }
         }
-        LittleBox.sortListByPosition(boxes, minX, minY, minZ, maxX, maxY, maxZ);
+        if (sort)
+            LittleBox.sortListByPosition(boxes, minX, minY, minZ, maxX, maxY, maxZ, LittleBoxSorting.XYZ);
         return original.size() != boxes.size();
     }
     
