@@ -45,7 +45,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     public final Block still;
     
     public BlockFlowingWater(Block still) {
-        super(BlockBehaviour.Properties.of().liquid());
+        super(BlockBehaviour.Properties.of().liquid().strength(1.5F, 6.0F));
         this.still = still;
     }
     

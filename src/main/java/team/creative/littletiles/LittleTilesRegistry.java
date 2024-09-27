@@ -93,38 +93,45 @@ public class LittleTilesRegistry {
     public static final RegistryObject<Block> BLOCK_TILES_RENDERED = BLOCKS.register("tiles_rendered", () -> new BlockTile(false, true));
     public static final RegistryObject<Block> BLOCK_TILES_TICKING_RENDERED = BLOCKS.register("tiles_ticking_rendered", () -> new BlockTile(true, true));
     
-    public static final RegistryObject<Block> CLEAN = register("colored_clean", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> FLOOR = register("colored_floor", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY_BIG = register("colored_grainy_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY = register("colored_grainy", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> GRAINY_LOW = register("colored_grainy_low", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> BRICK = register("colored_brick", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> BRICK_BIG = register("colored_brick_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> BORDERED = register("colored_bordered", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> CHISELED = register("colored_chiseled", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> BROKEN_BRICK_BIG = register("colored_broken_brick_big", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> CLAY = register("colored_clay", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> STRIPS = register("colored_strips", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> GRAVEL = register("colored_gravel", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> SAND = register("colored_sand", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> STONE = register("colored_stone", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
-    public static final RegistryObject<Block> CORK = register("colored_cork", () -> new Block(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> CLEAN = register("colored_clean", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> FLOOR = register("colored_floor", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> GRAINY_BIG = register("colored_grainy_big", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(
+        MapColor.SNOW)));
+    public static final RegistryObject<Block> GRAINY = register("colored_grainy", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> GRAINY_LOW = register("colored_grainy_low", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(
+        MapColor.SNOW)));
+    public static final RegistryObject<Block> BRICK = register("colored_brick", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> BRICK_BIG = register("colored_brick_big", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(
+        MapColor.SNOW)));
+    public static final RegistryObject<Block> BORDERED = register("colored_bordered", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> CHISELED = register("colored_chiseled", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> BROKEN_BRICK_BIG = register("colored_broken_brick_big", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(
+        MapColor.SNOW)));
+    public static final RegistryObject<Block> CLAY = register("colored_clay", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> STRIPS = register("colored_strips", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> GRAVEL = register("colored_gravel", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> SAND = register("colored_sand", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> STONE = register("colored_stone", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
+    public static final RegistryObject<Block> CORK = register("colored_cork", () -> new Block(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.SNOW)));
     
-    public static final RegistryObject<Block> WATER = register("colored_water", () -> new BlockWater(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_BLUE).noCollission()));
+    public static final RegistryObject<Block> WATER = register("colored_water", () -> new BlockWater(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(
+        MapColor.COLOR_BLUE).noCollission()));
     
-    public static final RegistryObject<Block> LAVA = register("colored_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.COLOR_RED).noCollission()));
-    public static final RegistryObject<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of().mapColor(MapColor.SNOW).noCollission()
-            .lightLevel(x -> 15)));
+    public static final RegistryObject<Block> LAVA = register("colored_lava", () -> new BlockLava(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(MapColor.COLOR_RED)
+            .noCollission()));
+    public static final RegistryObject<Block> WHITE_LAVA = register("colored_white_lava", () -> new BlockLava(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).mapColor(
+        MapColor.SNOW).noCollission().lightLevel(x -> 15)));
     
     public static final RegistryObject<Block> STORAGE_BLOCK = register("storage", () -> new Block(BlockBehaviour.Properties.of().sound(SoundType.WOOD).destroyTime(1.5F).strength(
-        1.5F).sound(SoundType.WOOD)));
+        1.5F)));
     
     public static final RegistryObject<Block> FLOWING_WATER = BLOCKS.register("colored_water_flowing", () -> new BlockFlowingWater(WATER.get()));
     
     public static final RegistryObject<Block> FLOWING_LAVA = BLOCKS.register("colored_lava_flowing", () -> new BlockFlowingLava(LAVA.get()));
     public static final RegistryObject<Block> WHITE_FLOWING_LAVA = BLOCKS.register("colored_white_lava_flowing", () -> new BlockFlowingLava(WHITE_LAVA.get()));
     
-    public static final RegistryObject<Block> SINGLE_CABLE = BLOCKS.register("cable_single", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().sound(SoundType.WOOD)));
+    public static final RegistryObject<Block> SINGLE_CABLE = BLOCKS.register("cable_single", () -> new RotatedPillarBlock(BlockBehaviour.Properties.of().strength(1.5F, 6.0F).sound(
+        SoundType.WOOD)));
     
     public static final RegistryObject<Block> INPUT_ARROW = BLOCKS.register("arrow_input", () -> new BlockArrow());
     public static final RegistryObject<Block> OUTPUT_ARROW = BLOCKS.register("arrow_output", () -> new BlockArrow());
