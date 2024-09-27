@@ -31,7 +31,7 @@ public class BlockSignalConverter extends BaseEntityBlock {
     public static final DirectionProperty HORIZONTAL_FACING = BlockStateProperties.HORIZONTAL_FACING;
     
     public BlockSignalConverter() {
-        super(BlockBehaviour.Properties.of().sound(SoundType.METAL));
+        super(BlockBehaviour.Properties.of().sound(SoundType.METAL).strength(1.5F, 6.0F));
     }
     
     @Override
