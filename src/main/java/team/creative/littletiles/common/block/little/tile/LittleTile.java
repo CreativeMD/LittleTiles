@@ -152,9 +152,25 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         List<LittleBox> tempBoxes = new ArrayList<>(boxes);
         LittleBoxCombiner.separate(grid, tempBoxes, false);
         
+        int minX = Integer.MAX_VALUE;
+        int minY = Integer.MAX_VALUE;
+        int minZ = Integer.MAX_VALUE;
+        int maxX = Integer.MIN_VALUE;
+        int maxY = Integer.MIN_VALUE;
+        int maxZ = Integer.MIN_VALUE;
+        for (LittleBox box : boxes) {
+            minX = Math.min(minX, box.minX);
+            minY = Math.min(minY, box.minY);
+            minZ = Math.min(minZ, box.minZ);
+            maxX = Math.max(maxX, box.maxX);
+            maxY = Math.max(maxY, box.maxY);
+            maxZ = Math.max(maxZ, box.maxZ);
+        }
+        
         List<LittleBox> best = null;
         for (int i = 0; i < LittleBoxSorting.values().length; i++) {
             List<LittleBox> temp = new ArrayList<>(tempBoxes);
+            LittleBox.sortListByPosition(temp, minX, minY, minZ, maxX, maxY, maxZ, LittleBoxSorting.values()[i]);
             LittleBoxCombiner.combine(tempBoxes);
             if (best == null || best.size() > temp.size())
                 best = temp;
