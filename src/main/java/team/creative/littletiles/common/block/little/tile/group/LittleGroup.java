@@ -98,7 +98,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         if (structure.isEmpty())
             structure = null;
         LittleGroup group = new LittleGroup(structure, children);
-        group.grid = LittleGrid.get(nbt);
+        group.convertTo(LittleGrid.get(nbt));
         LittleCollection.load(group.content, nbt.getCompound(TILES_KEY));
         
         CompoundTag extensions = nbt.getCompound(EXTENSION_KEY);
