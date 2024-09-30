@@ -21,7 +21,7 @@ public abstract class LivingEntityBedMixin extends Entity {
     
     @Inject(at = @At("HEAD"), method = "setPosToBed(Lnet/minecraft/core/BlockPos;)V", cancellable = true, require = 1)
     private void setPosToBed(BlockPos pos, CallbackInfo info) {
-        if (((ILittleBedPlayerExtension) this).setPositionToBed())
+        if (this instanceof ILittleBedPlayerExtension b && b.setPositionToBed())
             info.cancel();
     }
     
