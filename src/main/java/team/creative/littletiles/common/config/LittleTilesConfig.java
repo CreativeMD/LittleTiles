@@ -273,6 +273,9 @@ public class LittleTilesConfig {
         
         @CreativeConfig
         public boolean useAltWhenFlying = true;
+        
+        @CreativeConfig
+        public int lowResolutionBoxCount = 2000;
     }
     
     public static class Core implements ICreativeConfig {

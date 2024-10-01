@@ -24,6 +24,7 @@ import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.type.Bunch;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.itr.IterableIterator;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
@@ -33,7 +34,6 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleVolumes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
-import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
@@ -77,7 +77,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     }
     
     public static LittleGroup loadLow(CompoundTag nbt) {
-        if (nbt.getInt("count") > PlacementHelper.LOW_RESOLUTION_COUNT) {
+        if (nbt.getInt("count") > LittleTiles.CONFIG.building.lowResolutionBoxCount) {
             LittleGroup group = new LittleGroup();
             LittleVec max = getSize(nbt);
             LittleVec min = getMin(nbt);
