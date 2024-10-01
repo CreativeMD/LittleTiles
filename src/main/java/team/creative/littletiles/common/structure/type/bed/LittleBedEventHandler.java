@@ -10,6 +10,12 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 public class LittleBedEventHandler {
     
     @SubscribeEvent
+    public void continueSleep(SleepingLocationCheckEvent event) {
+        if (event.getEntity() instanceof ILittleBedPlayerExtension b && b.getBed() != null)
+            event.setResult(Result.ALLOW);
+    }
+    
+    @SubscribeEvent
     public void isSleepingLocationAllowed(SleepingLocationCheckEvent event) {
         if (event.getEntity() instanceof Player player) {
             LittleBed bed = ((ILittleBedPlayerExtension) player).getBed();

@@ -24,6 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.event.ForgeEventFactory;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
@@ -78,9 +79,9 @@ public class LittleBed extends LittleStructure {
     }
     
     public void wakeUp() {
-        setSleepingPlayer(null);
         if (!isClient())
-            broadcastPacket(new BedUpdate(getStructureLocation()));
+            broadcastPacket(new BedUpdate(getStructureLocation(), getSleepingPlayer(), true));
+        setSleepingPlayer(null);
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -94,7 +95,7 @@ public class LittleBed extends LittleStructure {
             getInput(0).updateState(SignalState.of(player != null));
     }
     
-     public Player.BedSleepingProblem trySleep(Player player, Vec3d highest) {
+    public Player.BedSleepingProblem trySleep(Player player, Vec3d highest) {
         BedSleepingProblem ret = ForgeEventFactory.onPlayerSleepInBed(player, Optional.of(getStructurePos()));
         if (ret != null)
             return ret;
@@ -126,7 +127,7 @@ public class LittleBed extends LittleStructure {
             
             setSleepingPlayer(player);
             ((ILittleBedPlayerExtension) player).setBed(this);
-            broadcastPacket(new BedUpdate(getStructureLocation(), player));
+            broadcastPacket(new BedUpdate(getStructureLocation(), player, false));
             
             player.setPose(Pose.SLEEPING);
             
@@ -163,6 +164,16 @@ public class LittleBed extends LittleStructure {
     }
     
     @Override
+    protected void transferOverFormChange(LittleStructure newStructure) {
+        super.transferOverFormChange(newStructure);
+        LittleBed bed = (LittleBed) newStructure;
+        if (sleepingPlayer != null) {
+            ((ILittleBedPlayerExtension) sleepingPlayer).setBed(bed);
+            bed.sleepingPlayer = sleepingPlayer;
+        }
+    }
+    
+    @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result, InteractionHand hand) {
         try {
             checkConnections();
@@ -173,8 +184,10 @@ public class LittleBed extends LittleStructure {
             if (level.isClientSide)
                 return InteractionResult.CONSUME;
             
+            if (level instanceof ISubLevel l)
+                level = l.getRealLevel();
+            
             if (level.dimensionType().bedWorks()) {
-                
                 Vec3d vec = getHighestCenterVec();
                 if (this.sleepingPlayer != null) {
                     player.sendSystemMessage(Component.translatable("tile.bed.occupied", new Object[0]));
