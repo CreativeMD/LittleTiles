@@ -1,3 +1,11 @@
+1.6.0-pre131
+Added lowResolutionBoxCount configuration
+Fixed not importing white concrete properly from 1.12
+Fixed bed not working on doors
+Fixed crash of bed when changing form
+Fixed player not moving with bed if it is part of an animation
+Fixed sit position not moving with door
+
 1.6.0-pre130
 Fixed bug of not loading tiles from stack with children correctly (had different grids which caused weird issues)
 Fixed crash with villager going to bed
