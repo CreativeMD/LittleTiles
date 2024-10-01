@@ -311,7 +311,7 @@ minecraft:black_glazed_terracotta§minecraft:black_glazed_terracotta[facing=sout
 minecraft:black_glazed_terracotta:1§minecraft:black_glazed_terracotta[facing=west]
 minecraft:black_glazed_terracotta:2§minecraft:black_glazed_terracotta[facing=north]
 minecraft:black_glazed_terracotta:3§minecraft:black_glazed_terracotta[facing=east]
-minecraft:concrete§minecraft:concrete[color=white_concrete
+minecraft:concrete§minecraft:white_concrete
 minecraft:concrete:1§minecraft:orange_concrete
 minecraft:concrete:2§minecraft:magenta_concrete
 minecraft:concrete:3§minecraft:light_blue_concrete
