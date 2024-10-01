@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.entity;
 
-import org.joml.Vector3d;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -13,6 +11,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
@@ -65,9 +64,9 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
         } else {
             try {
                 LittleStructure structure = connection.getStructure();
-                if (structure.getStructureLevel() instanceof IOrientatedLevel) {
-                    Vector3d vec = new Vector3d(entityData.get(CHAIRX), entityData.get(CHAIRY), entityData.get(CHAIRZ));
-                    ((IOrientatedLevel) structure.getStructureLevel()).getOrigin().transformPointToWorld(vec);
+                if (structure.getStructureLevel() instanceof IOrientatedLevel l) {
+                    Vec3d vec = new Vec3d(entityData.get(CHAIRX), entityData.get(CHAIRY), entityData.get(CHAIRZ));
+                    l.getOrigin().transformPointToWorld(vec);
                     setPos(vec.x, vec.y, vec.z);
                 }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
