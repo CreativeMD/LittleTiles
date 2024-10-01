@@ -68,7 +68,8 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
     
     protected abstract boolean isRightClick();
     
-    protected abstract T action(Level level, BETiles te, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException;
+    protected abstract T action(Level level, BETiles te, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos,
+            boolean secondMode) throws LittleActionException;
     
     protected abstract T ignored();
     
@@ -102,8 +103,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             fireBlockBreakEvent(level, blockPos, player);
         
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
-        if (blockEntity instanceof BETiles) {
-            BETiles be = (BETiles) blockEntity;
+        if (blockEntity instanceof BETiles be) {
             LittleTileContext context = be.getFocusedTile(transformedPos, transformedLook);
             
             if (!isAllowedToInteract(level, player, blockPos, isRightClick(), Facing.EAST)) {
