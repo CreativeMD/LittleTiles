@@ -27,8 +27,6 @@ import team.creative.littletiles.common.placement.mode.PlacementMode;
  * preview and placing **/
 public class PlacementHelper {
     
-    public static final int LOW_RESOLUTION_COUNT = 2000;
-    
     public static ILittlePlacer getLittleInterface(ItemStack stack) {
         if (stack.getItem() instanceof ILittlePlacer)
             return (ILittlePlacer) stack.getItem();

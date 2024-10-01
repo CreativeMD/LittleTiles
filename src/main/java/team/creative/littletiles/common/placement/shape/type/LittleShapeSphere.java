@@ -14,11 +14,11 @@ import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
 import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
@@ -107,7 +107,7 @@ public class LittleShapeSphere extends LittleShape {
         
         boxes.combineBoxesBlocks();
         
-        if (lowResolution && boxes.size() > PlacementHelper.LOW_RESOLUTION_COUNT) {
+        if (lowResolution && boxes.size() > LittleTiles.CONFIG.building.lowResolutionBoxCount) {
             boxes.clear();
             boxes.add(box);
         }
