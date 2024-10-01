@@ -588,6 +588,12 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return null;
     }
     
+    /** Called before structure is removed. New structure already exists. Can be used to transfer information, that are not saved or loaded.
+     *
+     * @param newStructure
+     *            to continue to exist */
+    protected void transferOverFormChange(LittleStructure newStructure) {}
+    
     /** for this method to work <code>createAnimationCenter()</code> needs to be overridden */
     public LittleAnimationEntity changeToEntityForm() throws LittleActionException {
         if (isAnimated())
@@ -608,6 +614,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             entity.getStructure().updateConnectionToParent(getParent());
         level.addFreshEntity(entity);
         LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location, entity), entity);
+        
+        transferOverFormChange(entity.getStructure());
         
         removeStructureSameLevel(collector);
         entity.getStructure().transferChildrenToAnimation(entity);
@@ -649,6 +657,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         if (getParent() != null)
             result.parentStructure.updateConnectionToParent(getParent());
         LittleTiles.NETWORK.sendToClientTracking(new StructureEntityToBlockPacket(entity), entity);
+        
+        transferOverFormChange(result.parentStructure);
         
         removeStructureSameLevel(collector);
         collector.process();

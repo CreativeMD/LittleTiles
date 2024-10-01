@@ -10,17 +10,14 @@ import team.creative.littletiles.common.structure.type.bed.LittleBed;
 public class BedUpdate extends StructurePacket {
     
     public int playerID;
+    public boolean wakeUp;
     
     public BedUpdate() {}
     
-    public BedUpdate(StructureLocation location) {
-        super(location);
-        this.playerID = -1;
-    }
-    
-    public BedUpdate(StructureLocation location, Player player) {
+    public BedUpdate(StructureLocation location, Player player, boolean wakeUp) {
         super(location);
         this.playerID = player.getId();
+        this.wakeUp = wakeUp;
     }
     
     @Override
@@ -29,8 +26,13 @@ public class BedUpdate extends StructurePacket {
         
         Entity entity = playerID == -1 ? player : player.level().getEntity(playerID);
         if (entity instanceof ILittleBedPlayerExtension p && structure instanceof LittleBed bed) {
-            bed.setSleepingPlayerClient((Player) p);
-            p.setBed(bed);
+            if (wakeUp) {
+                bed.wakeUp();
+                p.setBed(null);
+            } else {
+                bed.setSleepingPlayerClient((Player) p);
+                p.setBed(bed);
+            }
         }
     }
     
