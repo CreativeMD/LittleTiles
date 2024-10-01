@@ -107,8 +107,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             fireBlockBreakEvent(level, blockPos, player);
         
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
-        if (blockEntity instanceof BETiles) {
-            BETiles be = (BETiles) blockEntity;
+        if (blockEntity instanceof BETiles be) {
             LittleTileContext context = be.getFocusedTile(transformedPos, transformedLook);
             
             if (!isAllowedToInteract(level, player, blockPos, isRightClick(), Facing.EAST)) {
