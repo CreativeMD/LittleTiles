@@ -34,7 +34,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.mod.embeddium.buffer.RenderedBufferRubidium;
+import team.creative.littletiles.client.mod.embeddium.buffer.RenderedBufferEmbeddium;
 import team.creative.littletiles.client.mod.embeddium.renderer.DefaultChunkRendererExtender;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
@@ -73,7 +73,7 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
         globalBlockEntities.addAll(results.globalBlockEntities);
         renderableBlockEntities = results.blockEntities;
         prepareUpload();
-        for (Tuple<RenderType, RenderedBufferRubidium> entry : results.buffers.tuples()) {
+        for (Tuple<RenderType, RenderedBufferEmbeddium> entry : results.buffers.tuples()) {
             VertexBuffer buffer = getVertexBuffer(entry.key);
             if (!buffer.isInvalid() && buffer instanceof VertexBufferExtender ex) {
                 buffer.bind();
@@ -163,7 +163,7 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
         public final List<BlockEntity> globalBlockEntities = new ArrayList<>();
         public final List<BlockEntity> blockEntities = new ArrayList<>();
         
-        public final ChunkLayerMap<RenderedBufferRubidium> buffers = new ChunkLayerMap<>();
+        public final ChunkLayerMap<RenderedBufferEmbeddium> buffers = new ChunkLayerMap<>();
         
         public boolean isEmpty() {
             return buffers.isEmpty() && globalBlockEntities.isEmpty() && blockEntities.isEmpty();
@@ -183,7 +183,7 @@ public class LittleAnimationRenderManagerEmbeddium extends LittleAnimationRender
             
             if (caches != null)
                 for (Tuple<RenderType, BufferCollection> layer : caches.tuples())
-                    results.buffers.put(layer.key, new RenderedBufferRubidium(layer.value));
+                    results.buffers.put(layer.key, new RenderedBufferEmbeddium(layer.value));
                 
             LittleRenderPipelineType.endCompile(LittleAnimationRenderManagerEmbeddium.this);
             return results;

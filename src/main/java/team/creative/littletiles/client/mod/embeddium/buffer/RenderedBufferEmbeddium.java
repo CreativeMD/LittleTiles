@@ -13,12 +13,12 @@ import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 
-public class RenderedBufferRubidium implements AutoCloseable, ChunkBufferUploader {
+public class RenderedBufferEmbeddium implements AutoCloseable, ChunkBufferUploader {
     
     private ByteBuffer buffer;
     private Set<TextureAtlasSprite> animatedSprites = new ObjectOpenHashSet<>();
     
-    public RenderedBufferRubidium(BufferCollection collection) {
+    public RenderedBufferEmbeddium(BufferCollection collection) {
         buffer = MemoryUtil.memAlloc(collection.length());
         for (BufferCache cache : collection.buffers())
             cache.upload(this);
