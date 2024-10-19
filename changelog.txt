@@ -1,3 +1,6 @@
+1.6.0-pre132
+Fixed rain falling through lt blocks
+
 1.6.0-pre131
 Added lowResolutionBoxCount configuration
 Fixed not importing white concrete properly from 1.12
