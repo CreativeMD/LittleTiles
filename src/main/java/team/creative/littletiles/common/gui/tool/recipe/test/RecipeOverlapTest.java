@@ -51,7 +51,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
             item.refreshAnimation();
     }
     
-    private HashMap<BlockPos, RecipeOverlayTestBlock> blocks;
+    private HashMap<BlockPos, RecipeOverlapTestBlock> blocks;
     private HashMap<GuiTreeItemStructure, LittleBoxesNoOverlap> overlapped;
     
     @Override
@@ -59,21 +59,21 @@ public class RecipeOverlapTest extends RecipeTestModule {
         blocks = new HashMap<>();
     }
     
-    private RecipeOverlayTestBlock getOrCreate(BlockPos pos) {
-        RecipeOverlayTestBlock block = blocks.get(pos);
+    private RecipeOverlapTestBlock getOrCreate(BlockPos pos) {
+        RecipeOverlapTestBlock block = blocks.get(pos);
         if (block == null)
-            blocks.put(pos.immutable(), block = new RecipeOverlayTestBlock());
+            blocks.put(pos.immutable(), block = new RecipeOverlapTestBlock());
         return block;
     }
     
-    private void addOverlay(GuiTreeItemStructure other, BlockPos pos, LittleGrid grid, LittleBox box) {
+    private void addOverlap(GuiTreeItemStructure other, BlockPos pos, LittleGrid grid, LittleBox box) {
         if (overlapped == null)
             overlapped = new HashMap<>();
         
         LittleBoxesNoOverlap boxes = overlapped.get(other);
         if (boxes == null)
             overlapped.put(other, boxes = new LittleBoxesNoOverlap(BlockPos.ZERO, grid));
-        boxes.addBox(grid, pos, box);
+        boxes.addBox(grid, pos, box.copy());
     }
     
     @Override
@@ -110,7 +110,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
         blocks = null;
     }
     
-    public class RecipeOverlayTestBlock implements IGridBased {
+    public class RecipeOverlapTestBlock implements IGridBased {
         
         public HashMap<GuiTreeItemStructure, List<LittleBox>> structureBoxes = new HashMap<>();
         private LittleGrid grid = LittleGrid.MIN;
@@ -125,7 +125,7 @@ public class RecipeOverlapTest extends RecipeTestModule {
                 for (LittleBox other : entry.getValue()) {
                     if (LittleBox.intersectsWith(box, other)) {
                         LittleBox intersecting = box.intersection(other);
-                        addOverlay(entry.getKey(), pos, this.grid, intersecting);
+                        addOverlap(entry.getKey(), pos, this.grid, intersecting);
                     }
                 }
             }
