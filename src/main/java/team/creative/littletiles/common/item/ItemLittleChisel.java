@@ -124,6 +124,11 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     }
     
     @Override
+    public boolean shouldRenderInHand(ItemStack stack) {
+        return true;
+    }
+    
+    @Override
     public LittleGroup getLow(ItemStack stack) {
         return null;
     }

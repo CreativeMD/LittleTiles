@@ -73,15 +73,13 @@ public class PlacementPreview {
             return null;
         
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
-        LittleGrid original = tiles.getGrid();
         PlacementMode mode = iTile.getPlacementMode(stack);
         
         if (!tiles.isEmpty() || tiles.hasChildren()) {
+            LittleVecGrid size = PlacementHelper.getSize(iTile, stack, tiles);
             
-            tiles.forceSameGrid(position);
+            tiles.forceSameGrid(position, size);
             LittleGrid grid = tiles.getGrid();
-            
-            LittleVec size = PlacementHelper.getSize(iTile, stack, tiles, original);
             
             List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
             
@@ -92,7 +90,7 @@ public class PlacementPreview {
                 centered = true;
             }
             
-            LittleBox box = PlacementHelper.getTilesBox(position, size, centered, position.facing, mode);
+            LittleBox box = PlacementHelper.getTilesBox(position, size.getVec(), centered, position.facing, mode);
             
             boolean canBePlaceFixed = false;
             
@@ -109,9 +107,11 @@ public class PlacementPreview {
                 offset = new PlacementPosition(position.getPos(), grid, new LittleVec(0, 0, 0), position.facing);
             else {
                 offset = new PlacementPosition(position.getPos(), grid, box.getMinVec(), position.facing);
-                LittleVec internalOffset = PlacementHelper.getInternalOffset(iTile, stack, tiles, original);
+                LittleVecGrid internalOffset = PlacementHelper.getInternalOffset(iTile, stack, tiles);
                 internalOffset.invert();
-                offset.getVec().add(internalOffset);
+                offset.add(internalOffset);
+                
+                offset.convertTo(grid);
                 
                 if ((canBePlaceFixed || (fixed && singleMode)) && mode.placeInside)
                     if (position.getVec().get(position.facing.axis) % grid.count == 0)
@@ -169,15 +169,13 @@ public class PlacementPreview {
         Level level = getLevel(entity);
         
         ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
-        LittleGrid original = previews.getGrid();
-        
         if (!previews.isEmpty() || previews.hasChildren()) {
             
-            previews.forceSameGrid(position);
+            LittleVecGrid size = PlacementHelper.getSize(iTile, stack, previews);
+            
+            previews.forceSameGrid(position, size);
+            
             LittleGrid grid = previews.getGrid();
-            
-            LittleVec size = PlacementHelper.getSize(iTile, stack, previews, original);
-            
             List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
             
             boolean singleMode = previews.totalBoxes() == 1;
@@ -187,7 +185,7 @@ public class PlacementPreview {
                 centered = true;
             }
             
-            LittleBox box = PlacementHelper.getTilesBox(position, size, centered, position.facing, mode);
+            LittleBox box = PlacementHelper.getTilesBox(position, size.getVec(), centered, position.facing, mode);
             
             boolean canBePlaceFixed = false;
             
@@ -204,9 +202,11 @@ public class PlacementPreview {
                 offset = new PlacementPosition(position.getPos(), grid, new LittleVec(0, 0, 0), position.facing);
             else {
                 offset = new PlacementPosition(position.getPos(), grid, box.getMinVec(), position.facing);
-                LittleVec internalOffset = PlacementHelper.getInternalOffset(iTile, stack, previews, original);
+                LittleVecGrid internalOffset = PlacementHelper.getInternalOffset(iTile, stack, previews);
                 internalOffset.invert();
-                offset.getVec().add(internalOffset);
+                offset.add(internalOffset);
+                
+                offset.convertTo(grid);
                 
                 if ((canBePlaceFixed || (fixed && singleMode)) && mode.placeInside)
                     if (position.getVec().get(position.facing.axis) % grid.count == 0)

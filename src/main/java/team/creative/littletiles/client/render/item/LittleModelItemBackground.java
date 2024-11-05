@@ -32,7 +32,7 @@ public class LittleModelItemBackground extends CreativeItemModel {
     }
     
     public boolean shouldRenderFake(ItemStack stack) {
-        return ((ILittlePlacer) stack.getItem()).hasTiles(stack);
+        return ((ILittlePlacer) stack.getItem()).shouldRenderInHand(stack);
     }
     
     @Override

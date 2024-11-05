@@ -14,7 +14,7 @@ import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -24,6 +24,8 @@ import team.creative.littletiles.common.structure.registry.LittleStructureRegist
 public interface ILittlePlacer extends ILittleTool {
     
     public boolean hasTiles(ItemStack stack);
+    
+    public boolean shouldRenderInHand(ItemStack stack);
     
     public LittleGroup getTiles(ItemStack stack);
     
@@ -93,7 +95,7 @@ public interface ILittlePlacer extends ILittleTool {
      * 
      * @param stack
      * @return */
-    public default LittleVec getCachedSize(ItemStack stack) {
+    public default LittleVecGrid getCachedSize(ItemStack stack) {
         return null;
     }
     
@@ -102,7 +104,7 @@ public interface ILittlePlacer extends ILittleTool {
      * 
      * @param stack
      * @return */
-    public default LittleVec getCachedMin(ItemStack stack) {
+    public default LittleVecGrid getCachedMin(ItemStack stack) {
         return null;
     }
     

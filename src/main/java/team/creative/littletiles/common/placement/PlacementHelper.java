@@ -20,6 +20,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
@@ -41,13 +42,10 @@ public class PlacementHelper {
         return false;
     }
     
-    public static LittleVec getInternalOffset(ILittlePlacer iTile, ItemStack stack, LittleGroup tiles, LittleGrid original) {
-        LittleVec offset = iTile.getCachedMin(stack);
-        if (offset != null) {
-            if (tiles.getGrid() != original)
-                offset.convertTo(original, tiles.getGrid());
+    public static LittleVecGrid getInternalOffset(ILittlePlacer iTile, ItemStack stack, LittleGroup tiles) {
+        LittleVecGrid offset = iTile.getCachedMin(stack);
+        if (offset != null)
             return offset;
-        }
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
         int minZ = Integer.MAX_VALUE;
@@ -56,16 +54,13 @@ public class PlacementHelper {
             minY = Math.min(minY, box.minY);
             minZ = Math.min(minZ, box.minZ);
         }
-        return new LittleVec(minX, minY, minZ);
+        return new LittleVecGrid(new LittleVec(minX, minY, minZ), tiles.getGrid());
     }
     
-    public static LittleVec getSize(ILittlePlacer iTile, ItemStack stack, LittleGroup tiles, LittleGrid original) {
-        LittleVec cached = iTile.getCachedSize(stack);
-        if (cached != null) {
-            if (tiles.getGrid() != original)
-                cached.convertTo(original, tiles.getGrid());
+    public static LittleVecGrid getSize(ILittlePlacer iTile, ItemStack stack, LittleGroup tiles) {
+        LittleVecGrid cached = iTile.getCachedSize(stack);
+        if (cached != null)
             return cached;
-        }
         int minX = Integer.MAX_VALUE;
         int minY = Integer.MAX_VALUE;
         int minZ = Integer.MAX_VALUE;
@@ -81,7 +76,7 @@ public class PlacementHelper {
             maxY = Math.max(maxY, box.maxY);
             maxZ = Math.max(maxZ, box.maxZ);
         }
-        return new LittleVec(maxX - minX, maxY - minY, maxZ - minZ).max(size);
+        return new LittleVecGrid(new LittleVec(maxX - minX, maxY - minY, maxZ - minZ).max(size), tiles.getGrid());
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -127,35 +122,14 @@ public class PlacementHelper {
     public static LittleBox getTilesBox(LittleVecAbsolute pos, LittleVec size, boolean centered, @Nullable Facing facing, PlacementMode mode) {
         LittleVec temp = pos.getVec().copy();
         if (centered) {
-            LittleVec center = size.calculateCenter();
-            LittleVec centerInv = size.calculateInvertedCenter();
-            
             if (mode.placeInside)
                 facing = facing.opposite();
             
             // Make hit the center of the Box
-            switch (facing) {
-                case EAST:
-                    temp.x += center.x;
-                    break;
-                case WEST:
-                    temp.x -= centerInv.x;
-                    break;
-                case UP:
-                    temp.y += center.y;
-                    break;
-                case DOWN:
-                    temp.y -= centerInv.y;
-                    break;
-                case SOUTH:
-                    temp.z += center.z;
-                    break;
-                case NORTH:
-                    temp.z -= centerInv.z;
-                    break;
-                default:
-                    break;
-            }
+            if (facing.positive)
+                temp.set(facing.axis, temp.get(facing.axis) + size.calculateCenter().get(facing.axis));
+            else
+                temp.set(facing.axis, temp.get(facing.axis) - size.calculateInvertedCenter().get(facing.axis));
         }
         return new LittleBox(temp, size.x, size.y, size.z);
     }

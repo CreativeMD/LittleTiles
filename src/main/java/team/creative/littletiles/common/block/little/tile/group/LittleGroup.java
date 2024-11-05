@@ -76,13 +76,19 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
                 setGridSecretly(child, grid);
     }
     
+    public static boolean shouldRenderInHand(CompoundTag nbt) {
+        int count = nbt.getInt(BOXES_COUNT_KEY);
+        return count > 0 && count < LittleTiles.CONFIG.building.lowResolutionBoxCount;
+    }
+    
     public static LittleGroup loadLow(CompoundTag nbt) {
-        if (nbt.getInt("count") > LittleTiles.CONFIG.building.lowResolutionBoxCount) {
+        if (nbt.getInt(BOXES_COUNT_KEY) > LittleTiles.CONFIG.building.lowResolutionBoxCount) {
             LittleGroup group = new LittleGroup();
-            LittleVec max = getSize(nbt);
-            LittleVec min = getMin(nbt);
+            LittleVecGrid max = getSize(nbt);
+            LittleVecGrid min = getMin(nbt);
             max.add(min);
-            group.addTile(LittleGrid.get(nbt), new LittleTile(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE, new LittleBox(min, max)));
+            min.forceSameGrid(max);
+            group.addTile(min.getGrid(), new LittleTile(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE, new LittleBox(min.getVec(), max.getVec())));
             return group;
         }
         return load(nbt);
@@ -140,15 +146,15 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         return nbt;
     }
     
-    public static LittleVec getSize(CompoundTag nbt) {
+    public static LittleVecGrid getSize(CompoundTag nbt) {
         if (nbt.contains(SIZE_KEY))
-            return new LittleVec(SIZE_KEY, nbt);
+            return new LittleVecGrid(new LittleVec(SIZE_KEY, nbt), LittleGrid.get(nbt));
         return null;
     }
     
-    public static LittleVec getMin(CompoundTag nbt) {
+    public static LittleVecGrid getMin(CompoundTag nbt) {
         if (nbt.contains(MIN_KEY))
-            return new LittleVec(MIN_KEY, nbt);
+            return new LittleVecGrid(new LittleVec(MIN_KEY, nbt), LittleGrid.get(nbt));
         return null;
     }
     

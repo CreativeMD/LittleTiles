@@ -155,4 +155,13 @@ public class LittleVecGrid implements IGridBased {
     public void invert() {
         this.vec.invert();
     }
+    
+    public LittleVecGrid calculateCenter() {
+        return new LittleVecGrid(vec.calculateCenter(), grid);
+    }
+    
+    public LittleVecGrid calculateInvertedCenter() {
+        return new LittleVecGrid(vec.calculateInvertedCenter(), grid);
+    }
+    
 }

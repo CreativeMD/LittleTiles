@@ -68,6 +68,11 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
+    public boolean shouldRenderInHand(ItemStack stack) {
+        return true;
+    }
+    
+    @Override
     public LittleGroup getLow(ItemStack stack) {
         return getTiles(stack);
     }

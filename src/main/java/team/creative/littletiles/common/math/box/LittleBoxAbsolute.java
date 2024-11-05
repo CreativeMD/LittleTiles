@@ -27,10 +27,20 @@ public class LittleBoxAbsolute implements IGridBased {
         set(pos, box, grid);
     }
     
+    public LittleBoxAbsolute(BlockPos pos, LittleBoxGrid box) {
+        set(pos, box);
+    }
+    
     public void set(BlockPos pos, LittleBox box, LittleGrid grid) {
         this.pos = pos;
         this.box = box;
         this.grid = grid;
+    }
+    
+    public void set(BlockPos pos, LittleBoxGrid box) {
+        this.pos = pos;
+        this.box = box.getBox();
+        this.grid = box.getGrid();
     }
     
     @Override
