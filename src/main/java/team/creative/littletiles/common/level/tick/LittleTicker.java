@@ -43,6 +43,7 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
             return new LittleTickTicket();
         LittleTickTicket result = unused;
         unused = result.next;
+        result.next = null;
         return result;
     }
     
@@ -86,6 +87,8 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
                     last.next = result;
                 last = result;
                 latest = result.tickTime;
+                if (next == null)
+                    next = result;
                 return;
             }
             
@@ -96,7 +99,7 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
             }
             
             LittleTickTicket current = next;
-            while (current.next.tickTime <= result.tickTime)
+            while (current.next != null && current.next.tickTime <= result.tickTime)
                 current = current.next;
             result.next = current.next;
             current.next = result;
