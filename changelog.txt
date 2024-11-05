@@ -1,3 +1,12 @@
+1.6.0-pre133
+Fixed not rotating tiles like logs properly
+Fixed signal ticker not working properly
+Fixed ignoring structure or tile collision listeners (only take care if both are there)
+Fixed not using low resolution mode
+Fixed rendering item in hand if resolution mode is active
+Fixed not rendering overlapping tiles properly
+Fixed optimization still being applied even though it is worse than before
+
 1.6.0-pre132
 Fixed rain falling through lt blocks
 
