@@ -1,3 +1,6 @@
+1.6.0-pre134
+Fixed rotation and mirror issue
+
 1.6.0-pre133
 Fixed not rotating tiles like logs properly
 Fixed signal ticker not working properly
