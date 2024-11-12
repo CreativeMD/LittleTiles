@@ -306,7 +306,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         if (!transformable())
             throw new RuntimeException("Cannot transform group with links");
         
-        for (LittleTile tile : allTiles())
+        for (LittleTile tile : this)
             tile.mirror(axis, doubledCenter);
         
         if (hasStructure())
@@ -321,7 +321,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         if (!transformable())
             throw new RuntimeException("Cannot transform group with links");
         
-        for (LittleTile tile : allTiles())
+        for (LittleTile tile : this)
             tile.rotate(rotation, doubledCenter);
         
         if (hasStructure())
