@@ -232,7 +232,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
     /** note this does not check for boxes, just for the type */
     public boolean equals(Object obj) {
         if (obj instanceof LittleTile)
-            return ((LittleTile) obj).block == block && ((LittleTile) obj).color == color;
+            return super.equals(obj);
         return false;
     }
     

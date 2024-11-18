@@ -97,8 +97,8 @@ public class LittleElement {
     
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof LittleElement)
-            return ((LittleElement) obj).state == state && ((LittleElement) obj).color == color;
+        if (obj instanceof LittleElement element)
+            return element.state == state && element.color == color;
         return super.equals(obj);
     }
     
