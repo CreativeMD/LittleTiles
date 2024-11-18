@@ -1,3 +1,6 @@
+1.6.0-pre135
+Fixed combining tiles together even if they are different
+
 1.6.0-pre134
 Fixed rotation and mirror issue
 
