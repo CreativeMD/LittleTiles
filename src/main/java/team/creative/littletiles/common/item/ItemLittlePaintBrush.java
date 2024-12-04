@@ -155,7 +155,9 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        if (client && selection != null)
+        if (!client)
+            return;
+        if (selection != null)
             selection.rotate(player, stack, rotation);
         else
             new ShapeSelection(stack, false).rotate(player, stack, rotation);
@@ -163,7 +165,9 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
-        if (client && selection != null)
+        if (!client)
+            return;
+        if (selection != null)
             selection.mirror(player, stack, axis);
         else
             new ShapeSelection(stack, false).mirror(player, stack, axis);

@@ -154,7 +154,9 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     @Override
     public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        if (client && selection != null)
+        if (!client)
+            return;
+        if (selection != null)
             selection.rotate(player, stack, rotation);
         else
             createSelection(stack).rotate(player, stack, rotation);
@@ -162,7 +164,9 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     
     @Override
     public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
-        if (client && selection != null)
+        if (!client)
+            return;
+        if (selection != null)
             selection.mirror(player, stack, axis);
         else
             createSelection(stack).mirror(player, stack, axis);
