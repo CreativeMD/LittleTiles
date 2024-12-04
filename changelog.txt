@@ -1,3 +1,11 @@
+1.6.0-pre136
+Fixed crash when rotating or mirroring chisel, hammer or paintbrush
+Potentially fixed crash with chisel
+Fixed removing side of transformable box in certain edge cases
+Fixed crash with Immersive Portals
+Adapted to CreativeCore 2.12.23
+Fixed selection box issue when transformable box was very thin
+
 1.6.0-pre135
 Fixed combining tiles together even if they are different
 
