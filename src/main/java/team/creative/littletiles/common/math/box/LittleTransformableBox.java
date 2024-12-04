@@ -377,7 +377,7 @@ public class LittleTransformableBox extends LittleBox {
             
             for (int j = 0; j < Facing.values().length; j++) {
                 VectorFanFaceCache faceCache = cache.faces[j];
-                if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null) {
+                if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null && faceCache.hasAxisStrip()) {
                     NormalPlaneF cutPlane1 = tiltedPlanes[j * 2];
                     NormalPlaneF cutPlane2 = tiltedPlanes[j * 2 + 1];
                     if (faceCache.convex) {
