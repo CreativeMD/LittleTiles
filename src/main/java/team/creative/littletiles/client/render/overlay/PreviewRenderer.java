@@ -196,8 +196,8 @@ public class PreviewRenderer implements LevelAwareHandler {
             
             Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
             
-            if (stack.getItem() instanceof ILittleTool tool && (marked != null || mc.hitResult.getType() == Type.BLOCK)) {
-                BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult ? (BlockHitResult) mc.hitResult : null;
+            if (stack.getItem() instanceof ILittleTool tool && (marked != null || (mc.hitResult != null && mc.hitResult.getType() == Type.BLOCK))) {
+                BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult b ? b : null;
                 
                 PlacementPosition position = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, tool.getPositionGrid(player, stack), tool, stack);
                 
