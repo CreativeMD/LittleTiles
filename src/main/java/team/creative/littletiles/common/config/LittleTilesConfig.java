@@ -38,6 +38,9 @@ public class LittleTilesConfig {
     @CreativeConfig(type = ConfigSynchronization.CLIENT)
     public Rendering rendering = new Rendering();
     
+    @CreativeConfig
+    public LittleSignalConfig signal = new LittleSignalConfig();
+    
     public boolean isEditLimited(Player player) {
         return build.get(player).editBlockLimit.isEnabled();
     }

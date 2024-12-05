@@ -10,6 +10,7 @@ import org.apache.commons.lang3.ArrayUtils;
 
 import team.creative.creativecore.common.util.type.itr.ArrayIterator;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
@@ -17,21 +18,6 @@ import team.creative.littletiles.common.structure.signal.logic.SignalPatternPars
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
 public abstract class SignalInputCondition {
-    
-    public static final float AND_DURATION = 0.1F;
-    public static final float OR_DURATION = 0.01F;
-    public static final float XOR_DURATION = 0.2F;
-    public static final float BAND_DURATION = 0.2F;
-    public static final float BOR_DURATION = 0.02F;
-    public static final float BXOR_DURATION = 0.4F;
-    public static final float NOT_DURATION = 0.01F;
-    public static final float BNOT_DURATION = 0.02F;
-    public static final float VARIABLE_DURATION = 0.01F;
-    
-    public static final float ADD_DURATION = 0.5F;
-    public static final float SUB_DURATION = 0.5F;
-    public static final float MUL_DURATION = 0.5F;
-    public static final float DIV_DURATION = 5F;
     
     public static SignalInputCondition parseInput(String pattern) throws ParseException {
         SignalPatternParser parser = new SignalPatternParser(pattern);
@@ -52,7 +38,8 @@ public abstract class SignalInputCondition {
         return condition;
     }
     
-    public static SignalInputCondition tryParseNextCondition(SignalPatternParser parser, boolean includeBitwise, boolean insideVariable, boolean forceBitwise) throws ParseException {
+    public static SignalInputCondition tryParseNextCondition(SignalPatternParser parser, boolean includeBitwise, boolean insideVariable,
+            boolean forceBitwise) throws ParseException {
         while (parser.hasNext()) {
             char next = parser.lookForNext(true);
             int type = Character.getType(next);
@@ -99,7 +86,8 @@ public abstract class SignalInputCondition {
         return null;
     }
     
-    private static SignalInputCondition parseLowerExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise, boolean insideVariable) throws ParseException {
+    private static SignalInputCondition parseLowerExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise,
+            boolean insideVariable) throws ParseException {
         if (operator.lower() != null)
             return parseExpression(parser, until, operator.lower(), includeBitwise, insideVariable);
         return parseNextCondition(parser, includeBitwise, insideVariable);
@@ -109,7 +97,8 @@ public abstract class SignalInputCondition {
         return parseExpression(parser, until, SignalLogicOperator.getHighest(includeBitwise), includeBitwise, insideVariable);
     }
     
-    public static SignalInputCondition parseExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise, boolean insideVariable) throws ParseException {
+    public static SignalInputCondition parseExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise,
+            boolean insideVariable) throws ParseException {
         SignalInputCondition first = parseLowerExpression(parser, until, operator, includeBitwise, insideVariable);
         
         if (!parser.hasNext() || ArrayUtils.contains(until, parser.lookForNext(true)))
@@ -133,7 +122,11 @@ public abstract class SignalInputCondition {
     
     public abstract String write();
     
-    public abstract float calculateDelay();
+    protected abstract double internalDelay();
+    
+    public double calculateDelay() {
+        return internalDelay() * LittleTiles.CONFIG.signal.overallDurationScale;
+    }
     
     @Override
     public String toString() {
@@ -179,8 +172,8 @@ public abstract class SignalInputCondition {
         }
         
         @Override
-        public float calculateDelay() {
-            return BNOT_DURATION + condition.calculateDelay();
+        protected double internalDelay() {
+            return LittleTiles.CONFIG.signal.bnotDuration + condition.calculateDelay();
         }
         
         @Override
@@ -218,8 +211,8 @@ public abstract class SignalInputCondition {
         }
         
         @Override
-        public float calculateDelay() {
-            return NOT_DURATION + condition.calculateDelay();
+        protected double internalDelay() {
+            return LittleTiles.CONFIG.signal.notDuration + condition.calculateDelay();
         }
         
         @Override
@@ -257,7 +250,7 @@ public abstract class SignalInputCondition {
         }
         
         @Override
-        public float calculateDelay() {
+        protected double internalDelay() {
             return 0;
         }
         
@@ -306,8 +299,8 @@ public abstract class SignalInputCondition {
         }
         
         @Override
-        public float calculateDelay() {
-            float delay = AND_DURATION * conditions.length;
+        protected double internalDelay() {
+            double delay = LittleTiles.CONFIG.signal.andDuration * conditions.length;
             for (int i = 0; i < conditions.length; i++)
                 delay += conditions[i].calculateDelay();
             return delay;

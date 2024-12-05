@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.Iterator;
 
 import team.creative.creativecore.common.util.type.itr.ArrayIterator;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.SignalState.SignalStateSize;
@@ -48,8 +49,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.AND_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.andDuration;
                 }
             };
         }
@@ -91,8 +92,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.OR_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.orDuration;
                 }
             };
         }
@@ -135,8 +136,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.XOR_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.xorDuration;
                 }
             };
         }
@@ -173,8 +174,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.BAND_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.bandDuration;
                 }
             };
         }
@@ -212,8 +213,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.BOR_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.borDuration;
                 }
             };
         }
@@ -251,8 +252,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.BXOR_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.bxorDuration;
                 }
             };
         }
@@ -289,8 +290,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.ADD_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.addDuration;
                 }
                 
             };
@@ -327,8 +328,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.SUB_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.subDuration;
                 }
             };
         }
@@ -364,8 +365,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.MUL_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.mulDuration;
                 }
             };
         }
@@ -413,8 +414,8 @@ public enum SignalLogicOperator {
                 }
                 
                 @Override
-                public float getModifier() {
-                    return SignalInputCondition.DIV_DURATION;
+                public double getModifier() {
+                    return LittleTiles.CONFIG.signal.divDuration;
                 }
             };
         }
@@ -559,14 +560,14 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public float calculateDelay() {
-            float delay = conditions.length * getModifier();
+        protected double internalDelay() {
+            double delay = conditions.length * getModifier();
             for (SignalInputCondition condition : conditions)
                 delay += condition.calculateDelay();
             return delay;
         }
         
-        public abstract float getModifier();
+        public abstract double getModifier();
         
         @Override
         public Iterator<SignalInputCondition> nested() {

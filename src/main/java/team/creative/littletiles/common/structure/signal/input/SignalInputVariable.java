@@ -7,6 +7,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
@@ -105,8 +106,8 @@ public class SignalInputVariable extends SignalInputCondition {
     }
     
     @Override
-    public float calculateDelay() {
-        return VARIABLE_DURATION;
+    protected double internalDelay() {
+        return LittleTiles.CONFIG.signal.variableDuration;
     }
     
     @Override
@@ -206,7 +207,7 @@ public class SignalInputVariable extends SignalInputCondition {
         }
         
         @Override
-        public float calculateDelay() {
+        protected double internalDelay() {
             return super.calculateDelay() + condition.calculateDelay();
         }
         
