@@ -1,3 +1,7 @@
+1.6.0-pre137
+Fixed recent fix causing multiple issues, reworked removing side fix
+Fixed pulse and extender pulse mode configuration
+
 1.6.0-pre136
 Fixed crash when rotating or mirroring chisel, hammer or paintbrush
 Potentially fixed crash with chisel
