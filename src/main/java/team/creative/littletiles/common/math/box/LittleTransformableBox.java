@@ -377,14 +377,14 @@ public class LittleTransformableBox extends LittleBox {
             
             for (int j = 0; j < Facing.values().length; j++) {
                 VectorFanFaceCache faceCache = cache.faces[j];
-                if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null && faceCache.hasAxisStrip()) {
+                if (faceCache.tiltedStrip1 == null && faceCache.tiltedStrip2 == null) {
                     NormalPlaneF cutPlane1 = tiltedPlanes[j * 2];
                     NormalPlaneF cutPlane2 = tiltedPlanes[j * 2 + 1];
                     if (faceCache.convex) {
                         if (cutPlane1 != null)
-                            axisFaceCache.cutAxisStrip(cutPlane1);
+                            axisFaceCache.cutAxisStrip(facing, cutPlane1);
                         if (cutPlane2 != null)
-                            axisFaceCache.cutAxisStrip(cutPlane2);
+                            axisFaceCache.cutAxisStrip(facing, cutPlane2);
                     } else
                         axisFaceCache.cutAxisStrip(facing, cutPlane1, cutPlane2);
                 } else {
@@ -400,9 +400,9 @@ public class LittleTransformableBox extends LittleBox {
                     
                     if (faceCache.convex) {
                         if (cutPlane1 != null)
-                            axisFaceCache.cutAxisStrip(cutPlane1);
+                            axisFaceCache.cutAxisStrip(facing, cutPlane1);
                         if (cutPlane2 != null)
-                            axisFaceCache.cutAxisStrip(cutPlane2);
+                            axisFaceCache.cutAxisStrip(facing, cutPlane2);
                     } else
                         axisFaceCache.cutAxisStrip(facing, cutPlane1, cutPlane2);
                 }
@@ -1609,8 +1609,8 @@ public class LittleTransformableBox extends LittleBox {
             
             List<VectorFan> newAxisStrips = new ArrayList<>();
             for (int i = 0; i < axisStrips.size(); i++) {
-                VectorFan strip = axisStrips.get(i).cut(plane);
-                VectorFan strip2 = axisStrips.get(i).cut(plane2);
+                VectorFan strip = plane.isFacing(facing) ? axisStrips.get(i) : axisStrips.get(i).cut(plane);
+                VectorFan strip2 = plane2.isFacing(facing) ? axisStrips.get(i) : axisStrips.get(i).cut(plane2);
                 
                 if (strip != null && strip2 != null && strip.intersect2d(strip2, one, two, inverse, 0.001F)) {
                     List<VectorFan> fans = strip.cut2d(strip2, one, two, inverse, false);
@@ -1632,7 +1632,9 @@ public class LittleTransformableBox extends LittleBox {
             this.axisStrips = newAxisStrips;
         }
         
-        public void cutAxisStrip(NormalPlaneF plane) {
+        public void cutAxisStrip(Facing facing, NormalPlaneF plane) {
+            if (plane.isFacing(facing))
+                return;
             int i = 0;
             VectorFan before = null;
             if (completedFilled && axisStrips.size() == 1)
