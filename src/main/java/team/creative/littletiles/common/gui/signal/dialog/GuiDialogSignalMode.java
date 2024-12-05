@@ -39,8 +39,8 @@ public class GuiDialogSignalMode extends GuiLayer {
         if (event == null)
             return;
         
-        GuiComboBoxMapped<SignalMode> box = new GuiComboBoxMapped<SignalMode>("mode", new TextMapBuilder<SignalMode>()
-                .addComponent(SignalMode.values(), x -> Component.translatable(x.translateKey)));
+        GuiComboBoxMapped<SignalMode> box = new GuiComboBoxMapped<SignalMode>("mode", new TextMapBuilder<SignalMode>().addComponent(SignalMode.values(), x -> Component
+                .translatable(x.translateKey)));
         box.select(event.getModeConfiguration().getMode());
         add(box.setExpandableX());
         
@@ -61,7 +61,7 @@ public class GuiDialogSignalMode extends GuiLayer {
             SignalMode mode = box.getSelected();
             GuiTextfield text = (GuiTextfield) get("delay");
             int delay = text.parseInteger();
-            config = mode.parseControls(GuiDialogSignalMode.this, delay);
+            config = mode.parseControls(panel, delay);
             if (config != null)
                 event.setModeConfiguration(config);
             dialog.modeChanged();

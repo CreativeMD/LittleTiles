@@ -390,5 +390,6 @@
     "gui.filter.or": "At least one",
     "gui.filter.and": "All",
     "gui.filter.not_or": "None",
-    "gui.filter.not_and": "Not all"
+    "gui.filter.not_and": "Not all",
+    "gui.signal.length": "Length"
 }

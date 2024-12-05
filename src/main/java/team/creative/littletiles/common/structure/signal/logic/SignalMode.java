@@ -5,6 +5,7 @@ import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.network.chat.Component;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -158,7 +159,7 @@ public enum SignalMode {
         @Override
         @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-            parent.add(new GuiLabel("length:"));
+            parent.add(new GuiLabel("length:").setTitle(Component.translatable("gui.signal.length").append(":")));
             parent.add(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationPulse ? ((GuiSignalModeConfigurationPulse) configuration).length : 10))
                     .setNumbersOnly());
         }
@@ -319,9 +320,10 @@ public enum SignalMode {
         @Override
         @OnlyIn(Dist.CLIENT)
         public void createControls(GuiParent parent, GuiSignalModeConfiguration configuration) {
-            parent.add(new GuiLabel("length:"));
-            parent.add(new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationExtender ? ((GuiSignalModeConfigurationExtender) configuration).length : 10))
-                    .setNumbersOnly());
+            parent.add(new GuiLabel("length:").setTitle(Component.translatable("gui.signal.length").append(":")));
+            parent.add(
+                new GuiTextfield("length", "" + (configuration instanceof GuiSignalModeConfigurationExtender ? ((GuiSignalModeConfigurationExtender) configuration).length : 10))
+                        .setNumbersOnly());
         }
         
         @Override
