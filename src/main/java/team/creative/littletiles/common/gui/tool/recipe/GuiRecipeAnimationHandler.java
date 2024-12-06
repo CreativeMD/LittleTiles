@@ -39,7 +39,7 @@ public class GuiRecipeAnimationHandler implements GuiAnimationHandler {
     }
     
     protected void prepareChildEvents(GuiTreeItemStructure parent, AnimationTimeline timeline) {
-        prepareChildEvents(current, new FilterIterator<AnimationEventEntry>(timeline.allEvents(), x -> x.getEvent().getClass() == ChildDoorEvent.class));
+        prepareChildEvents(parent, new FilterIterator<AnimationEventEntry>(timeline.allEvents(), x -> x.getEvent().getClass() == ChildDoorEvent.class));
     }
     
     protected void prepareChildEvents(GuiTreeItemStructure parent, Iterable<AnimationEventEntry> events) {
