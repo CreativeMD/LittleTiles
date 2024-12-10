@@ -44,7 +44,9 @@ import team.creative.littletiles.common.structure.type.premade.LittleBlankOMatic
 
 public class GuiBlankOMatic extends GuiLayer {
     
-    private static final DisplayColor SELECTED_DISPLAY = new DisplayColor(ColorUtils.YELLOW);
+    @OnlyIn(Dist.CLIENT)
+    @Environment(EnvType.CLIENT)
+    private static DisplayColor SELECTED_DISPLAY;
     public LittleBlankOMatic whitener;
     public SimpleContainer whiteInput = new SimpleContainer(1);
     
@@ -271,8 +273,11 @@ public class GuiBlankOMatic extends GuiLayer {
         @Environment(EnvType.CLIENT)
         @OnlyIn(Dist.CLIENT)
         public StyleDisplay getBorder(GuiStyle style, StyleDisplay display) {
-            if (selected)
+            if (selected) {
+                if (SELECTED_DISPLAY == null)
+                    SELECTED_DISPLAY = new DisplayColor(ColorUtils.YELLOW);
                 return SELECTED_DISPLAY;
+            }
             return super.getBorder(style, display);
         }
         
