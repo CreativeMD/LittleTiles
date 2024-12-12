@@ -130,7 +130,7 @@ public abstract class SignalState {
     
     public abstract void shrinkTo(int bandwidth);
     
-    private static class PrimitveState extends SignalState {
+    protected static class PrimitveState extends SignalState {
         
         private final boolean value;
         
@@ -267,7 +267,7 @@ public abstract class SignalState {
         
     }
     
-    static class IntegerState extends SignalState {
+    protected static class IntegerState extends SignalState {
         
         private int value;
         

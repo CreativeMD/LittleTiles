@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
@@ -819,6 +820,17 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public SignalExternalOutputHandler getExternalOutput(int index) {
         return externalHandler.get(index);
+    }
+    
+    public boolean tryGetExternalOutput(int index, Consumer<SignalExternalOutputHandler> consumer) {
+        if (externalHandler != null) {
+            var output = externalHandler.get(index);
+            if (output != null) {
+                consumer.accept(output);
+                return true;
+            }
+        }
+        return false;
     }
     
     public boolean hasExternalOutputs() {

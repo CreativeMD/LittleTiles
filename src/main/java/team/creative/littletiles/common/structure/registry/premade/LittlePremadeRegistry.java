@@ -40,6 +40,9 @@ import team.creative.littletiles.common.structure.type.premade.signal.LittleSign
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalInput.LittleStructureTypeInput;
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalOutput;
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalOutput.LittleStructureTypeOutput;
+import team.creative.littletiles.common.structure.type.premade.signal.sensor.LittleClockSensor;
+import team.creative.littletiles.common.structure.type.premade.signal.sensor.LittleClockSensor.LittleClockSensorAdvanced;
+import team.creative.littletiles.common.structure.type.premade.signal.sensor.LittleDayLightSensor;
 
 public class LittlePremadeRegistry {
     
@@ -57,7 +60,7 @@ public class LittlePremadeRegistry {
                 CompoundTag structureNBT = new CompoundTag();
                 structureNBT.putString("id", type.id);
                 CompoundTag nbt = TagParser.parseTag(IOUtils
-                        .toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("data/" + type.modid + "/premade/" + type.id + ".struct"), Charsets.UTF_8));
+                        .toString(LittleStructurePremade.class.getClassLoader().getResourceAsStream("data/" + type.modid + "/premade/" + (type.path.isBlank() ? type.path : type.path + "/") + type.id + ".struct"), Charsets.UTF_8));
                 
                 CompoundTag originalNBT = nbt.contains(LittleGroup.STRUCTURE_KEY) ? nbt.getCompound(LittleGroup.STRUCTURE_KEY) : null;
                 nbt.put(LittleGroup.STRUCTURE_KEY, structureNBT);
@@ -170,6 +173,19 @@ public class LittlePremadeRegistry {
                 .addOutput("pixels", 16, SignalMode.EQUAL, true);
         
         register("structure_builder", LittleTiles.MODID, LittleStructureBuilder.class, LittleStructureBuilder::new);
+        
+        // Sensors
+        register((LittlePremadeType) new LittlePremadeType("daylight_sensor", "sensor", LittleDayLightSensor.class, LittleDayLightSensor::new, new LittleAttributeBuilder()
+                .ticking(), LittleTiles.MODID).addInput("day", 1));
+        register((LittlePremadeType) new LittlePremadeType("daylight_sensor4", "sensor", LittleDayLightSensor.class, LittleDayLightSensor::new, new LittleAttributeBuilder()
+                .ticking(), LittleTiles.MODID).addInput("day", 1));
+        
+        register((LittlePremadeType) new LittlePremadeType("clock_sensor", "sensor", LittleClockSensor.class, LittleClockSensor::new, new LittleAttributeBuilder()
+                .ticking(), LittleTiles.MODID).addInput("time", 4));
+        register((LittlePremadeType) new LittlePremadeType("clock_sensor4", "sensor", LittleClockSensor.class, LittleClockSensor::new, new LittleAttributeBuilder()
+                .ticking(), LittleTiles.MODID).addInput("time", 4));
+        register((LittlePremadeType) new LittlePremadeType("clock_sensor16", "sensor", LittleClockSensorAdvanced.class, LittleClockSensorAdvanced::new, new LittleAttributeBuilder()
+                .ticking(), LittleTiles.MODID).addInput("time", 16));
         
     }
     

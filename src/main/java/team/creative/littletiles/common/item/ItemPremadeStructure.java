@@ -1,16 +1,21 @@
 package team.creative.littletiles.common.item;
 
 import java.util.HashMap;
+import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.NBTUtils;
+import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -61,6 +66,12 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     @Override
     public String getDescriptionId(ItemStack stack) {
         return "structure." + getPremadeId(stack);
+    }
+    
+    @Override
+    public void appendHoverText(ItemStack stack, Level level, List<Component> list, TooltipFlag flag) {
+        if (LanguageUtils.can("structure.description." + getPremadeId(stack)))
+            list.addAll(new TextBuilder().translate("structure.description." + getPremadeId(stack)).build());
     }
     
     @Override

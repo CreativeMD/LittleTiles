@@ -47,13 +47,19 @@ public abstract class LittleStructurePremade extends LittleStructure {
     
     public static class LittlePremadeType extends LittleStructureType {
         
+        public final String path;
         public final String modid;
         public boolean showInCreativeTab = true;
         public boolean snapToGrid = true;
         
-        public <T extends LittleStructurePremade> LittlePremadeType(String id, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
+        public <T extends LittleStructurePremade> LittlePremadeType(String id, String path, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
             super(id, structureClass, factory, attribute.premade());
             this.modid = modid;
+            this.path = path;
+        }
+        
+        public <T extends LittleStructurePremade> LittlePremadeType(String id, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
+            this(id, "", structureClass, factory, attribute, modid);
         }
         
         public boolean hasCustomTab() {
