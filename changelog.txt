@@ -1,3 +1,8 @@
+1.6.0-pre140
+Added daylight and clock sensors
+Fixed error when rendering block without visible faces
+Fixed crash when accessing the blank-o-matic on a server
+
 1.6.0-pre139
 Fixed crash in gui recipe for doors in doors
 
