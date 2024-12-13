@@ -6,6 +6,8 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.flow.GuiFlow;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage;
@@ -19,9 +21,10 @@ public class LittleMessageGui extends LittleStructureGuiControl {
     
     @Override
     public void create(@Nullable LittleStructure structure) {
-        add(new GuiTextfield("text", structure instanceof LittleStructureMessage ? ((LittleStructureMessage) structure).text : "Hello World!"));
-        add(new GuiCheckBox("rightclick", structure instanceof LittleStructureMessage ? ((LittleStructureMessage) structure).allowRightClick : true)
-                .setTranslate("gui.door.rightclick"));
+        flow = GuiFlow.STACK_Y;
+        add(new GuiTextfield("text", structure instanceof LittleStructureMessage m ? m.text : "Hello World!", LittleTiles.CONFIG.general.messageStructureLength).setExpandableX());
+        add(new GuiCheckBox("rightclick", structure instanceof LittleStructureMessage m ? m.allowRightClick : true).setTranslate("gui.message.rightclick"));
+        add(new GuiCheckBox("status", structure instanceof LittleStructureMessage m ? m.status : false).setTranslate("gui.message.status"));
     }
     
     @Override
@@ -29,6 +32,7 @@ public class LittleMessageGui extends LittleStructureGuiControl {
         LittleStructureMessage message = (LittleStructureMessage) structure;
         message.text = get("text", GuiTextfield.class).getText();
         message.allowRightClick = get("rightclick", GuiCheckBox.class).value;
+        message.status = get("status", GuiCheckBox.class).value;
         return structure;
     }
     

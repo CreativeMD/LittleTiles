@@ -152,6 +152,8 @@
     "gui.door.clean.channel": "Clean",
     "gui.door.same_transition": "Same transition",
     "gui.door.different_transition": "Different transition",
+    "gui.message.rightclick": "Display message when using rightclick",
+    "gui.message.status": "Use status bar (otherwise chat is used)",
     "gui.error.invalid_grid": "Invalid grid size \u00A72%s ...",
     "gui.error.convert.structure": "Could not convert %s ...",
     "gui.error.unknown": "Unknown error: %s ...",

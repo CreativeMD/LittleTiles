@@ -261,6 +261,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public LittleBagConfig bag = new LittleBagConfig();
         
+        @CreativeConfig
+        public int messageStructureLength = 4098;
+        
     }
     
     public static class Building {
