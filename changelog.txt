@@ -1,3 +1,10 @@
+1.6.0-pre141
+Added option to change message length allowed (default is 4098)
+Added option to message structure to display message in status bar
+Added support for minecraft's formatting (used for titles or custom message)
+Added support for lithium (or radium) by disabling the incompatible settings by default
+Fixed message gui awkward layout
+
 1.6.0-pre140
 Added daylight and clock sensors
 Fixed error when rendering block without visible faces
