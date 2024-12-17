@@ -1,3 +1,8 @@
+1.6.0-pre142
+Fixed another issue with transformable box (outer corner type 2 not working properly)
+Fixed face culling on animations and door transitions not working in all cases due to unnecessary and unordered block updates
+Fixed translucent flickering when opening doors
+
 1.6.0-pre141
 Added option to change message length allowed (default is 4098)
 Added option to message structure to display message in status bar
