@@ -37,18 +37,21 @@ import team.creative.littletiles.common.structure.relative.StructureAbsolute;
 
 public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhysic> {
     
-    public static void loadBE(LevelAccessor level, CompoundTag nbt) {
+    public static void loadBE(LevelAccessor level, CompoundTag nbt, boolean update) {
         BlockState state = BlockTile.getState(nbt.getBoolean("ticking"), nbt.getBoolean("rendered"));
         BlockPos pos = BlockEntity.getPosFromTag(nbt);
         level.setBlock(pos, state, 0);
         
         BlockEntity entity = level.getBlockEntity(pos);
         if (entity instanceof BETiles be)
-            if (be.isClient())
-                be.handleUpdate(nbt, false);
-            else {
+            if (be.isClient()) {
+                be.handleUpdate(nbt, !update);
+                if (!update)
+                    be.render.tilesChanged();
+            } else {
                 be.load(nbt);
-                be.updateTiles(false);
+                if (update)
+                    be.updateTiles(false, true);
             }
     }
     
@@ -128,14 +131,14 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
             if (change.isEmpty())
                 subLevel.removeBlock(change.pos(), true);
             else
-                loadBE(subLevel, change.block());
+                loadBE(subLevel, change.block(), true);
     }
     
     protected void loadBlocks(CompoundTag nbt) {
         LittleAnimationLevel level = getSubLevel();
         ListTag blocks = nbt.getList("b", Tag.TAG_COMPOUND);
         for (int i = 0; i < blocks.size(); i++)
-            loadBE(level, blocks.getCompound(i));
+            loadBE(level, blocks.getCompound(i), false);
     }
     
     protected void saveBlocks(CompoundTag nbt) {

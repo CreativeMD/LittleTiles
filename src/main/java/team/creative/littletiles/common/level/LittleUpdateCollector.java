@@ -23,7 +23,7 @@ public class LittleUpdateCollector extends NeighborUpdateCollector {
     protected void processPosition(Level level, BlockPos pos, HashSet<BlockPos> notifiedBlocks) {
         BETiles be = BlockTile.loadBE(level, pos);
         if (be != null)
-            be.updateTiles(false);
+            be.updateTiles(false, true);
         super.processPosition(level, pos, notifiedBlocks);
     }
     

@@ -98,7 +98,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
     @Override
     public void setAttribute(int attribute) {
         this.attribute = attribute;
-        getBE().updateTiles(false);
+        getBE().updateTiles(false, false);
     }
     
     @Override
