@@ -1609,8 +1609,8 @@ public class LittleTransformableBox extends LittleBox {
             
             List<VectorFan> newAxisStrips = new ArrayList<>();
             for (int i = 0; i < axisStrips.size(); i++) {
-                VectorFan strip = plane.isFacing(facing) ? axisStrips.get(i) : axisStrips.get(i).cut(plane);
-                VectorFan strip2 = plane2.isFacing(facing) ? axisStrips.get(i) : axisStrips.get(i).cut(plane2);
+                VectorFan strip = axisStrips.get(i).cut(plane);
+                VectorFan strip2 = axisStrips.get(i).cut(plane2);
                 
                 if (strip != null && strip2 != null && strip.intersect2d(strip2, one, two, inverse, 0.001F)) {
                     List<VectorFan> fans = strip.cut2d(strip2, one, two, inverse, false);
