@@ -1,0 +1,342 @@
+item.LTHammer.name=Маленький молоток
+item.LTMultiTiles.name=Мульти-тайл структура
+item.LTRecipe.name=Маленький рецепт
+item.LTSaw.name=Маленькая пила
+item.LTContainer.name=Маленькая сумка
+item.LTWrench.name=Маленький гаечный ключ
+item.LTChisel.name=Маленькое долото
+item.LTScrewdriver.name=Маленькая отвертка
+item.LTRubberMallet.name=Маленький резиновый молоток
+item.LTColorTube.name=Маленькая кисть
+item.LTUtilityKnife.name=Маленький универсальный нож
+item.LTGrabber.name=Маленькая перчатка
+item.LTRecipeAdvanced.name=Продвинутый рецепт
+item.LTColorBottleBlack.name=Чёрная бутылка
+item.LTColorBottleCyan.name=Бирюзовая бутылка
+item.LTColorBottleMagenta.name=Пурпурная бутылка
+item.LTColorBottleYellow.name=Жёлтая бутылка
+
+tile.LTParticleBlock.name=Маленький блок частиц
+tile.LTColoredBlock.clean.name=Чистый цветной блок 
+tile.LTColoredBlock.floor.name=Цветной блок пола
+tile.LTColoredBlock.grainy_big.name=Цветной крупнозернистый блок
+tile.LTColoredBlock.grainy.name=Цветной зернистый блок
+tile.LTColoredBlock.grainy_low.name=Цветно мелкозернистый блок
+tile.LTColoredBlock.brick.name=Цветной кирпичный блок
+tile.LTColoredBlock.bordered.name=Цветной ограненный блок
+tile.LTColoredBlock.brick_big.name=Цветной блок из большого кирпича
+tile.LTColoredBlock.structured.name=Цветной структурный блок
+tile.LTColoredBlock.broken_brick_big.name=Цветной блок из разбитого крупного кирпича
+tile.LTColoredBlock.clay.name=Цветной глиняный блок
+tile.LTColoredBlock.light_clean.name=Цветной светящийся чистый блок
+tile.LTColoredBlock.plank.name=Цветные деревянные доски
+tile.LTColoredBlock.lava.name=Блок лавы
+tile.LTColoredBlock.white_lava.name=Белый блок лавы
+tile.LTColoredBlock2.gravel.name=Цветной блок гравия
+tile.LTColoredBlock2.sand.name=Цветной блок песка
+tile.LTColoredBlock2.stone.name=Цветной блок камня
+tile.LTColoredBlock2.wood.name=Цветной блок дерева
+tile.LTColoredBlock2.white_opaque_water.name=Белая непрозрачная вода
+
+tile.LTTransparentColoredBlock.clean.name=Чистый цветной блок 
+tile.LTTransparentColoredBlock.thick.name=Толстый цветной блок
+tile.LTTransparentColoredBlock.thin.name=Тонкий цветной блок
+tile.LTTransparentColoredBlock.thinner.name=Тоньший цветной блок
+tile.LTTransparentColoredBlock.thinnest.name=Самый тонкий цветной блок
+tile.LTTransparentColoredBlock.water.name=Вода
+tile.LTTransparentColoredBlock.white_water.name=Белая вода
+
+tile.LTStorageBlockTile.name=Маленький блок хранилища
+tile.signal_converter.name=Преобразователь сигналов
+
+key.categories.littletiles=Настройки LittleTiles
+key.little.flip=Перевернуть предварительный просмотр
+key.little.mark=Отметить предварительный просмотр
+key.little.config.item=Настроить инструмент
+key.little.config=Расширенные настройки
+key.rotatedown=Развернуть вниз
+key.rotateleft=Развернуть влево
+key.rotateright=Развернуть вправо
+key.rotateup=Развернуть вверх
+key.little.redo=Вперёд
+key.little.undo=Назад
+
+itemGroup.littletiles=LittleTiles
+
+grabber.mode.pixel=Пиксельный режим
+grabber.mode.place_preview=Режим рецептов
+grabber.mode.replace=Режим замены
+
+action.tile.notthere=Тайл отсутствует
+action.tile.notfound=Тайл не найден
+action.tileentity.notfound=Тайл-сущность не найдено
+action.entity.notfound=Сущность не найдена
+action.structure.notloaded=Структура не загружена
+action.revert.notavailable=Действие не может быть отменено
+
+exception.ingredient.missing=Недостаточно ингредиентов
+exception.ingredient.space=Недостаточно места для
+exception.permission.edit=Вы не можете редактировать более чем %s блоков за раз
+exception.permission.place.color=Вам не разрешено размещать что-то с альфа ниже %s
+exception.permission.place=Вы не можете ставить более чем %s блоков за раз
+exception.permission.density=В блоке разрешено использовать только плитки %s.
+exception.door.notloaded=Не может взаимодействовать с дверью (загружены не все тайлы)
+exception.door.brokenparent=Не может взаимодействовать с дверью (разрыв связи с родителем)
+exception.door.brokenchild=Не может взаимодействовать с дверью (разрыв связи с потомком)
+exception.door.notenoughspace=Что-то мешает
+exception.pattern.empty=Пустой
+exception.pattern.circular=Циклическая ссылка
+exception.pattern.novalidchildren=«сломанные дети»
+exception.permission.convert=Невозможно редактировать более %s блоков.
+exception.permission.area-protected=Охраняемая территория
+exception.permission.recipe.size=Область рецепта слишком велика (разрешено максимум %s блоков)
+
+color.unit.black=черный
+color.unit.red=красный
+color.unit.green=зеленый
+color.unit.blue=синий
+color.unit.single=единица
+color.unit.multiple=единицы
+
+volume.unit.big.single=блок
+volume.unit.big.multiple=блоков
+volume.unit.big.short=б
+volume.unit.small.single=пиксель
+volume.unit.small.multiple=пикселей
+volume.unit.small.short=п
+
+selector.ingredients=Ингредиенты
+
+placement.mode.default=Режим по умолчанию
+placement.mode.default.tooltip=Может быть размещено, только если есть место для всех тайлов в намеченном блоке.
+placement.mode.placestructure=Можно разместить структуры.
+placement.mode.fill=Режим заполнения
+placement.mode.fill.tooltip=Постарается заполнить тайлы, если они не вмещаются.
+placement.mode.all=Все режим
+placement.mode.all.tooltip=Можно разместить, только если есть место для всех тайлов.
+placement.mode.overwrite=Режим перезаписи
+placement.mode.overwrite.tooltip=Поместит все тайлы и удалит перекрывающиеся области. \nНе удаляются тайлы структуры.
+placement.mode.overwriteall=Режим «Перезаписать все»
+placement.mode.overwriteall.tooltip=Разместит все плитки и удалит весь блок.\nНевозможно удалить плитки структуры.
+placement.mode.replace=Режим замещения
+placement.mode.replace.tooltip=Поместит тайлы только в перекрывающееся пространство. \nНе удаляются тайлы структуры.
+placement.mode.stencil=Режим трафарета
+placement.mode.stencil.tooltip=Удалит все плитки в перекрывающемся пространстве.\Ничего не размещает.
+placement.mode.colorize=Режим раскрашивания
+placement.mode.colorize.tooltip=Окрасит все плитки в перекрывающемся пространстве.\Ничего не размещает.
+
+markmode.gui.allowlowresolution=Низкое разрешение
+markmode.gui.switchpos=Сменить позицию
+
+commands.open.usage=Открывает все двери по заданной координате
+commands.open.notloaded=Структура не загружена
+commands.open.tovanilla=Конвертирует все загруженные тайл-сущности в ванильные блоки, если возможно
+
+item.LTPremade.workbench.name=Маленький верстак
+item.LTPremade.importer.name=Маленький импортер
+item.LTPremade.exporter.name=Маленький экспортёр
+item.LTPremade.blankomatic.name=Окрашиватель блоков
+
+item.LTPremade.single_cable1.name=Одиночный кабель (1-bit)
+item.LTPremade.single_cable4.name=Одиночный кабель (4-bit)
+item.LTPremade.single_cable16.name=Одиночный кабель (16-bit)
+
+item.LTPremade.single_input1.name=Одиночный вход (1-bit)
+item.LTPremade.single_input4.name=Одиночный вход (4-bit)
+item.LTPremade.single_input16.name=Одиночный вход (16-bit)
+
+item.LTPremade.single_output1.name=Один выход (1-bit)
+item.LTPremade.single_output4.name=Один выход (4-bit)
+item.LTPremade.single_output16.name=Один выход (16-bit)
+
+item.LTPremade.particle_emitter.name=Излучатель частиц
+item.LTPremade.signal_display_16.name=Отображение сигнала (16 бит)
+item.LTPremade.item_holder.name=Держатель предмета
+item.LTPremade.structure_builder.name=Строитель структур
+
+selection.clear=очистить
+selection.dialog.clear=Вы действительно хотите очистить всё содержимое?
+selection.structure.name=имя структуры
+selection.structure.tiles=тайлы
+selection.structure.tile=тайл
+selection.include.vanilla=Обычные блоки
+selection.include.cb=C&B блоки
+selection.include.lt=LittleTiles блоки
+selection.include.structure=Запомнить структуры
+selection.mode.area.pos.first=Первая позиция выбрана [%s,%s,%s]
+selection.mode.area.pos.second=Вторая позиция выбрана [%s,%s,%s]
+selection.save=Сохранить
+selection.scale=Масштаб
+mode.selection.area=Область
+
+shape.tile=Плитка
+shape.type=Плитки типа
+shape.box=Коробка
+shape.connected=Соединённые плитки
+shape.slice=Склон
+shape.inner_corner=Внутренний угол склона
+shape.outer_corner=Внешний угол склона
+shape.polygon=Пиксельный многоугольник
+shape.wall=Стена
+shape.pillar=Столб
+shape.curve=Изгиб
+shape.curvewall=Изогнутая стена
+shape.cylinder=Цилиндр
+shape.sphere=Сфера
+shape.pyramid=Пирамида
+
+structure.none.name=Нет
+structure.fixed.name=Fixed
+structure.chair.name=Стул
+structure.ladder.name=Лестница
+structure.bed.name=Кровать
+structure.storage.name=Хранилище
+structure.noclip.name=No-clip
+structure.door.name=Осевая дверь
+structure.slidingDoor.name=Раздвижная дверь
+structure.advancedDoor.name=Продвинутая дверь
+structure.doorActivator.name=Активатор двери
+structure.light.name=Свет
+structure.message.name=Сообщение
+structure.item_holder.name=Держатель предмета
+structure.little_frame.name=Маленькая Рамка
+
+
+structure.category.simple=Простое
+structure.category.door=Двери
+
+gui.save=Сохранить
+
+gui.door.duration=Длительность
+gui.door.stayAnimated=Оставить анимированным
+gui.door.stayAnimatedTooltip=Используйте только при необходимости, это повлияет на ваш FPS
+gui.door.children=Потомки
+gui.door.events=События
+gui.door.settings=Настройки
+gui.door.noClip=Без обрезки
+gui.door.playPlaceSounds=Воспроизвести звуки места
+gui.door.useInternalOutput=Слушать сигнал
+gui.door.rightclick=Разрешить ПКМ
+gui.door.pick-sound=Выбрать звук
+gui.door.open=Открытие
+gui.door.close=Закрытие
+gui.sound.volume=Громкость
+gui.sound.pitch=Питч
+gui.structure.hierarchy=Иерархия
+gui.color.rightclick=щелкните правой кнопкой мыши, чтобы слить воду
+gui.signal.events=Сигналы
+gui.door.axis.clockwise=поворот направо
+gui.door.axis.counterclockwise=поворот налево
+
+gui.particle.count=Счетчик
+gui.particle.per=per
+gui.particle.tick=тик(и)
+gui.particle.size=Размер
+gui.particle.preset=Пресеты
+gui.particle.texture=Текстуры
+gui.particle.gravity=Гравитация
+gui.particle.sizedeviation=Отклонение
+gui.particle.randomcolor=Случайный цвет
+gui.particle.age=Возраст
+gui.particle.agedeviation=Отклонение
+gui.particle.spread.speedx=Сторона X
+gui.particle.spread.speedy=Скорость
+gui.particle.spread.speedz=Z-сторона
+gui.particle.spread.radius=Радиус
+gui.particle.spread.spread=Отклонение
+gui.particle.spread.steps=Шаги
+gui.particle.load=загрузить пресет
+gui.particle.preset.smoke=дым
+gui.particle.preset.flame=пламя
+gui.particle.preset.water_drop=капля воды
+gui.particle.preset.note=примечание
+gui.particle.preset.big_smoke=большой дым
+gui.particle.preset.sand=песок
+gui.particle.preset.confetti=конфетти
+
+gui.signal.configuration.result=результат:
+gui.signal.configuration.save=сохранить
+gui.signal.configuration.addop=+
+gui.signal.configuration.add=+
+gui.signal.configuration.input.operation.type.none=нет
+gui.signal.configuration.input.operation.type.operation=операция
+gui.signal.configuration.input.operation.type.pattern=шаблон
+gui.signal.configuration.input.operation.type.equation=уравнение
+
+gui.frame_builder.width=Ширина:
+gui.frame_builder.height=Высота:
+gui.frame_builder.thickness=Толщина:
+gui.frame_builder.craft=Создать
+gui.frame_builder.failed=Отсутствует чертеж
+
+gui.ok=Хорошо
+
+animation.event.child.name=Активный потомок
+animation.event.sound-event.name=Воспроизвести звуковое событие
+
+signal.mode.equal=РАВНО
+signal.mode.toggle=ПЕРЕКЛЮЧИТЬ
+signal.mode.pulse=ПУЛЬС
+signal.mode.threshold=ПОРОГ
+signal.mode.stabilizer=СТАБИЛИЗАТОР
+signal.mode.extender=РАСШИРИТЕЛЬ
+
+config.littletiles.building.invertStickToGrid.comment=Должны ли тайлы прилипать к ванильной сетке, когда второй режим включен или отключен.
+config.littletiles.building.maxSavedActions.comment=Количество действий, которые могут быть отменены.
+config.littletiles.building.useALTForEverything.comment=Второй режим будет активирован, если нажата клавиша «ALT» (по умолчанию: пригнувшись).
+config.littletiles.building.useAltWhenFlying.comment=Нажмите «ALT» во время полета, а не "пригнувшись", чтобы активировать второй режим.
+
+config.littletiles.rendering.hideParticleBlock.comment=Является ли блок частиц видимым или нет
+config.littletiles.rendering.renderingThreadCount.comment=Количество потоков для отрисовки блоков
+config.littletiles.rendering.highlightStructureBox.comment=Должен ли тайл структуры отображать свой собственный блок выбора или блок из всей структуры
+config.littletiles.rendering.previewLines.comment=При значении true линии будут использоваться для визуализации предварительного просмотра.
+config.littletiles.rendering.enableRandomDisplayTick.comment=При значении true песок, гравий и рудстоун будут порождать частицы (также поддерживает другие моды)
+config.littletiles.rendering.useQuadCache.comment=Значительно увеличивает использование оперативной памяти, но уменьшает время отрисовки. Эффективно только если useCubeCache в true (Требуется перезапуск мира)
+config.littletiles.rendering.useCubeCache.comment=Значительно увеличивает использование оперативной памяти, но уменьшает время отрисовки. (Требуется перезапуск мира)
+config.littletiles.rendering.uploadToVBODirectly.comment=Используется для сглаживания размещения дверей
+
+config.littletiles.general.allowFlowingWater.comment=Если отключено, ведро не может быть использовано для изменения потока воды.
+config.littletiles.general.allowFlowingLava.comment=Если отключено, ведро не может быть использовано для изменения потока лавы.
+config.littletiles.general.storagePerPixel.comment=Каждый пиксель в сетке по умолчанию занимает место для одного стека элементов (размер стека равен одному).\n64 пикселя в сумме дают один слот.
+config.littletiles.general.enableBed.comment=Должны ли игроки иметь возможность спать на кроватях LT или нет.
+config.littletiles.general.enableAnimationCollision.comment=Должны ли анимации подталкивать сущности (влияет на производительность)
+config.littletiles.general.enableCollisionMotion.comment=Движение применяется к сущности, когда её перемещает анимация
+
+config.littletiles.survival.limitAffectedBlocks.comment=Следует ли ограничивать количество конвертируемых ванильных блоков.
+config.littletiles.survival.maxAffectedBlocks.comment=Максимальное количество ванильных блоков, которые можно конвертировать за один раз.
+config.littletiles.survival.limitEditBlocks.comment=Если количество, которое игрок может уничтожить или покрасить за раз, должно быть ограничено по выживанию.
+config.littletiles.survival.maxEditBlocks.comment=Влияет на диапазон только в том случае, если включено ограничение редактирования/удаления.
+config.littletiles.survival.harvestLevelBlock.comment=0: любой, 1: камень, 2: железо, 3: алмаз.
+config.littletiles.survival.editUnbreakable.comment=Если вы можете редактировать неразрушимый блок (основа) в выживании.
+config.littletiles.survival.limitPlaceBlocks.comment=Если сумма, которую игрок может разместить одновременно, должна быть ограничена по выживанию.
+config.littletiles.survival.maxPlaceBlocks.comment=Влияет на диапазон только в том случае, если включено ограничение места.
+config.littletiles.survival.minimumTransparency.comment=Прозрачность будет включена, если минимальное значение меньше 255.
+config.littletiles.survival.dyeVolume.comment=Сколько блоков можно покрасить одной краской, если предположить, что плитка имеет одинаковый цвет?
+
+config.littletiles.creative.limitAffectedBlocks.comment=Следует ли ограничивать количество конвертируемых ванильных блоков.
+config.littletiles.creative.maxAffectedBlocks.comment=Максимальное количество ванильных блоков, которые можно конвертировать за один раз.
+config.littletiles.creative.limitEditBlocks.comment=Если количество, которое игрок может уничтожить или покрасить за раз, должно быть ограничено по выживанию.
+config.littletiles.creative.maxEditBlocks.comment=Влияет на диапазон только в том случае, если включено ограничение редактирования/удаления.
+config.littletiles.creative.harvestLevelBlock.comment=0: любой, 1: камень, 2: железо, 3: алмаз.
+config.littletiles.creative.editUnbreakable.comment=Если вы можете редактировать неразрушимый блок (основа) в выживании.
+config.littletiles.creative.limitPlaceBlocks.comment=Если сумма, которую игрок может разместить одновременно, должна быть ограничена по выживанию.
+config.littletiles.creative.maxPlaceBlocks.comment=Влияет на диапазон только в том случае, если включено ограничение места.
+config.littletiles.creative.minimumTransparency.comment=Прозрачность будет включена, если минимальное значение меньше 255.
+config.littletiles.creative.dyeVolume.comment=Сколько блоков можно покрасить одной краской, если предположить, что плитка имеет одинаковый цвет?
+
+littletiles.chisel.tooltip=%s\n'%s', чтобы выбрать блок\nУдерживайте «CTRL», чтобы разместить больше точек\n'%s', чтобы отметить положение\n'%s', чтобы настроить инструмент\n'%s', чтобы настроить размер сетки
+littletiles.grabber.tooltip=%s\n'%s' для настройки инструмента\n'%s' для настройки размера сетки
+littletiles.hammer.tooltip=%s\nУдерживайте кнопку CTRL, чтобы разместить больше точек\n'%s', чтобы отметить положение\n'%s', чтобы настроить инструмент\n'%s', чтобы настроить размер сетки и фильтр
+littletiles.colortube.tooltip=%s\n'%s', чтобы выбрать цвет\nУдерживайте «CTRL», чтобы разместить больше точек\n'%s', чтобы отметить положение\n'%s', чтобы настроить инструмент\n'%s', чтобы настроить размер сетки и фильтр
+littletiles.recipeadvanced.tooltip=Первая позиция '%s'\n'%s' вторая позиция\n'%s' выберите форму/структуру\n'%s' подтвердите/настройте выбор
+littletiles.saw.tooltip='%s' расширяет плитку\n'%s' сжимает плитку\nУдерживайте клавишу "CTRL", чтобы двигаться дальше
+littletiles.screwdriver.tooltip=Первая позиция '%s'\n'%s' вторая позиция\n'%s' изменить выбор
+
+config.littletiles.survival.strictMining.comment=Можете ли редактировать ванильный блок в выживании напрямую (молоток/ кисть).
+config.littletiles.survival.limitEditBlocksSurvival.comment=Должно ли быть ограничено количество игроков в выживании, которые могут уничтожить или нарисовать одновременно.
+config.littletiles.survival.maxEditBlocks.comment=Влияет на диапазон только если включено ограничение редактирования / удаления.
+config.littletiles.survival.highestHarvestTierSurvival.comment=0: любой, 1: камень, 2: железо, 3: алмаз.
+config.littletiles.survival.editUnbreakable.comment=Можете ли редактировать неразрушимый блок (бедрок) в выживании.
+config.littletiles.survival.maxPlaceBlocks.comment=Only affects the range if place limitation is enabled.
+config.littletiles.survival.minimumTransparency.comment=Прозрачность будет включена, если минимум меньше 255.
+config.littletiles.survival.dyeVolume.comment=Сколько блоков можно покрасить одним красителем,\nпредполагая, что плитка имеет такой же цвет
