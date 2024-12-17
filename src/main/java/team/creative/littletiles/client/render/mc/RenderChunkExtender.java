@@ -159,9 +159,6 @@ public interface RenderChunkExtender {
             
             MeshData data = builder.build();
             if (layer == RenderType.translucent()) {
-                int capacity = vanillaBuffer != null ? (vanillaBuffer.capacity() / format.getVertexSize()) : 0;
-                System.out.println("Uploaded translucent " + data.drawState().vertexCount() + "," + capacity + "," + (size / format.getVertexSize()));
-                new Exception().printStackTrace();
                 var cam = Minecraft.getInstance().levelRenderer.getSectionRenderDispatcher().getCameraPosition();
                 setTransparencyState(data.sortQuads(buffer, createVertexSorting(cam.x, cam.y, cam.z)));
             }

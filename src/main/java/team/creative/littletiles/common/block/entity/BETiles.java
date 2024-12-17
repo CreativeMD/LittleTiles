@@ -257,15 +257,16 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public void updateTiles() {
-        updateTiles(true);
+        updateTiles(true, true);
     }
     
-    public void updateTiles(boolean updateNeighbour) {
+    public void updateTiles(boolean updateNeighbour, boolean rebuildFaces) {
         tiles.removeEmptyLists();
         notifyStructure();
         
         sideCache.reset();
-        rebuildFaces();
+        if (rebuildFaces)
+            rebuildFaces();
         
         if (level != null) {
             markDirty();
@@ -489,7 +490,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         RenderUploader.notifyReceiveClientUpdate(this);
         loadAdditional(nbt, level.registryAccess());
         if (!chunkUpdate)
-            updateTiles(false);
+            updateTiles(false, false);
     }
     
     public BlockHitResult rayTrace(Player player) {

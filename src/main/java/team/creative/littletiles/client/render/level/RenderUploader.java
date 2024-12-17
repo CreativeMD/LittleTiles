@@ -16,7 +16,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.util.type.itr.NestedFunctionIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
@@ -194,7 +193,11 @@ public class RenderUploader {
         }
         
         public void appendRenderData() {
-            if (!section.appendRenderData(new NestedFunctionIterator<LayeredBufferCache>(entries, x -> x.additionals())))
+            List<LayeredBufferCache> buffers = new ArrayList<>();
+            for (RenderDataLevel.RenderDataToAdd d : entries)
+                for (LayeredBufferCache b : d.additionals())
+                    buffers.add(b);
+            if (!section.appendRenderData(buffers))
                 markReadyForUpdate();
         }
         
