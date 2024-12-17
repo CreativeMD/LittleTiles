@@ -2,6 +2,9 @@ package team.creative.littletiles.client.render.cache.buffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import com.mojang.blaze3d.vertex.MeshData;
 
@@ -59,21 +62,13 @@ public class BufferHolder implements BufferCache {
     }
     
     @Override
-    public void markAsAdditional() {
-        uploadIndex = -2;
-    }
-    
-    @Override
     public boolean upload(ChunkBufferUploader uploader) {
         if (!isAvailable())
             return false;
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return false;
-        boolean additional = uploadIndex == -2;
         uploadIndex = uploader.uploadIndex();
-        if (additional)
-            uploadIndex = -2;
         uploader.upload(buffer);
         buffer.rewind();
         return true;
@@ -85,10 +80,7 @@ public class BufferHolder implements BufferCache {
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return false;
-        boolean additional = uploadIndex == -2;
         uploadIndex = uploader.uploadIndex(facing);
-        if (additional)
-            uploadIndex = -2;
         uploader.upload(facing, buffer);
         buffer.rewind();
         return true;
@@ -111,6 +103,12 @@ public class BufferHolder implements BufferCache {
     
     public ByteBuffer byteBuffer() {
         return buffer;
+    }
+    
+    public ByteBuffer byteBufferOrThrow() {
+        if (buffer != null)
+            return buffer;
+        throw new IllegalArgumentException("No buffer found");
     }
     
     public int length() {
@@ -209,6 +207,54 @@ public class BufferHolder implements BufferCache {
             byteBuffer.put(secondBuffer);
             secondBuffer.rewind();
         }
+        byteBuffer.rewind();
+        return new BufferHolder(byteBuffer, length, vertexCount, null);
+    }
+    
+    @Override
+    public BufferCache combine(Iterator<BufferCache> itr) {
+        int vertexCount = vertexCount();
+        int length = length();
+        
+        List<BufferCache> holders = new ArrayList<>();
+        while (itr.hasNext()) {
+            BufferHolder n = (BufferHolder) itr.next();
+            vertexCount += n.vertexCount();
+            length += n.length();
+            holders.add(n);
+        }
+        
+        if (vertexCount == 0)
+            return null;
+        
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(length);
+        
+        var b = byteBufferOrThrow();
+        b.position(0);
+        b.limit(length());
+        byteBuffer.put(b);
+        b.rewind();
+        
+        for (BufferCache bufferCache : holders) {
+            b = ((BufferHolder) bufferCache).byteBufferOrThrow();
+            b.position(0);
+            b.limit(length());
+            byteBuffer.put(b);
+            b.rewind();
+        }
+        
+        byteBuffer.rewind();
+        return new BufferHolder(byteBuffer, length, vertexCount, null);
+    }
+    
+    @Override
+    public BufferCache copy() {
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(length);
+        var b = byteBufferOrThrow();
+        b.position(0);
+        b.limit(length());
+        byteBuffer.put(b);
+        b.rewind();
         byteBuffer.rewind();
         return new BufferHolder(byteBuffer, length, vertexCount, null);
     }

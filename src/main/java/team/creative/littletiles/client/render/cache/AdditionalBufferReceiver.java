@@ -1,11 +1,13 @@
 package team.creative.littletiles.client.render.cache;
 
-import net.minecraft.client.renderer.RenderType;
-import team.creative.littletiles.client.render.cache.buffer.BufferCache;
+import java.util.UUID;
+
+import team.creative.littletiles.client.render.cache.buffer.AdditionalBuffers;
 
 public interface AdditionalBufferReceiver {
     
-    public void additional(RenderType layer, BufferCache holder);
+    public void additional(UUID uuid, LayeredBufferCache cache);
     
-    public void additional(LayeredBufferCache cache);
+    public void additional(AdditionalBuffers buffers);
+    
 }

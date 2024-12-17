@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.common.action.LittleActionException;
@@ -51,6 +52,7 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             Vec3 offset = RenderingLevelHandler.offsetCorrection(target, targetLevel, origin, originLevel, section);
             
             targetBE.render.additionalBuffers(x -> {
+                LayeredBufferCache layers = new LayeredBufferCache();
                 for (RenderType layer : RenderType.chunkBufferLayers()) {
                     BufferCache holder = be.render.buffers().extract(layer, structure.getIndex());
                     if (holder == null)
@@ -58,9 +60,9 @@ public class StructureBlockToEntityPacket extends StructurePacket {
                     
                     if (offset != null)
                         holder.applyOffset(offset);
-                    holder.markAsAdditional();
-                    x.additional(layer, holder);
+                    layers.put(layer, holder);
                 }
+                x.additional(uuid, layers);
             });
         }
         

@@ -2,29 +2,22 @@ package team.creative.littletiles.client.render.cache;
 
 import java.util.Map.Entry;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.render.cache.buffer.AdditionalBuffers;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
+import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
+import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 
-public class BlockBufferCache implements IBlockBufferCache, AdditionalBufferReceiver {
-    
-    public static BufferCache combine(BufferCache first, BufferCache second) {
-        if (first == null && second == null)
-            return null;
-        if (first == null)
-            return second;
-        if (second == null)
-            return first;
-        
-        return first.combine(second);
-    }
+public class BlockBufferCache implements IBlockBufferCache {
     
     private ChunkLayerMap<BufferCache> queue = new ChunkLayerMap<>();
     private ChunkLayerMap<BufferCache> uploaded = new ChunkLayerMap<>();
     
-    private transient ChunkLayerMap<BufferCache> additional = null;
-    private transient boolean newAdditional = false;
+    private transient AdditionalBuffers additional = null;
     
     public BlockBufferCache() {}
     
@@ -46,11 +39,47 @@ public class BlockBufferCache implements IBlockBufferCache, AdditionalBufferRece
     
     @Override
     public BufferCache get(RenderType layer) {
-        BufferCache original = getOriginal(layer);
-        if (additional != null)
-            return combine(original, additional.get(layer));
-        return original;
-        
+        return getOriginal(layer);
+    }
+    
+    @Override
+    public void upload(Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
+        for (RenderType layer : RenderType.chunkBufferLayers()) {
+            if (!has(layer))
+                continue;
+            
+            var uploader = builderSupplier.apply(layer);
+            var collection = bufferSupplier.apply(layer);
+            
+            var uploadable = getOriginal(layer);
+            queue.remove(layer);
+            if (uploadable == null)
+                uploaded.remove(layer);
+            else
+                uploaded.put(layer, LittleRenderPipelineType.upload(uploader, collection, uploadable));
+            
+            if (additional != null && additional.has(layer))
+                additional.uploadAdditional(layer, uploader, collection);
+        }
+    }
+    
+    @Override
+    public void markUploaded(Function<RenderType, BufferCollection> bufferSupplier) {
+        for (RenderType layer : RenderType.chunkBufferLayers()) {
+            if (!has(layer))
+                continue;
+            
+            var collection = bufferSupplier.apply(layer);
+            
+            var uploadable = queue.remove(layer);
+            if (uploadable == null)
+                uploaded.remove(layer);
+            else
+                uploaded.put(layer, LittleRenderPipelineType.markUploaded(collection, uploadable));
+            
+            if (additional != null && additional.has(layer))
+                additional.markUploadedAdditional(layer, collection);
+        }
     }
     
     @Override
@@ -70,16 +99,7 @@ public class BlockBufferCache implements IBlockBufferCache, AdditionalBufferRece
     
     @Override
     public boolean has(RenderType layer) {
-        return queue.containsKey(layer) || getUploaded(layer) != null || (additional != null && additional.containsKey(layer));
-    }
-    
-    @Override
-    public void setUploaded(RenderType layer, BufferCache uploadable) {
-        queue.remove(layer);
-        if (uploadable == null)
-            uploaded.remove(layer);
-        else
-            uploaded.put(layer, uploadable);
+        return queue.containsKey(layer) || getUploaded(layer) != null || (additional != null && additional.has(layer));
     }
     
     public synchronized void setEmpty() {
@@ -95,7 +115,7 @@ public class BlockBufferCache implements IBlockBufferCache, AdditionalBufferRece
     public synchronized void setBuffers(ChunkLayerMap<BufferCache> buffers) {
         for (RenderType layer : RenderType.chunkBufferLayers()) {
             BufferCache buffer = buffers.get(layer);
-            if (buffer == null && additional == null)
+            if (buffer == null)
                 uploaded.remove(layer);
             
             if (buffer == null)
@@ -103,31 +123,17 @@ public class BlockBufferCache implements IBlockBufferCache, AdditionalBufferRece
             else
                 queue.put(layer, buffer);
         }
-        
-        additional = null;
+        clearAdditional();
     }
     
     public synchronized void executeAdditional(Consumer<AdditionalBufferReceiver> consumer) {
-        newAdditional = additional != null;
-        if (!newAdditional)
-            additional = new ChunkLayerMap<>();
-        consumer.accept(this);
-        newAdditional = false;
+        if (additional == null)
+            additional = new AdditionalBuffers();
+        consumer.accept(additional);
     }
     
     public void clearAdditional() {
         additional = null;
-    }
-    
-    @Override
-    public synchronized void additional(RenderType layer, BufferCache holder) {
-        additional.put(layer, newAdditional ? combine(additional.get(layer), holder) : holder);
-    }
-    
-    @Override
-    public synchronized void additional(LayeredBufferCache cache) {
-        for (RenderType layer : RenderType.chunkBufferLayers())
-            additional.put(layer, newAdditional ? combine(additional.get(layer), cache.get(layer)) : cache.get(layer));
     }
     
     public boolean hasInvalidBuffers() {

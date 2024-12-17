@@ -1,7 +1,11 @@
 package team.creative.littletiles.client.render.cache;
 
+import java.util.function.Function;
+
 import net.minecraft.client.renderer.RenderType;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
+import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 
 public interface IBlockBufferCache {
     
@@ -9,8 +13,10 @@ public interface IBlockBufferCache {
     
     public BufferCache get(RenderType layer);
     
-    public BufferCache extract(RenderType layer, int index);
+    public void upload(Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier);
     
-    public void setUploaded(RenderType layer, BufferCache upload);
+    public void markUploaded(Function<RenderType, BufferCollection> bufferSupplier);
+    
+    public BufferCache extract(RenderType layer, int index);
     
 }

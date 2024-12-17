@@ -6,7 +6,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 
 import net.minecraft.client.renderer.RenderType;
-import team.creative.littletiles.client.render.cache.IBlockBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
@@ -38,36 +37,24 @@ public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
         return null;
     }
     
-    public static void compile(long pos, BETiles be, Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
-        be.updateQuadCache(pos);
-        
-        IBlockBufferCache cache = be.render.buffers();
-        synchronized (be.render) {
-            for (RenderType layer : RenderType.chunkBufferLayers()) {
-                if (!cache.has(layer))
-                    continue;
-                
-                cache.setUploaded(layer, upload(builderSupplier.apply(layer), bufferSupplier.apply(layer), cache.get(layer)));
-            }
-        }
-    }
-    
     public static BufferCache markUploaded(BufferCollection buffers, BufferCache cache) {
         buffers.queueForUpload(cache);
         return cache;
     }
     
+    public static void compile(long pos, BETiles be, Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
+        be.updateQuadCache(pos);
+        
+        synchronized (be.render) {
+            be.render.buffers().upload(builderSupplier, bufferSupplier);
+        }
+    }
+    
     public static void compileUploaded(long pos, BETiles be, Function<RenderType, BufferCollection> bufferSupplier) {
         be.updateQuadCache(pos);
         
-        IBlockBufferCache cache = be.render.buffers();
         synchronized (be.render) {
-            for (RenderType layer : RenderType.chunkBufferLayers()) {
-                if (!cache.has(layer))
-                    continue;
-                
-                cache.setUploaded(layer, markUploaded(bufferSupplier.apply(layer), cache.get(layer)));
-            }
+            be.render.buffers().markUploaded(bufferSupplier);
         }
     }
     

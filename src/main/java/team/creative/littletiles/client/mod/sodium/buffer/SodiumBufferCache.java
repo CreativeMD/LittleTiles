@@ -3,6 +3,7 @@ package team.creative.littletiles.client.mod.sodium.buffer;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 
 import org.lwjgl.system.MemoryUtil;
@@ -14,6 +15,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.impl.Compact
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.impl.DefaultChunkMeshAttributes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.phys.Vec3;
+import team.creative.creativecore.common.util.type.itr.FunctionNonNullIterator;
 import team.creative.littletiles.client.mod.sodium.SodiumInteractor;
 import team.creative.littletiles.client.mod.sodium.data.LittleQuadView;
 import team.creative.littletiles.client.mod.sodium.pipeline.LittleRenderPipelineSodium;
@@ -54,6 +56,15 @@ public class SodiumBufferCache implements BufferCache {
     }
     
     @Override
+    public BufferCache copy() {
+        BufferHolder[] buffers = new BufferHolder[ModelQuadFacing.COUNT];
+        for (int i = 0; i < buffers.length; i++)
+            if (buffers[i] != null)
+                buffers[i] = (BufferHolder) this.buffers[i].copy();
+        return new SodiumBufferCache(buffers, new ArrayList<>(textures), groupCount);
+    }
+    
+    @Override
     public BufferCache combine(BufferCache cache) {
         if (cache instanceof SodiumBufferCache r) {
             List<TextureAtlasSprite> sprites = new ArrayList<>();
@@ -75,6 +86,29 @@ public class SodiumBufferCache implements BufferCache {
         buffers[un] = BufferHolder.combine(this.buffers[un], (BufferHolder) cache);
         
         return new SodiumBufferCache(buffers, textures, groupCount + cache.groupCount());
+    }
+    
+    @Override
+    public BufferCache combine(Iterator<BufferCache> itr) {
+        List<SodiumBufferCache> list = new ArrayList<>();
+        List<TextureAtlasSprite> sprites = new ArrayList<>();
+        int totalGroupCount = groupCount;
+        
+        while (itr.hasNext()) {
+            SodiumBufferCache b = (SodiumBufferCache) itr.next();
+            for (TextureAtlasSprite texture : b.getUsedTextures())
+                if (!sprites.contains(texture))
+                    sprites.add(texture);
+            list.add(b);
+            totalGroupCount += b.groupCount;
+        }
+        
+        BufferHolder[] buffers = new BufferHolder[ModelQuadFacing.COUNT];
+        for (int i = 0; i < buffers.length; i++) {
+            final int index = i;
+            buffers[i] = (BufferHolder) BufferCache.combineOrCopy(this.buffers[i], new FunctionNonNullIterator<BufferCache>(list, x -> x.buffers[index]));
+        }
+        return new SodiumBufferCache(buffers, sprites, totalGroupCount);
     }
     
     private void applySodiumOffset(ByteBuffer buffer, Vec3 vec) {
@@ -218,13 +252,6 @@ public class SodiumBufferCache implements BufferCache {
             if (buffers[i] != null && !buffers[i].download(downloader.downloaded()))
                 return false;
         return true;
-    }
-    
-    @Override
-    public void markAsAdditional() {
-        for (int i = 0; i < buffers.length; i++)
-            if (buffers[i] != null)
-                buffers[i].markAsAdditional();
     }
     
 }

@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.UUID;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -15,13 +16,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.creativecore.common.util.type.itr.NestedFunctionIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
-import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.IBlockBufferCache;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
+import team.creative.littletiles.client.render.cache.buffer.AdditionalBuffers;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -43,7 +44,7 @@ public class RenderUploader {
     
     public static void queue(Level targetLevel, LittleAnimationEntity entity) {
         synchronized (CACHES) {
-            if (getOrCreate(targetLevel).queue(entity.getSubLevel(), entity.getSubLevel())) // Delete it if all cache has already been added to the blocks otherwise wait
+            if (getOrCreate(targetLevel).queue(entity.getUUID(), entity.getSubLevel(), entity.getSubLevel())) // Delete it if all cache has already been added to the blocks otherwise wait
                 CACHES.remove(entity.getSubLevel());
         }
     }
@@ -101,14 +102,14 @@ public class RenderUploader {
             return s;
         }
         
-        public boolean queue(Level originLevel, Iterable<BETiles> blocks) {
+        public boolean queue(UUID uuid, Level originLevel, Iterable<BETiles> blocks) {
             RenderingLevelHandler origin = RenderingLevelHandler.of(originLevel);
             Long2ObjectMap<RenderChunkUploader> sections = new Long2ObjectOpenHashMap<>();
             for (Entry<BlockPos, RenderDataToAdd> entry : caches.entrySet())
                 getOrCreateSection(origin, originLevel, sections, entry.getKey()).queue(entry.getValue());
             for (BETiles be : blocks) {
                 var section = getOrCreateSection(origin, originLevel, sections, be.getBlockPos());
-                getOrCreateBlock(section, be.getBlockPos()).queueNew(origin, originLevel, be, section.pos);
+                getOrCreateBlock(section, be.getBlockPos()).queueNew(uuid, origin, originLevel, be, section.pos);
             }
             
             waitTill = LittleTilesClient.ANIMATION_HANDLER.longTickIndex + LittleAnimationHandlerClient.MAX_INTERVALS_WAITING;
@@ -143,29 +144,24 @@ public class RenderUploader {
             return index >= waitTill;
         }
         
-        private class RenderDataToAdd implements LayeredBufferCache {
+        private class RenderDataToAdd extends AdditionalBuffers {
             
-            private final ChunkLayerMap<BufferCache> holders = new ChunkLayerMap<>();
             private boolean done;
             
-            @Override
-            public BufferCache get(RenderType layer) {
-                return holders.get(layer);
-            }
-            
-            public void queueNew(RenderingLevelHandler origin, Level originLevel, BETiles be, SectionPos pos) {
+            public void queueNew(UUID uuid, RenderingLevelHandler origin, Level originLevel, BETiles be, SectionPos pos) {
                 IBlockBufferCache cache = be.render.buffers();
                 Vec3 vec = RenderingLevelHandler.offsetCorrection(target, targetLevel, origin, originLevel, pos);
                 
+                LayeredBufferCache layers = new LayeredBufferCache();
                 for (RenderType layer : RenderType.chunkBufferLayers()) {
                     BufferCache holder = cache.get(layer);
                     if (holder == null)
                         continue;
                     if (vec != null)
                         holder.applyOffset(vec);
-                    holder.markAsAdditional();
-                    holders.put(layer, BlockBufferCache.combine(holders.get(layer), holder));
+                    layers.put(layer, holder);
                 }
+                additional(uuid, layers);
                 
                 var target = BlockTile.loadBE(targetLevel, be.getBlockPos());
                 if (target != null) {
@@ -198,7 +194,7 @@ public class RenderUploader {
         }
         
         public void appendRenderData() {
-            if (!section.appendRenderData(entries))
+            if (!section.appendRenderData(new NestedFunctionIterator<LayeredBufferCache>(entries, x -> x.additionals())))
                 markReadyForUpdate();
         }
         
