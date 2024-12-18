@@ -1,11 +1,10 @@
 package team.creative.littletiles.client.mod.sodium.data;
 
-import java.nio.ByteBuffer;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
+import org.lwjgl.system.MemoryUtil;
 
 import net.caffeinemc.mods.sodium.api.util.NormI8;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
@@ -31,20 +30,14 @@ public class LittleQuadView implements QuadView {
         this.vertices = vertices;
     }
     
-    public void readVertices(ByteBuffer buffer, boolean compact, int strideRemaining, ModelQuadFacing facing) {
+    public void readVertices(long ptr, int posPtrOffset, int stride, ModelQuadFacing facing) {
         for (int j = 0; j < 4; j++) { // Iterate over 4 vertices because they make a quad
-            if (compact) {
-                int hi = buffer.getInt();
-                int lo = buffer.getInt();
-                vertices[j].x = SodiumInteractor.unpackPositionX(hi, lo);
-                vertices[j].y = SodiumInteractor.unpackPositionY(hi, lo);
-                vertices[j].z = SodiumInteractor.unpackPositionZ(hi, lo);
-            } else {
-                vertices[j].x = buffer.getFloat();
-                vertices[j].y = buffer.getFloat();
-                vertices[j].z = buffer.getFloat();
-            }
-            buffer.position(buffer.position() + strideRemaining);
+            int hi = MemoryUtil.memGetInt(ptr + posPtrOffset);
+            int lo = MemoryUtil.memGetInt(ptr + posPtrOffset + 4);
+            vertices[j].x = SodiumInteractor.unpackPositionX(hi, lo);
+            vertices[j].y = SodiumInteractor.unpackPositionY(hi, lo);
+            vertices[j].z = SodiumInteractor.unpackPositionZ(hi, lo);
+            ptr += stride;
         }
         nominalFace = SodiumInteractor.toDirection(facing);
         NormalHelper.computeFaceNormal(normal, this);

@@ -8,11 +8,9 @@ import java.util.List;
 
 import org.lwjgl.system.MemoryUtil;
 
-import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexAttributeFormat;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.impl.CompactChunkVertex;
-import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.impl.DefaultChunkMeshAttributes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.type.itr.FunctionNonNullIterator;
@@ -202,10 +200,7 @@ public class SodiumBufferCache implements BufferCache {
         if (uploader.hasFacingSupport()) {
             if (uploader instanceof SodiumBufferUploader u && u.isSorted()) {
                 ChunkVertexType type = LittleRenderPipelineSodium.getType();
-                var positionAttribute = type.getVertexFormat().getAttribute(DefaultChunkMeshAttributes.POSITION);
-                boolean compact = positionAttribute.getFormat() == GlVertexAttributeFormat.UNSIGNED_INT.typeId() && positionAttribute.getCount() == 2;
                 int stride = type.getVertexFormat().getStride();
-                int strideRemaining = stride - (compact ? GlVertexAttributeFormat.UNSIGNED_INT.size() * 2 : GlVertexAttributeFormat.FLOAT.size() * 3);
                 LittleQuadView quad = new LittleQuadView();
                 
                 for (int i = 0; i < buffers.length; i++) {
@@ -218,14 +213,17 @@ public class SodiumBufferCache implements BufferCache {
                     // Add translucent data by going through the buffers, collecting the quads and adding to the translucent collector
                     ModelQuadFacing facing = ModelQuadFacing.values()[i];
                     ByteBuffer buffer = buffers[i].byteBuffer();
+                    long ptr = MemoryUtil.memAddress(buffer);
+                    long end = ptr + buffer.remaining();
                     var collector = u.getTranslucentCollector();
                     
-                    while (buffer.hasRemaining()) {
-                        quad.readVertices(buffer, compact, strideRemaining, facing);
+                    while (ptr < end) {
+                        quad.readVertices(ptr, 0, stride, facing);
                         collector.appendQuad(quad.getPackedNormal(), quad.getVertices(), facing);
+                        ptr += stride * 4;
                     }
-                    buffer.rewind();
                 }
+                return true;
             }
             for (int i = 0; i < buffers.length; i++)
                 if (buffers[i] != null && !buffers[i].upload(i, uploader))
