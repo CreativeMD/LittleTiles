@@ -15,6 +15,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
+import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
 import net.caffeinemc.mods.sodium.client.model.light.LightMode;
@@ -30,7 +31,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRend
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
-import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.caffeinemc.mods.sodium.client.render.frapi.SodiumRenderer;
 import net.caffeinemc.mods.sodium.client.render.frapi.helper.ColorHelper;
@@ -107,7 +107,6 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
     private int[] faceCounters = new int[ModelQuadFacing.COUNT];
     private int[] colors = new int[4];
     private Vec3d cubeCenter = new Vec3d();
-    private TranslucentGeometryCollector collector = new TranslucentGeometryCollector(SectionPos.of(0, 0, 0));
     
     public LittleRenderPipelineSodium() {
         indexes = new IntArrayList[ModelQuadFacing.COUNT];
@@ -131,7 +130,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
         
         lightAccess.prepare(renderLevel);
         
-        renderer.prepare(buildBuffers, slice, collector);
+        renderer.prepare(buildBuffers, slice, null);
         
         LightPipeline lighter = lighters.getLighter(Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(),
             pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT);
@@ -215,14 +214,13 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                             
                             if (hasColor)
                                 for (int i = 0; i < 4; ++i)
-                                    editorQuad.color(i, ColorHelper.multiplyColor(colors[i], editorQuad.color(i)));
+                                    editorQuad.color(i, ColorMixer.mulComponentWise(colors[i], editorQuad.color(i)));
                                 
                             lighter.calculate(editorQuad, pos, cachedQuadLightData, editorQuad.cullFace(), editorQuad.lightFace(), editorQuad.hasShade(), mat
                                     .shadeMode() == ShadeMode.ENHANCED);
                             if (mat.emissive())
                                 for (int i = 0; i < 4; ++i)
                                     editorQuad.lightmap(i, 15728880);
-                                
                             else
                                 for (int i = 0; i < 4; ++i)
                                     editorQuad.lightmap(i, ColorHelper.maxBrightness(editorQuad.lightmap(i), cachedQuadLightData.lm[i]));
@@ -264,7 +262,6 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
             sprites.clear();
         }
         
-        //collector.finishRendering();
         ((LittleLevelSliceExtender) (Object) slice).setLevel(null);
     }
     
