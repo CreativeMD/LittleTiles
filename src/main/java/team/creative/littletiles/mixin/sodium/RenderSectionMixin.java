@@ -24,6 +24,7 @@ import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
+import net.caffeinemc.mods.sodium.client.render.chunk.ChunkUpdateType;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionFlags;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
@@ -115,8 +116,15 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     
     @Override
     public void markReadyForUpdate(boolean playerChanged) {
-        Minecraft.getInstance().execute(() -> ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager().scheduleRebuild(chunkX, chunkY, chunkZ,
-            playerChanged));
+        Minecraft.getInstance().submit(() -> {
+            if (!((RenderSection) (Object) this).isBuilt())
+                ((RenderSection) (Object) this).setPendingUpdate(ChunkUpdateType.REBUILD);
+            else { // Sometimes update is called before chunk is built for the first time, in that case Sodium discards the update. This is a hack to get around this.
+                SodiumWorldRenderer.instance().scheduleRebuildForChunk(chunkX, chunkY, chunkZ, playerChanged);
+                RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+                manager.markGraphDirty();
+            }
+        });
     }
     
     @Override
