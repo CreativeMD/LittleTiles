@@ -1,3 +1,7 @@
+1.6.0-pre145
+Fixed not retrieving translucent render data back when there are other translucent blocks
+Fixed not taking care of translucent data properly when entity render data is appended to the chunk directly
+
 1.6.0-pre144
 Fixed not retrieving translucent render data back from GPU with Sodium (causing blocks to flicker every time a chunk needs to be rerendered)
 
