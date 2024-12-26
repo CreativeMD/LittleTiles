@@ -64,6 +64,7 @@
         "sodium.BlockRendererMixin",
         "sodium.BuiltSectionMeshPartsMixin",
         "sodium.ChunkBuildBuffersAccessor",
+        "sodium.ChunkBuildBuffersMixin",
         "sodium.ChunkBuilderAccessor",
         "sodium.ChunkBuilderMeshingTaskMixin",
         "sodium.ChunkMeshBufferBuilderAccessor",

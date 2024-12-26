@@ -2,6 +2,7 @@ package team.creative.littletiles.mixin.sodium;
 
 import java.nio.ByteBuffer;
 
+import org.lwjgl.system.MemoryUtil;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
@@ -47,13 +48,12 @@ public class BakedChunkModelBuilderMixin implements SodiumBufferUploader {
         int vertexStart = vertex.getVertexCount();
         int vertexCount = buffer.limit() / vertex.getStride();
         if (vertexStart + vertexCount >= vertex.getVertexCapacity())
-            vertex.callGrow(vertex.getStride() * vertexCount);
+            vertex.callGrow(vertexCount);
         ByteBuffer data = vertex.getBuffer();
         int index = vertex.getVertexCount() * vertex.getStride();
-        data.position(index);
-        data.put(buffer);
-        buffer.rewind();
-        data.rewind();
+        long address = MemoryUtil.memAddress(data, index);
+        long insertAddress = MemoryUtil.memAddress(buffer);
+        MemoryUtil.memCopy(insertAddress, address, buffer.capacity());
         vertex.setVertexCount(vertex.getVertexCount() + vertexCount);
     }
     

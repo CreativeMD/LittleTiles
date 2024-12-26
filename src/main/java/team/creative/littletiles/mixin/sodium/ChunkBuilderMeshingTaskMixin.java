@@ -9,6 +9,9 @@ import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildContext;
@@ -26,9 +29,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.mod.sodium.buffer.SodiumBufferCache;
 import team.creative.littletiles.client.mod.sodium.buffer.SodiumBufferUploader;
 import team.creative.littletiles.client.mod.sodium.data.BuiltSectionMeshPartsExtender;
 import team.creative.littletiles.client.mod.sodium.renderer.BlockRendererExtender;
+import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -103,6 +108,21 @@ public abstract class ChunkBuilderMeshingTaskMixin extends ChunkBuilderTask<Chun
         if (cache == null)
             caches.put(layer, cache = new BufferCollection());
         return cache;
+    }
+    
+    @WrapOperation(
+            method = "execute(Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lnet/caffeinemc/mods/sodium/client/util/task/CancellationToken;)Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
+            require = 1, at = @At(value = "INVOKE",
+                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers;createMesh(Lnet/caffeinemc/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;Z)Lnet/caffeinemc/mods/sodium/client/render/chunk/data/BuiltSectionMeshParts;"))
+    public BuiltSectionMeshParts redirectCreateMesh(ChunkBuildBuffers instance, TerrainRenderPass pass, boolean forceUnassigned, Operation<BuiltSectionMeshParts> operation) {
+        var result = instance.createMesh(pass, forceUnassigned);
+        if (caches != null) {
+            var collection = caches.get(RenderType.translucent());
+            if (collection != null)
+                for (BufferCache cache : collection.buffers())
+                    ((SodiumBufferCache) cache).moveInBuffer((((ChunkBuildBuffersAccessor) instance).getTranslucentOffset()));
+        }
+        return result;
     }
     
 }

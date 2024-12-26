@@ -27,10 +27,15 @@ import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionFlags;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
+import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataStorage;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicData;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicTopoData;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicTopoData.DynamicTopoSorter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -38,6 +43,7 @@ import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.mod.sodium.SodiumSectionCameraPos;
 import team.creative.littletiles.client.mod.sodium.buffer.SodiumAppendChunkBufferUploader;
 import team.creative.littletiles.client.mod.sodium.buffer.SodiumChunkBufferDownloader;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
@@ -262,20 +268,20 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                     extraLengthFacing[i] += layeredCache.length(layer, i);
                 
             uploader.set(storage.getDataPointer(sectionIndex), format, segment.getOffset(), vanillaBuffer, size, extraLengthFacing, null);
+            if (layer == RenderType.translucent()) {
+                uploader.setTranslucentCollector(new TranslucentGeometryCollector(((RenderSection) (Object) this).getPosition()));
+                if (vanillaBuffer != null)
+                    uploader.appendVanillaTranslucentData(vanillaBuffer);
+            }
             
             if (segment != null) // Meshes needs to be removed after the uploader has collected the data
                 storage.removeData(sectionIndex);
-            
-            //uploader.setTranslucentCollector(layer == RenderType.translucent() ? new TranslucentGeometryCollector(((RenderSection) (Object) this).getPosition()) : null);
             
             for (LayeredBufferCache layeredCache : blocks) {
                 BufferCache cache = layeredCache.get(layer);
                 if (cache != null && cache.isAvailable())
                     cache.upload(uploader);
             }
-            
-            // Maybe sort uploaded buffer????
-            //if (layer == RenderType.translucent())
             
             boolean active = ((GLRenderDeviceAccessor) RenderDevice.INSTANCE).getIsActive();
             if (!active)
@@ -294,11 +300,35 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             
             storage.setVertexData(sectionIndex, upload.getResult(), uploader.ranges());
             
-            /*if (layer == RenderType.translucent()) {
-                var translucentData = ((RenderSection) (Object) this).getTranslucentData();
-                if(translucentData instanceof DynamicData data)
-                    uploader.getTranslucentCollector().
-            }*/
+            if (layer == RenderType.translucent()) {
+                var cam = new SodiumSectionCameraPos(((RenderSectionManagerAccessor) manager).getCameraPosition(), ((RenderSection) (Object) this)
+                        .getOriginX(), ((RenderSection) (Object) this).getOriginY(), ((RenderSection) (Object) this).getOriginZ());
+                uploader.getTranslucentCollector().finishRendering();
+                BuiltSectionMeshParts mesh = new BuiltSectionMeshParts(uploader.buffer(), uploader.ranges());
+                var oldData = ((RenderSection) (Object) this).getTranslucentData();
+                var data = uploader.getTranslucentCollector().getTranslucentData(oldData, mesh, cam);
+                
+                ((RenderSectionManagerAccessor) manager).getSortTriggering().integrateTranslucentData(oldData, data, cam.getAbsoluteCameraPos(), manager::scheduleSort);
+                ((RenderSection) (Object) this).setTranslucentData(data);
+                
+                storage.removeIndexData(sectionIndex);
+                
+                if (data instanceof DynamicData d) {
+                    var sorter = d.getSorter();
+                    sorter.writeIndexBuffer(cam, true);
+                    PendingUpload indexUpload = new PendingUpload(sorter.getIndexBuffer());
+                    
+                    arena = resources.getIndexArena();
+                    if (arena.upload(commandList, Stream.of(indexUpload)))
+                        region.refreshIndexedTesselation(commandList);
+                    
+                    storage.setIndexData(sectionIndex, indexUpload.getResult());
+                    
+                    if (data instanceof DynamicTopoData topo)
+                        ((RenderSectionManagerAccessor) manager).getSortTriggering().applyTriggerChanges(topo, (DynamicTopoSorter) topo.getSorter(), ((RenderSection) (Object) this)
+                                .getPosition(), cam.getAbsoluteCameraPos());
+                }
+            }
             
             if (!active)
                 RenderDevice.exitManagedCode();
@@ -309,7 +339,6 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         
         animatedSprites = uploader.sprites();
         
-        //manager.markGraphDirty();
         built = true;
         flags |= 1 << RenderSectionFlags.HAS_BLOCK_GEOMETRY;
         return true;

@@ -11,4 +11,7 @@ public interface ChunkBuildBuffersAccessor {
     
     @Accessor(remap = false)
     public ChunkVertexType getVertexType();
+    
+    @Accessor(remap = false)
+    public int getTranslucentOffset();
 }

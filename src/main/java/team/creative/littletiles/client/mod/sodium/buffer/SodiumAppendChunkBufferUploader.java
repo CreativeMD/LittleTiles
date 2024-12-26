@@ -5,12 +5,17 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.lwjgl.system.MemoryUtil;
+
 import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexFormat;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataUnsafe;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
+import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import team.creative.littletiles.client.mod.sodium.data.LittleQuadView;
+import team.creative.littletiles.client.mod.sodium.pipeline.LittleRenderPipelineSodium;
 
 public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
     
@@ -103,6 +108,22 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
     
     public NativeBuffer buffer() {
         return buffer;
+    }
+    
+    public void appendVanillaTranslucentData(ByteBuffer buffer) {
+        // Add translucent data by going through the buffers, collecting the quads and adding to the translucent collector
+        long ptr = MemoryUtil.memAddress(buffer);
+        long end = ptr + buffer.remaining();
+        LittleQuadView quad = new LittleQuadView();
+        ChunkVertexType type = LittleRenderPipelineSodium.getType();
+        int stride = type.getVertexFormat().getStride();
+        ModelQuadFacing facing = ModelQuadFacing.UNASSIGNED;
+        
+        while (ptr < end) {
+            quad.readVertices(ptr, 0, stride, facing);
+            collector.appendQuad(quad.getPackedNormal(), quad.getVertices(), facing);
+            ptr += stride * 4;
+        }
     }
     
     @Override

@@ -135,12 +135,6 @@ public class SodiumBufferCache implements BufferCache {
     
     @Override
     public void applyOffset(Vec3 vec) {
-        /* if (SodiumOptions.canUseVanillaVertices()) { TODO Check for option and iris support
-        for (int i = 0; i < buffers.length; i++)
-            if (buffers[i] != null)
-                buffers[i].applyOffset(vec);
-            return;
-        }*/
         for (int i = 0; i < buffers.length; i++)
             if (buffers[i] != null)
                 applySodiumOffset(buffers[i].byteBuffer(), vec);
@@ -252,4 +246,9 @@ public class SodiumBufferCache implements BufferCache {
         return true;
     }
     
+    public void moveInBuffer(int offset) {
+        for (int i = 0; i < buffers.length; i++)
+            if (buffers[i] != null)
+                buffers[i].moveUploadIndex(offset);
+    }
 }

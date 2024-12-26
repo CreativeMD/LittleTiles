@@ -326,4 +326,8 @@ public class BufferHolder implements BufferCache {
             i += formatSize;
         }
     }
+    
+    public void moveUploadIndex(int offset) {
+        uploadIndex += offset;
+    }
 }
