@@ -1,3 +1,10 @@
+1.6.0-pre146
+Fixed using incorrect chunk offset when rendering blocks on animation (causing blocks to be moved)
+Fixed door exceptions not being displayed correctly
+Fixed door transition from block to entity rendering issue of additional buffers being added too late
+Fixed minor memory caused by directly uploading index buffer to gpu and not deallocating it later on
+Fixed tiles not be rendered without chunk update with sodium
+
 1.6.0-pre145
 Fixed not retrieving translucent render data back when there are other translucent blocks
 Fixed not taking care of translucent data properly when entity render data is appended to the chunk directly
