@@ -51,19 +51,23 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             
             Vec3 offset = RenderingLevelHandler.offsetCorrection(target, targetLevel, origin, originLevel, section);
             
-            targetBE.render.additionalBuffers(x -> {
-                LayeredBufferCache layers = new LayeredBufferCache();
-                for (RenderType layer : RenderType.chunkBufferLayers()) {
-                    BufferCache holder = be.render.buffers().extract(layer, structure.getIndex());
-                    if (holder == null)
-                        continue;
-                    
-                    if (offset != null)
-                        holder.applyOffset(offset);
-                    layers.put(layer, holder);
-                }
-                x.additional(uuid, layers);
-            });
+            synchronized (targetBE.render) {
+                if (!targetBE.render.isInQueueOrBeforeBuilding())
+                    continue;
+                targetBE.render.additionalBuffers(x -> {
+                    LayeredBufferCache layers = new LayeredBufferCache();
+                    for (RenderType layer : RenderType.chunkBufferLayers()) {
+                        BufferCache holder = be.render.buffers().extract(layer, structure.getIndex());
+                        if (holder == null)
+                            continue;
+                        
+                        if (offset != null)
+                            holder.applyOffset(offset);
+                        layers.put(layer, holder);
+                    }
+                    x.additional(uuid, layers);
+                });
+            }
         }
         
         for (StructureChildConnection child : structure.children.all()) {

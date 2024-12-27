@@ -70,6 +70,10 @@ public class BERenderManager {
         return queued;
     }
     
+    public boolean isInQueueOrBeforeBuilding() {
+        return queued || renderState == -1;
+    }
+    
     public void sectionUpdate(long pos) {
         synchronized (this) {
             boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
