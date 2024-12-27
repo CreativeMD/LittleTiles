@@ -335,6 +335,8 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                     if (data instanceof DynamicTopoData topo)
                         ((RenderSectionManagerAccessor) manager).getSortTriggering().applyTriggerChanges(topo, (DynamicTopoSorter) topo.getSorter(), ((RenderSection) (Object) this)
                                 .getPosition(), cam.getAbsoluteCameraPos());
+                    
+                    sorter.getIndexBuffer().free();
                 }
             }
             
