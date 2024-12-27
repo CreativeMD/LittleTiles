@@ -10,7 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
-import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -112,7 +112,7 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
                             return door.use(level, context, pos, player, result);
                         throw new LittleActionException("Invalid parent");
                     } catch (LittleActionException e) {
-                        LittleTilesClient.displayActionMessage(e.getActionMessage());
+                        LittleActionHandlerClient.handleException(e);
                         return InteractionResult.SUCCESS;
                     }
                 }
