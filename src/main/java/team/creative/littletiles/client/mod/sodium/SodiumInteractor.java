@@ -19,6 +19,7 @@ import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
@@ -84,6 +85,11 @@ public class SodiumInteractor {
                 int rZ = SectionPos.z(pos) & DefaultChunkRendererExtender.REGION_LENGTH_M;
                 
                 return LocalSectionIndex.pack(rX, rY, rZ);
+            }
+            
+            @Override
+            public long sectionPos(BETiles be) {
+                return ((LittleAnimationEntity) ((LittleLevel) be.getLevel()).getHolder()).getCenter().chunkOffset.asLong();
             }
             
             @Override

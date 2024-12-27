@@ -19,11 +19,11 @@ public class RenderingBlockQueue {
         queue.add(context);
     }
     
-    public synchronized void queue(BETiles tiles, long pos) {
+    public synchronized void queue(BETiles tiles, boolean hasPos, long pos) {
         var level = tiles.getLevel();
         var handler = RenderingLevelHandler.of(level);
         
-        RenderingBlockContext context = new RenderingBlockContext(tiles, pos, handler);
+        RenderingBlockContext context = new RenderingBlockContext(tiles, hasPos, pos, handler);
         var sections = levels.computeIfAbsent(level, x -> new Long2IntOpenHashMap());
         pos = context.queuedSection(); // get rid of different render chunks if it is just one in cause of an animation
         int count = sections.getOrDefault(pos, 0);

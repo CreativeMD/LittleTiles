@@ -7,7 +7,6 @@ import java.util.function.Consumer;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.core.SectionPos;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -86,7 +85,7 @@ public class BERenderManager {
             neighbourChanged = false;
             
             if (doesNeedUpdate)
-                queue(eraseBoxCache, pos);
+                queue(eraseBoxCache, true, pos);
         }
     }
     
@@ -105,7 +104,7 @@ public class BERenderManager {
     public void tilesChanged() {
         requireRenderingBoundingBoxUpdate = true;
         cachedRenderDistance = 0;
-        queue(true, SectionPos.asLong(be.getBlockPos()));
+        queue(true, false, 0);
     }
     
     public void markRenderBoundingBoxDirty() {
@@ -156,16 +155,16 @@ public class BERenderManager {
     
     public void onNeighbourChanged() {
         neighbourChanged = true;
-        queue(false, SectionPos.asLong(be.getBlockPos()));
+        queue(false, false, 0);
     }
     
-    public void queue(boolean eraseBoxCache, long pos) {
+    public void queue(boolean eraseBoxCache, boolean hasPos, long pos) {
         synchronized (this) {
             requestedIndex++;
             
             this.eraseBoxCache |= eraseBoxCache;
             
-            if (!queued && RenderingThread.queue(be, pos))
+            if (!queued && RenderingThread.queue(be, hasPos, pos))
                 queued = true;
         }
     }

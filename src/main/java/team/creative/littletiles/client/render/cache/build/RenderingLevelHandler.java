@@ -13,6 +13,7 @@ import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.ViewAreaExtender;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.mixin.client.render.LevelRendererAccessor;
@@ -94,6 +95,11 @@ public abstract class RenderingLevelHandler {
         }
         
         @Override
+        public long sectionPos(BETiles be) {
+            return ((LittleAnimationEntity) ((LittleLevel) be.getLevel()).getHolder()).getCenter().chunkOffset.asLong();
+        }
+        
+        @Override
         public BlockPos standardOffset(Level level, SectionPos pos) {
             return ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOrigin;
         }
@@ -122,6 +128,10 @@ public abstract class RenderingLevelHandler {
     
     public void prepareModelOffset(Level level, MutableBlockPos modelOffset, BlockPos pos) {
         modelOffset.set(pos.getX() & 15, pos.getY() & 15, pos.getZ() & 15);
+    }
+    
+    public long sectionPos(BETiles be) {
+        return SectionPos.asLong(be.getBlockPos());
     }
     
     public long prepareQueue(long pos) {

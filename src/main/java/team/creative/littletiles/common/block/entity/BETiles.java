@@ -16,7 +16,6 @@ import javax.annotation.Nullable;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.HolderLookup.Provider;
-import net.minecraft.core.SectionPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
@@ -147,7 +146,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (level != null && level.isClientSide) {
             render.unsetBlocked();
             if (rendering) // Fixes incorrect rendering when receiving an update while render cache is building
-                render.queue(true, SectionPos.asLong(getBlockPos()));
+                render.queue(true, false, 0);
         }
     }
     
@@ -468,7 +467,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         if (level != null && level.isClientSide) {
             render.unsetBlocked();
             if (rendering) // Fixes incorrect rendering when receiving an update while render cache is building
-                render.queue(true, SectionPos.asLong(getBlockPos()));
+                render.queue(true, false, 0);
         }
     }
     

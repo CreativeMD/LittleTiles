@@ -71,7 +71,7 @@ public class RenderingThread extends Thread {
         QUEUE.clear();
     }
     
-    public static synchronized boolean queue(BETiles be, long pos) {
+    public static synchronized boolean queue(BETiles be, boolean hasPos, long pos) {
         if (THREADS == null)
             initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
         
@@ -82,11 +82,11 @@ public class RenderingThread extends Thread {
                 be.render.setBuffersEmpty();
             }
             if (!be.render.finishBuildingCache(index, EMPTY_HOLDERS, CURRENT_RENDERING_INDEX, true))
-                return queue(be, pos);
+                return queue(be, hasPos, pos);
             return false;
         }
         
-        QUEUE.queue(be, pos);
+        QUEUE.queue(be, hasPos, pos);
         return true;
     }
     

@@ -25,9 +25,11 @@ public class RenderingBlockContext {
     
     public HashMap<Facing, BETiles> neighboursBEs;
     
-    public RenderingBlockContext(BETiles be, long pos, RenderingLevelHandler handler) {
+    public RenderingBlockContext(BETiles be, boolean hasPos, long pos, RenderingLevelHandler handler) {
         this.be = be;
         this.state = be.getBlockState();
+        if (!hasPos)
+            pos = handler.sectionPos(be);
         this.pos = pos;
         this.handler = handler;
     }
