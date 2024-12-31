@@ -1,3 +1,6 @@
+1.6.0-pre147
+Fixed smooth door transition for translucent doors not working in all cases with sodium
+
 1.6.0-pre146
 Fixed using incorrect chunk offset when rendering blocks on animation (causing blocks to be moved)
 Fixed door exceptions not being displayed correctly
