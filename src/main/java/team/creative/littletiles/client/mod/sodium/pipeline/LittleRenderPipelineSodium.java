@@ -63,6 +63,8 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.client.IFakeRenderingBlock;
+import team.creative.littletiles.client.mod.iris.IrisManager;
 import team.creative.littletiles.client.mod.sodium.SodiumInteractor;
 import team.creative.littletiles.client.mod.sodium.buffer.SodiumBufferCache;
 import team.creative.littletiles.client.mod.sodium.level.LittleLevelSliceExtender;
@@ -171,16 +173,15 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                 BlockState state = cube.state;
                 
                 context.update(pos, modelOffset, state, null, 0);
-                //OculusManager.setLocalPos(buildBuffers, pos);
                 cubeCenter.set((cube.maxX + cube.minX) * 0.5, (cube.maxY + cube.minY) * 0.5, (cube.maxZ + cube.minZ) * 0.5);
                 
                 ColorProvider<BlockState> colorizer = null;
                 
-                /*if (OculusManager.isShaders()) {
+                if (IrisManager.isShaders()) {
                     if (state.getBlock() instanceof IFakeRenderingBlock fake)
                         state = fake.getFakeState(state);
-                    OculusManager.setMaterialId(buildBuffers, state);
-                }*/
+                    IrisManager.beginBlock(buildBuffers, state, pos);
+                }
                 
                 for (int h = 0; h < Facing.VALUES.length; h++) {
                     Facing facing = Facing.VALUES[h];
@@ -240,7 +241,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                 
                 bakedQuadWrapper.setElement(null);
                 
-                //OculusManager.resetBlockContext(buildBuffers);
+                IrisManager.resetBlockContext(buildBuffers);
                 
                 if (!LittleTiles.CONFIG.rendering.useQuadCache)
                     cube.deleteQuadCache();

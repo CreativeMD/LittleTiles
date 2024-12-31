@@ -48,17 +48,11 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
     public void render(ChunkRenderMatrices matrices, CommandList commandList, ChunkRenderListIterable renderLists, TerrainRenderPass renderPass, CameraTransform camera,
             CallbackInfo info) {
         var bindings = vertexFormat.getShaderBindings();
-        //if (bindings == null && OculusManager.installed()) {
-        //    bindings = (GlVertexAttributeBinding[]) OculusManager.createVertexFormat(vertexFormat);
-        //}
-        
         PoseStack pose = new PoseStack();
         pose.last().pose().set(matrices.modelView());
         
         Minecraft mc = Minecraft.getInstance();
         ChunkShaderInterface shader = null;
-        //if (OculusManager.installed())
-        //    shader = (ChunkShaderInterface) OculusInteractor.getShader(this);
         if (shader == null)
             shader = this.activeProgram.getInterface();
         float partialTicks = mc.getTimer().getGameTimeDeltaPartialTick(false);

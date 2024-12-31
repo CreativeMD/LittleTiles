@@ -58,6 +58,7 @@ import team.creative.littletiles.client.action.interact.LittleInteractionHandler
 import team.creative.littletiles.client.level.LevelHandlersClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
 import team.creative.littletiles.client.level.LittleVanillaInteractionHandlerClient;
+import team.creative.littletiles.client.mod.iris.IrisManager;
 import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.player.LittleClientPlayerConnection;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
@@ -244,7 +245,7 @@ public class LittleTilesClient {
         ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.value(), filled, function);
         
         SodiumManager.init();
-        //OculusManager.init();
+        IrisManager.init();
     }
     
     public static void modelLoader(RegisterAdditional event) {
