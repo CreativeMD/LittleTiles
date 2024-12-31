@@ -121,7 +121,7 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
         
         while (ptr < end) {
             quad.readVertices(ptr, 0, stride, facing);
-            collector.appendQuad(quad.getPackedNormal(), quad.getVertices(), facing);
+            collector.appendQuad(quad.getPackedNormal(), quad.getVertices(), quad.quadFacing());
             ptr += stride * 4;
         }
     }

@@ -21,6 +21,7 @@ public class LittleQuadView implements QuadView {
     private Vector3f normal = new Vector3f();
     private Direction nominalFace;
     private int packedNormal;
+    private ModelQuadFacing quadFacing;
     
     public LittleQuadView() {
         this(Vertex.uninitializedQuad());
@@ -41,6 +42,7 @@ public class LittleQuadView implements QuadView {
         }
         nominalFace = SodiumInteractor.toDirection(facing);
         NormalHelper.computeFaceNormal(normal, this);
+        quadFacing = ModelQuadFacing.fromNormal(normal.x, normal.y, normal.z);
         packedNormal = NormI8.pack(normal);
     }
     
@@ -65,6 +67,10 @@ public class LittleQuadView implements QuadView {
     @Override
     public float z(int vertexIndex) {
         return vertices[vertexIndex].z;
+    }
+    
+    public ModelQuadFacing quadFacing() {
+        return quadFacing;
     }
     
     @Override

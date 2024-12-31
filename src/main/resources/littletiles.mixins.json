@@ -79,7 +79,8 @@
         "sodium.RenderSectionManagerAccessor",
         "sodium.RenderSectionMixin",
         "sodium.SectionRenderDataStorageAccessor",
-        "sodium.TerrainRenderPassAccessor"
+        "sodium.TerrainRenderPassAccessor",
+        "sodium.TranslucentGeometryCollectorAccessor"
     ],
     "minVersion": "0.8"
 }

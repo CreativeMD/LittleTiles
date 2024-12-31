@@ -14,7 +14,6 @@ import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexSorting;
 
-import net.caffeinemc.mods.sodium.client.gl.arena.GlBufferArena;
 import net.caffeinemc.mods.sodium.client.gl.arena.GlBufferSegment;
 import net.caffeinemc.mods.sodium.client.gl.arena.PendingUpload;
 import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexFormat;
@@ -33,10 +32,9 @@ import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataStor
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
-import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicData;
-import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicTopoData;
-import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.DynamicTopoData.DynamicTopoSorter;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.PresentTranslucentData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -283,7 +281,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             }
             
             if (segment != null) // Meshes needs to be removed after the uploader has collected the data
-                storage.removeData(sectionIndex);
+                storage.removeVertexData(sectionIndex);
             
             for (LayeredBufferCache layeredCache : blocks) {
                 BufferCache cache = layeredCache.get(layer);
@@ -300,10 +298,8 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             CommandList commandList = RenderDevice.INSTANCE.createCommandList();
             
             RenderRegion.DeviceResources resources = region.createResources(commandList);
-            GlBufferArena arena = resources.getGeometryArena();
             
-            boolean bufferChanged = arena.upload(commandList, Stream.of(upload));
-            if (bufferChanged)
+            if (resources.getGeometryArena().upload(commandList, Stream.of(upload)))
                 region.refreshTesselation(commandList);
             
             storage.setVertexData(sectionIndex, upload.getResult(), uploader.ranges());
@@ -311,31 +307,32 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             if (layer == RenderType.translucent()) {
                 var cam = new SodiumSectionCameraPos(((RenderSectionManagerAccessor) manager).getCameraPosition(), ((RenderSection) (Object) this)
                         .getOriginX(), ((RenderSection) (Object) this).getOriginY(), ((RenderSection) (Object) this).getOriginZ());
+                
                 uploader.getTranslucentCollector().finishRendering();
+                // Somehow the returned sortType does not match the required one. Often it returns Static topo, sometimes it returns dynamic.
+                // I have checked the way LittleTiles reads the data and puts it into the translucent collector and could not find anything wrong.
+                // It is hard to debug the sodium code. There must be something missing, but I cannot find it
+                // For now this is a crapy hack to force the anysort type to be used, which works totally fine.
+                ((TranslucentGeometryCollectorAccessor) uploader.getTranslucentCollector()).setSortType(SortType.NONE);
+                
                 BuiltSectionMeshParts mesh = new BuiltSectionMeshParts(uploader.buffer(), uploader.ranges());
                 var oldData = ((RenderSection) (Object) this).getTranslucentData();
                 var data = uploader.getTranslucentCollector().getTranslucentData(oldData, mesh, cam);
                 
-                ((RenderSectionManagerAccessor) manager).getSortTriggering().integrateTranslucentData(oldData, data, cam.getAbsoluteCameraPos(), manager::scheduleSort);
-                ((RenderSection) (Object) this).setTranslucentData(data);
-                
-                storage.removeIndexData(sectionIndex);
-                
-                if (data instanceof DynamicData d) {
+                if (oldData != null)
+                    storage.removeIndexData(sectionIndex);
+                if (data instanceof PresentTranslucentData d) {
                     var sorter = d.getSorter();
                     sorter.writeIndexBuffer(cam, true);
                     PendingUpload indexUpload = new PendingUpload(sorter.getIndexBuffer());
                     
-                    arena = resources.getIndexArena();
-                    if (arena.upload(commandList, Stream.of(indexUpload)))
+                    if (resources.getIndexArena().upload(commandList, Stream.of(indexUpload)))
                         region.refreshIndexedTesselation(commandList);
                     
                     storage.setIndexData(sectionIndex, indexUpload.getResult());
                     
-                    if (data instanceof DynamicTopoData topo)
-                        ((RenderSectionManagerAccessor) manager).getSortTriggering().applyTriggerChanges(topo, (DynamicTopoSorter) topo.getSorter(), ((RenderSection) (Object) this)
-                                .getPosition(), cam.getAbsoluteCameraPos());
-                    
+                    ((RenderSectionManagerAccessor) manager).getSortTriggering().integrateTranslucentData(oldData, data, cam.getAbsoluteCameraPos(), manager::scheduleSort);
+                    ((RenderSection) (Object) this).setTranslucentData(data);
                     sorter.getIndexBuffer().free();
                 }
             }
