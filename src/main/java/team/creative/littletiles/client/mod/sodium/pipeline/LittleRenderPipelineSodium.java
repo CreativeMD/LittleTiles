@@ -204,7 +204,9 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                             
                             boolean hasColor = false;
                             if (cube.color != -1) {
-                                int color = ColorABGR.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color), ColorUtils.alpha(cube.color));
+                                int color = IrisManager.installed() ? ColorARGB.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color),
+                                    ColorUtils.alpha(cube.color)) : ColorABGR.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color), ColorUtils
+                                            .alpha(cube.color));
                                 Arrays.fill(colors, color);
                                 hasColor = true;
                             } else if (!mat.disableColorIndex() && editorQuad.hasColor()) {
