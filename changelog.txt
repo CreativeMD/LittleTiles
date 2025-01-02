@@ -1,3 +1,7 @@
+1.6.0-pre149
+Fixed crash when reload resources or pressing F3 + A
+Fixed incorrect colors when Iris is installed
+
 1.6.0-pre148
 Added support for Iris
 
