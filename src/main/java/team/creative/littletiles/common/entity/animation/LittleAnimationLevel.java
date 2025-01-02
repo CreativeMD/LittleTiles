@@ -220,7 +220,10 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     
     @Override
     public RegistryAccess registryAccess() {
-        return getRealLevel().registryAccess();
+        var level = getRealLevel();
+        if (level == null)
+            return RegistryAccess.EMPTY;
+        return level.registryAccess();
     }
     
     @Override
