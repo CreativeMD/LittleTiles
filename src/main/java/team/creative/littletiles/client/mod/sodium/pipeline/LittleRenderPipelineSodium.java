@@ -18,6 +18,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
 import net.caffeinemc.mods.sodium.api.util.ColorABGR;
+import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProviderRegistry;
@@ -92,7 +93,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
     }
     
     public static ChunkVertexType getType() {
-        return RenderingThread.getOrCreate(SodiumInteractor.PIPELINE).type;
+        return RenderingThread.getOrCreate(SodiumInteractor.PIPELINE).getVertexType();
     }
     
     private static final RenderMaterial[] STANDARD_MATERIALS;
@@ -121,7 +122,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferCache> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
-        if (buildBuffers == null)
+        if (buildBuffers == null || renderer == null)
             reload();
         
         Level renderLevel = data.be.getLevel();
@@ -352,6 +353,12 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
         renderer = new BlockRenderer(new ColorProviderRegistry(Minecraft.getInstance()
                 .getBlockColors()), lighters = new LightPipelineProvider(lightAccess = new LittleLightDataAccess()));
         ((BlockRendererExtender) renderer).markAsTakenOver();
+    }
+    
+    public ChunkVertexType getVertexType() {
+        if (type == null || type.getVertexFormat() == null)
+            reload();
+        return type;
     }
     
     @Override
