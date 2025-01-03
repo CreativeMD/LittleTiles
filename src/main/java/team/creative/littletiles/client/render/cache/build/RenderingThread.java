@@ -3,8 +3,6 @@ package team.creative.littletiles.client.render.cache.build;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.apache.commons.lang3.ArrayUtils;
-
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -39,7 +37,6 @@ import team.creative.littletiles.common.block.entity.BETiles;
 public class RenderingThread extends Thread {
     
     public static volatile int CURRENT_RENDERING_INDEX = Integer.MIN_VALUE;
-    private static final String[] fakeLeveldMods = new String[] { "chisel" };
     private static final ChunkLayerMap<BufferCache> EMPTY_HOLDERS = new ChunkLayerMap<>();
     public static List<RenderingThread> THREADS;
     public static final Minecraft MC = Minecraft.getInstance();
@@ -175,22 +172,20 @@ public class RenderingThread extends Thread {
                             
                             for (LittleRenderBox cube : cubes) {
                                 if (cube.doesNeedQuadUpdate) {
-                                    if (ArrayUtils.contains(fakeLeveldMods, cube.state.getBlock().builtInRegistryHolder().key().location().getNamespace())) {
-                                        fakeAccess.set(data.be.getLevel(), pos, cube.state);
-                                        level = fakeAccess;
-                                    } else
-                                        level = data.be.getLevel();
+                                    fakeAccess.set(data.be.getLevel(), pos, cube.state);
+                                    level = fakeAccess;
                                     
                                     BlockState modelState = cube.state;
                                     rand.setSeed(modelState.getSeed(pos));
                                     BakedModel blockModel = MC.getBlockRenderer().getBlockModel(modelState);
+                                    var modelData = blockModel.getModelData(level, pos, modelState, level.getModelData(pos));
                                     BlockPos offset = cube.getOffset();
                                     for (int h = 0; h < Facing.VALUES.length; h++) {
                                         Facing facing = Facing.VALUES[h];
                                         if (cube.shouldRenderFace(facing)) {
                                             if (cube.getQuad(facing) == null)
-                                                cube.setQuad(facing, cube.getBakedQuad(quadContext, level, pos, offset, modelState, blockModel, facing, layer, rand, true,
-                                                    ColorUtils.WHITE));
+                                                cube.setQuad(facing, cube.getBakedQuad(quadContext, level, pos, offset, modelState, blockModel, modelData, facing, layer, rand,
+                                                    true, ColorUtils.WHITE));
                                         } else
                                             cube.setQuad(facing, null);
                                     }
@@ -222,7 +217,7 @@ public class RenderingThread extends Thread {
                             if (LittleTilesProfilerOverlay.isActive())
                                 LittleTilesProfilerOverlay.finishBuildingCache(System.nanoTime() - duration);
                         } catch (Exception e) {
-                            e.printStackTrace();
+                            LittleTiles.LOGGER.error(e);
                             if (!finish(data, EMPTY_HOLDERS, -1, false))
                                 QUEUE.requeue(data);
                         }
@@ -232,11 +227,11 @@ public class RenderingThread extends Thread {
                         QUEUE.requeue(data);
                     } catch (Exception e) {
                         if (!(e instanceof RenderingException))
-                            e.printStackTrace();
+                            LittleTiles.LOGGER.error(e);
                         finish(data, EMPTY_HOLDERS, -1, true);
                     } catch (OutOfMemoryError error) {
                         QUEUE.requeue(data);
-                        error.printStackTrace();
+                        LittleTiles.LOGGER.error(error);
                     } finally {
                         buffers.clear();
                         data.unsetBlocked();
