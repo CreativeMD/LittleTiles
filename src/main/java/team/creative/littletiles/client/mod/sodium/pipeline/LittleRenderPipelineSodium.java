@@ -17,7 +17,6 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
-import net.caffeinemc.mods.sodium.api.util.ColorABGR;
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
@@ -205,9 +204,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                             
                             boolean hasColor = false;
                             if (cube.color != -1) {
-                                int color = IrisManager.installed() ? ColorARGB.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color),
-                                    ColorUtils.alpha(cube.color)) : ColorABGR.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color), ColorUtils
-                                            .alpha(cube.color));
+                                int color = ColorARGB.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color), ColorUtils.alpha(cube.color));
                                 Arrays.fill(colors, color);
                                 hasColor = true;
                             } else if (!mat.disableColorIndex() && editorQuad.hasColor()) {
