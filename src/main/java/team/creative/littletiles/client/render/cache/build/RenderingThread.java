@@ -21,6 +21,7 @@ import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.data.ModelData;
 import team.creative.creativecore.client.render.box.QuadGeneratorContext;
 import team.creative.creativecore.common.level.LevelAccesorFake;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -199,7 +200,8 @@ public class RenderingThread extends Thread {
                                     BlockState modelState = cube.state;
                                     rand.setSeed(modelState.getSeed(pos));
                                     BakedModel blockModel = MC.getBlockRenderer().getBlockModel(modelState);
-                                    var modelData = blockModel.getModelData(level, pos, modelState, level.getModelDataManager().getAt(pos));
+                                    var modelData = blockModel.getModelData(level, pos, modelState, level.getModelDataManager() == null ? ModelData.EMPTY : level
+                                            .getModelDataManager().getAt(pos));
                                     BlockPos offset = cube.getOffset();
                                     for (int h = 0; h < Facing.VALUES.length; h++) {
                                         Facing facing = Facing.VALUES[h];
