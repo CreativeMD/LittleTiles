@@ -199,7 +199,7 @@ public class ItemLittleChisel extends Item implements ILittlePlacer, IItemToolti
     @Override
     public void configured(ItemStack stack, CompoundTag nbt) {
         ILittlePlacer.super.configured(stack, nbt);
-        if (selection.countPositions() <= 1)
+        if (selection != null && selection.countPositions() <= 1)
             selection = null;
     }
     
