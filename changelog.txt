@@ -1,3 +1,9 @@
+1.6.0-pre150
+Added support for connected textures
+Fixed error when closing gui when chisel has not selection
+Fixed incorrect colors when sodium is installed
+Fixed crash with lithium mod
+
 1.6.0-pre149
 Fixed crash when reload resources or pressing F3 + A
 Fixed incorrect colors when Iris is installed
