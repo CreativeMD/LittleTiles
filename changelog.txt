@@ -1,3 +1,6 @@
+1.6.0-pre151
+Fixed all blocks being invisible after recent update
+
 1.6.0-pre150
 Added support for connected textures
 Fixed error when closing gui when chisel has not selection
