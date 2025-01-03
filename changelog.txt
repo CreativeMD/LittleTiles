@@ -1,3 +1,8 @@
+1.6.0-pre150
+Added support for connected textures
+Fixed error when closing gui when chisel has not selection
+Fixed crash with lithium mod
+
 1.6.0-pre142
 Fixed another issue with transformable box (outer corner type 2 not working properly)
 Fixed face culling on animations and door transitions not working in all cases due to unnecessary and unordered block updates
