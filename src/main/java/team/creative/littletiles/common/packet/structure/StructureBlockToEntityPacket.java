@@ -11,6 +11,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
@@ -56,7 +57,7 @@ public class StructureBlockToEntityPacket extends StructurePacket {
                     continue;
                 targetBE.render.additionalBuffers(x -> {
                     LayeredBufferCache layers = new LayeredBufferCache();
-                    for (RenderType layer : RenderType.chunkBufferLayers()) {
+                    for (RenderType layer : SodiumManager.chunkBufferLayers()) {
                         BufferCache holder = be.render.buffers().extract(layer, structure.getIndex());
                         if (holder == null)
                             continue;

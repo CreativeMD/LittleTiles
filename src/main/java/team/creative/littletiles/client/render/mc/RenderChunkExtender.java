@@ -22,6 +22,7 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloader.SimpleChunkBufferDownloader;
@@ -127,7 +128,7 @@ public interface RenderChunkExtender {
     }
     
     public default boolean appendRenderData(Iterable<? extends LayeredBufferCache> blocks) {
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
+        for (RenderType layer : SodiumManager.chunkBufferLayers()) {
             
             int size = 0;
             for (LayeredBufferCache data : blocks)

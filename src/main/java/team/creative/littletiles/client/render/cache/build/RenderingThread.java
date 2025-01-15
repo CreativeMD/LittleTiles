@@ -25,6 +25,7 @@ import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
@@ -164,7 +165,7 @@ public class RenderingThread extends Thread {
                         
                         data.beforeBuilding();
                         
-                        for (RenderType layer : RenderType.chunkBufferLayers()) {
+                        for (RenderType layer : SodiumManager.chunkBufferLayers()) {
                             IndexedCollector<LittleRenderBox> cubes = data.be.render.getRenderingBoxes(data, layer);
                             
                             if (cubes == null)

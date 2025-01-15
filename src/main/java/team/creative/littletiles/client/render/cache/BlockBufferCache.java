@@ -6,6 +6,7 @@ import java.util.function.Function;
 
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.buffer.AdditionalBuffers;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
@@ -44,7 +45,7 @@ public class BlockBufferCache implements IBlockBufferCache {
     
     @Override
     public void upload(Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
+        for (RenderType layer : SodiumManager.chunkBufferLayers()) {
             if (!has(layer))
                 continue;
             
@@ -65,7 +66,7 @@ public class BlockBufferCache implements IBlockBufferCache {
     
     @Override
     public void markUploaded(Function<RenderType, BufferCollection> bufferSupplier) {
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
+        for (RenderType layer : SodiumManager.chunkBufferLayers()) {
             if (!has(layer))
                 continue;
             
@@ -113,7 +114,7 @@ public class BlockBufferCache implements IBlockBufferCache {
     }
     
     public synchronized void setBuffers(ChunkLayerMap<BufferCache> buffers) {
-        for (RenderType layer : RenderType.chunkBufferLayers()) {
+        for (RenderType layer : SodiumManager.chunkBufferLayers()) {
             BufferCache buffer = buffers.get(layer);
             if (buffer == null)
                 uploaded.remove(layer);
