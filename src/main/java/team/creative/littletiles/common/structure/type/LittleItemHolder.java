@@ -13,7 +13,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.list.IndexedCollector;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.render.tile.LittleRenderBoxItem;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -82,13 +82,11 @@ public class LittleItemHolder extends LittleStructure {
     }
     
     @Override
-    public void getRenderingBoxes(BlockPos pos, RenderType layer, IndexedCollector<LittleRenderBox> cubes) {
-        if (layer == RenderType.cutout()) {
-            LittleBox littleBox = frame.getBox();
-            AlignedBox box = littleBox.getBox(frame.getGrid());
-            if (!stack.isEmpty())
-                cubes.add(new LittleRenderBoxItem(this, box, littleBox));
-        }
+    public void getRenderingBoxes(BlockPos pos, ChunkLayerMapList<LittleRenderBox> cubes) {
+        LittleBox littleBox = frame.getBox();
+        AlignedBox box = littleBox.getBox(frame.getGrid());
+        if (!stack.isEmpty())
+            cubes.add(RenderType.cutout(), new LittleRenderBoxItem(this, box, littleBox));
     }
     
 }

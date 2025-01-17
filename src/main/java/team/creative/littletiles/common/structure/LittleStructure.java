@@ -13,7 +13,6 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
@@ -44,8 +43,8 @@ import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.IterableIterator;
-import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -1051,7 +1050,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void getRenderingBoxes(BlockPos pos, RenderType layer, IndexedCollector<LittleRenderBox> boxes) {}
+    public void getRenderingBoxes(BlockPos pos, ChunkLayerMapList<LittleRenderBox> boxes) {}
     
     public void collectExtraBoxes(BlockState state, BlockGetter level, BlockPos pos, CollisionContext context, List<ABB> boxes) {}
     

@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -21,11 +22,11 @@ import team.creative.creativecore.client.render.box.QuadGeneratorContext;
 import team.creative.creativecore.common.level.LevelAccesorFake;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
+import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
@@ -76,7 +77,7 @@ public class RenderingThread extends Thread {
         if (be.isRenderingEmpty()) {
             int index = be.render.startBuildingCache();
             synchronized (be.render) {
-                be.render.boxCache.clear();
+                be.render.eraseBoxCache();
                 be.render.setBuffersEmpty();
             }
             if (!be.render.finishBuildingCache(index, EMPTY_HOLDERS, CURRENT_RENDERING_INDEX, true))
@@ -165,34 +166,37 @@ public class RenderingThread extends Thread {
                         
                         data.beforeBuilding();
                         
-                        for (RenderType layer : SodiumManager.chunkBufferLayers()) {
-                            IndexedCollector<LittleRenderBox> cubes = data.be.render.getRenderingBoxes(data, layer);
-                            
-                            if (cubes == null)
-                                continue;
-                            
-                            for (LittleRenderBox cube : cubes) {
-                                if (cube.doesNeedQuadUpdate) {
-                                    fakeAccess.set(data.be.getLevel(), pos, cube.state);
-                                    level = fakeAccess;
-                                    
-                                    BlockState modelState = cube.state;
-                                    rand.setSeed(modelState.getSeed(pos));
-                                    BakedModel blockModel = MC.getBlockRenderer().getBlockModel(modelState);
-                                    var modelData = blockModel.getModelData(level, pos, modelState, level.getModelData(pos));
-                                    BlockPos offset = cube.getOffset();
-                                    for (int h = 0; h < Facing.VALUES.length; h++) {
-                                        Facing facing = Facing.VALUES[h];
-                                        if (cube.shouldRenderFace(facing)) {
-                                            if (cube.getQuad(facing) == null)
-                                                cube.setQuad(facing, cube.getBakedQuad(quadContext, level, pos, offset, modelState, blockModel, modelData, facing, layer, rand,
-                                                    true, ColorUtils.WHITE));
-                                        } else
-                                            cube.setQuad(facing, null);
+                        Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> cubes = data.be.render.getRenderingBoxes(data);
+                        
+                        if (cubes == null || cubes.isEmpty())
+                            continue;
+                        
+                        for (ChunkLayerMapList<LittleRenderBox> map : cubes.values()) {
+                            for (Tuple<RenderType, List<LittleRenderBox>> tuple : map.tuples()) {
+                                for (LittleRenderBox cube : tuple.value) {
+                                    if (cube.doesNeedQuadUpdate) {
+                                        fakeAccess.set(data.be.getLevel(), pos, cube.state);
+                                        level = fakeAccess;
+                                        
+                                        BlockState modelState = cube.state;
+                                        rand.setSeed(modelState.getSeed(pos));
+                                        BakedModel blockModel = MC.getBlockRenderer().getBlockModel(modelState);
+                                        var modelData = blockModel.getModelData(level, pos, modelState, level.getModelData(pos));
+                                        BlockPos offset = cube.getOffset();
+                                        for (int h = 0; h < Facing.VALUES.length; h++) {
+                                            Facing facing = Facing.VALUES[h];
+                                            if (cube.shouldRenderFace(facing)) {
+                                                if (cube.getQuad(facing) == null)
+                                                    cube.setQuad(facing, cube.getBakedQuad(quadContext, level, pos, offset, modelState, blockModel, modelData, facing, tuple.key,
+                                                        rand, true, ColorUtils.WHITE));
+                                            } else
+                                                cube.setQuad(facing, null);
+                                        }
+                                        cube.doesNeedQuadUpdate = false;
                                     }
-                                    cube.doesNeedQuadUpdate = false;
                                 }
                             }
+                            
                         }
                         
                         quadContext.clear();
@@ -208,7 +212,7 @@ public class RenderingThread extends Thread {
                             get(data.getPipeline()).buildCache(posestack, buffers, data, format, bakedQuadWrapper);
                             
                             if (!LittleTiles.CONFIG.rendering.useCubeCache)
-                                data.be.render.boxCache.clear();
+                                data.be.render.eraseBoxCache();
                             
                             if (!finish(data, buffers, renderState, false))
                                 QUEUE.requeue(data);

@@ -16,7 +16,7 @@ public class SodiumManager {
     private static final boolean INSTALLED = check();
     public static RenderingLevelHandler RENDERING_LEVEL;
     public static RenderingLevelHandler RENDERING_ANIMATION;
-    private static final ImmutableList<RenderType> CHUNK_BUFFER_LAYERS = ImmutableList.of(RenderType.solid(), RenderType.cutoutMipped(), RenderType.translucent());
+    private static final ImmutableList<RenderType> CHUNK_BUFFER_LAYERS = ImmutableList.of(RenderType.solid(), RenderType.cutout(), RenderType.translucent());
     
     private static boolean check() {
         ModList list = ModList.get();

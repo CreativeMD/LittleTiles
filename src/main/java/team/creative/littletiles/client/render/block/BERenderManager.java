@@ -1,20 +1,20 @@
 package team.creative.littletiles.client.render.block;
 
-import java.util.Map.Entry;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Consumer;
 
 import javax.annotation.Nullable;
 
-import net.minecraft.client.renderer.RenderType;
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.face.RenderBoxFace;
 import team.creative.creativecore.client.render.face.RenderBoxFaceSpecial;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.littletiles.client.render.cache.AdditionalBufferReceiver;
 import team.creative.littletiles.client.render.cache.BlockBufferCache;
 import team.creative.littletiles.client.render.cache.IBlockBufferCache;
@@ -55,7 +55,7 @@ public class BERenderManager {
     private boolean requireRenderingBoundingBoxUpdate = false;
     
     private final BlockBufferCache bufferCache = new BlockBufferCache();
-    public final ChunkLayerMap<IndexedCollector<LittleRenderBox>> boxCache = new ChunkLayerMap<>();
+    private Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> boxCache = null;
     
     public BERenderManager(BETiles be) {
         this.be = be;
@@ -172,7 +172,7 @@ public class BERenderManager {
     public int startBuildingCache() {
         synchronized (this) {
             if (eraseBoxCache) {
-                boxCache.clear();
+                boxCache = null;
                 eraseBoxCache = false;
             }
             blocked.incrementAndGet();
@@ -198,10 +198,14 @@ public class BERenderManager {
         requestedIndex = -1;
     }
     
+    public void eraseBoxCache() {
+        boxCache = null;
+    }
+    
     public void chunkUnload() {
         synchronized (this) {
             bufferCache.setEmpty();
-            boxCache.clear();
+            boxCache = null;
             cachedRenderBoundingBox = null;
         }
     }
@@ -227,10 +231,8 @@ public class BERenderManager {
         if (neighbourChanged) {
             neighbourChanged = false;
             
-            for (Entry<RenderType, IndexedCollector<LittleRenderBox>> entry : boxCache.tuples()) {
-                if (entry.getValue() == null)
-                    continue;
-                for (LittleRenderBox cube : entry.getValue())
+            for (ChunkLayerMapList<LittleRenderBox> map : boxCache.values())
+                for (LittleRenderBox cube : map)
                     for (int k = 0; k < Facing.VALUES.length; k++) {
                         Facing facing = Facing.VALUES[k];
                         if (cube.box == null)
@@ -240,7 +242,7 @@ public class BERenderManager {
                         if (state.outside())
                             calculateFaces(facing, state, context, (LittleTile) cube.customData, cube.box, cube);
                     }
-            }
+                
         }
     }
     
@@ -267,57 +269,55 @@ public class BERenderManager {
             cube.setFace(facing, RenderBoxFace.RENDER);
     }
     
-    public IndexedCollector<LittleRenderBox> getRenderingBoxes(RenderingBlockContext context, RenderType layer) {
-        IndexedCollector<LittleRenderBox> cachedCubes = boxCache.get(layer);
-        if (cachedCubes != null)
-            return cachedCubes;
+    public Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> cachedBoxes() {
+        return boxCache;
+    }
+    
+    public Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> getRenderingBoxes(RenderingBlockContext context) {
+        if (boxCache != null)
+            return boxCache;
         
-        IndexedCollector<LittleRenderBox> boxes = new IndexedCollector<>();
+        boxCache = new Int2ObjectArrayMap<>();
         LittleServerFace serverFace = new LittleServerFace(be);
         
         for (IParentCollection parent : be.groups()) {
-            if (parent instanceof IStructureParentCollection s)
-                boxes.startSection(s.getIndex());
-            else
-                boxes.startSection(-1);
+            ChunkLayerMapList<LittleRenderBox> boxes = new ChunkLayerMapList<>();
             
-            for (LittleTile tile : parent) {
-                if (!tile.canRenderInLayer(layer))
-                    continue;
-                
-                for (LittleBox box : tile) {
-                    box.hasOrCreateFaceState(parent, tile, serverFace);
-                    
-                    // Check for sides which does not need to be rendered
-                    LittleRenderBox cube = parent.getRenderingBox(tile, box, layer);
-                    if (cube == null)
+            boxes.consumeEachLayer((layer, list) -> {
+                for (LittleTile tile : parent) {
+                    if (!tile.canRenderInLayer(layer))
                         continue;
                     
-                    for (int k = 0; k < Facing.VALUES.length; k++)
-                        calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, box, cube);
+                    for (LittleBox box : tile) {
+                        box.hasOrCreateFaceState(parent, tile, serverFace);
+                        
+                        LittleRenderBox cube = parent.getRenderingBox(tile, box, layer);
+                        if (cube == null)
+                            continue;
+                        
+                        // Check for sides which does not need to be rendered
+                        for (int k = 0; k < Facing.VALUES.length; k++)
+                            calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, box, cube);
+                        
+                        list.add(cube);
+                    }
                     
-                    boxes.add(cube);
                 }
-                
-            }
+            });
             
             if (LittleStructureAttribute.extraRendering(parent.getAttribute())) {
                 try {
                     LittleStructure structure = parent.getStructure();
                     structure.checkConnections();
-                    structure.getRenderingBoxes(be.getBlockPos(), layer, boxes);
+                    structure.getRenderingBoxes(be.getBlockPos(), boxes);
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                 
             }
             
-            boxes.endSection();
+            if (!boxes.isEmpty())
+                boxCache.put(parent instanceof IStructureParentCollection s ? s.getIndex() : -1, boxes);
         }
-        
-        if (boxes.isEmpty())
-            boxes = null;
-        
-        boxCache.put(layer, boxes);
-        return boxes;
+        return boxCache;
     }
     
 }

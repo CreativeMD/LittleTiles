@@ -24,8 +24,8 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
@@ -411,12 +411,11 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public void getRenderingBoxes(BlockPos pos, RenderType layer, IndexedCollector<LittleRenderBox> cubes) {
+    public void getRenderingBoxes(BlockPos pos, ChunkLayerMapList<LittleRenderBox> cubes) {
         if (ColorUtils.isInvisible(color))
             return;
         
-        if (layer != (ColorUtils.isTransparent(color) ? RenderType.translucent() : RenderType.solid()))
-            return;
+        RenderType layer = ColorUtils.isTransparent(color) ? RenderType.translucent() : RenderType.solid();
         
         try {
             SurroundingBox box = getSurroundingBox();
@@ -427,13 +426,13 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
             BlockPos difference = pos.subtract(box.getMinPos());
             overallBox.sub(box.getGrid().toGrid(difference.getX()), box.getGrid().toGrid(difference.getY()), box.getGrid().toGrid(difference.getZ()));
             
-            render(box, overallBox, cubes);
+            render(box, overallBox, cubes.getOrCreate(layer));
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
     @OnlyIn(Dist.CLIENT)
     public void renderFace(Facing facing, LittleGrid grid, LittleBox renderBox, int distance, Axis axis, Axis one, Axis two, boolean positive, boolean oneSidedRenderer,
-            IndexedCollector<LittleRenderBox> cubes) {
+            List<LittleRenderBox> cubes) {
         if (positive) {
             renderBox.setMin(axis, renderBox.getMax(axis));
             renderBox.setMax(axis, renderBox.getMax(axis) + distance);
@@ -464,7 +463,7 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void render(SurroundingBox box, LittleBox overallBox, IndexedCollector<LittleRenderBox> cubes) {
+    public void render(SurroundingBox box, LittleBox overallBox, List<LittleRenderBox> cubes) {
         
         for (int i = 0; i < faces.length; i++) {
             if (faces[i] == null)

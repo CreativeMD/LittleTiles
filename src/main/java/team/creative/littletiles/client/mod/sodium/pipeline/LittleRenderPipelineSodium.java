@@ -3,7 +3,6 @@ package team.creative.littletiles.client.mod.sodium.pipeline;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -14,6 +13,7 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
@@ -29,9 +29,10 @@ import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.buffers.ChunkModelBuilder;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
+import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRenderPasses;
+import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
@@ -58,15 +59,16 @@ import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.type.list.IndexedCollector;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
+import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.mod.iris.IrisManager;
 import team.creative.littletiles.client.mod.sodium.SodiumInteractor;
 import team.creative.littletiles.client.mod.sodium.buffer.SodiumBufferCache;
+import team.creative.littletiles.client.mod.sodium.data.ChunkLayerMapSodium;
 import team.creative.littletiles.client.mod.sodium.level.LittleLevelSliceExtender;
 import team.creative.littletiles.client.mod.sodium.renderer.BlockRendererExtender;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
@@ -83,6 +85,7 @@ import team.creative.littletiles.mixin.sodium.ChunkBuilderAccessor;
 import team.creative.littletiles.mixin.sodium.ChunkMeshBufferBuilderAccessor;
 import team.creative.littletiles.mixin.sodium.RenderSectionManagerAccessor;
 import team.creative.littletiles.mixin.sodium.SodiumWorldRendererAccessor;
+import team.creative.littletiles.mixin.sodium.TerrainRenderPassAccessor;
 
 public class LittleRenderPipelineSodium extends LittleRenderPipeline {
     
@@ -107,17 +110,17 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
     public BlockRenderContext context = new BlockRenderContext(slice, null);
     private Set<TextureAtlasSprite> sprites = new ObjectOpenHashSet<>();
     private MutableBlockPos modelOffset = new MutableBlockPos();
-    private IntArrayList[] indexes;
+    private ChunkLayerMapSodium<IntArrayList[]> indexes = new ChunkLayerMapSodium<>(x -> {
+        var index = new IntArrayList[ModelQuadFacing.COUNT];
+        for (int i = 0; i < index.length; i++)
+            index[i] = new IntArrayList();
+        return index;
+    });
     private MutableBlockPos scratchColorPos = new MutableBlockPos();
-    private int[] faceCounters = new int[ModelQuadFacing.COUNT];
     private int[] colors = new int[4];
     private Vec3d cubeCenter = new Vec3d();
     
-    public LittleRenderPipelineSodium() {
-        indexes = new IntArrayList[ModelQuadFacing.COUNT];
-        for (int i = 0; i < indexes.length; i++)
-            indexes[i] = new IntArrayList();
-    }
+    public LittleRenderPipelineSodium() {}
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferCache> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
@@ -146,124 +149,145 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
         ((BlockRendererExtender) renderer).setOffset(modelOffset);
         
         MutableQuadViewImpl editorQuad = ((BlockRendererExtender) renderer).getEditorQuadAndClear();
+        for (TerrainRenderPass pass : DefaultTerrainRenderPasses.ALL) {
+            var layerBuilder = buildBuffers.get(pass);
+            for (int i = 0; i < ModelQuadFacing.VALUES.length; i++)
+                layerBuilder.getVertexBuffer(ModelQuadFacing.VALUES[i]).start(data.sectionIndex());
+        }
         
-        // Render vertex buffer
-        for (Tuple<RenderType, IndexedCollector<LittleRenderBox>> entry : data.be.render.boxCache.tuples()) {
-            
-            Material material = DefaultMaterials.forRenderLayer(entry.getKey());
-            ChunkModelBuilder builder = buildBuffers.get(material);
-            
-            IndexedCollector<LittleRenderBox> cubes = entry.value;
-            if (cubes == null || cubes.isEmpty())
+        for (Entry<ChunkLayerMapList<LittleRenderBox>> entry : data.be.render.cachedBoxes().int2ObjectEntrySet()) {
+            ChunkLayerMapList<LittleRenderBox> structureMap = entry.getValue();
+            if (structureMap == null || structureMap.isEmpty())
                 continue;
             
-            for (int i = 0; i < ModelQuadFacing.VALUES.length; i++)
-                builder.getVertexBuffer(ModelQuadFacing.VALUES[i]).start(data.sectionIndex());
-            
-            Arrays.fill(faceCounters, 0);
-            
-            for (Iterator<LittleRenderBox> iterator = cubes.sectionIterator(x -> {
-                for (int i = 0; i < indexes.length; i++) {
-                    indexes[i].add(x);
-                    ChunkMeshBufferBuilderAccessor a = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
-                    indexes[i].add(a.getVertexCount() * a.getStride());
-                }
-            });iterator.hasNext();) {
-                LittleRenderBox cube = iterator.next();
-                BlockState state = cube.state;
+            for (Tuple<RenderType, List<LittleRenderBox>> tuple : structureMap.tuples()) {
+                var cubes = tuple.value;
+                if (cubes.isEmpty())
+                    continue;
                 
-                context.update(pos, modelOffset, state, null, 0);
-                cubeCenter.set((cube.maxX + cube.minX) * 0.5, (cube.maxY + cube.minY) * 0.5, (cube.maxZ + cube.minZ) * 0.5);
+                Material material = DefaultMaterials.forRenderLayer(tuple.key);
                 
-                ColorProvider<BlockState> colorizer = null;
-                
-                if (IrisManager.isShaders()) {
-                    if (state.getBlock() instanceof IFakeRenderingBlock fake)
-                        state = fake.getFakeState(state);
-                    IrisManager.beginBlock(buildBuffers, state, pos);
-                }
-                
-                for (int h = 0; h < Facing.VALUES.length; h++) {
-                    Facing facing = Facing.VALUES[h];
-                    Object quadObject = cube.getQuad(facing);
-                    List<BakedQuad> quads = null;
-                    if (quadObject instanceof List) {
-                        quads = (List<BakedQuad>) quadObject;
-                    } else if (quadObject instanceof BakedQuad quad) {
-                        bakedQuadWrapper.setElement(quad);
-                        quads = bakedQuadWrapper;
+                for (LittleRenderBox cube : cubes) {
+                    BlockState state = cube.state;
+                    context.update(pos, modelOffset, state, null, 0);
+                    cubeCenter.set((cube.maxX + cube.minX) * 0.5, (cube.maxY + cube.minY) * 0.5, (cube.maxZ + cube.minZ) * 0.5);
+                    
+                    ColorProvider<BlockState> colorizer = null;
+                    
+                    if (IrisManager.isShaders()) {
+                        if (state.getBlock() instanceof IFakeRenderingBlock fake)
+                            state = fake.getFakeState(state);
+                        IrisManager.beginBlock(buildBuffers, state, pos);
                     }
-                    if (quads != null && !quads.isEmpty()) {
-                        Direction direction = facing.toVanilla();
-                        
-                        for (BakedQuad quad : quads) {
-                            editorQuad.fromVanilla(quad, (entry.getKey() == RenderType.tripwire() || entry.getKey() == RenderType
-                                    .translucent()) ? TRANSLUCENT_MATERIAL : STANDARD_MATERIALS[AmbientOcclusionMode.DEFAULT.ordinal()], direction);
+                    
+                    for (int h = 0; h < Facing.VALUES.length; h++) {
+                        Facing facing = Facing.VALUES[h];
+                        Object quadObject = cube.getQuad(facing);
+                        List<BakedQuad> quads = null;
+                        if (quadObject instanceof List q)
+                            quads = q;
+                        else if (quadObject instanceof BakedQuad quad) {
+                            bakedQuadWrapper.setElement(quad);
+                            quads = bakedQuadWrapper;
+                        }
+                        if (quads != null && !quads.isEmpty()) {
+                            Direction direction = facing.toVanilla();
                             
-                            RenderMaterial mat = editorQuad.material();
-                            
-                            boolean hasColor = false;
-                            if (cube.color != -1) {
-                                int color = ColorARGB.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color), ColorUtils.alpha(cube.color));
-                                Arrays.fill(colors, color);
-                                hasColor = true;
-                            } else if (!mat.disableColorIndex() && editorQuad.hasColor()) {
-                                if (colorizer == null)
-                                    colorizer = colorProvider.getColorProvider(state.getBlock());
+                            for (BakedQuad quad : quads) {
+                                editorQuad.fromVanilla(quad, (tuple.key == RenderType.tripwire() || tuple.key == RenderType
+                                        .translucent()) ? TRANSLUCENT_MATERIAL : STANDARD_MATERIALS[AmbientOcclusionMode.DEFAULT.ordinal()], direction);
                                 
-                                colorizer.getColors(slice, pos, scratchColorPos, state, editorQuad, colors);
-                                hasColor = true;
-                            } else
-                                Arrays.fill(colors, -1);
-                            
-                            if (hasColor)
-                                for (int i = 0; i < 4; ++i)
-                                    editorQuad.color(i, ColorMixer.mulComponentWise(colors[i], editorQuad.color(i)));
+                                RenderMaterial mat = editorQuad.material();
                                 
-                            lighter.calculate(editorQuad, pos, cachedQuadLightData, editorQuad.cullFace(), editorQuad.lightFace(), editorQuad.hasShade(), mat
-                                    .shadeMode() == ShadeMode.ENHANCED);
-                            if (mat.emissive())
-                                for (int i = 0; i < 4; ++i)
-                                    editorQuad.lightmap(i, 15728880);
-                            else
-                                for (int i = 0; i < 4; ++i)
-                                    editorQuad.lightmap(i, ColorHelper.maxBrightness(editorQuad.lightmap(i), cachedQuadLightData.lm[i]));
+                                boolean hasColor = false;
+                                if (cube.color != -1) {
+                                    int color = ColorARGB.pack(ColorUtils.red(cube.color), ColorUtils.green(cube.color), ColorUtils.blue(cube.color), ColorUtils.alpha(cube.color));
+                                    Arrays.fill(colors, color);
+                                    hasColor = true;
+                                } else if (!mat.disableColorIndex() && editorQuad.hasColor()) {
+                                    if (colorizer == null)
+                                        colorizer = colorProvider.getColorProvider(state.getBlock());
+                                    
+                                    colorizer.getColors(slice, pos, scratchColorPos, state, editorQuad, colors);
+                                    hasColor = true;
+                                } else
+                                    Arrays.fill(colors, -1);
                                 
-                            ((BlockRendererExtender) renderer).callBufferQuad(editorQuad, cachedQuadLightData.br, material);
-                            TextureAtlasSprite sprite = editorQuad.cachedSprite();
-                            if (sprite != null && SpriteUtil.hasAnimation(sprite))
-                                sprites.add(sprite);
-                            
-                            editorQuad.clear();
+                                if (hasColor)
+                                    for (int i = 0; i < 4; ++i)
+                                        editorQuad.color(i, ColorMixer.mulComponentWise(colors[i], editorQuad.color(i)));
+                                    
+                                lighter.calculate(editorQuad, pos, cachedQuadLightData, editorQuad.cullFace(), editorQuad.lightFace(), editorQuad.hasShade(), mat
+                                        .shadeMode() == ShadeMode.ENHANCED);
+                                if (mat.emissive())
+                                    for (int i = 0; i < 4; ++i)
+                                        editorQuad.lightmap(i, 15728880);
+                                else
+                                    for (int i = 0; i < 4; ++i)
+                                        editorQuad.lightmap(i, ColorHelper.maxBrightness(editorQuad.lightmap(i), cachedQuadLightData.lm[i]));
+                                    
+                                ((BlockRendererExtender) renderer).callBufferQuad(editorQuad, cachedQuadLightData.br, material);
+                                TextureAtlasSprite sprite = editorQuad.cachedSprite();
+                                if (sprite != null && SpriteUtil.hasAnimation(sprite))
+                                    sprites.add(sprite);
+                                
+                                editorQuad.clear();
+                            }
                         }
                     }
+                    
+                    bakedQuadWrapper.setElement(null);
+                    
+                    IrisManager.resetBlockContext(buildBuffers);
+                    
+                    if (!LittleTiles.CONFIG.rendering.useQuadCache)
+                        cube.deleteQuadCache();
                 }
-                
-                bakedQuadWrapper.setElement(null);
-                
-                IrisManager.resetBlockContext(buildBuffers);
-                
-                if (!LittleTiles.CONFIG.rendering.useQuadCache)
-                    cube.deleteQuadCache();
             }
             
-            BufferHolder[] holders = new BufferHolder[ModelQuadFacing.COUNT];
-            int count = indexes[0].size() / 2;
+            // This is necessary because sometimes the quads get piped to a different layer then it was originally specified
+            for (TerrainRenderPass pass : DefaultTerrainRenderPasses.ALL) {
+                var builder = buildBuffers.get(pass);
+                if (builder == null)
+                    continue;
+                var indexArray = indexes.get(pass);
+                for (int i = 0; i < indexArray.length; i++) {
+                    ChunkMeshBufferBuilderAccessor a = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
+                    int index = a.getVertexCount() * a.getStride();
+                    if (index == 0)
+                        continue;
+                    else if (indexArray[i].size() > 0 && indexArray[i].getInt(indexArray[i].size() - 1) == index)
+                        continue;
+                    indexArray[i].add(entry.getIntKey());
+                    indexArray[i].add(index);
+                }
+            }
             
-            if (entry.getKey() == RenderType.translucent()) {
+        }
+        
+        for (TerrainRenderPass pass : DefaultTerrainRenderPasses.ALL) {
+            var builder = buildBuffers.get(pass);
+            if (builder == null)
+                continue;
+            
+            var indexArray = indexes.get(pass);
+            BufferHolder[] holders = new BufferHolder[ModelQuadFacing.COUNT];
+            int count = indexArray[0].size() / 2;
+            
+            if (pass.isTranslucent()) {
                 // For translucent stuff the rendering data is all put into the unassigned face.
                 // Which means we need to put all the data in that buffer while making sure the structure indexes still match
                 IntList newIndexes = new IntArrayList();
                 int size = 0;
                 int vertexCount = 0;
                 
-                for (int i = 0; i < indexes.length; i++) {
+                for (int i = 0; i < indexArray.length; i++) {
                     ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
                     int bufferSize = v.getStride() * v.getVertexCount();
-                    for (int j = 0; j < indexes[i].size(); j += 2) {
-                        int start = indexes[i].getInt(j + 1);
-                        int next = indexes[i].size() > j + 3 ? indexes[i].getInt(j + 3) : bufferSize;
-                        addIndexGroup(newIndexes, indexes[i].getInt(j), next - start);
+                    for (int j = 0; j < indexArray[i].size(); j += 2) {
+                        int start = indexArray[i].getInt(j + 1);
+                        int next = indexArray[i].size() > j + 3 ? indexArray[i].getInt(j + 3) : bufferSize;
+                        addIndexGroup(newIndexes, indexArray[i].getInt(j), next - start);
                     }
                     size += bufferSize;
                     vertexCount += v.getVertexCount();
@@ -282,29 +306,29 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     current += length;
                 }
                 
-                for (int i = 0; i < indexes.length; i++) {
+                for (int i = 0; i < indexArray.length; i++) {
                     ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
                     ByteBuffer threadBuffer = v.getBuffer();
                     int bufferSize = v.getStride() * v.getVertexCount();
                     int threadIndex = 0;
-                    for (int j = 0; j < indexes[i].size(); j += 2) {
-                        int start = indexes[i].getInt(j + 1);
-                        int next = indexes[i].size() > j + 3 ? indexes[i].getInt(j + 3) : bufferSize;
+                    for (int j = 0; j < indexArray[i].size(); j += 2) {
+                        int start = indexArray[i].getInt(j + 1);
+                        int next = indexArray[i].size() > j + 3 ? indexArray[i].getInt(j + 3) : bufferSize;
                         int length = next - start;
                         if (length == 0)
                             continue;
-                        var b = bufferMap.get(indexes[i].getInt(j));
+                        var b = bufferMap.get(indexArray[i].getInt(j));
                         b.put(b.position(), threadBuffer, threadIndex, length);
                         b.position(b.position() + length);
                         threadIndex += length;
                     }
                     
-                    indexes[i].clear();
+                    indexArray[i].clear();
                 }
                 
                 holders[ModelQuadFacing.UNASSIGNED.ordinal()] = new BufferHolder(buffer, size, vertexCount, correctIndexes);
             } else {
-                for (int i = 0; i < indexes.length; i++) {
+                for (int i = 0; i < indexArray.length; i++) {
                     ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
                     if (v.getVertexCount() > 0) {
                         ByteBuffer buffer = ByteBuffer.allocateDirect(v.getStride() * v.getVertexCount());
@@ -312,13 +336,13 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                         threadBuffer.limit(buffer.capacity());
                         MemoryUtil.memCopy(threadBuffer, buffer);
                         threadBuffer.limit(threadBuffer.capacity());
-                        holders[i] = new BufferHolder(buffer, buffer.limit(), v.getVertexCount(), indexes[i].toIntArray());
-                        indexes[i].clear();
+                        holders[i] = new BufferHolder(buffer, buffer.limit(), v.getVertexCount(), indexArray[i].toIntArray());
+                        indexArray[i].clear();
                     }
                 }
             }
             
-            buffers.put(entry.key, new SodiumBufferCache(holders, new ArrayList<>(sprites), count));
+            buffers.put(((TerrainRenderPassAccessor) pass).getRenderType(), new SodiumBufferCache(holders, new ArrayList<>(sprites), count));
             sprites.clear();
         }
         
