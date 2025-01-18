@@ -448,7 +448,9 @@ public class PreviewRenderer implements LevelAwareHandler {
                                     cube.renderLines(pose, bufferbuilder, colorAlpha, cube.getCenter(), 0.002);
                         }
                         
-                        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+                        var mesh = bufferbuilder.build();
+                        if (mesh != null)
+                            BufferUploader.drawWithShader(mesh);
                         pose.popPose();
                     }
                 }
