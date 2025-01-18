@@ -1,3 +1,8 @@
+1.6.0-pre152
+Fixed particle emitter not working on server side
+Fixed crash with rendering preview if nothing is drawn (fixes replace curve crash)
+Added proper support for blocks to be placed on top of tiles
+
 1.6.0-pre151
 Fixed all blocks being invisible after recent update
 
