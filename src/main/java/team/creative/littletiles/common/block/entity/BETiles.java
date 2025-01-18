@@ -986,7 +986,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             return calculateState(facing, box);
         }
         
-        protected SideState calculateState(Facing facing, LittleBox box) {
+        public SideState calculateState(Facing facing, LittleBox box) {
             LittleVec size = box.getSize();
             boolean[][][] filled = new boolean[size.x][size.y][size.z];
             
