@@ -235,6 +235,10 @@ public class LittleGrid {
         return (int) pos;
     }
     
+    public int toGridUp(double pos) {
+        return (int) Math.ceil(LittleUtils.round(pos * count));
+    }
+    
     public int findNextValue(int value, int grid, boolean positive) {
         int index = value;
         if (value < 0 || value > count)

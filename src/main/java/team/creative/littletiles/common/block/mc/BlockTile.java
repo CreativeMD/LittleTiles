@@ -41,6 +41,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.SimpleWaterloggedBlock;
 import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.SupportType;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
@@ -799,22 +800,36 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         return structureResistance;
     }
     
-    /*@Override
-    public BlockState getFacade(LevelAccessor level, BlockPos pos, Direction side) {
-        return defaultBlockState();
-    }
-    
-    @Override
-    public BlockState getFacade(LevelAccessor level, BlockPos pos, Direction side, BlockPos connection) {
-        BETiles te = loadBE(level, pos);
-        if (te != null) {
-            BlockState lookingFor = level.getBlockState(connection);
-            for (Pair<IParentCollection, LittleTile> pair : te.allTiles())
-                if (pair.value.getState() == lookingFor)
-                    return lookingFor;
+    public boolean isFaceSturdy(BlockGetter level, BlockPos pos, Direction diretion, SupportType support) {
+        BETiles be = loadBE(level, pos);
+        if (be == null)
+            return false;
+        
+        Facing facing = Facing.get(diretion);
+        if (be.sideCache.get(facing).doesBlockCollision())
+            return true;
+        if (support == SupportType.FULL)
+            return false;
+        
+        LittleBox box = new LittleBox(0, 0, 0, 0, 0, 0);
+        if (facing.positive)
+            box.setMinMax(facing.axis, be.getGrid().count - 1, be.getGrid().count);
+        else
+            box.setMinMax(facing.axis, 0, 1);
+        double minPrecise = 0;
+        double maxPrecise = 1;
+        if (support == SupportType.CENTER) {
+            minPrecise = 0.4375; // 7 / 16
+            maxPrecise = 0.5625; // 9 / 16
+        } else if (support == SupportType.RIGID) {
+            minPrecise = 0.125; // 2 / 16
+            maxPrecise = 0.875; // 14 / 16
         }
-        return this.defaultBlockState();
-    }*/
+        int min = be.getGrid().toGrid(minPrecise);
+        int max = be.getGrid().toGridUp(maxPrecise);
+        box.setMinMax(facing.axis.one(), min, max, facing.axis.two(), min, max);
+        return be.sideCache.calculateState(facing, box).doesBlockCollision();
+    }
     
     @Override
     public void onBlockExploded(BlockState state, Level level, BlockPos pos, Explosion explosion) {

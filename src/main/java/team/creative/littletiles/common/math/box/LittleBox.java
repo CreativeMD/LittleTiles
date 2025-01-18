@@ -305,6 +305,18 @@ public class LittleBox {
         };
     }
     
+    public void setMinMax(Axis axis, int min, int max) {
+        setMin(axis, min);
+        setMax(axis, max);
+    }
+    
+    public void setMinMax(Axis one, int minOne, int maxOne, Axis two, int minTwo, int maxTwo) {
+        setMin(one, minOne);
+        setMax(one, maxOne);
+        setMin(two, minTwo);
+        setMax(two, maxTwo);
+    }
+    
     public LittleVec[] getCorners() {
         LittleVec[] corners = new LittleVec[BoxCorner.values().length];
         
