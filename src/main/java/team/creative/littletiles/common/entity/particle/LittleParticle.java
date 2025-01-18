@@ -73,7 +73,7 @@ public class LittleParticle extends TextureSheetParticle {
     
     @Override
     public ParticleRenderType getRenderType() {
-        return settings.texture.type;
+        return settings.texture.type.toVanilla();
     }
     
 }
