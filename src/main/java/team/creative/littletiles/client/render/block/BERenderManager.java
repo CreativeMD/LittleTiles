@@ -231,18 +231,19 @@ public class BERenderManager {
         if (neighbourChanged) {
             neighbourChanged = false;
             
-            for (ChunkLayerMapList<LittleRenderBox> map : boxCache.values())
-                for (LittleRenderBox cube : map)
-                    for (int k = 0; k < Facing.VALUES.length; k++) {
-                        Facing facing = Facing.VALUES[k];
-                        if (cube.box == null)
-                            continue;
-                        LittleFaceState state = cube.box.getFaceState(facing);
-                        
-                        if (state.outside())
-                            calculateFaces(facing, state, context, (LittleTile) cube.customData, cube.box, cube);
-                    }
-                
+            if (boxCache != null)
+                for (ChunkLayerMapList<LittleRenderBox> map : boxCache.values())
+                    for (LittleRenderBox cube : map)
+                        for (int k = 0; k < Facing.VALUES.length; k++) {
+                            Facing facing = Facing.VALUES[k];
+                            if (cube.box == null)
+                                continue;
+                            LittleFaceState state = cube.box.getFaceState(facing);
+                            
+                            if (state.outside())
+                                calculateFaces(facing, state, context, (LittleTile) cube.customData, cube.box, cube);
+                        }
+                    
         }
     }
     
