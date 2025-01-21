@@ -30,6 +30,10 @@ public class BufferHolder implements BufferCache {
     private ByteBuffer buffer;
     private int length;
     private int vertexCount;
+    /** format is structure index followed by the end index. To get the start of a structure the index before has to be considered (if it is the first the start will be 0).
+     * Example: [-1, 120, 1, 160]
+     * Structure -1: 0-120
+     * Structure 1: 120-160 */
     private final int[] indexes;
     private int groupCount;
     
@@ -276,17 +280,14 @@ public class BufferHolder implements BufferCache {
         int entryIndex = -1;
         for (int i = 0; i < indexes.length; i += 2) {
             if (indexes[i] == index) {
-                start = indexes[i + 1];
+                start = i == 0 ? 0 : indexes[i - 1];
                 entryIndex = i;
-            } else if (start != -1) {
                 length = indexes[i + 1] - start;
                 break;
             }
         }
         if (start == -1)
             return null;
-        if (length == -1)
-            length = length() - start;
         if (length == 0)
             return null;
         
@@ -296,6 +297,7 @@ public class BufferHolder implements BufferCache {
         newBuffer.put(0, buffer, start, length);
         newBuffer.rewind();
         removeEntry(length, vertexCount); // Notify buffer holder of changed length and vertexCount
+        indexes[entryIndex + 1] = start;
         
         if (entryIndex < indexes.length - 2) { // Remove extracted data from buffer holder
             buffer.put(start, buffer, start + length, buffer.limit() - (start + length));

@@ -285,8 +285,8 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
                     int bufferSize = v.getStride() * v.getVertexCount();
                     for (int j = 0; j < indexArray[i].size(); j += 2) {
-                        int start = indexArray[i].getInt(j + 1);
-                        int next = indexArray[i].size() > j + 3 ? indexArray[i].getInt(j + 3) : bufferSize;
+                        int start = j == 0 ? 0 : indexArray[i].getInt(j - 1);
+                        int next = indexArray[i].getInt(j + 1);
                         addIndexGroup(newIndexes, indexArray[i].getInt(j), next - start);
                     }
                     size += bufferSize;
@@ -309,11 +309,10 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                 for (int i = 0; i < indexArray.length; i++) {
                     ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
                     ByteBuffer threadBuffer = v.getBuffer();
-                    int bufferSize = v.getStride() * v.getVertexCount();
                     int threadIndex = 0;
                     for (int j = 0; j < indexArray[i].size(); j += 2) {
-                        int start = indexArray[i].getInt(j + 1);
-                        int next = indexArray[i].size() > j + 3 ? indexArray[i].getInt(j + 3) : bufferSize;
+                        int start = j == 0 ? 0 : indexArray[i].getInt(j - 1);
+                        int next = indexArray[i].getInt(j + 1);
                         int length = next - start;
                         if (length == 0)
                             continue;
