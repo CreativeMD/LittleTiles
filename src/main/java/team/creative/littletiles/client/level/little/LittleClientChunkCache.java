@@ -31,8 +31,8 @@ public class LittleClientChunkCache extends ClientChunkCache {
     }
     
     public void init(LittleClientLevel level) {
-        ((ClientChunkCacheAccessor) this).setLevel(level);
-        ((ClientChunkCacheAccessor) this).setLightEngine(new LevelLightEngine(this, true, level.dimensionType().hasSkyLight()));
+        ((ClientChunkCacheMixin) (Object) this).setLevel(level);
+        ((ClientChunkCacheMixin) (Object) this).setLightEngine(new LevelLightEngine(this, true, level.dimensionType().hasSkyLight()));
         this.chunks = new HashMap<>();
     }
     
