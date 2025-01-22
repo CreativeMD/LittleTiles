@@ -35,6 +35,7 @@
         "client.MinecraftMixin",
         "client.MultiPlayerGameModeAccessor",
         "client.level.ClientLevelMixin",
+        "client.level.ClientChunkCacheAccessor",
         "client.level.ClientChunkCacheMixin",
         "client.level.BlockStatePredictionHandlerMixin",
         "client.level.ServerVerifiedStateAccessor",

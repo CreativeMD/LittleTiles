@@ -20,7 +20,7 @@ import net.minecraft.world.level.chunk.status.ChunkStatus;
 import net.minecraft.world.level.lighting.LevelLightEngine;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.ChunkEvent;
-import team.creative.littletiles.mixin.client.level.ClientChunkCacheMixin;
+import team.creative.littletiles.mixin.client.level.ClientChunkCacheAccessor;
 
 public class LittleClientChunkCache extends ClientChunkCache {
     
@@ -31,8 +31,8 @@ public class LittleClientChunkCache extends ClientChunkCache {
     }
     
     public void init(LittleClientLevel level) {
-        ((ClientChunkCacheMixin) (Object) this).setLevel(level);
-        ((ClientChunkCacheMixin) (Object) this).setLightEngine(new LevelLightEngine(this, true, level.dimensionType().hasSkyLight()));
+        ((ClientChunkCacheAccessor) this).setLevel(level);
+        ((ClientChunkCacheAccessor) this).setLightEngine(new LevelLightEngine(this, true, level.dimensionType().hasSkyLight()));
         this.chunks = new HashMap<>();
     }
     
