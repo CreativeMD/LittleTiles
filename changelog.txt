@@ -1,3 +1,6 @@
+1.6.0-pre154
+Fixed crash with creating little levels in recipe gui
+
 1.6.0-pre153
 Fixed not working properly with new buffer index format which caused issues with sodium translucent layer and rendering glitches during door transitions
 Fixed neighbour update causing small error
