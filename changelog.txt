@@ -1,3 +1,6 @@
+1.6.0-pre155
+Fixed all and operators not working properly for signals
+
 1.6.0-pre154
 Fixed crash with creating little levels in recipe gui
 
