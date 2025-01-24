@@ -514,6 +514,14 @@ public enum SignalLogicOperator {
             
             SignalState result = size.create();
             for (int i = 0; i < state.length; i++) {
+                if (i == 0) {
+                    switch (size) {
+                        case SINGLE -> result = result.set(0, state[i].any());
+                        case INT -> result = result.setNumber(state[i].size() == SignalStateSize.SINGLE ? -1 : state[i].number());
+                        case LONG -> result = result.setLongNumber(state[i].size() == SignalStateSize.SINGLE ? -1L : state[i].longNumber());
+                    }
+                    continue;
+                }
                 switch (size) {
                     case SINGLE -> result = result.set(0, operator().perform(result.any(), state[i].any()));
                     case INT -> result = result.setNumber(operator().perform(result.number(), state[i].size() == SignalStateSize.SINGLE ? -1 : state[i].number()));
@@ -597,6 +605,14 @@ public enum SignalLogicOperator {
             
             SignalState result = size.create();
             for (int i = 0; i < state.length; i++) {
+                if (i == 0) {
+                    switch (size) {
+                        case SINGLE -> result = result.set(0, state[i].any());
+                        case INT -> result = result.setNumber(state[i].size() == SignalStateSize.SINGLE ? -1 : state[i].number());
+                        case LONG -> result = result.setLongNumber(state[i].size() == SignalStateSize.SINGLE ? -1L : state[i].longNumber());
+                    }
+                    continue;
+                }
                 switch (size) {
                     case SINGLE -> result = result.set(0, operator().perform(result.any(), state[i].any()));
                     case INT -> result = result.setNumber(operator().perform(result.number(), state[i].number()));
