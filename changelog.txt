@@ -1,3 +1,6 @@
+1.6.0-pre155
+Fixed all and operators not working properly for signal
+
 1.6.0-pre152
 Fixed particle emitter not working on server side
 Fixed crash with rendering preview if nothing is drawn (fixes replace curve crash)
