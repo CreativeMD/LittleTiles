@@ -42,7 +42,6 @@ import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.mod.sodium.SodiumSectionCameraPos;
 import team.creative.littletiles.client.mod.sodium.buffer.SodiumAppendChunkBufferUploader;
 import team.creative.littletiles.client.mod.sodium.buffer.SodiumChunkBufferDownloader;
@@ -247,7 +246,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         GlVertexFormat format = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType().getVertexFormat();
         SodiumAppendChunkBufferUploader uploader = new SodiumAppendChunkBufferUploader();
         
-        for (RenderType layer : SodiumManager.chunkBufferLayers()) {
+        for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
             
             int size = 0;
             for (LayeredBufferCache data : blocks)

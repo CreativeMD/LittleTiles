@@ -29,7 +29,6 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
@@ -127,7 +126,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             }
         }
         
-        for (RenderType layer : SodiumManager.chunkBufferLayers()) {
+        for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
             var builder = builders.get(layer);
             if (builder == null)
                 continue;

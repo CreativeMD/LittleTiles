@@ -60,7 +60,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     }
     
     protected final ChunkLayerMap<VertexBuffer> buffers = new ChunkLayerMap<>();
-    protected final Set<RenderType> hasBlocks = new ObjectArraySet<>(SodiumManager.chunkBufferLayers().size());
+    protected final Set<RenderType> hasBlocks = new ObjectArraySet<>(RenderType.CHUNK_BUFFER_LAYERS.size());
     protected List<BlockEntity> renderableBlockEntities = new ArrayList<>();
     protected MeshData.SortState transparencyState;
     protected boolean needsUpdate = false;

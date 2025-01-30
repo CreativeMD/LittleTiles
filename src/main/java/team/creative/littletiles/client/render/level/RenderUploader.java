@@ -19,7 +19,6 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LittleAnimationHandlerClient;
-import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.IBlockBufferCache;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.AdditionalBuffers;
@@ -153,7 +152,7 @@ public class RenderUploader {
                 Vec3 vec = RenderingLevelHandler.offsetCorrection(target, targetLevel, origin, originLevel, pos);
                 
                 LayeredBufferCache layers = new LayeredBufferCache();
-                for (RenderType layer : SodiumManager.chunkBufferLayers()) {
+                for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
                     BufferCache holder = cache.get(layer);
                     if (holder == null)
                         continue;
