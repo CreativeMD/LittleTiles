@@ -1,3 +1,6 @@
+1.6.0-pre157
+Fixed block emitting light not getting properly remembered when loading chunk again
+
 1.6.0-pre156
 Fixed not rendering glass or leaves with sodium
 
