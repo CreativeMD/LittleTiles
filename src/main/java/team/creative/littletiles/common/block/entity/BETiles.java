@@ -62,6 +62,8 @@ import team.creative.littletiles.common.math.transformation.LittleBlockTransform
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
 public class BETiles extends BlockEntityCreative implements IGridBased, ILittleBlockEntity {
     
@@ -191,7 +193,25 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public void updateLighting() {
-        level.getLightEngine().checkBlock(getBlockPos());
+        var aux = level.getAuxLightManager(worldPosition);
+        if (aux == null)
+            return;
+        aux.setLightAt(worldPosition, calculateLightEmission());
+    }
+    
+    public int calculateLightEmission() {
+        int light = 0;
+        for (IParentCollection list : groups()) {
+            if (list.isStructure() && LittleStructureAttribute.lightEmitter(list.getAttribute()))
+                try {
+                    light = Math.max(light, list.getStructure().getLightValue(worldPosition));
+                    continue;
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            
+            for (LittleTile tile : list)
+                light = Math.max(light, (int) Math.ceil(tile.getLightValue() * tile.getPercentVolume(grid)));
+        }
+        return light;
     }
     
     public BETiles forceSupportAttribute(int attribute) {

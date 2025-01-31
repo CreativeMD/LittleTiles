@@ -514,32 +514,17 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         return super.getMapColor(state, level, pos, defaultColor);
     }
     
-    private boolean lightLoopPreventer = true;
-    
     @Override
     public int getLightEmission(BlockState state, BlockGetter level, BlockPos pos) {
-        int light = 0;
-        if (!lightLoopPreventer)
-            return 0;
-        BETiles te = loadBE(level, pos);
-        if (te != null) {
-            for (IParentCollection list : te.groups()) {
-                if (list.isStructure() && LittleStructureAttribute.lightEmitter(list.getAttribute()))
-                    try {
-                        light = Math.max(light, list.getStructure().getLightValue(pos));
-                        continue;
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-                
-                for (LittleTile tile : list) {
-                    lightLoopPreventer = false;
-                    int tempLight = (int) Math.ceil(tile.getLightValue() * tile.getPercentVolume(te.getGrid()));
-                    lightLoopPreventer = true;
-                    if (tempLight > light)
-                        light = tempLight;
-                }
-            }
-        }
-        return light;
+        var aux = level.getAuxLightManager(pos);
+        if (aux != null)
+            return aux.getLightAt(pos);
+        return 0;
+    }
+    
+    @Override
+    public boolean hasDynamicLightEmission(BlockState state) {
+        return true;
     }
     
     @Override
