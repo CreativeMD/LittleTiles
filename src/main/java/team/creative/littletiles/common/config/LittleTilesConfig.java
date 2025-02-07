@@ -219,6 +219,9 @@ public class LittleTilesConfig {
         public int itemCacheDuration = 5000;
         
         @CreativeConfig
+        public int itemLowResolutionBoxCount = 1000;
+        
+        @CreativeConfig
         public int entityCacheBuildThreads = 1;
         
         @CreativeConfig

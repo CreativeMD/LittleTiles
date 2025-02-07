@@ -18,6 +18,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
@@ -25,6 +26,7 @@ import team.creative.creativecore.common.util.type.Bunch;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
@@ -734,7 +736,12 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     @OnlyIn(Dist.CLIENT)
     public List<RenderBox> getRenderingBoxes(boolean translucent) {
         List<RenderBox> boxes = new ArrayList<>();
-        addRenderingBoxes(boxes, translucent, !hasChildren());
+        if (totalBoxes() > LittleTiles.CONFIG.rendering.itemLowResolutionBoxCount) {
+            LittleVec size = getSize();
+            boxes.add(new RenderBox(new AlignedBox(0, 0, 0, (float) size.getPosX(grid), (float) size.getPosY(grid), (float) size.getPosZ(grid)), LittleTilesRegistry.CLEAN
+                    .value()));
+        } else
+            addRenderingBoxes(boxes, translucent, !hasChildren());
         return boxes;
     }
     
