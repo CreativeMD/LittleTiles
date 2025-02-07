@@ -27,4 +27,9 @@ public class ItemModelCacheLayered extends ItemModelCache {
         return super.getQuads(translucent);
     }
     
+    @Override
+    public boolean hasTranslucent() {
+        return true;
+    }
+    
 }

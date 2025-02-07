@@ -41,4 +41,8 @@ public class ItemModelCache {
         return cache;
     }
     
+    public boolean hasTranslucent() {
+        return false;
+    }
+    
 }

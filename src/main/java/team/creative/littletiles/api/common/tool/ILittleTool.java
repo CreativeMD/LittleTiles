@@ -1,5 +1,7 @@
 package team.creative.littletiles.api.common.tool;
 
+import java.util.function.Consumer;
+
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.nbt.CompoundTag;
@@ -24,11 +26,25 @@ import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting
 
 public interface ILittleTool {
     
+    public static boolean hasData(ItemStack stack) {
+        var data = stack.get(LittleTilesRegistry.DATA.value());
+        if (data != null)
+            return !data.getUnsafe().isEmpty();
+        return false;
+    }
+    
     public static CompoundTag getData(ItemStack stack) {
         var data = stack.get(LittleTilesRegistry.DATA.value());
         if (data != null)
             return data.copyTag();
         return new CompoundTag();
+    }
+    
+    @Deprecated
+    public static void consumeUnsafeData(ItemStack stack, Consumer<CompoundTag> consumer) {
+        var data = stack.get(LittleTilesRegistry.DATA.value());
+        if (data != null)
+            consumer.accept(data.getUnsafe());
     }
     
     public static void setData(ItemStack stack, CompoundTag nbt) {

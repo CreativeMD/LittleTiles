@@ -29,8 +29,8 @@ public class ItemRenderCache implements LevelAwareHandler {
     
     public static CreativeItemBoxModel get(ItemStack stack) {
         BakedModel model = Minecraft.getInstance().getItemRenderer().getModel(stack, null, null, 0);
-        if (model instanceof CreativeBakedBoxModel)
-            return (CreativeItemBoxModel) ((CreativeBakedBoxModel) model).item;
+        if (model instanceof CreativeBakedBoxModel m)
+            return (CreativeItemBoxModel) m.item;
         return null;
     }
     
@@ -47,13 +47,22 @@ public class ItemRenderCache implements LevelAwareHandler {
         return caches.size();
     }
     
+    public boolean hasTranslucent(ItemStack stack) {
+        synchronized (caches) {
+            ItemModelCache cache = caches.get(temp.set(stack));
+            if (cache != null)
+                return cache.hasTranslucent();
+            return false;
+        }
+    }
+    
     public List<BakedQuad> requestCache(ItemStack stack, boolean translucent) {
         synchronized (caches) {
-            if (ILittleTool.getData(stack).isEmpty())
-                return null;
             ItemModelCache cache = caches.get(temp.set(stack));
             if (cache != null)
                 return cache.getQuads(translucent);
+            if (ILittleTool.hasData(stack))
+                return null;
             CreativeItemBoxModel renderer = get(stack);
             if (renderer != null) {
                 if (renderer.hasTranslucentLayer(stack))
@@ -97,7 +106,7 @@ public class ItemRenderCache implements LevelAwareHandler {
         
         public RenderedStack set(ItemStack stack) {
             item = stack.getItem();
-            nbt = ILittleTool.getData(stack);
+            ILittleTool.consumeUnsafeData(stack, x -> nbt = x);
             return this;
         }
         
