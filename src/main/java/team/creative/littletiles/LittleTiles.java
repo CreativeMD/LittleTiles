@@ -8,6 +8,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import net.minecraft.commands.Commands;
+import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -20,6 +21,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModList;
@@ -31,6 +33,7 @@ import net.neoforged.neoforge.common.NeoForgeConfig;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
+import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -58,6 +61,7 @@ import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.LittleToolHandler;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.level.tick.LittleTickers;
@@ -95,8 +99,11 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
+import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 import team.creative.littletiles.common.structure.type.bed.LittleBedEventHandler;
 import team.creative.littletiles.mixin.server.level.ChunkMapAccessor;
 import team.creative.littletiles.server.LittleTilesServer;
@@ -349,88 +356,75 @@ public class LittleTiles {
             return 0;
         }));
         
-        /*event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-open").then(Commands.argument("position", BlockPosArgument.blockPos()).executes((x) -> {
-        List<LittleDoor> doors = new ArrayList<>();
-        
-        BlockPos pos = BlockPosArgument.getLoadedBlockPos(x, "position");
-        Level level = x.getSource().getLevel();
-        
-        for (LittleDoor door : findDoors(LittleAnimationHandlers.get(level), new AABB(pos)))
-            doors.add(door);
-        
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof BETiles) {
-            for (LittleStructure structure : ((BETiles) blockEntity).loadedStructures()) {
-                if (structure instanceof LittleDoor) {
-                    try {
-                        structure = ((LittleDoor) structure).getParentDoor();
-                        if (!doors.contains(structure)) {
-                            try {
-                                structure.checkConnections();
-                                doors.add((LittleDoor) structure);
-                            } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                                x.getSource().sendFailure(Component.translatable("commands.open.notloaded"));
-                            }
-                        }
-                    } catch (LittleActionException e) {}
-                }
-            }
-        }
-        
-        for (LittleDoor door : doors) {
-            try {
-                door.activate(DoorActivator.COMMAND, null, null, true);
-            } catch (LittleActionException e) {}
-        }
-        return 0;
-        })).then(Commands.argument("names", StringArrayArgumentType.stringArray()).executes(x -> {
-        List<LittleDoor> doors = new ArrayList<>();
-        
-        BlockPos pos = BlockPosArgument.getLoadedBlockPos(x, "position");
-        Level level = x.getSource().getLevel();
-        String[] args = StringArrayArgumentType.getStringArray(x, "names");
-        
-        for (LittleDoor door : findDoors(LittleAnimationHandlers.get(level), new AABB(pos)))
-            if (checkStructureName(door, args))
+        event.getServer().getCommands().getDispatcher().register(Commands.literal("lt-open").then(Commands.argument("position", BlockPosArgument.blockPos()).executes((x) -> {
+            List<LittleDoor> doors = new ArrayList<>();
+            
+            BlockPos pos = BlockPosArgument.getLoadedBlockPos(x, "position");
+            Level level = x.getSource().getLevel();
+            
+            for (LittleDoor door : findDoors(ANIMATION_HANDLERS.get(level), new AABB(pos)))
                 doors.add(door);
             
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity instanceof BETiles) {
-            for (LittleStructure structure : ((BETiles) blockEntity).loadedStructures()) {
-                if (structure instanceof LittleDoor) {
-                    try {
-                        structure = ((LittleDoor) structure).getParentDoor();
-                        if (checkStructureName(structure, args) && !doors.contains(structure)) {
-                            try {
-                                structure.checkConnections();
-                                doors.add((LittleDoor) structure);
-                            } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                                x.getSource().sendFailure(Component.translatable("commands.open.notloaded"));
-                            }
-                        }
-                    } catch (LittleActionException e) {}
-                }
-            }
-        }
-        
-        for (LittleDoor door : doors) {
-            try {
-                door.activate(DoorActivator.COMMAND, null, null, true);
-            } catch (LittleActionException e) {}
-        }
-        return 0;
-        })));*/
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof BETiles be)
+                for (LittleStructure structure : be.loadedStructures())
+                    if (structure instanceof LittleDoor d)
+                        try {
+                            structure = d.getParentDoor();
+                            if (!doors.contains(structure))
+                                try {
+                                    structure.checkConnections();
+                                    doors.add(d);
+                                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                                    x.getSource().sendFailure(Component.translatable("commands.open.notloaded"));
+                                }
+                        } catch (LittleActionException e) {}
+                    
+            for (LittleDoor door : doors)
+                door.toggleState();
+            return 0;
+        })).then(Commands.argument("names", StringArrayArgumentType.stringArray()).executes(x -> {
+            List<LittleDoor> doors = new ArrayList<>();
+            
+            BlockPos pos = BlockPosArgument.getLoadedBlockPos(x, "position");
+            Level level = x.getSource().getLevel();
+            String[] args = StringArrayArgumentType.getStringArray(x, "names");
+            
+            for (LittleDoor door : findDoors(ANIMATION_HANDLERS.get(level), new AABB(pos)))
+                if (checkStructureName(door, args))
+                    doors.add(door);
+                
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            if (blockEntity instanceof BETiles be)
+                for (LittleStructure structure : be.loadedStructures())
+                    if (structure instanceof LittleDoor d)
+                        try {
+                            structure = d.getParentDoor();
+                            if (checkStructureName(structure, args) && !doors.contains(structure))
+                                try {
+                                    structure.checkConnections();
+                                    doors.add(d);
+                                } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                                    x.getSource().sendFailure(Component.translatable("commands.open.notloaded"));
+                                }
+                        } catch (LittleActionException e) {}
+                    
+            for (LittleDoor door : doors)
+                door.toggleState();
+            return 0;
+        })));
     }
     
-    /*public static List<LittleDoor> findDoors(LittleAnimationHandler handler, AABB box) {
+    public static List<LittleDoor> findDoors(LittleAnimationHandler handler, AABB box) {
         List<LittleDoor> doors = new ArrayList<>();
-        for (LittleLevelEntity entity : handler.entities)
-            try {
-                if (entity.getStructure() instanceof LittleDoor && entity.getBoundingBox().intersects(box) && !doors.contains(entity.getStructure()))
-                    doors.add(((LittleDoor) entity.getStructure()).getParentDoor());
-            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        for (LittleEntity entity : handler.entities)
+            if (entity instanceof LittleAnimationEntity a)
+                try {
+                    if (a.getStructure() instanceof LittleDoor d && entity.getBoundingBox().intersects(box) && !doors.contains(a.getStructure()))
+                        doors.add(d.getParentDoor());
+                } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         return doors;
-    }*/
+    }
     
     protected boolean checkStructureName(LittleStructure structure, String[] args) {
         for (int i = 0; i < args.length; i++)
