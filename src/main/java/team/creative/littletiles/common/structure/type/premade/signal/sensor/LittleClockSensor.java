@@ -25,7 +25,7 @@ public class LittleClockSensor extends LittleStructurePremade {
         long dayTime = level.dayTime();
         double duration = 24000;
         double fraction = Mth.clamp(dayTime / duration, 0, 1);
-        getInput(0).updateState(SignalState.of((int) (fraction * 16)));
+        getInput(0).updateState(SignalState.of((int) (fraction * 15)));
     }
     
     public static class LittleClockSensorAdvanced extends LittleStructurePremade {
