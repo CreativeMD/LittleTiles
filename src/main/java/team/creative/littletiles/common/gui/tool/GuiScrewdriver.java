@@ -4,25 +4,24 @@ import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
-import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.collection.GuiStackSelector;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.control.simple.GuiColorPicker;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
 import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRules;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
@@ -41,7 +40,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.filter.TileFilters;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
-import team.creative.littletiles.common.gui.controls.filter.GuiElementFilter;
+import team.creative.littletiles.common.gui.control.filter.GuiElementFilter;
 import team.creative.littletiles.common.level.LittleLevelScanner;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.PlacementPreview;
@@ -145,7 +144,7 @@ public class GuiScrewdriver extends GuiConfigure {
                     previews.add(boxes.grid, new LittleElement(replacementBlock.defaultBlockState(), ColorUtils.WHITE), boxes);
                     
                     actions.add(new LittleActionDestroyBoxes(level, boxes));
-                    actions.add(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.absolute(level, PlacementMode.NORMAL, previews, Facing.EAST)));
+                    actions.add(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.absolute(level, PlacementMode.FILL, previews)));
                 }
             }
             
@@ -165,11 +164,11 @@ public class GuiScrewdriver extends GuiConfigure {
     }
     
     @Override
-    public CompoundTag saveConfiguration(CompoundTag nbt) {
+    public boolean saveConfiguration(PatchedDataComponentMap data) {
         if (isClient()) {
             lastSelectedFilter = filter.get();
             lastSelectedReplaceStack = ((GuiStackSelector) get("replacement")).getSelected();
         }
-        return null;
+        return false;
     }
 }

@@ -1,22 +1,9 @@
 package team.creative.littletiles.common.placement.shape.type;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.GuiControl;
-import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
-import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.client.tool.shaper.ShapeSelection;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.CornerCache;
@@ -24,9 +11,9 @@ import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.shape.LittleShape;
-import team.creative.littletiles.common.placement.shape.ShapeSelection;
+import team.creative.littletiles.common.placement.shape.config.PillarShapeConfig;
 
-public class LittleShapePillar extends LittleShape {
+public class LittleShapePillar extends LittleShape<PillarShapeConfig> {
     
     public static void setStartAndEndBox(CornerCache cache, Facing facing, Facing startFace, Facing endFace, LittleBox start, LittleBox end, boolean inside) {
         Axis axis = facing.axis; // startFace.axis is always the same or null in which case it will be the same
@@ -80,11 +67,11 @@ public class LittleShapePillar extends LittleShape {
     }
     
     @Override
-    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
-        int thickness = Math.max(0, selection.getNBT().getInt("thickness") - 1);
+    protected void build(LittleBoxes boxes, ShapeSelection selection, PillarShapeConfig config) {
+        int thickness = Math.max(0, config.thickness - 1);
         
-        PlacementPosition originalMin = selection.getFirst().pos.copy();
-        PlacementPosition originalMax = selection.getLast().pos.copy();
+        PlacementPosition originalMin = selection.getFirst().copy();
+        PlacementPosition originalMax = selection.getLast().copy();
         originalMin.convertTo(boxes.getGrid());
         originalMax.convertTo(boxes.getGrid());
         
@@ -101,7 +88,7 @@ public class LittleShapePillar extends LittleShape {
         LittleBox minBox = new LittleBox(originalMinVec);
         LittleBox maxBox = new LittleBox(originalMaxVec);
         
-        if (selection.getNBT().getBoolean("simple")) {
+        if (config.simple) {
             minFacing = null;
             maxFacing = null;
         } else {
@@ -177,32 +164,5 @@ public class LittleShapePillar extends LittleShape {
         }
         boxes.add(box);
     }
-    
-    @Override
-    public void addExtraInformation(CompoundTag nbt, List<Component> list) {}
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<GuiControl> getCustomSettings(CompoundTag nbt, LittleGrid grid) {
-        List<GuiControl> controls = new ArrayList<>();
-        controls.add(new GuiLabel("label").setTranslate("gui.thickness"));
-        controls.add(new GuiSteppedSlider("thickness", nbt.getInt("thickness"), 1, grid.count));
-        controls.add(new GuiCheckBox("simple", nbt.getBoolean("simple")).setTranslate("gui.simple"));
-        return controls;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void saveCustomSettings(GuiParent gui, CompoundTag nbt, LittleGrid grid) {
-        GuiSteppedSlider slider = (GuiSteppedSlider) gui.get("thickness");
-        nbt.putInt("thickness", (int) slider.getValue());
-        nbt.putBoolean("simple", gui.get("simple", GuiCheckBox.class).value);
-    }
-    
-    @Override
-    public void rotate(CompoundTag nbt, Rotation rotation) {}
-    
-    @Override
-    public void mirror(CompoundTag nbt, Axis axis) {}
     
 }

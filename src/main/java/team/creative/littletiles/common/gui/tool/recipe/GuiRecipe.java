@@ -7,23 +7,25 @@ import java.util.Map.Entry;
 import java.util.function.Consumer;
 
 import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.Align;
-import team.creative.creativecore.common.gui.GuiChildControl;
+import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiButtonIcon;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
-import team.creative.creativecore.common.gui.controls.tree.GuiTree;
-import team.creative.creativecore.common.gui.controls.tree.GuiTree.GuiTreeSelectionChanged;
-import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBoxFlexible;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiButtonIcon;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.tree.GuiTree;
+import team.creative.creativecore.common.gui.control.tree.GuiTree.GuiTreeSelectionChanged;
+import team.creative.creativecore.common.gui.control.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
 import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
@@ -41,8 +43,7 @@ import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiComboxMappedFlexible;
-import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
+import team.creative.littletiles.common.gui.control.animation.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.recipe.test.GuiRecipeTest;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
@@ -83,7 +84,7 @@ public class GuiRecipe extends GuiConfigure {
     public final GuiSyncLocalLayer<GuiRecipeMerge> OPEN_MERGE = getSyncHolder().layer("merge", tag -> new GuiRecipeMerge());
     
     public GuiTree tree;
-    public GuiComboxMappedFlexible<LittleStructureGui> types;
+    public GuiComboBoxFlexible<LittleStructureGui> types;
     public GuiParent config;
     public LittleStructureGuiControl control;
     public GuiLabel testReport;
@@ -104,9 +105,9 @@ public class GuiRecipe extends GuiConfigure {
             else if (x instanceof GuiTreeSelectionChanged sel)
                 if (selectedBefore != (sel.selected != null)) {
                     selectedBefore = sel.selected != null;
-                    for (GuiChildControl child : sidebarButtons)
-                        if (!child.control.is("add"))
-                            child.control.setEnabled(selectedBefore);
+                    for (GuiControl control : sidebarButtons)
+                        if (!control.is("add"))
+                            control.setEnabled(selectedBefore);
                 }
         });
     }
@@ -119,8 +120,8 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     @Override
-    public CompoundTag saveConfiguration(CompoundTag nbt) {
-        return null;
+    public boolean saveConfiguration(PatchedDataComponentMap data) {
+        return false;
     }
     
     public void buildStructureTree(GuiTree tree, GuiTreeItem parent, LittleGroup group, int index) {
@@ -255,7 +256,7 @@ public class GuiRecipe extends GuiConfigure {
         top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(400)).setExpandableY());
         
         // Actual recipe configuration
-        types = new GuiComboxMappedFlexible<>("type", new TextMapBuilder<LittleStructureGui>().addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()), x -> x
+        types = new GuiComboBoxFlexible<>("type", new TextMapBuilder<LittleStructureGui>().addComponent(LittleStructureGuiRegistry.registered(), x -> x.translatable()), x -> x
                 .translatable());
         topCenter.add(types);
         config = new GuiParent("config", GuiFlow.STACK_Y).setAlign(Align.STRETCH);
@@ -305,9 +306,9 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     @Override
-    public void render(GuiGraphics graphics, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
+    public void render(GuiGraphics graphics, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
         storage.renderTick();
-        super.render(graphics, control, controlRect, realRect, scale, mouseX, mouseY);
+        super.render(graphics, controlRect, realRect, scale, mouseX, mouseY);
     }
     
     public void removeItem(GuiTreeItemStructure item) {

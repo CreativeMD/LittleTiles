@@ -7,19 +7,19 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
-import team.creative.creativecore.common.gui.controls.collection.GuiStackSelector;
-import team.creative.creativecore.common.gui.controls.inventory.GuiInventoryGrid;
-import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
-import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
-import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.parent.GuiRow;
-import team.creative.creativecore.common.gui.controls.parent.GuiTable;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiCounter;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.collection.GuiStackSelector;
+import team.creative.creativecore.common.gui.control.inventory.GuiInventoryGrid;
+import team.creative.creativecore.common.gui.control.inventory.GuiPlayerInventoryGrid;
+import team.creative.creativecore.common.gui.control.parent.GuiColumn;
+import team.creative.creativecore.common.gui.control.parent.GuiLabeledControl;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.parent.GuiRow;
+import team.creative.creativecore.common.gui.control.parent.GuiTable;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiCounter;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
@@ -90,14 +90,14 @@ public class GuiBuilder extends GuiLayer {
         row.addColumn(col);
         col.add(new GuiLabeledControl("gui.structure_builder.thickness", new GuiCounter("thickness", builder.lastThickness, 1, Integer.MAX_VALUE)));
         
-        var gridSelect = new GuiStateButtonMapped<LittleGrid>("grid", LittleGrid.mapBuilder());
+        var gridSelect = new GuiStateButton<LittleGrid>("grid", LittleGrid.mapBuilder());
         gridSelect.select(LittleTiles.CONFIG.build.get(getPlayer()).defaultGrid());
         col = new GuiColumn();
         row.addColumn(col);
         col.add(new GuiLabeledControl("gui.grid", gridSelect));
         
-        GuiComboBoxMapped<LittleStructureBuilderType> box = new GuiComboBoxMapped<>("type", new TextMapBuilder<LittleStructureBuilderType>().addEntrySet(
-            LittleStructureBuilder.REGISTRY.entrySet(), x -> Component.translatable("structure." + x.getKey())));
+        GuiComboBox<LittleStructureBuilderType> box = new GuiComboBox<>("type", new TextMapBuilder<LittleStructureBuilderType>().addEntrySet(LittleStructureBuilder.REGISTRY
+                .entrySet(), x -> Component.translatable("structure." + x.getKey())));
         box.select(LittleStructureBuilder.REGISTRY.get(builder.lastStructureType));
         add(box.setExpandableX());
         
@@ -115,10 +115,10 @@ public class GuiBuilder extends GuiLayer {
                 nbt.putInt("height", height.getValue());
                 GuiCounter thickness = (GuiCounter) get("thickness");
                 nbt.putInt("thickness", thickness.getValue());
-                GuiComboBoxMapped<LittleStructureBuilderType> type = (GuiComboBoxMapped<LittleStructureBuilderType>) get("type");
-                nbt.putString("type", type.getSelected().type.id);
-                GuiStateButtonMapped<LittleGrid> gridButton = (GuiStateButtonMapped<LittleGrid>) get("grid");
-                LittleGrid grid = gridButton.getSelected();
+                GuiComboBox<LittleStructureBuilderType> type = (GuiComboBox<LittleStructureBuilderType>) get("type");
+                nbt.putString("type", type.selected().type.id);
+                GuiStateButton<LittleGrid> gridButton = (GuiStateButton<LittleGrid>) get("grid");
+                LittleGrid grid = gridButton.selected();
                 nbt.putInt("grid", grid.count);
                 ItemStack stack = selector.getSelected();
                 Block block = Block.byItem(stack.getItem());

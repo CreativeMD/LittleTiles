@@ -4,8 +4,8 @@ import javax.annotation.Nullable;
 
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;

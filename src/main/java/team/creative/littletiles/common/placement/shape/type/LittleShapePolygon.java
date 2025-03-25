@@ -1,36 +1,24 @@
 package team.creative.littletiles.common.placement.shape.type;
 
-import java.util.Collections;
-import java.util.List;
-
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.GuiControl;
-import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.geo.Ray3d;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
-import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.client.tool.shaper.ShapePosition;
+import team.creative.littletiles.client.tool.shaper.ShapeSelection;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.shape.LittleShape;
-import team.creative.littletiles.common.placement.shape.ShapeSelection;
-import team.creative.littletiles.common.placement.shape.ShapeSelection.ShapeSelectPos;
 
-public class LittleShapePolygon extends LittleShape {
+public class LittleShapePolygon extends LittleShape<Void> {
     
     public LittleShapePolygon() {
         super(3);
     }
     
-    public void generatePixels(LittleBoxes boxes, ShapeSelectPos first, ShapeSelectPos second, ShapeSelectPos third) {
-        Vec3d origin = first.pos.getRelative(boxes.pos).getVec(first.getGrid());
-        Vec3d secondVec = second.pos.getRelative(boxes.pos).getVec(second.getGrid());
-        Vec3d thirdVec = third.pos.getRelative(boxes.pos).getVec(third.getGrid());
+    public void generatePixels(LittleBoxes boxes, ShapePosition first, ShapePosition second, ShapePosition third) {
+        Vec3d origin = first.getRelative(boxes.pos).getVec(first.getGrid());
+        Vec3d secondVec = second.getRelative(boxes.pos).getVec(second.getGrid());
+        Vec3d thirdVec = third.getRelative(boxes.pos).getVec(third.getGrid());
         double contextOffset = first.getGrid().halfPixelLength;
         origin.x += contextOffset;
         origin.y += contextOffset;
@@ -72,11 +60,11 @@ public class LittleShapePolygon extends LittleShape {
     }
     
     @Override
-    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
-        ShapeSelectPos first = null;
-        ShapeSelectPos second = null;
+    protected void build(LittleBoxes boxes, ShapeSelection selection, Void config) {
+        ShapePosition first = null;
+        ShapePosition second = null;
         boolean remaining = true;
-        for (ShapeSelectPos pos : selection) {
+        for (ShapePosition pos : selection) {
             if (first == null)
                 first = pos;
             else if (second == null)
@@ -96,29 +84,7 @@ public class LittleShapePolygon extends LittleShape {
     }
     
     @Override
-    public boolean requiresNoOverlap(ShapeSelection selection) {
+    protected boolean requiresNoOverlap(ShapeSelection selection, Void config) {
         return true;
     }
-    
-    @Override
-    public void addExtraInformation(CompoundTag nbt, List<Component> list) {}
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<GuiControl> getCustomSettings(CompoundTag nbt, LittleGrid grid) {
-        return Collections.EMPTY_LIST;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void saveCustomSettings(GuiParent gui, CompoundTag nbt, LittleGrid grid) {
-        
-    }
-    
-    @Override
-    public void rotate(CompoundTag nbt, Rotation rotation) {}
-    
-    @Override
-    public void mirror(CompoundTag nbt, Axis axis) {}
-    
 }

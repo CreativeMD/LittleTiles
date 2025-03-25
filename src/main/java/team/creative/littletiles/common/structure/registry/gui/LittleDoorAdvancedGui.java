@@ -11,25 +11,25 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
-import team.creative.creativecore.common.gui.controls.parent.GuiTabs;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
-import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
-import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineChannelDouble;
-import team.creative.creativecore.common.gui.controls.timeline.GuiTimelineKey;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.parent.GuiLabeledControl;
+import team.creative.creativecore.common.gui.control.parent.GuiTabs;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.timeline.GuiTimeline;
+import team.creative.creativecore.common.gui.control.timeline.GuiTimelineChannelDouble;
+import team.creative.creativecore.common.gui.control.timeline.GuiTimelineKey;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiGridConfig;
-import team.creative.littletiles.common.gui.controls.GuiPhysicalStateControl;
-import team.creative.littletiles.common.gui.controls.animation.GuiAnimationTimelinePanel;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationPanel;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
+import team.creative.littletiles.common.gui.control.GuiGridConfig;
+import team.creative.littletiles.common.gui.control.GuiPhysicalStateControl;
+import team.creative.littletiles.common.gui.control.animation.GuiAnimationTimelinePanel;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationPanel;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -120,8 +120,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         upper.add(settings);
         
         settings.add(new GuiLabeledControl(Component.translatable("gui.interpolation").append(
-            ":"), new GuiStateButtonMapped<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>().addComponent(ValueInterpolation.values(), x -> x
-                    .translate()))));
+            ":"), new GuiComboBox<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>().addComponent(ValueInterpolation.values(), x -> x.translate()))));
         
         settings.add(new GuiCheckBox("stayAnimated", stayAnimated).setTranslate("gui.stay_animated").setTooltip("gui.door.stay_animated.tooltip"));
         settings.add(new GuiCheckBox("rightClick", rightClick).setTranslate("gui.rightclick").setTooltip("gui.door.rightclick.tooltip"));
@@ -195,17 +194,17 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
     
     public void updateTimeline() {
         GuiTimelineConfig config = get("tabs", GuiTabs.class).index() != 0 ? different : same;
-        GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
+        GuiComboBox<ValueInterpolation> inter = get("inter");
         GuiTextfield durationT = get("duration");
         int duration = durationT.parseInteger();
         PhysicalState closed = config.closedState();
         PhysicalState opened = config.openedState();
         boolean opening = config.openingAnimation();
-        AnimationTimeline timeline = config.generateTimeline(duration, inter.getSelected(), opening);
+        AnimationTimeline timeline = config.generateTimeline(duration, inter.selected(), opening);
         if (opening)
-            timeline.start(closed, opened, inter.getSelected()::create1d);
+            timeline.start(closed, opened, inter.selected()::create1d);
         else
-            timeline.start(opened, closed, inter.getSelected()::create1d);
+            timeline.start(opened, closed, inter.selected()::create1d);
         item.recipe.animation.setTimeline(item, timeline);
     }
     
@@ -215,8 +214,8 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         
         GuiIsoAnimationViewer viewer = get("viewer");
         door.center = new StructureRelative(viewer.getBox(), viewer.getGrid());
-        GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
-        door.interpolation = inter.getSelected();
+        GuiComboBox<ValueInterpolation> inter = get("inter");
+        door.interpolation = inter.selected();
         
         door.differentTransition = get("tabs", GuiTabs.class).index() != 0;
         door.stayAnimated = get("stayAnimated", GuiCheckBox.class).value;

@@ -23,6 +23,8 @@ import team.creative.littletiles.common.structure.animation.curve.ValueCurve;
 import team.creative.littletiles.common.structure.animation.curve.ValueInterpolation;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.directional.StructureDirectionalField;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 
@@ -53,6 +55,12 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
     @Override
     public boolean canRightClick() {
         return super.canRightClick() && rightClick;
+    }
+    
+    public LittleDoor getParentDoor() throws CorruptedConnectionException, NotYetConnectedException {
+        if (activateParent && getParent() != null)
+            return ((LittleDoor) getParent().getStructure()).getParentDoor();
+        return this;
     }
     
     @Override

@@ -13,7 +13,6 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.action.LittleActionDestroy.StructurePreview;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
@@ -213,7 +212,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         LittleAction[] actions = new LittleAction[(additionalPreviews ? 1 : 0) + destroyedStructures.size()];
         if (additionalPreviews) {
             destroyed.convertToSmallest();
-            actions[0] = new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(levelUUID, PlacementMode.FILL, destroyed, Facing.EAST));
+            actions[0] = new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(levelUUID, PlacementMode.FILL, destroyed));
         }
         for (int i = 0; i < destroyedStructures.size(); i++)
             actions[(additionalPreviews ? 1 : 0) + i] = destroyedStructures.get(i).getPlaceAction();

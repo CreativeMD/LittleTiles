@@ -10,7 +10,9 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 
 public class LittleModelItemTiles extends CreativeItemBoxModel {
     
@@ -21,7 +23,7 @@ public class LittleModelItemTiles extends CreativeItemBoxModel {
     @Override
     public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
         ILittlePlacer tool = (ILittlePlacer) stack.getItem();
-        if (tool.hasTiles(stack))
+        if (tool.hasTiles(stack) && LittleGroup.shouldRenderInHand(ILittleTool.getData(stack)))
             return tool.getTiles(stack).getRenderingBoxes(translucent);
         return Collections.EMPTY_LIST;
     }

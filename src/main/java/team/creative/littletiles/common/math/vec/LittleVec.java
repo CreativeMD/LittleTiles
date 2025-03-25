@@ -11,7 +11,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -182,17 +182,13 @@ public class LittleVec {
         this.z -= grid.toGrid(pos.getZ());
     }
     
-    public void flip(Axis axis) {
-        set(axis, -get(axis));
-    }
-    
-    public void rotateVec(Rotation rotation) {
+    public void transform(IntMatrix3c matrix) {
         int tempX = x;
         int tempY = y;
         int tempZ = z;
-        this.x = rotation.getMatrix().getX(tempX, tempY, tempZ);
-        this.y = rotation.getMatrix().getY(tempX, tempY, tempZ);
-        this.z = rotation.getMatrix().getZ(tempX, tempY, tempZ);
+        this.x = matrix.getX(tempX, tempY, tempZ);
+        this.y = matrix.getY(tempX, tempY, tempZ);
+        this.z = matrix.getZ(tempX, tempY, tempZ);
     }
     
     public double distanceTo(LittleVec vec) {

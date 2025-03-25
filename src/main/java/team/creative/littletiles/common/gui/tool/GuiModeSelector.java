@@ -1,16 +1,17 @@
 package team.creative.littletiles.common.gui.tool;
 
 import net.minecraft.ChatFormatting;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiGridConfig;
+import team.creative.littletiles.common.gui.control.GuiGridConfig;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 
 public abstract class GuiModeSelector extends GuiConfigure {
@@ -37,7 +38,7 @@ public abstract class GuiModeSelector extends GuiConfigure {
     public void create() {
         GuiParent place = new GuiParent(GuiFlow.STACK_Y);
         add(place);
-        GuiComboBoxMapped<PlacementMode> box = new GuiComboBoxMapped<>("mode", PlacementMode.map());
+        GuiComboBox<PlacementMode> box = new GuiComboBox<>("mode", PlacementMode.map());
         box.select(mode);
         place.add(box);
         place.add(new GuiLabel("text"));
@@ -48,17 +49,17 @@ public abstract class GuiModeSelector extends GuiConfigure {
     }
     
     public PlacementMode getMode() {
-        GuiComboBoxMapped<PlacementMode> box = get("mode");
-        return box.getSelected(PlacementMode.getDefault());
+        GuiComboBox<PlacementMode> box = get("mode");
+        return box.selected(PlacementMode.getDefault());
     }
     
-    public abstract CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode);
+    public abstract boolean saveConfiguration(DataComponentMap data, LittleGrid grid, PlacementMode mode);
     
     @Override
-    public CompoundTag saveConfiguration(CompoundTag nbt) {
+    public boolean saveConfiguration(PatchedDataComponentMap data) {
         mode = getMode();
         grid = get("grid", GuiGridConfig.class).get();
-        return saveConfiguration(nbt, grid, mode);
+        return saveConfiguration(data, grid, mode);
     }
     
 }

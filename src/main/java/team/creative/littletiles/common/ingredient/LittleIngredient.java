@@ -23,7 +23,6 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException.NotEnoughSpaceException;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
-import team.creative.littletiles.common.placement.PlacementHelper;
 
 public abstract class LittleIngredient<T extends LittleIngredient> extends LittleIngredientBase<T> {
     
@@ -82,11 +81,10 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
     
     public static LittleIngredients extractWithoutCount(HolderLookup.Provider provider, ItemStack stack, boolean useLTStructures) {
         LittleIngredients ingredients = new LittleIngredients();
-        ILittlePlacer tile = PlacementHelper.getLittleInterface(stack);
         
-        if (tile != null) {
-            if (useLTStructures && tile.hasTiles(stack) && tile.containsIngredients(stack))
-                extract(provider, ingredients, tile.getTiles(stack), false);
+        if (stack.getItem() instanceof ILittlePlacer p) {
+            if (useLTStructures && p.hasTiles(stack) && p.containsIngredients(stack))
+                extract(provider, ingredients, p.getTiles(stack), false);
         } else
             for (IngredientConvertionHandler handler : converationHandlers)
                 ingredients.add(handler.extract(stack));

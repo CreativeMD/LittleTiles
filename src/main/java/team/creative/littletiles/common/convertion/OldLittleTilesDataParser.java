@@ -86,7 +86,7 @@ public class OldLittleTilesDataParser {
         try {
             grid = LittleGrid.getOrThrow(nbt);
         } catch (RuntimeException e) {
-            throw new LittleConvertException("Invalid grid size " + nbt.getInt("grid"));
+            throw new LittleMissingGridException("Invalid grid size " + nbt.getInt("grid"));
         }
         return loadGroup(nbt, grid);
     }
@@ -183,7 +183,8 @@ public class OldLittleTilesDataParser {
         nbt.put("t", transitionList);
     }
     
-    private static ValueCurveInterpolation<Vec1d> loadValueTimelineAndPrepare(PhysicalPart part, int[] data, PhysicalState start, PhysicalState end, LittleGrid grid, int duration) {
+    private static ValueCurveInterpolation<Vec1d> loadValueTimelineAndPrepare(PhysicalPart part, int[] data, PhysicalState start, PhysicalState end, LittleGrid grid,
+            int duration) {
         if (data.length == 0)
             return null;
         ValueCurveInterpolation<Vec1d> curve = switch (data[0]) {
@@ -202,7 +203,8 @@ public class OldLittleTilesDataParser {
         return prepareValueCurve(part, curve, start, end, grid, duration);
     }
     
-    private static ValueCurveInterpolation<Vec1d> prepareValueCurve(PhysicalPart part, ValueCurveInterpolation<Vec1d> curve, PhysicalState start, PhysicalState end, LittleGrid grid, int duration) {
+    private static ValueCurveInterpolation<Vec1d> prepareValueCurve(PhysicalPart part, ValueCurveInterpolation<Vec1d> curve, PhysicalState start, PhysicalState end,
+            LittleGrid grid, int duration) {
         if (curve == null || curve.isEmpty())
             return null;
         
@@ -392,6 +394,19 @@ public class OldLittleTilesDataParser {
             super(name);
         }
         
+        public Component translatable() {
+            return Component.translatable("gui.error.convert.structure", getMessage());
+        }
+        
+    }
+    
+    public static class LittleMissingGridException extends LittleConvertException {
+        
+        public LittleMissingGridException(String name) {
+            super(name);
+        }
+        
+        @Override
         public Component translatable() {
             return Component.translatable("gui.error.convert.structure", getMessage());
         }

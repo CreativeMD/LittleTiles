@@ -2,11 +2,11 @@ package team.creative.littletiles.common.gui.tool.recipe;
 
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
 import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
@@ -61,7 +61,7 @@ public class GuiRecipeMerge extends GuiLayer {
         boolean isEmpty = map.size() == 0;
         if (isEmpty)
             map.addComponent(null, Component.translatable("gui.recipe.merge.not_found"));
-        GuiComboBoxMapped<GuiTreeItemStructure> box = new GuiComboBoxMapped<>("box", map);
+        GuiComboBox<GuiTreeItemStructure> box = new GuiComboBox<>("box", map);
         add(box.setExpandableX().setEnabled(!isEmpty));
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
@@ -69,12 +69,12 @@ public class GuiRecipeMerge extends GuiLayer {
         
         bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
         bottom.addRight(new GuiButton("save", x -> {
-            GuiTreeItemStructure selected = box.getSelected();
+            GuiTreeItemStructure selected = box.selected();
             if (selected == null)
                 return;
             if (isParent(structure, selected))
-                GuiDialogHandler.openDialog(getIntegratedParent(), "merge_failed", Component
-                        .translatable("gui.recipe.dialog.merge.failed", selected.getTitle(), structure.getTitle()), (g, b) -> {}, DialogButton.OK);
+                GuiDialogHandler.openDialog(getIntegratedParent(), "merge_failed", Component.translatable("gui.recipe.dialog.merge.failed", selected.getTitle(), structure
+                        .getTitle()), (g, b) -> {}, DialogButton.OK);
             
             recipe.removeItem(selected);
             structure.group.add(selected.group);

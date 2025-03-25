@@ -15,7 +15,6 @@ import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.placement.Placement;
-import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
@@ -53,7 +52,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
         if (destroyed != null) {
             destroyed.convertToSmallest();
             return new LittleActions(new LittleActionDestroyBoxes(preview.levelUUID, result.placedBoxes.copy()), new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(
-                preview.levelUUID, PlacementMode.NORMAL, destroyed, preview.position.facing)));
+                preview.levelUUID, PlacementMode.FILL, destroyed)));
         }
         return new LittleActionDestroyBoxes(preview.levelUUID, result.placedBoxes.copy());
     }
@@ -77,16 +76,15 @@ public class LittleActionPlace extends LittleAction<Boolean> {
             return false;
         }
         
-        if (action == PlaceAction.CURRENT_ITEM) {
+        if (action == PlaceAction.PLACER) {
             ItemStack stack = player.getMainHandItem();
-            if (PlacementHelper.getLittleInterface(stack) != null) {
-                PlacementResult tiles = placeTile(player, stack, preview);
-                
-                if (!level.isClientSide)
-                    player.inventoryMenu.broadcastChanges();
-                return tiles != null;
-            }
-            return false;
+            if (!(stack.getItem() instanceof ILittlePlacer))
+                return false;
+            PlacementResult tiles = placeTile(player, stack, preview);
+            
+            if (!level.isClientSide)
+                player.inventoryMenu.broadcastChanges();
+            return tiles != null;
         }
         
         LittleInventory inventory = new LittleInventory(player);
@@ -117,7 +115,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     }
     
     public PlacementResult placeTile(Player player, ItemStack stack, PlacementPreview preview) throws LittleActionException {
-        ILittlePlacer iTile = PlacementHelper.getLittleInterface(stack);
+        ILittlePlacer iTile = (ILittlePlacer) stack.getItem();
         ItemStack toPlace = stack.copy();
         
         LittleInventory inventory = new LittleInventory(player);
@@ -185,7 +183,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     
     public static enum PlaceAction {
         
-        CURRENT_ITEM,
+        PLACER,
         ABSOLUTE,
         PREMADE;
         

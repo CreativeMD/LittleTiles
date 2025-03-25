@@ -1,10 +1,10 @@
 package team.creative.littletiles.common.item;
 
+import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -14,56 +14,39 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
-import team.creative.littletiles.api.common.tool.ILittleEditor;
-import team.creative.littletiles.api.common.tool.ILittleTool;
+import team.creative.littletiles.api.common.tool.ILittleShaper;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.action.LittleActionHandlerClient;
-import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.client.tool.LittleTool;
+import team.creative.littletiles.client.tool.shaper.LittleToolShaper;
+import team.creative.littletiles.client.tool.shaper.ShapeSelection;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActionColorBoxesFiltered;
-import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiPaintBrush;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
-import team.creative.littletiles.common.packet.action.BlockPacket;
-import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
-import team.creative.littletiles.common.placement.PlacementPosition;
-import team.creative.littletiles.common.placement.PlacementPreview;
-import team.creative.littletiles.common.placement.mark.IMarkMode;
+import team.creative.littletiles.common.packet.action.ChangedColorPacket;
+import team.creative.littletiles.common.placement.PreviewMode;
 import team.creative.littletiles.common.placement.shape.LittleShape;
-import team.creative.littletiles.common.placement.shape.ShapeSelection;
+import team.creative.littletiles.common.placement.shape.LittleShapeInstance;
+import team.creative.littletiles.common.placement.shape.ShapeRegistry;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
-public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTooltip {
-    
-    public static ShapeSelection selection;
-    
-    public static int getColor(ItemStack stack) {
-        if (stack == null)
-            return ColorUtils.WHITE;
-        if (!stack.has(LittleTilesRegistry.COLOR))
-            setColor(stack, ColorUtils.WHITE);
-        return stack.get(LittleTilesRegistry.COLOR);
-    }
-    
-    public static void setColor(ItemStack stack, int color) {
-        if (stack == null)
-            return;
-        stack.set(LittleTilesRegistry.COLOR, color);
-    }
+public class ItemLittlePaintBrush extends Item implements ILittleShaper, IItemTooltip {
     
     public ItemLittlePaintBrush() {
         super(new Item.Properties().stacksTo(1));
@@ -81,10 +64,9 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     
     @Override
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
-        LittleShape shape = ItemLittleChisel.getShape(stack);
-        tooltip.add(Component.translatable("gui.shape").append(": ").append(Component.translatable(shape.getTranslatableName())));
-        shape.addExtraInformation(ILittleTool.getData(stack), tooltip);
-        tooltip.add(Component.literal(TooltipUtils.printColor(getColor(stack))));
+        LittleShapeInstance shape = getShape(stack);
+        shape.appendInformation(stack, context, tooltip, flag);
+        tooltip.add(Component.literal(TooltipUtils.printColor(stack.getOrDefault(LittleTilesRegistry.COLOR, ColorUtils.WHITE))));
     }
     
     @Override
@@ -97,10 +79,65 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
-    public void configured(ItemStack stack, CompoundTag nbt) {
-        stack.set(LittleTilesRegistry.COLOR, nbt.getInt("color"));
-        nbt.remove("color");
-        ILittleEditor.super.configured(stack, nbt);
+    public void shapeFinished(Level level, Player player, ItemStack stack, ShapeSelection selection, LittleBoxes boxes) {
+        var filter = stack.get(LittleTilesRegistry.FILTER);
+        int color = stack.getOrDefault(LittleTilesRegistry.COLOR, ColorUtils.WHITE);
+        if (filter != null && filter.hasFilter())
+            LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxesFiltered(level, boxes, color, false, filter.getFilter()));
+        else
+            LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxes(level, boxes, color, false));
+    }
+    
+    @Override
+    public boolean hasShape(Player player, ItemStack stack) {
+        return true;
+    }
+    
+    @Override
+    public LittleShape defaultShape() {
+        return ShapeRegistry.TILE_SHAPE;
+    }
+    
+    @Override
+    public boolean previewInside(Player player, ItemStack stack) {
+        return true;
+    }
+    
+    @Override
+    public PreviewMode previewMode(Player player, ItemStack stack) {
+        return PreviewMode.LINES;
+    }
+    
+    @Override
+    public boolean selectLeftClick(Player player, ItemStack stack) {
+        return true;
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public Iterable<LittleTool> tools(ItemStack stack) {
+        return Arrays.asList(new LittleToolShaper(stack) {
+            @Override
+            public boolean onMouseWheelClickBlock(Level level, Player player, BlockHitResult result) {
+                BlockState state = level.getBlockState(result.getBlockPos());
+                
+                if (state.getBlock() instanceof BlockTile) {
+                    LittleTileContext context = LittleTileContext.selectFocused(level, result.getBlockPos(), player);
+                    if (context.isComplete()) {
+                        int color = ColorUtils.WHITE;
+                        try {
+                            if (context.parent.isStructure() && context.parent.getStructure() instanceof LittleStructure s && s.hasStructureColor())
+                                color = s.getStructureColor();
+                            else
+                                color = context.tile.color;
+                            LittleTiles.NETWORK.sendToServer(new ChangedColorPacket(color));
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                    }
+                    return true;
+                }
+                return super.onMouseWheelClickBlock(level, player, result);
+            }
+        });
     }
     
     @Override
@@ -109,90 +146,8 @@ public class ItemLittlePaintBrush extends Item implements ILittleEditor, IItemTo
     }
     
     @Override
-    public void onDeselect(Level level, ItemStack stack, Player player) {
-        selection = null;
-    }
-    
-    @Override
-    public boolean hasCustomBoxes(Level level, ItemStack stack, Player player, BlockState state, PlacementPosition pos, BlockHitResult result) {
-        return LittleAction.isBlockValid(state) || level.getBlockEntity(result.getBlockPos()) instanceof BETiles;
-    }
-    
-    @Override
-    public LittleBoxes getBoxes(Level level, ItemStack stack, Player player, PlacementPosition pos, BlockHitResult result) {
-        if (selection == null)
-            selection = new ShapeSelection(stack, true);
-        selection.setLast(player, stack, pos, result);
-        return selection.getBoxes(true, getPositionGrid(player, stack));
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean onClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        if (LittleActionHandlerClient.isUsingSecondMode()) {
-            selection = null;
-            LittleTilesClient.PREVIEW_RENDERER.removeMarked();
-        } else if (selection != null)
-            if (selection.addAndCheckIfPlace(player, position, result)) {
-                if (ItemLittleHammer.isFiltered())
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxesFiltered(level, selection.getBoxes(false, getPositionGrid(player, stack)), getColor(
-                        stack), false, ItemLittleHammer.getFilter()));
-                else
-                    LittleTilesClient.ACTION_HANDLER.execute(new LittleActionColorBoxes(level, selection.getBoxes(false, getPositionGrid(player, stack)), getColor(stack), false));
-                selection = null;
-                LittleTilesClient.PREVIEW_RENDERER.removeMarked();
-            }
-        return false;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean onRightClick(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        if (selection != null)
-            selection.click(player);
-        return true;
-    }
-    
-    @Override
-    public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        if (!client)
-            return;
-        if (selection != null)
-            selection.rotate(player, stack, rotation);
-        else
-            new ShapeSelection(stack, false).rotate(player, stack, rotation);
-    }
-    
-    @Override
-    public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
-        if (!client)
-            return;
-        if (selection != null)
-            selection.mirror(player, stack, axis);
-        else
-            new ShapeSelection(stack, false).mirror(player, stack, axis);
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public IMarkMode onMark(Player player, ItemStack stack, PlacementPosition position, BlockHitResult result, PlacementPreview previews) {
-        if (selection != null)
-            selection.toggleMark();
-        return selection;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public boolean onMouseWheelClickBlock(Level level, Player player, ItemStack stack, PlacementPosition position, BlockHitResult result) {
-        BlockEntity blockEntity = level.getBlockEntity(result.getBlockPos());
-        if (blockEntity instanceof BETiles)
-            LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), player, BlockPacketAction.PAINT_BRUSH, new CompoundTag()));
-        return true;
-    }
-    
-    @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { ItemLittleChisel.getShape(stack).getTranslatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.mark
-                .getTranslatedKeyMessage(), LittleTilesClient.configure.getTranslatedKeyMessage() };
+        return new Object[] { getShape(stack).translatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.KEY_MARK
+                .getTranslatedKeyMessage(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage() };
     }
 }

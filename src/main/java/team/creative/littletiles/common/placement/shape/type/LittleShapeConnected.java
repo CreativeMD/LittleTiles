@@ -8,17 +8,12 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.GuiControl;
-import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.tool.shaper.ShapePosition;
+import team.creative.littletiles.client.tool.shaper.ShapeSelection;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -26,48 +21,27 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
-import team.creative.littletiles.common.placement.shape.ShapeSelection;
-import team.creative.littletiles.common.placement.shape.ShapeSelection.ShapeSelectPos;
 
-public class LittleShapeConnected extends LittleShapeSelectable {
+public class LittleShapeConnected extends LittleShapeSelectable<Void> {
     
     public LittleShapeConnected() {
         super(1);
     }
     
     @Override
-    public boolean requiresNoOverlap(ShapeSelection selection) {
+    protected boolean requiresNoOverlap(ShapeSelection selection, Void config) {
         return !selection.inside;
     }
     
     @Override
-    protected void addBoxes(LittleBoxes boxes, ShapeSelection selection, boolean lowResolution) {
-        for (ShapeSelectPos pos : selection) {
+    protected void build(LittleBoxes boxes, ShapeSelection selection, Void config) {
+        for (ShapePosition pos : selection) {
             if (pos.result.isComplete())
-                new ConnectedSearch(pos.result, selection.inside ? null : pos.pos.facing, selection.getGrid()).start(boxes);
+                new ConnectedSearch(pos.result, selection.inside ? null : pos.facing, selection.grid).start(boxes);
             else
-                addBox(boxes, selection.inside, selection.getGrid(), pos.ray.getBlockPos(), pos.pos.facing);
+                addBox(boxes, selection.inside, selection.grid, pos.ray.getBlockPos(), pos.facing);
         }
     }
-    
-    @Override
-    public void addExtraInformation(CompoundTag nbt, List<Component> list) {}
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public List<GuiControl> getCustomSettings(CompoundTag nbt, LittleGrid grid) {
-        return Collections.EMPTY_LIST;
-    }
-    
-    @Override
-    @OnlyIn(Dist.CLIENT)
-    public void saveCustomSettings(GuiParent gui, CompoundTag nbt, LittleGrid grid) {}
-    
-    @Override
-    public void rotate(CompoundTag nbt, Rotation rotation) {}
-    
-    @Override
-    public void mirror(CompoundTag nbt, Axis axis) {}
     
     private static class ConnectedSearch {
         

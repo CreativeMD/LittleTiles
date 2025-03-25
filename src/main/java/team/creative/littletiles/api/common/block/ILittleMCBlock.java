@@ -16,8 +16,7 @@ import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -78,12 +77,7 @@ public interface ILittleMCBlock extends LittleBlock {
     }
     
     @Override
-    public default BlockState mirror(BlockState state, Axis axis, LittleVec doubledCenter) {
-        return state;
-    }
-    
-    @Override
-    public default BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
+    public default BlockState transform(BlockState state, IntMatrix3c matrix, LittleVec doubledCenter) {
         return state;
     }
     

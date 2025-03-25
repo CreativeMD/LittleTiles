@@ -15,6 +15,11 @@ public class PlacementPosition extends LittleVecAbsolute {
     
     public final Facing facing;
     
+    public PlacementPosition(PlacementPosition position) {
+        super(position.pos, position.gridVec);
+        this.facing = position.facing;
+    }
+    
     public PlacementPosition(BlockPos pos, LittleVecGrid vec, Facing facing) {
         super(pos, vec);
         this.facing = facing;
@@ -50,7 +55,8 @@ public class PlacementPosition extends LittleVecAbsolute {
         return new PlacementPosition(pos, gridVec.copy(), facing);
     }
     
-    public AABB getBox(LittleGrid grid) {
+    public AABB getBox() {
+        var grid = getGrid();
         double x = getPosX();
         double y = getPosY();
         double z = getPosZ();

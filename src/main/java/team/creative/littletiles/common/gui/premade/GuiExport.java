@@ -8,16 +8,16 @@ import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
-import team.creative.creativecore.common.gui.controls.inventory.GuiInventoryGrid;
-import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.inventory.GuiInventoryGrid;
+import team.creative.creativecore.common.gui.control.inventory.GuiPlayerInventoryGrid;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.client.export.LittleExportType;
-import team.creative.littletiles.common.placement.PlacementHelper;
 
 public class GuiExport extends GuiLayer {
     
@@ -34,13 +34,13 @@ public class GuiExport extends GuiLayer {
     public void create() {
         add(new GuiInventoryGrid("export", exportSlot).addListener(x -> {
             ItemStack stack = exportSlot.getItem(0);
-            if (!stack.isEmpty() && PlacementHelper.isLittleBlock(stack))
-                textfield.setText(((GuiComboBoxMapped<LittleExportType>) get("type")).getSelected().export(stack));
+            if (!stack.isEmpty() && stack.getItem() instanceof ILittlePlacer p && p.hasTiles(stack))
+                textfield.setText(((GuiComboBox<LittleExportType>) get("type")).selected().export(stack));
             else
                 textfield.setText("");
         }));
         
-        add(new GuiComboBoxMapped<LittleExportType>("type", new TextMapBuilder<LittleExportType>().addEntrySet(LittleExportType.REGISTRY.entrySet(), x -> Component.translatable(
+        add(new GuiComboBox<LittleExportType>("type", new TextMapBuilder<LittleExportType>().addEntrySet(LittleExportType.REGISTRY.entrySet(), x -> Component.translatable(
             "gui.export." + x.getKey()))));
         
         GuiParent row = new GuiParent(GuiFlow.STACK_X);

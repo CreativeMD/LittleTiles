@@ -19,13 +19,13 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.inventory.GuiInventoryGrid;
-import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
-import team.creative.creativecore.common.gui.controls.inventory.GuiSlotViewer;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiProgressbar;
-import team.creative.creativecore.common.gui.controls.simple.GuiShowItem;
+import team.creative.creativecore.common.gui.control.inventory.GuiInventoryGrid;
+import team.creative.creativecore.common.gui.control.inventory.GuiPlayerInventoryGrid;
+import team.creative.creativecore.common.gui.control.inventory.GuiSlotViewer;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiProgressbar;
+import team.creative.creativecore.common.gui.control.simple.GuiShowItem;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
@@ -33,7 +33,6 @@ import team.creative.creativecore.common.gui.style.GuiStyle;
 import team.creative.creativecore.common.gui.style.display.DisplayColor;
 import team.creative.creativecore.common.gui.style.display.StyleDisplay;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
-import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
@@ -229,7 +228,7 @@ public class GuiBlankOMatic extends GuiLayer {
         public void select(int index) {
             this.selected = index;
             for (int i = 0; i < controls.size(); i++) {
-                GuiSlotControlSelect slot = (GuiSlotControlSelect) controls.get(i).control;
+                GuiSlotControlSelect slot = (GuiSlotControlSelect) controls.get(i);
                 slot.selected = index == i;
             }
             raiseEvent(new GuiControlChangedEvent(this));
@@ -282,7 +281,7 @@ public class GuiBlankOMatic extends GuiLayer {
         }
         
         @Override
-        public boolean mouseClicked(Rect rect, double x, double y, int button) {
+        public boolean mouseClicked(double x, double y, int button) {
             selector.select(index);
             playSound(SoundEvents.UI_BUTTON_CLICK);
             return true;

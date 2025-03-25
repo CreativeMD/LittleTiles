@@ -7,16 +7,17 @@ import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.parent.GuiTabsMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.parent.GuiTabsMapped;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.control.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.common.gui.controls.GuiGridConfig;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.common.gui.control.GuiGridConfig;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -57,9 +58,10 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
         Axis axis = rotation.axis;
         viewer.setView(Facing.get(axis, true));
         GuiTabsMapped<Function<GuiParent, LittleAxisDoorRotation>> tabs = new GuiTabsMapped<>("tabs");
-        tabs.createTab(x -> new LittleAxisDoorRotationDirection(viewer.axis(), x.get("direction", GuiStateButton.class).getState() == 0), Component.translatable(
-            "gui.door.rotation.direction")).add(new GuiStateButton("direction", rotation instanceof LittleAxisDoorRotationDirection d && !d.clockwise ? 1 : 0, translate(
-                "gui.clockwise"), translate("gui.counterclockwise")));
+        tabs.createTab(x -> new LittleAxisDoorRotationDirection(viewer.axis(), (Boolean) x.get("direction", GuiStateButton.class).selected()), Component.translatable(
+            "gui.door.rotation.direction")).add(
+                new GuiStateButton<Boolean>("direction", rotation instanceof LittleAxisDoorRotationDirection d && !d.clockwise, new TextMapBuilder<Boolean>().addComponent(false,
+                    Component.translatable("gui.clockwise")).addComponent(true, Component.translatable("gui.counterclockwise"))));
         
         GuiTextfield angle = new GuiTextfield("angle").setFloatOnly();
         angle.setText(rotation instanceof LittleAxisDoorRotationFixed d ? "" + d.degree : "90");

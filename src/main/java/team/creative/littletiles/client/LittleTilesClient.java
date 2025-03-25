@@ -27,6 +27,7 @@ import net.minecraft.server.packs.resources.ReloadableResourceManager;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
@@ -49,6 +50,9 @@ import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeBlockModel;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
+import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
+import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -76,6 +80,7 @@ import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -83,18 +88,14 @@ import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.item.ItemBlockIngredient;
 import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
-import team.creative.littletiles.common.item.ItemLittleChisel;
-import team.creative.littletiles.common.item.ItemLittleGlove;
-import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
-import team.creative.littletiles.common.item.glove.GloveMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleTilesClient {
     
-    public static final Minecraft mc = Minecraft.getInstance();
+    public static final Minecraft MC = Minecraft.getInstance();
     
     public static final IKeyConflictContext LITTLE_KEY_CONTEXT = new IKeyConflictContext() {
         
@@ -119,18 +120,20 @@ public class LittleTilesClient {
     public static LittleClientPlayerConnection PLAYER_CONNECTION;
     public static OverlayRenderer OVERLAY_RENDERER;
     
-    public static KeyMapping mirror;
-    public static KeyMapping mark;
-    public static KeyMapping configure;
-    public static KeyMapping up;
-    public static KeyMapping down;
-    public static KeyMapping right;
-    public static KeyMapping left;
+    public static KeyMapping KEY_MIRROR;
+    public static KeyMapping KEY_MARK;
+    public static KeyMapping KEY_CONFIGURE;
+    public static KeyMapping KEY_UP;
+    public static KeyMapping KEY_DOWN;
+    public static KeyMapping KEY_RIGHT;
+    public static KeyMapping KEY_LEFT;
     
-    public static KeyMapping undo;
-    public static KeyMapping redo;
+    public static KeyMapping[] TOOL_KEYS;
     
-    public static BETilesRenderer blockEntityRenderer;
+    public static KeyMapping KEY_UNDO;
+    public static KeyMapping KEY_REDO;
+    
+    public static BETilesRenderer BLOCK_TILES_RENDERER;
     
     public static void grid(LittleGrid grid) {
         ACTION_HANDLER.setting.grid(grid);
@@ -145,14 +148,28 @@ public class LittleTilesClient {
     }
     
     public static Component arrowKeysTooltip() {
-        if (up.isDefault() && down.isDefault() && right.isDefault() && left.isDefault())
+        if (KEY_UP.isDefault() && KEY_DOWN.isDefault() && KEY_RIGHT.isDefault() && KEY_LEFT.isDefault())
             return Component.translatable("gui.tooltip.arrow_keys");
-        return Component.empty().append(up.getTranslatedKeyMessage()).append(", ").append(down.getTranslatedKeyMessage()).append(", ").append(right.getTranslatedKeyMessage())
-                .append(", ").append(left.getTranslatedKeyMessage());
+        return Component.empty().append(KEY_UP.getTranslatedKeyMessage()).append(", ").append(KEY_DOWN.getTranslatedKeyMessage()).append(", ").append(KEY_RIGHT
+                .getTranslatedKeyMessage()).append(", ").append(KEY_LEFT.getTranslatedKeyMessage());
     }
     
     public static void displayActionMessage(List<Component> message) {
         OVERLAY_RENDERER.displayActionMessage(message);
+    }
+    
+    public static IntMatrix3c fromKeybind(Player player, KeyMapping key) {
+        if (key == LittleTilesClient.KEY_UP)
+            return Rotation.Z_CLOCKWISE.getMatrix();
+        if (key == LittleTilesClient.KEY_DOWN)
+            return Rotation.Z_COUNTER_CLOCKWISE.getMatrix();
+        if (key == LittleTilesClient.KEY_RIGHT)
+            return Rotation.Y_COUNTER_CLOCKWISE.getMatrix();
+        if (key == LittleTilesClient.KEY_LEFT)
+            return Rotation.Y_CLOCKWISE.getMatrix();
+        if (key == LittleTilesClient.KEY_MIRROR)
+            return Facing.of(player).axis.getMatrix();
+        return null;
     }
     
     public static void load(IEventBus bus) {
@@ -167,36 +184,38 @@ public class LittleTilesClient {
     }
     
     private static void registerKeys(RegisterKeyMappingsEvent event) {
-        up = new LittleKeyMapping("key.rotateup", LITTLE_KEY_CONTEXT, InputConstants.KEY_UP, "key.categories.littletiles").ignoreModifier();
-        down = new LittleKeyMapping("key.rotatedown", LITTLE_KEY_CONTEXT, InputConstants.KEY_DOWN, "key.categories.littletiles").ignoreModifier();
-        right = new LittleKeyMapping("key.rotateright", LITTLE_KEY_CONTEXT, InputConstants.KEY_RIGHT, "key.categories.littletiles").ignoreModifier();
-        left = new LittleKeyMapping("key.rotateleft", LITTLE_KEY_CONTEXT, InputConstants.KEY_LEFT, "key.categories.littletiles").ignoreModifier();
+        KEY_UP = new LittleKeyMapping("key.rotateup", LITTLE_KEY_CONTEXT, InputConstants.KEY_UP, "key.categories.littletiles").ignoreModifier();
+        KEY_DOWN = new LittleKeyMapping("key.rotatedown", LITTLE_KEY_CONTEXT, InputConstants.KEY_DOWN, "key.categories.littletiles").ignoreModifier();
+        KEY_RIGHT = new LittleKeyMapping("key.rotateright", LITTLE_KEY_CONTEXT, InputConstants.KEY_RIGHT, "key.categories.littletiles").ignoreModifier();
+        KEY_LEFT = new LittleKeyMapping("key.rotateleft", LITTLE_KEY_CONTEXT, InputConstants.KEY_LEFT, "key.categories.littletiles").ignoreModifier();
         
-        mirror = new LittleKeyMapping("key.little.mirror", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles");
-        mark = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles");
-        configure = new LittleKeyMapping("key.little.config.item", LITTLE_KEY_CONTEXT, InputConstants.KEY_C, "key.categories.littletiles");
+        KEY_MIRROR = new LittleKeyMapping("key.little.mirror", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles");
+        KEY_MARK = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles");
+        KEY_CONFIGURE = new LittleKeyMapping("key.little.config.item", LITTLE_KEY_CONTEXT, InputConstants.KEY_C, "key.categories.littletiles");
         
-        undo = new LittleKeyMapping("key.little.undo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Z, "key.categories.littletiles");
-        redo = new LittleKeyMapping("key.little.redo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Y, "key.categories.littletiles");
+        KEY_UNDO = new LittleKeyMapping("key.little.undo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Z, "key.categories.littletiles");
+        KEY_REDO = new LittleKeyMapping("key.little.redo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Y, "key.categories.littletiles");
         
-        event.register(up);
-        event.register(down);
-        event.register(right);
-        event.register(left);
+        event.register(KEY_UP);
+        event.register(KEY_DOWN);
+        event.register(KEY_RIGHT);
+        event.register(KEY_LEFT);
         
-        event.register(mirror);
-        event.register(mark);
-        event.register(configure);
+        event.register(KEY_MIRROR);
+        event.register(KEY_MARK);
+        event.register(KEY_CONFIGURE);
         
-        event.register(undo);
-        event.register(redo);
+        TOOL_KEYS = new KeyMapping[] { KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_MIRROR, KEY_MARK, KEY_CONFIGURE };
+        
+        event.register(KEY_UNDO);
+        event.register(KEY_REDO);
     }
     
     private static void setup(final FMLClientSetupEvent event) {
-        mc.getItemColors().register((stack, layer) -> {
+        MC.getItemColors().register((stack, layer) -> {
             if (layer == 0)
                 return ColorUtils.WHITE;
-            return ItemLittlePaintBrush.getColor(stack);
+            return stack.getOrDefault(LittleTilesRegistry.COLOR, ColorUtils.WHITE);
         }, LittleTilesRegistry.PAINT_BRUSH.value());
         
         // overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
@@ -214,7 +233,7 @@ public class LittleTilesClient {
         NeoForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
         LEVEL_HANDLERS.register(OVERLAY_RENDERER = new OverlayRenderer());
         
-        ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) mc.getResourceManager();
+        ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) MC.getResourceManager();
         reloadableResourceManager.registerReloadListener(new ResourceManagerReloadListener() {
             
             @Override
@@ -234,8 +253,8 @@ public class LittleTilesClient {
         EntityRenderers.register(LittleTilesRegistry.ENTITY_ANIMATION.get(), LittleEntityRenderer::new);
         EntityRenderers.register(LittleTilesRegistry.SIT_TYPE.get(), LittleSitRenderer::new);
         
-        blockEntityRenderer = new BETilesRenderer();
-        BlockEntityRenderers.register(LittleTilesRegistry.BE_TILES_TYPE_RENDERED.get(), x -> blockEntityRenderer);
+        BLOCK_TILES_RENDERER = new BETilesRenderer();
+        BlockEntityRenderers.register(LittleTilesRegistry.BE_TILES_TYPE_RENDERED.get(), x -> BLOCK_TILES_RENDERER);
         
         ResourceLocation filled = ResourceLocation.tryBuild(LittleTiles.MODID, "filled");
         ClampedItemPropertyFunction function = (stack, level, entity, x) -> ((ItemColorIngredient) stack.getItem()).getColor(stack) / (float) ColorIngredient.BOTTLE_SIZE;
@@ -248,13 +267,13 @@ public class LittleTilesClient {
         IrisManager.init();
     }
     
-    public static void modelLoader(RegisterAdditional event) {
+    private static void modelLoader(RegisterAdditional event) {
         event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT));
         event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT));
         event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT));
     }
     
-    public static void modelEvent(RegisterGeometryLoaders event) {
+    private static void modelEvent(RegisterGeometryLoaders event) {
         CreativeCoreClient.registerBlockModel(ResourceLocation.tryBuild(LittleTiles.MODID, "empty"), new CreativeBlockModel() {
             
             @Override
@@ -290,20 +309,15 @@ public class LittleTilesClient {
                 return cubes;
             }
         });
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
+        /*CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
             LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT), null) {
-            
-            @Override
-            public boolean shouldRenderFake(ItemStack stack) {
-                return true;
-            }
             
             @Override
             protected ItemStack getFakeStack(ItemStack current) {
                 GloveMode mode = ItemLittleGlove.getMode(current);
                 if (mode.hasPreviewElement(current))
                     return new ItemStack(mode.getPreviewElement(current).getState().getBlock());
-                
+                TODO READD GLOVE
                 if (!mode.hasTiles(current))
                     return ItemStack.EMPTY;
                 
@@ -312,11 +326,14 @@ public class LittleTilesClient {
                 return stack;
                 
             }
-        });
+        });*/
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
-            LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> ItemLittleChisel.getElement(stack)));
+            LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
+        
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
                 .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT), x -> {
+                    if (!LittleGroup.shouldRenderInHand(ItemLittleBlueprint.getContent(x)))
+                        return ItemStack.EMPTY;
                     ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
                     ILittleTool.setData(stack, ILittleTool.getData(x).getCompound(ItemLittleBlueprint.CONTENT_KEY));
                     return stack;
@@ -362,7 +379,7 @@ public class LittleTilesClient {
         });
     }
     
-    public static void initItemColors(RegisterColorHandlersEvent.Item event) {
+    private static void initItemColors(RegisterColorHandlersEvent.Item event) {
         CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.PREMADE.value());
         CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.ITEM_TILES.value());
         event.register((stack, tint) -> {
@@ -372,12 +389,12 @@ public class LittleTilesClient {
         }, LittleTilesRegistry.WATER.value(), LittleTilesRegistry.FLOWING_WATER.value());
     }
     
-    public static void initBlockColors(RegisterColorHandlersEvent.Block event) {
+    private static void initBlockColors(RegisterColorHandlersEvent.Block event) {
         event.register((state, level, pos, tint) -> level != null && pos != null ? ColorUtils.setAlpha(BiomeColors.getAverageWaterColor(level, pos), 255) : -12618012,
             LittleTilesRegistry.WATER.value(), LittleTilesRegistry.FLOWING_WATER.value());
     }
     
-    public static void commands(RegisterClientCommandsEvent event) {
+    private static void commands(RegisterClientCommandsEvent event) {
         event.getDispatcher().register(LiteralArgumentBuilder.<CommandSourceStack>literal("lt-debug").executes(x -> {
             if (LittleTilesProfilerOverlay.isActive())
                 LittleTilesProfilerOverlay.stop();
@@ -387,7 +404,7 @@ public class LittleTilesClient {
         }));
     }
     
-    public static void initBlockClient(RegisterClientExtensionsEvent event) {
+    private static void initBlockClient(RegisterClientExtensionsEvent event) {
         event.registerBlock(BlockTileRenderProperties.INSTANCE, LittleTilesRegistry.BLOCK_TILES, LittleTilesRegistry.BLOCK_TILES_RENDERED, LittleTilesRegistry.BLOCK_TILES_TICKING,
             LittleTilesRegistry.BLOCK_TILES_TICKING_RENDERED);
     }

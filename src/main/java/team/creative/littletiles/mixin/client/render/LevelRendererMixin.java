@@ -20,7 +20,6 @@ import net.minecraft.client.renderer.culling.Frustum;
 import team.creative.creativecore.client.render.VertexFormatUtils;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
-import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 
 @Mixin(value = LevelRenderer.class, priority = 1500)
 public class LevelRendererMixin {
@@ -47,7 +46,6 @@ public class LevelRendererMixin {
     
     @Inject(at = @At(value = "FIELD", target = "Lnet/minecraft/client/renderer/LevelRenderer;zTransparentOld:D", opcode = Opcodes.PUTFIELD), method = "renderChunkLayer")
     public void resortTransparency(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, CallbackInfo info) {
-        LittleClientEventHandler.transparencySortingIndex++;
         if (LittleTilesClient.ANIMATION_HANDLER != null)
             LittleTilesClient.ANIMATION_HANDLER.resortTransparency(layer, x, y, z);
     }

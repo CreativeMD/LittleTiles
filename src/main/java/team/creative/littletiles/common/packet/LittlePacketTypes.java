@@ -301,12 +301,18 @@ public class LittlePacketTypes {
             protected void writeContent(PlacementPosition content, RegistryFriendlyByteBuf buffer) {
                 buffer.writeBlockPos(content.getPos());
                 NetworkFieldTypes.write(LittleVecGrid.class, content.getVecGrid(), buffer, null);
-                buffer.writeEnum(content.facing);
+                buffer.writeInt(content.facing == null ? -1 : content.facing.ordinal());
             }
             
             @Override
             protected PlacementPosition readContent(RegistryFriendlyByteBuf buffer) {
-                return new PlacementPosition(buffer.readBlockPos(), NetworkFieldTypes.read(LittleVecGrid.class, buffer, null), buffer.readEnum(Facing.class));
+                return new PlacementPosition(buffer.readBlockPos(), NetworkFieldTypes.read(LittleVecGrid.class, buffer, null), readFacing(buffer.readInt()));
+            }
+            
+            private Facing readFacing(int facing) {
+                if (facing == -1)
+                    return null;
+                return Facing.VALUES[facing];
             }
             
         }, PlacementPosition.class);
@@ -432,14 +438,12 @@ public class LittlePacketTypes {
                 NetworkFieldTypes.write(LittleGroup.class, content.previews, buffer, null);
                 NetworkFieldTypes.write(PlacementMode.class, content.mode, buffer, null);
                 NetworkFieldTypes.write(PlacementPosition.class, content.position, buffer, null);
-                NetworkFieldTypes.write(LittleBoxAbsolute.class, content.box, buffer, null);
             }
             
             @Override
             protected PlacementPreview readContent(RegistryFriendlyByteBuf buffer) {
                 return PlacementPreview.load(buffer.readBoolean() ? buffer.readUUID() : null, NetworkFieldTypes.read(LittleGroup.class, buffer, null), NetworkFieldTypes.read(
-                    PlacementMode.class, buffer, null), NetworkFieldTypes.read(PlacementPosition.class, buffer, null), NetworkFieldTypes.read(LittleBoxAbsolute.class, buffer,
-                        null));
+                    PlacementMode.class, buffer, null), NetworkFieldTypes.read(PlacementPosition.class, buffer, null));
             }
             
         }, PlacementPreview.class);
@@ -501,5 +505,6 @@ public class LittlePacketTypes {
                 return new PlacementPlayerSetting((CompoundTag) buffer.readNbt(NbtAccounter.unlimitedHeap()));
             }
         }, PlacementPlayerSetting.class);
+        
     }
 }

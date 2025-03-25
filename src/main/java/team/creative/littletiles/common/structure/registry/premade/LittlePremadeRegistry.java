@@ -20,7 +20,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
-import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
@@ -52,7 +52,6 @@ public class LittlePremadeRegistry {
     
     public static void reload() {
         PREVIEWS.clear();
-        ItemPremadeStructure.clearCache();
         
         int loaded = 0;
         for (LittlePremadeType type : STRUCTURES) {
@@ -69,7 +68,11 @@ public class LittlePremadeRegistry {
                     NBTUtils.mergeNotOverwrite(structureNBT, originalNBT);
                 ILittleTool.setData(stack, nbt);
                 
-                LittleGroup previews = LittleGroup.load(ILittleTool.getData(stack));
+                var grid = LittleGrid.get(nbt);
+                if (grid == null)
+                    continue;
+                
+                LittleGroup previews = LittleGroup.load(nbt);
                 
                 CompoundTag stackNBT = new CompoundTag();
                 stackNBT.put(LittleGroup.STRUCTURE_KEY, structureNBT);

@@ -17,8 +17,7 @@ import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -238,18 +237,10 @@ public class LittleStructureType {
         }
     }
     
-    public void mirror(LittleGroup group, LittleGrid context, Axis axis, LittleVec doubledCenter) {
+    public void transform(LittleGroup group, LittleGrid context, IntMatrix3c matrix, LittleVec doubledCenter) {
         for (StructureDirectionalField field : directional) {
             Object value = field.createTemporary(group.getStructureTag());
-            value = field.mirror(value, context, axis, doubledCenter);
-            field.save(group.getStructureTag(), value);
-        }
-    }
-    
-    public void rotate(LittleGroup group, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
-        for (StructureDirectionalField field : directional) {
-            Object value = field.createTemporary(group.getStructureTag());
-            value = field.rotate(value, context, rotation, doubledCenter);
+            value = field.transform(value, context, matrix, doubledCenter);
             field.save(group.getStructureTag(), value);
         }
     }

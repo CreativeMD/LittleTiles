@@ -11,18 +11,18 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
-import team.creative.creativecore.common.gui.controls.timeline.GuiTimeline;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.parent.GuiLabeledControl;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.control.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.control.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.animation.GuiChildEventPanel;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationPanel;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
-import team.creative.littletiles.common.gui.controls.animation.GuiSoundEventPanel;
+import team.creative.littletiles.common.gui.control.animation.GuiChildEventPanel;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationPanel;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
+import team.creative.littletiles.common.gui.control.animation.GuiSoundEventPanel;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -91,8 +91,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         add(settings);
         
         settings.add(new GuiLabeledControl(Component.translatable("gui.interpolation").append(
-            ":"), new GuiStateButtonMapped<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>().addComponent(ValueInterpolation.values(), x -> x
-                    .translate()))));
+            ":"), new GuiComboBox<ValueInterpolation>("inter", inter, new TextMapBuilder<ValueInterpolation>().addComponent(ValueInterpolation.values(), x -> x.translate()))));
         
         settings.add(new GuiLabeledControl(Component.translatable("gui.duration").append(":"), new GuiSteppedSlider("duration", duration, 1, 500)));
         
@@ -136,8 +135,8 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         
         GuiIsoAnimationViewer viewer = get("viewer");
         door.center = new StructureRelative(viewer.getBox(), viewer.getGrid());
-        GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
-        door.interpolation = inter.getSelected();
+        GuiComboBox<ValueInterpolation> inter = get("inter");
+        door.interpolation = inter.selected();
         
         door.duration = get("duration", GuiSteppedSlider.class).getIntValue();
         door.stayAnimated = get("stayAnimated", GuiCheckBox.class).value;
@@ -186,10 +185,10 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         AnimationTimeline timeline = saveEventTimeline(duration, true);
         if (timeline == null)
             timeline = new AnimationTimeline(duration);
-        GuiStateButtonMapped<ValueInterpolation> inter = get("inter");
+        GuiComboBox<ValueInterpolation> inter = get("inter");
         PhysicalState end = new PhysicalState();
         save(end);
-        timeline.start(new PhysicalState(), end, inter.getSelected()::create1d);
+        timeline.start(new PhysicalState(), end, inter.selected()::create1d);
         item.recipe.animation.setTimeline(item, timeline);
     }
     

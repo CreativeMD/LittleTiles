@@ -3,8 +3,7 @@ package team.creative.littletiles.common.structure.directional;
 import java.lang.reflect.Field;
 
 import net.minecraft.nbt.CompoundTag;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -74,12 +73,8 @@ public class StructureDirectionalField {
         return type.move(this, value, vec);
     }
     
-    public Object mirror(Object value, LittleGrid context, Axis axis, LittleVec doubledCenter) {
-        return type.mirror(this, value, context, axis, doubledCenter);
-    }
-    
-    public Object rotate(Object value, LittleGrid context, Rotation rotation, LittleVec doubledCenter) {
-        return type.rotate(this, value, context, rotation, doubledCenter);
+    public Object transform(Object value, LittleGrid context, IntMatrix3c matrix, LittleVec doubledCenter) {
+        return type.transform(this, value, context, matrix, doubledCenter);
     }
     
     public LittleGrid getGrid(Object value) {

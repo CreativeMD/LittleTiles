@@ -10,16 +10,15 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.Align;
-import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.collection.GuiListBoxBase;
-import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
-import team.creative.creativecore.common.gui.controls.inventory.GuiSlot;
-import team.creative.creativecore.common.gui.controls.inventory.IGuiInventory;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.collection.GuiListBoxBase;
+import team.creative.creativecore.common.gui.control.inventory.GuiPlayerInventoryGrid;
+import team.creative.creativecore.common.gui.control.inventory.GuiSlot;
+import team.creative.creativecore.common.gui.control.inventory.IGuiInventory;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
@@ -39,7 +38,6 @@ import team.creative.littletiles.common.ingredient.StackIngredientEntry;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
-import team.creative.littletiles.common.placement.PlacementHelper;
 
 public class GuiWorkbench extends GuiLayer {
     
@@ -101,8 +99,7 @@ public class GuiWorkbench extends GuiLayer {
                     crafting.setItem(1, ItemMultiTiles.of(group));
                 }
             } else {
-                ILittlePlacer tile = PlacementHelper.getLittleInterface(input1);
-                if (tile != null && !input2.isEmpty() && (input2.getItem() instanceof ItemLittleBlueprint))
+                if (input1.getItem() instanceof ILittlePlacer && input2.getItem() instanceof ItemLittleBlueprint)
                     ILittleTool.setData(input2, ILittleTool.getData(input1).copy());
             }
         }
@@ -140,9 +137,10 @@ public class GuiWorkbench extends GuiLayer {
             add(new GuiButton("craft", x -> CRAFT.sendAndExecute(GuiWorkbench.this, EndTag.INSTANCE)).setTranslate("gui.craft"));
         }
         
-        public GuiChildControl addSlot(GuiSlot slot) {
+        public GuiSlot addSlot(GuiSlot slot) {
             slots.add(slot);
-            return addControl(slot);
+            add(slot);
+            return slot;
         }
         
         @Override

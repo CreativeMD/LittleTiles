@@ -10,6 +10,7 @@ import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.PlacementContext;
+import team.creative.littletiles.common.placement.PreviewMode;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementModeNormal extends PlacementMode {

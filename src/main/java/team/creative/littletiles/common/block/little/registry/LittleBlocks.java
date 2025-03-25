@@ -28,7 +28,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.filter.premade.BlockFilters;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.entity.PrimedSizedTnt;
@@ -121,16 +121,17 @@ public class LittleBlocks {
         });
         
         LittleBlockRegistry.register(BlockFilters.property(BlockStateProperties.AXIS), x -> new LittleMCBlock(x) {
+            
             @Override
-            public BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
-                return state.setValue(BlockStateProperties.AXIS, rotation.rotate(Axis.get(state.getValue(BlockStateProperties.AXIS))).toVanilla());
+            public BlockState transform(BlockState state, IntMatrix3c matrix, LittleVec doubledCenter) {
+                return state.setValue(BlockStateProperties.AXIS, Axis.get(state.getValue(BlockStateProperties.AXIS)).transform(matrix).toVanilla());
             }
         });
         
         LittleBlockRegistry.register(BlockFilters.property(BlockStateProperties.FACING), x -> new LittleMCBlock(x) {
             @Override
-            public BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
-                return state.setValue(BlockStateProperties.FACING, rotation.rotate(Facing.get(state.getValue(BlockStateProperties.FACING))).toVanilla());
+            public BlockState transform(BlockState state, IntMatrix3c matrix, LittleVec doubledCenter) {
+                return state.setValue(BlockStateProperties.FACING, Facing.get(state.getValue(BlockStateProperties.FACING)).transform(matrix).toVanilla());
             }
         });
         

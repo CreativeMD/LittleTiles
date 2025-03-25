@@ -6,6 +6,8 @@ import java.util.List;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import net.minecraft.commands.Commands;
 import net.minecraft.commands.arguments.coordinates.BlockPosArgument;
@@ -15,8 +17,11 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -30,11 +35,11 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeConfig;
+import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleActionActivated;
@@ -60,7 +65,8 @@ import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
-import team.creative.littletiles.common.item.LittleToolHandler;
+import team.creative.littletiles.common.item.ItemMultiTiles;
+import team.creative.littletiles.common.item.LittleItemHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -70,9 +76,11 @@ import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
 import team.creative.littletiles.common.packet.LittlePacketTypes;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.ChangedColorPacket;
+import team.creative.littletiles.common.packet.action.ChangedElementPacket;
+import team.creative.littletiles.common.packet.action.ChangedPosPacket;
 import team.creative.littletiles.common.packet.action.LittleInteractionPacket;
 import team.creative.littletiles.common.packet.action.PlacementPlayerSettingPacket;
-import team.creative.littletiles.common.packet.action.VanillaBlockPacket;
 import team.creative.littletiles.common.packet.entity.EntityOriginChanged;
 import team.creative.littletiles.common.packet.entity.LittleEntityPhysicPacket;
 import team.creative.littletiles.common.packet.entity.LittleEntityTransitionPacket;
@@ -81,10 +89,9 @@ import team.creative.littletiles.common.packet.entity.LittleVanillaPackets;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationInitPacket;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelInitPacket;
-import team.creative.littletiles.common.packet.item.MirrorPacket;
-import team.creative.littletiles.common.packet.item.RotatePacket;
-import team.creative.littletiles.common.packet.item.ScrewdriverSelectionPacket;
+import team.creative.littletiles.common.packet.item.PlacerMatrixPacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
+import team.creative.littletiles.common.packet.item.ShapeConfigPacket;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.packet.structure.StructureBlockToEntityPacket;
 import team.creative.littletiles.common.packet.structure.StructureEntityToBlockPacket;
@@ -127,6 +134,7 @@ public class LittleTiles {
             LittleTilesClient.load(bus);
         
         NeoForge.EVENT_BUS.addListener(this::serverStarting);
+        NeoForge.EVENT_BUS.addListener(this::reloadListener);
         
         LittleTilesRegistry.BLOCKS.register(bus);
         LittleTilesRegistry.ITEMS.register(bus);
@@ -145,14 +153,15 @@ public class LittleTiles {
         LittleStructureRegistry.initStructures();
         
         NETWORK.registerType(ActionMessagePacket.class, ActionMessagePacket::new);
-        NETWORK.registerType(VanillaBlockPacket.class, VanillaBlockPacket::new);
         NETWORK.registerType(BlockPacket.class, BlockPacket::new);
         NETWORK.registerType(PlacementPlayerSettingPacket.class, PlacementPlayerSettingPacket::new);
+        NETWORK.registerType(ChangedElementPacket.class, ChangedElementPacket::new);
+        NETWORK.registerType(ChangedColorPacket.class, ChangedColorPacket::new);
+        NETWORK.registerType(ChangedPosPacket.class, ChangedPosPacket::new);
         
-        NETWORK.registerType(RotatePacket.class, RotatePacket::new);
-        NETWORK.registerType(MirrorPacket.class, MirrorPacket::new);
+        NETWORK.registerType(PlacerMatrixPacket.class, PlacerMatrixPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
-        NETWORK.registerType(ScrewdriverSelectionPacket.class, ScrewdriverSelectionPacket::new);
+        NETWORK.registerType(ShapeConfigPacket.class, ShapeConfigPacket::new);
         
         NETWORK.registerType(BedUpdate.class, BedUpdate::new);
         NETWORK.registerType(StructureBlockToEntityPacket.class, StructureBlockToEntityPacket::new);
@@ -191,7 +200,7 @@ public class LittleTiles {
         LittleActionRegistry.register(LittleActionDestroy.class, LittleActionDestroy::new);
         
         NeoForge.EVENT_BUS.register(new LittleBedEventHandler());
-        NeoForge.EVENT_BUS.register(new LittleToolHandler());
+        NeoForge.EVENT_BUS.register(new LittleItemHandler());
         
         LittleTilesServer.init(event);
         
@@ -205,6 +214,23 @@ public class LittleTiles {
         
         LittleTilesGuiRegistry.init();
         LittleBlocks.init();
+    }
+    
+    private void reloadListener(AddReloadListenerEvent event) {
+        event.addListener(new SimplePreparableReloadListener<Void>() {
+            @SuppressWarnings("NullableProblems")
+            @Override
+            protected @Nullable Void prepare(@NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerFiller) {
+                ItemMultiTiles.reloadExampleStructures(resourceManager);
+                return null;
+            }
+            
+            @Override
+            protected void apply(@Nullable Void object, @NotNull ResourceManager resourceManager, @NotNull ProfilerFiller profilerFiller) {
+                // NO-OP
+            }
+        });
+        
     }
     
     private void serverStarting(final ServerStartingEvent event) {
@@ -263,7 +289,7 @@ public class LittleTiles {
                 LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);
                 group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
                 subLevel.setBlock(pos.above(), Blocks.DIRT.defaultBlockState(), 3);
-                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.ALL, new LittleGroupAbsolute(pos, group), Facing.EAST);
+                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.ALL, new LittleGroupAbsolute(pos, group));
                 
                 Placement placement = new Placement(null, (Level) subLevel, preview);
                 PlacementResult result = placement.place();
@@ -295,7 +321,7 @@ public class LittleTiles {
                 nbt.putString("id", LittleStructureRegistry.REGISTRY.getDefault().id);
                 LittleGroup group = new LittleGroup(nbt, Collections.EMPTY_LIST);
                 group.add(grid, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), new LittleBox(0, grid.count - 1, 0, grid.count, grid.count, grid.count));
-                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.ALL, new LittleGroupAbsolute(pos, group), Facing.EAST);
+                PlacementPreview preview = PlacementPreview.load(null, PlacementMode.ALL, new LittleGroupAbsolute(pos, group));
                 level.addFreshEntity(new LittleAnimationEntity(level, subLevel, new StructureAbsolute(pos, grid.box(), grid), new Placement(null, subLevel, preview)));
                 x.getSource().sendSystemMessage(Component.literal("Spawned animation"));
             } catch (LittleActionException e) {

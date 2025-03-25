@@ -26,7 +26,7 @@ import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.vec.RangedBitSet;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
@@ -46,6 +46,10 @@ import team.creative.littletiles.common.math.vec.SplitRangeBoxes;
 import team.creative.littletiles.common.math.vec.SplitRangeBoxes.SplitRangeBox;
 
 public class LittleBox {
+    
+    public static LittleBox ofNothing() {
+        return new LittleBox(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
+    }
     
     // ================Data================
     
@@ -1019,39 +1023,23 @@ public class LittleBox {
         return false;
     }
     
-    // ================Rotation & Flip================
+    // ================Transform================
     
-    /** @param rotation
+    /** @param matrix
      * @param doubledCenter
      *            coordinates are doubled, meaning in order to get the correct
      *            coordinates they have to be divided by two. This allows to rotate
      *            around even axis. */
-    public void rotate(Rotation rotation, LittleVec doubledCenter) {
+    public void transform(IntMatrix3c matrix, LittleVec doubledCenter) {
         long tempMinX = minX * 2 - doubledCenter.x;
         long tempMinY = minY * 2 - doubledCenter.y;
         long tempMinZ = minZ * 2 - doubledCenter.z;
         long tempMaxX = maxX * 2 - doubledCenter.x;
         long tempMaxY = maxY * 2 - doubledCenter.y;
         long tempMaxZ = maxZ * 2 - doubledCenter.z;
-        resort((int) ((rotation.getMatrix().getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMinX, tempMinY,
-            tempMinZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix().getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((rotation.getMatrix().getX(tempMaxX,
-                tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((rotation.getMatrix().getY(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((rotation.getMatrix()
-                        .getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
-        changed();
-    }
-    
-    /** @param axis
-     * @param doubledCenter
-     *            coordinates are doubled, meaning in order to get the correct
-     *            coordinates they have to be divided by two. This allows to flip
-     *            around even axis. */
-    public void mirror(Axis axis, LittleVec doubledCenter) {
-        long tempMin = getMin(axis) * 2 - doubledCenter.get(axis);
-        long tempMax = getMax(axis) * 2 - doubledCenter.get(axis);
-        int min = (int) ((doubledCenter.get(axis) - tempMin) / 2);
-        int max = (int) ((doubledCenter.get(axis) - tempMax) / 2);
-        setMin(axis, Math.min(min, max));
-        setMax(axis, Math.max(min, max));
+        resort((int) ((matrix.getX(tempMinX, tempMinY, tempMinZ) + doubledCenter.x) / 2), (int) ((matrix.getY(tempMinX, tempMinY, tempMinZ) + doubledCenter.y) / 2), (int) ((matrix
+                .getZ(tempMinX, tempMinY, tempMinZ) + doubledCenter.z) / 2), (int) ((matrix.getX(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.x) / 2), (int) ((matrix.getY(
+                    tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.y) / 2), (int) ((matrix.getZ(tempMaxX, tempMaxY, tempMaxZ) + doubledCenter.z) / 2));
         changed();
     }
     
@@ -1128,6 +1116,15 @@ public class LittleBox {
         maxX = Math.max(maxX, box.maxX);
         maxY = Math.max(maxY, box.maxY);
         maxZ = Math.max(maxZ, box.maxZ);
+    }
+    
+    public void growToIncludePixel(LittleVec vec) {
+        minX = Math.min(minX, vec.x);
+        minY = Math.min(minY, vec.y);
+        minZ = Math.min(minZ, vec.z);
+        maxX = Math.max(maxX, vec.x + 1);
+        maxY = Math.max(maxY, vec.y + 1);
+        maxZ = Math.max(maxZ, vec.z + 1);
     }
     
     public LittleBox grow(Facing facing) {

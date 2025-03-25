@@ -12,10 +12,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
@@ -86,11 +86,11 @@ public class GuiDialogSignal extends GuiLayer {
         allInputs.add(new GuiSignalComponent("[]", true, false, -1, 1, null, SignalMode.EQUAL));
         allInputs.add(new GuiSignalComponent("number", true, false, -1, 1, null, SignalMode.EQUAL));
         
-        GuiComboBoxMapped<GuiSignalComponent> inputs = new GuiComboBoxMapped<GuiSignalComponent>("inputs", new TextMapBuilder<GuiSignalComponent>()
-                .addComponent(allInputs, x -> Component.literal(x.info())));
+        GuiComboBox<GuiSignalComponent> inputs = new GuiComboBox<GuiSignalComponent>("inputs", new TextMapBuilder<GuiSignalComponent>().addComponent(allInputs, x -> Component
+                .literal(x.info())));
         bottom.addLeft(inputs);
         bottom.addLeft(new GuiButton("add", x -> {
-            GuiSignalComponent com = inputs.getSelected();
+            GuiSignalComponent com = inputs.selected();
             if (com.name().equals("[]"))
                 controller.addVirtualInput();
             else if (com.name().equals("number"))
@@ -113,9 +113,9 @@ public class GuiDialogSignal extends GuiLayer {
         map.addComponent(x -> x.addOperator(SignalLogicOperator.MUL), Component.literal(SignalLogicOperator.MUL.display));
         map.addComponent(x -> x.addOperator(SignalLogicOperator.DIV), Component.literal(SignalLogicOperator.DIV.display));
         
-        GuiComboBoxMapped<Consumer<GuiSignalController>> operators = new GuiComboBoxMapped<>("operators", map);
+        GuiComboBox<Consumer<GuiSignalController>> operators = new GuiComboBox<>("operators", map);
         bottom.addLeft(operators);
-        bottom.addLeft(new GuiButton("add", x -> operators.getSelected().accept(controller)).setTranslate("gui.plus"));
+        bottom.addLeft(new GuiButton("add", x -> operators.selected().accept(controller)).setTranslate("gui.plus"));
         
         if (event.getCondition() != null)
             controller.setCondition(event.getCondition(), this);

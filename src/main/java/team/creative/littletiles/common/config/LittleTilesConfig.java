@@ -298,12 +298,13 @@ public class LittleTilesConfig {
             if (side.isClient())
                 configuredClient();
             LittlePremadeRegistry.reload();
-            ItemMultiTiles.reloadExampleStructures();
         }
         
         @OnlyIn(Dist.CLIENT)
         private void configuredClient() {
-            LittleTilesClient.ACTION_HANDLER.setting.refreshGrid(Minecraft.getInstance().player);
+            Minecraft mc = Minecraft.getInstance();
+            LittleTilesClient.ACTION_HANDLER.setting.refreshGrid(mc.player);
+            ItemMultiTiles.reloadExampleStructures(mc.getResourceManager());
         }
     }
     

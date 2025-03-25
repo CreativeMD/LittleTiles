@@ -146,6 +146,12 @@ public abstract class ValueCurveInterpolation<T extends VecNd> extends ValueCurv
                 vec.invert();
     }
     
+    @Override
+    public void invert() {
+        for (T vec : points.values())
+            vec.invert();
+    }
+    
     public T getFirst() {
         return points.getFirst().value;
     }

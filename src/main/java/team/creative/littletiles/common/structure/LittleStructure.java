@@ -38,7 +38,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -606,7 +605,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
         
         BlockPos pos = getStructurePos();
-        Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
+        Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos)));
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
         LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(mainBlock.getPos(), mainBlock.getGrid()), placement);
@@ -646,7 +645,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         Level level = entity.level();
         
         BlockPos pos = getStructurePos();
-        Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
+        Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos)));
         LittleUpdateCollector collector = new LittleUpdateCollector();
         PlacementResult result = placement.place();
         
@@ -1068,7 +1067,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         blocks.addAll(newBlocks);
         
         for (StructureDirectionalField relative : type.directional)
-            relative.set(this, relative.mirror(relative.get(this), context, axis, context.rotationCenter));
+            relative.set(this, relative.transform(relative.get(this), context, axis.getMatrix(), context.rotationCenter));
     }
     
     @Deprecated
@@ -1085,7 +1084,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         blocks.addAll(newBlocks);
         
         for (StructureDirectionalField relative : type.directional)
-            relative.set(this, relative.rotate(relative.get(this), context, rotation, context.rotationCenter));
+            relative.set(this, relative.transform(relative.get(this), context, rotation.getMatrix(), context.rotationCenter));
     }
     
     public String info() {

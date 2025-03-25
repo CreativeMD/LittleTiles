@@ -1,16 +1,47 @@
 package team.creative.littletiles.common.block.little.element;
 
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.AirBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
+import team.creative.creativecore.common.network.type.NetworkFieldTypeClass;
+import team.creative.creativecore.common.network.type.NetworkFieldTypes;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
 
 public class LittleElement {
+    
+    public static final Codec<LittleElement> CODEC = RecordCodecBuilder.create(x -> x.group(Codec.STRING.fieldOf("state").forGetter(e -> e.getBlockName()), Codec.INT.fieldOf(
+        "color").forGetter(e -> e.color)).apply(x, LittleElement::new));
+    public static final StreamCodec<RegistryFriendlyByteBuf, LittleElement> STREAM_CODEC = NetworkFieldTypes.registerAndCodec(new NetworkFieldTypeClass<LittleElement>() {
+        
+        @Override
+        protected void writeContent(LittleElement content, RegistryFriendlyByteBuf buffer) {
+            buffer.writeUtf(content.getBlockName());
+            buffer.writeInt(content.color);
+        }
+        
+        @Override
+        protected LittleElement readContent(RegistryFriendlyByteBuf buffer) {
+            return new LittleElement(buffer.readUtf(), buffer.readInt());
+        }
+    }, LittleElement.class);
+    
+    public static LittleElement getOrDefault(ItemStack stack) {
+        var element = stack.get(LittleTilesRegistry.ELEMENT);
+        if (element != null)
+            return element;
+        return new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE);
+    }
     
     public static LittleElement of(ItemStack stack, int color) throws NotBlockException {
         Block block = Block.byItem(stack.getItem());

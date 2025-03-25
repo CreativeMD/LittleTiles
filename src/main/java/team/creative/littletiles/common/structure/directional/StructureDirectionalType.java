@@ -15,7 +15,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -158,16 +158,9 @@ public abstract class StructureDirectionalType<T> {
                     }
                     
                     @Override
-                    public List mirror(StructureDirectionalField field, List value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
+                    public List transform(StructureDirectionalField field, List value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
                         for (int i = 0; i < value.size(); i++)
-                            subType.mirror(field, value.get(i), grid, axis, doubledCenter);
-                        return value;
-                    }
-                    
-                    @Override
-                    public List rotate(StructureDirectionalField field, List value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                        for (int i = 0; i < value.size(); i++)
-                            subType.rotate(field, value.get(i), grid, rotation, doubledCenter);
+                            subType.transform(field, value.get(i), grid, matrix, doubledCenter);
                         return value;
                     }
                     
@@ -203,13 +196,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Facing mirror(Facing value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-                return axis.mirror(value);
-            }
-            
-            @Override
-            public Facing rotate(Facing value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                return rotation.rotate(value);
+            public Facing transform(Facing value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                return value.transform(matrix);
             }
             
             @Override
@@ -237,13 +225,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Axis mirror(Axis value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-                return value;
-            }
-            
-            @Override
-            public Axis rotate(Axis value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                return rotation.rotate(value);
+            public Axis transform(Axis value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                return value.transform(matrix);
             }
             
             @Override
@@ -273,14 +256,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public StructureRelative mirror(StructureRelative value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-                value.mirror(grid, axis, doubledCenter);
-                return value;
-            }
-            
-            @Override
-            public StructureRelative rotate(StructureRelative value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                value.rotate(grid, rotation, doubledCenter);
+            public StructureRelative transform(StructureRelative value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                value.transform(grid, matrix, doubledCenter);
                 return value;
             }
             
@@ -333,14 +310,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public Vec3f mirror(Vec3f value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-                axis.mirror(value);
-                return value;
-            }
-            
-            @Override
-            public Vec3f rotate(Vec3f value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                rotation.transform(value);
+            public Vec3f transform(Vec3f value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                matrix.transform(value);
                 return value;
             }
             
@@ -369,14 +340,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public AnimationTransition mirror(AnimationTransition value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-                value.timeline.mirror(axis);
-                return value;
-            }
-            
-            @Override
-            public AnimationTransition rotate(AnimationTransition value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                value.timeline.rotate(rotation);
+            public AnimationTransition transform(AnimationTransition value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                value.timeline.transform(matrix);
                 return value;
             }
             
@@ -407,14 +372,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public AnimationState mirror(AnimationState value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-                value.mirror(axis);
-                return value;
-            }
-            
-            @Override
-            public AnimationState rotate(AnimationState value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                value.rotate(rotation);
+            public AnimationState transform(AnimationState value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                value.transform(matrix);
                 return value;
             }
             
@@ -444,14 +403,8 @@ public abstract class StructureDirectionalType<T> {
             }
             
             @Override
-            public AnimationStateDirected mirror(AnimationStateDirected value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-                value.mirror(axis);
-                return value;
-            }
-            
-            @Override
-            public AnimationStateDirected rotate(AnimationStateDirected value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                value.rotate(rotation);
+            public AnimationStateDirected transform(AnimationStateDirected value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                value.transform(matrix);
                 return value;
             }
             
@@ -469,9 +422,7 @@ public abstract class StructureDirectionalType<T> {
     
     public abstract T move(StructureDirectionalField field, T value, LittleVecGrid vec);
     
-    public abstract T mirror(StructureDirectionalField field, T value, LittleGrid grid, Axis axis, LittleVec doubledCenter);
-    
-    public abstract T rotate(StructureDirectionalField field, T value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter);
+    public abstract T transform(StructureDirectionalField field, T value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter);
     
     public abstract Object getDefault(StructureDirectionalField field, LittleStructure structure, Object defaultValue);
     
@@ -511,18 +462,11 @@ public abstract class StructureDirectionalType<T> {
         public abstract T move(T value, LittleVecGrid vec);
         
         @Override
-        public T mirror(StructureDirectionalField field, T value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-            return mirror(value, grid, axis, doubledCenter);
+        public T transform(StructureDirectionalField field, T value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+            return transform(value, grid, matrix, doubledCenter);
         }
         
-        public abstract T mirror(T value, LittleGrid grid, Axis axis, LittleVec doubledCenter);
-        
-        @Override
-        public T rotate(StructureDirectionalField field, T value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-            return rotate(value, grid, rotation, doubledCenter);
-        }
-        
-        public abstract T rotate(T value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter);
+        public abstract T transform(T value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter);
         
         @Override
         public Object getDefault(StructureDirectionalField field, LittleStructure structure, Object defaultValue) {

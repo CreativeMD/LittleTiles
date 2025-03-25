@@ -5,6 +5,7 @@ import java.util.function.BiFunction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
@@ -55,14 +56,8 @@ public class LittleAxisDoor extends LittleDoor {
             }
             
             @Override
-            public LittleAxisDoorRotation mirror(LittleAxisDoorRotation value, LittleGrid grid, Axis axis, LittleVec doubledCenter) {
-                value.mirror(axis);
-                return value;
-            }
-            
-            @Override
-            public LittleAxisDoorRotation rotate(LittleAxisDoorRotation value, LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-                value.rotate(rotation);
+            public LittleAxisDoorRotation transform(LittleAxisDoorRotation value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                value.transform(matrix);
                 return value;
             }
             
@@ -88,14 +83,7 @@ public class LittleAxisDoor extends LittleDoor {
             this.axis = axis;
         }
         
-        public abstract void mirror(Axis axis);
-        
-        public void rotate(Rotation rotation) {
-            axis = rotation.rotate(axis);
-            rotateInternal(rotation);
-        }
-        
-        protected abstract void rotateInternal(Rotation rotation);
+        public abstract void transform(IntMatrix3c matrix);
         
         public abstract void apply(PhysicalState state);
     }
@@ -110,14 +98,8 @@ public class LittleAxisDoor extends LittleDoor {
         }
         
         @Override
-        public void mirror(Axis axis) {
-            if (this.axis == axis)
-                clockwise = !clockwise;
-        }
-        
-        @Override
-        protected void rotateInternal(Rotation rotation) {
-            clockwise = Rotation.getRotation(axis, clockwise).rotate(rotation).clockwise;
+        public void transform(IntMatrix3c matrix) {
+            clockwise = Rotation.getRotation(axis, clockwise).transform(matrix).clockwise;
         }
         
         @Override
@@ -137,14 +119,8 @@ public class LittleAxisDoor extends LittleDoor {
         }
         
         @Override
-        public void mirror(Axis axis) {
-            if (this.axis == axis)
-                degree = -degree;
-        }
-        
-        @Override
-        protected void rotateInternal(Rotation rotation) {
-            degree = Rotation.getRotation(axis, degree > 0 ? true : false).rotate(rotation).clockwise ? Math.abs(degree) : -Math.abs(degree);
+        public void transform(IntMatrix3c matrix) {
+            degree = Rotation.getRotation(axis, degree > 0 ? true : false).transform(matrix).clockwise ? Math.abs(degree) : -Math.abs(degree);
         }
         
         @Override

@@ -15,29 +15,18 @@ public class LittleTriple<T> {
     }
     
     public T get(Axis axis) {
-        switch (axis) {
-        case X:
-            return x;
-        case Y:
-            return y;
-        case Z:
-            return z;
-        default:
-            return null;
-        }
+        return switch (axis) {
+            case X -> x;
+            case Y -> y;
+            case Z -> z;
+        };
     }
     
     public void set(Axis axis, T value) {
         switch (axis) {
-        case X:
-            this.x = value;
-            break;
-        case Y:
-            this.y = value;
-            break;
-        case Z:
-            this.z = value;
-            break;
+            case X -> this.x = value;
+            case Y -> this.y = value;
+            case Z -> this.z = value;
         }
     }
     

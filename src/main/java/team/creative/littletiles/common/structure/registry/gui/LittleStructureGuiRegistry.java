@@ -67,7 +67,7 @@ public class LittleStructureGuiRegistry {
     }
     
     public static Iterable<LittleStructureGui> registered() {
-        return TREE;
+        return TREE.values();
     }
     
     public static LittleStructureGui get(LittleStructureType type, LittleGroup group) {

@@ -4,13 +4,13 @@ import javax.annotation.Nullable;
 
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
-import team.creative.littletiles.common.gui.controls.GuiDirectionIndicator;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationPanel;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer;
-import team.creative.littletiles.common.gui.controls.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
+import team.creative.littletiles.common.gui.control.GuiDirectionIndicator;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationPanel;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
+import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -24,8 +24,8 @@ public class LittleBedGui extends LittleStructureGuiControl {
         registerEventChanged(x -> {
             if (x instanceof GuiAnimationViewChangedEvent || x.control.is("direction")) {
                 GuiIsoAnimationViewer viewer = LittleBedGui.this.get("viewer");
-                GuiStateButtonMapped<Facing> direction = LittleBedGui.this.get("direction");
-                Facing facing = direction.getSelected();
+                GuiComboBox<Facing> direction = LittleBedGui.this.get("direction");
+                Facing facing = direction.selected();
                 if (viewer.getXFacing().axis == facing.axis)
                     facing = viewer.getXFacing().positive == facing.positive ? Facing.EAST : Facing.WEST;
                 else if (viewer.getYFacing().axis == facing.axis)
@@ -53,8 +53,7 @@ public class LittleBedGui extends LittleStructureGuiControl {
             facing = Facing.SOUTH;
         if (structure instanceof LittleBed)
             facing = ((LittleBed) structure).direction;
-        GuiStateButtonMapped<Facing> button = new GuiStateButtonMapped<Facing>("direction", new TextMapBuilder<Facing>().addComponent(Facing.HORIZONTA_VALUES, x -> Component
-                .literal(x.name)));
+        GuiComboBox<Facing> button = new GuiComboBox<Facing>("direction", new TextMapBuilder<Facing>().addComponent(Facing.HORIZONTA_VALUES, x -> Component.literal(x.name)));
         button.select(facing);
         left.add(button);
         
@@ -66,7 +65,7 @@ public class LittleBedGui extends LittleStructureGuiControl {
     
     @Override
     public LittleStructure save(LittleStructure bed) {
-        ((LittleBed) bed).direction = ((GuiStateButtonMapped<Facing>) get("direction")).getSelected();
+        ((LittleBed) bed).direction = ((GuiComboBox<Facing>) get("direction")).selected();
         return bed;
     }
     

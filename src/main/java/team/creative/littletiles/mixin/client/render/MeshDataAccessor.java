@@ -11,4 +11,5 @@ public interface MeshDataAccessor {
     
     @Accessor
     public ByteBufferBuilder.Result getVertexBuffer();
+    
 }

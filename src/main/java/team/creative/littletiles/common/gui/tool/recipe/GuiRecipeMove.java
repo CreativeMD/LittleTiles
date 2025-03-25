@@ -6,11 +6,11 @@ import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
-import team.creative.creativecore.common.gui.controls.tree.GuiTree;
-import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.control.tree.GuiTree;
+import team.creative.creativecore.common.gui.control.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -18,8 +18,8 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.controls.GuiDistanceControl;
-import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
+import team.creative.littletiles.common.gui.control.GuiDistanceControl;
+import team.creative.littletiles.common.gui.control.animation.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -34,7 +34,7 @@ public class GuiRecipeMove extends GuiLayer {
         flow = GuiFlow.STACK_Y;
         registerEventChanged(x -> {
             if (x.control.is("modes"))
-                ((GuiStateButtonMapped<GuiRecipeMoveMode>) x.control).getSelected().select(tree);
+                ((GuiStateButton<GuiRecipeMoveMode>) x.control).selected().select(tree);
         });
     }
     
@@ -73,8 +73,7 @@ public class GuiRecipeMove extends GuiLayer {
             child.addChildren();
         }
         
-        GuiStateButtonMapped<GuiRecipeMoveMode> modes = new GuiStateButtonMapped<>("modes", new TextMapBuilder<GuiRecipeMoveMode>().addComponent(GuiRecipeMoveMode.values(), x -> x
-                .title()));
+        GuiStateButton<GuiRecipeMoveMode> modes = new GuiStateButton<>("modes", new TextMapBuilder<GuiRecipeMoveMode>().addComponent(GuiRecipeMoveMode.values(), x -> x.title()));
         sidebar.add(modes.setExpandableX());
         
         GuiParent config = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.CENTER);
@@ -115,11 +114,11 @@ public class GuiRecipeMove extends GuiLayer {
     
     public void move(Facing facing) {
         GuiDistanceControl distance = get("distance");
-        GuiStateButtonMapped<GuiRecipeMoveMode> modes = get("modes");
+        GuiStateButton<GuiRecipeMoveMode> modes = get("modes");
         LittleVec direction = new LittleVec(facing);
         direction.scale(distance.getDistance());
         LittleVecGrid vec = new LittleVecGrid(direction, distance.getDistanceGrid());
-        for (GuiRecipeMoveItem item : modes.getSelected().iterator(tree))
+        for (GuiRecipeMoveItem item : modes.selected().iterator(tree))
             item.addOffset(vec);
     }
     

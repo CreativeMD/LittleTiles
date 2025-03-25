@@ -8,8 +8,7 @@ import java.util.function.Supplier;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.registry.exception.RegistryException;
 import team.creative.creativecore.common.util.type.list.MarkIterator;
@@ -173,39 +172,36 @@ public class AnimationTimeline {
         return nbt;
     }
     
-    public void rotate(Rotation rotation) {
-        offX.rotate(rotation);
-        offY.rotate(rotation);
-        offZ.rotate(rotation);
-        
+    public void transform(IntMatrix3c matrix) {
         ValueCurve<Vec1d> tempX = offX;
         ValueCurve<Vec1d> tempY = offY;
         ValueCurve<Vec1d> tempZ = offZ;
         
-        offX = rotation.getX(tempX, tempY, tempZ);
-        offY = rotation.getY(tempX, tempY, tempZ);
-        offZ = rotation.getZ(tempX, tempY, tempZ);
+        offX = matrix.getX(tempX, tempY, tempZ);
+        offY = matrix.getY(tempX, tempY, tempZ);
+        offZ = matrix.getZ(tempX, tempY, tempZ);
         
-        rotX.rotate(rotation);
-        rotY.rotate(rotation);
-        rotZ.rotate(rotation);
+        if (matrix.invertedX())
+            offX.invert();
+        if (matrix.invertedY())
+            offY.invert();
+        if (matrix.invertedZ())
+            offZ.invert();
         
         tempX = rotX;
         tempY = rotY;
         tempZ = rotZ;
         
-        rotX = rotation.getX(tempX, tempY, tempZ);
-        rotY = rotation.getY(tempX, tempY, tempZ);
-        rotZ = rotation.getZ(tempX, tempY, tempZ);
-    }
-    
-    public void mirror(Axis axis) {
-        offX.mirror(axis);
-        offY.mirror(axis);
-        offZ.mirror(axis);
-        rotX.mirror(axis);
-        rotY.mirror(axis);
-        rotZ.mirror(axis);
+        rotX = matrix.getX(tempX, tempY, tempZ);
+        rotY = matrix.getY(tempX, tempY, tempZ);
+        rotZ = matrix.getZ(tempX, tempY, tempZ);
+        
+        if (matrix.invertedX())
+            rotX.invert();
+        if (matrix.invertedY())
+            rotY.invert();
+        if (matrix.invertedZ())
+            rotZ.invert();
     }
     
     public AnimationTimeline copy() {

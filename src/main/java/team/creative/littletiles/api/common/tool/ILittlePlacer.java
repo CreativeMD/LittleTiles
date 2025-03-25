@@ -1,31 +1,20 @@
 package team.creative.littletiles.api.common.tool;
 
-import java.util.List;
-
-import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
-import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.item.component.MatrixDataComponent;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
-import team.creative.littletiles.common.placement.PlacementPosition;
-import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
-import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 
 public interface ILittlePlacer extends ILittleTool {
     
     public boolean hasTiles(ItemStack stack);
-    
-    public boolean shouldRenderInHand(ItemStack stack);
     
     public LittleGroup getTiles(ItemStack stack);
     
@@ -37,43 +26,21 @@ public interface ILittlePlacer extends ILittleTool {
         return getTiles(stack);
     }
     
-    public PlacementPreview getPlacement(Player player, Level level, ItemStack stack, PlacementPosition position, boolean low);
-    
-    public void saveTiles(ItemStack stack, LittleGroup group);
-    
-    @Override
-    public default void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        LittleGroup group = getTiles(stack);
-        if (group == null || group.isEmpty())
-            return;
-        group.rotate(rotation, group.getGrid().rotationCenter);
-        saveTiles(stack, group);
+    public default IntMatrix3c getMatrix(ItemStack stack) {
+        if (stack.has(LittleTilesRegistry.MATRIX))
+            return stack.get(LittleTilesRegistry.MATRIX).getMatrix();
+        return IntMatrix3c.IDENTIY;
     }
     
-    @Override
-    public default void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
-        LittleGroup group = getTiles(stack);
-        if (group == null || group.isEmpty())
-            return;
-        group.mirror(axis, group.getGrid().rotationCenter);
-        saveTiles(stack, group);
-    }
-    
-    public default LittleGrid getTilesGrid(ItemStack stack) {
-        return LittleGrid.get(ILittleTool.getData(stack));
+    public default void transformMatrix(ItemStack stack, IntMatrix3c matrix) {
+        var m = new IntMatrix3(getMatrix(stack), matrix);
+        if (m.isIdentity())
+            stack.remove(LittleTilesRegistry.MATRIX);
+        else
+            stack.set(LittleTilesRegistry.MATRIX, MatrixDataComponent.of(m));
     }
     
     public boolean containsIngredients(ItemStack stack);
-    
-    @OnlyIn(Dist.CLIENT)
-    public default float getPreviewAlphaFactor() {
-        return 1;
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public default boolean shouldCache() {
-        return true;
-    }
     
     @OnlyIn(Dist.CLIENT)
     public default PlacementMode getPlacementMode(ItemStack stack) {
@@ -103,17 +70,6 @@ public interface ILittlePlacer extends ILittleTool {
      * @param stack
      * @return */
     public default LittleVecGrid getCachedMin(ItemStack stack) {
-        return null;
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public default List<RenderBox> getPositingCubes(Level level, BlockPos pos, ItemStack stack) {
-        var data = ILittleTool.getData(stack);
-        if (data.contains(LittleGroup.STRUCTURE_KEY)) {
-            LittleStructureType type = LittleStructureRegistry.REGISTRY.get(data.getCompound(LittleGroup.STRUCTURE_KEY).getString("id"));
-            if (type != null)
-                return type.getPositingCubes(level, pos, stack);
-        }
         return null;
     }
     

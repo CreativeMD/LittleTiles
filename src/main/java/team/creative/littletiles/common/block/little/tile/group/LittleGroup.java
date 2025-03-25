@@ -17,9 +17,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.box.AlignedBox;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.type.Bunch;
@@ -304,34 +303,19 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
                 child.move(vec);
     }
     
-    public void mirror(Axis axis, LittleVec doubledCenter) {
+    public void transform(IntMatrix3c matrix, LittleVec doubledCenter) {
         if (!transformable())
             throw new RuntimeException("Cannot transform group with links");
         
         for (LittleTile tile : this)
-            tile.mirror(axis, doubledCenter);
+            tile.transform(matrix, doubledCenter);
         
         if (hasStructure())
-            getStructureType().mirror(this, getGrid(), axis, doubledCenter);
+            getStructureType().transform(this, getGrid(), matrix, doubledCenter);
         
         if (hasChildren())
             for (LittleGroup child : children.all())
-                child.mirror(axis, doubledCenter);
-    }
-    
-    public void rotate(Rotation rotation, LittleVec doubledCenter) {
-        if (!transformable())
-            throw new RuntimeException("Cannot transform group with links");
-        
-        for (LittleTile tile : this)
-            tile.rotate(rotation, doubledCenter);
-        
-        if (hasStructure())
-            getStructureType().rotate(this, getGrid(), rotation, doubledCenter);
-        
-        if (hasChildren())
-            for (LittleGroup child : children.all())
-                child.rotate(rotation, doubledCenter);
+                child.transform(matrix, doubledCenter);
     }
     
     @Override

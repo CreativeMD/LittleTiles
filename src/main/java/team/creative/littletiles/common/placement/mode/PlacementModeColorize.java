@@ -14,6 +14,7 @@ import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.placement.PlacementContext;
+import team.creative.littletiles.common.placement.PreviewMode;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementModeColorize extends PlacementMode {

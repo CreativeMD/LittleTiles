@@ -18,12 +18,12 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
-import team.creative.creativecore.common.gui.controls.tree.GuiTree;
-import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.gui.control.parent.GuiScrollY;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.tree.GuiTree;
+import team.creative.creativecore.common.gui.control.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
@@ -190,7 +190,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     
     public void load() {
         recipe.animation.reset();
-        gui = recipe.types.getSelected();
+        gui = recipe.types.selected();
         recipe.control = gui.create(this);
         recipe.control.setExpandableY();
         recipe.config.clear();
@@ -233,7 +233,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     }
     
     public void save() {
-        LittleStructureType type = recipe.types.getSelected().type();
+        LittleStructureType type = recipe.types.selected().type();
         structure = recipe.control.save(type != null ? type.createStructure(null) : null);
         if (structure != null) {
             GuiParent parent = recipe.config.get("bottomStructure");

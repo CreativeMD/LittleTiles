@@ -3,8 +3,7 @@ package team.creative.littletiles.common.gui.signal.node;
 import java.util.List;
 
 import net.minecraft.network.chat.Component;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.util.math.geo.Rect;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
@@ -77,7 +76,7 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
     }
     
     @Override
-    public boolean testForDoubleClick(Rect rect, double x, double y, int button) {
+    public boolean testForDoubleClick(double x, double y, int button) {
         return button != 1;
     }
     

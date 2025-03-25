@@ -6,6 +6,7 @@ import java.util.Set;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
+import team.creative.littletiles.common.placement.PreviewMode;
 
 public class PlacementModeAll extends PlacementModeNormal {
     

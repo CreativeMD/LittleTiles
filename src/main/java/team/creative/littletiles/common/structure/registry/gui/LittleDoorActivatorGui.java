@@ -12,10 +12,10 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.network.chat.Component;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.GuiChildControl;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.littletiles.common.gui.controls.animation.GuiChildEventPanel;
+import team.creative.littletiles.common.gui.control.animation.GuiChildEventPanel;
 import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -70,8 +70,8 @@ public class LittleDoorActivatorGui extends LittleStructureGuiControl {
     
     public int[] generateActivated() {
         IntList list = new IntArrayList();
-        for (GuiChildControl child : controls)
-            if (child.control instanceof GuiCheckBox box && box.value && box.name.startsWith("c"))
+        for (GuiControl control : controls)
+            if (control instanceof GuiCheckBox box && box.value && box.name.startsWith("c"))
                 list.add(Integer.parseInt(box.name.replace("c", "")));
         return list.toIntArray();
     }

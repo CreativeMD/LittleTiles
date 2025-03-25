@@ -10,6 +10,7 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.placement.PlacementContext;
+import team.creative.littletiles.common.placement.PreviewMode;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementModeStencil extends PlacementMode {

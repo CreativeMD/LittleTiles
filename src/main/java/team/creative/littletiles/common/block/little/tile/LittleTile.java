@@ -29,7 +29,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.box.ABB;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.CopyArrayCollection;
 import team.creative.creativecore.common.util.type.map.HashMapList;
@@ -404,18 +404,12 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return block.noCollision();
     }
     
-    // ================Rotating/Mirror================
+    // ================Transform================
     
-    public void mirror(Axis axis, LittleVec doubledCenter) {
+    public void transform(IntMatrix3c matrix, LittleVec doubledCenter) {
         for (LittleBox box : boxes)
-            box.mirror(axis, doubledCenter);
-        setState(block.mirror(getState(), axis, doubledCenter));
-    }
-    
-    public void rotate(Rotation rotation, LittleVec doubledCenter) {
-        for (LittleBox box : boxes)
-            box.rotate(rotation, doubledCenter);
-        setState(block.rotate(getState(), rotation, doubledCenter));
+            box.transform(matrix, doubledCenter);
+        setState(block.transform(getState(), matrix, doubledCenter));
     }
     
     // ================Rendering================

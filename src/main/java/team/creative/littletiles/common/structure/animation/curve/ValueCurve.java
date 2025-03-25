@@ -47,6 +47,9 @@ public abstract class ValueCurve<T extends VecNd> {
         public void mirror(Axis axis) {}
         
         @Override
+        public void invert() {}
+        
+        @Override
         public void reverse(int duration) {}
         
         @Override
@@ -87,6 +90,9 @@ public abstract class ValueCurve<T extends VecNd> {
         
         @Override
         public void mirror(Axis axis) {}
+        
+        @Override
+        public void invert() {}
         
         @Override
         public void reverse(int duration) {}
@@ -138,6 +144,8 @@ public abstract class ValueCurve<T extends VecNd> {
     public abstract void rotate(Rotation rotation);
     
     public abstract void mirror(Axis axis);
+    
+    public abstract void invert();
     
     public abstract ValueCurve<T> copy();
     

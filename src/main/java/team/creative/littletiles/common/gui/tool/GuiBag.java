@@ -3,7 +3,7 @@ package team.creative.littletiles.common.gui.tool;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.nbt.EndTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.sounds.SoundEvents;
@@ -14,9 +14,9 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.inventory.GuiInventoryGrid;
-import team.creative.creativecore.common.gui.controls.inventory.GuiPlayerInventoryGrid;
-import team.creative.creativecore.common.gui.controls.inventory.IGuiInventory;
+import team.creative.creativecore.common.gui.control.inventory.GuiInventoryGrid;
+import team.creative.creativecore.common.gui.control.inventory.GuiPlayerInventoryGrid;
+import team.creative.creativecore.common.gui.control.inventory.IGuiInventory;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
@@ -24,7 +24,7 @@ import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
-import team.creative.littletiles.common.gui.controls.GuiColorProgressBar;
+import team.creative.littletiles.common.gui.control.GuiColorProgressBar;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
@@ -220,12 +220,7 @@ public class GuiBag extends GuiConfigure {
     }
     
     @Override
-    public CompoundTag saveConfiguration(CompoundTag nbt) {
-        return null;
-    }
-    
-    @Override
-    protected boolean supportsConfiguration() {
+    public boolean saveConfiguration(PatchedDataComponentMap data) {
         return false;
     }
     

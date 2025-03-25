@@ -24,9 +24,8 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -150,13 +149,8 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     }
     
     @Override
-    public BlockState rotate(BlockState state, Rotation rotation, LittleVec doubledCenter) {
-        return state.setValue(FACING, rotation.rotate(Facing.get(state.getValue(FACING))).toVanilla());
-    }
-    
-    @Override
-    public BlockState mirror(BlockState state, Axis axis, LittleVec doubledCenter) {
-        return state.setValue(FACING, axis.mirror(state.getValue(FACING)));
+    public BlockState transform(BlockState state, IntMatrix3c matrix, LittleVec doubledCenter) {
+        return state.setValue(FACING, Facing.get(state.getValue(FACING)).transform(matrix).toVanilla());
     }
     
 }

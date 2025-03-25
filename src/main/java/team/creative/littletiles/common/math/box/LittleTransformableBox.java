@@ -21,13 +21,12 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
-import team.creative.creativecore.common.util.math.box.AlignedBox;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.box.BoxFace;
 import team.creative.creativecore.common.util.math.geo.NormalPlaneF;
 import team.creative.creativecore.common.util.math.geo.Ray3f;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.utils.BooleanUtils;
 import team.creative.creativecore.common.util.math.utils.IntegerUtils;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -49,75 +48,29 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 
 public class LittleTransformableBox extends LittleBox {
     
-    private static boolean[][] flipRotationMatrix = new boolean[][] { { false, false, false, false, true, true }, { false, false, false, false, true, true }, { true, true, false, false, false, false }, { true, true, false, false, false, false }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
-    private static boolean[][] flipMirrorMatrix = new boolean[][] { { true, true, true, true, true, true }, { true, true, true, true, true, true }, { true, true, true, true, true, true } };
-    
-    protected static boolean[][] buildFlipRotationCache() {
-        boolean[][] cache = new boolean[Rotation.values().length][Facing.values().length];
-        AlignedBox box = new AlignedBox();
-        Vec3f center = new Vec3f(0.5F, 0.5F, 0.5F);
-        for (int i = 0; i < cache.length; i++) {
-            Rotation rotation = Rotation.values()[i];
-            boolean[] flipped = cache[i];
-            for (int j = 0; j < Facing.values().length; j++) {
-                Facing facing = Facing.values()[j];
-                BoxFace face = BoxFace.get(facing);
-                BoxCorner corner = face.getCornerInQuestion(false, false);
-                
-                Vec3f vec = box.getCorner(corner);
-                vec.sub(center);
-                rotation.transform(vec);
-                vec.add(center);
-                
-                Facing rotatedFacing = rotation.rotate(facing);
-                BoxFace rotatedFace = BoxFace.get(rotatedFacing);
-                
-                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(
-                    true, false)), 0.0001F))
-                    flipped[j] = false;
-                else
-                    flipped[j] = true;
-            }
-        }
-        return cache;
-    }
-    
-    protected static boolean[][] buildFlipMirrorCache() {
-        boolean[][] cache = new boolean[Axis.values().length][Facing.values().length];
-        AlignedBox box = new AlignedBox();
-        Vec3f center = new Vec3f(0.5F, 0.5F, 0.5F);
-        for (int i = 0; i < cache.length; i++) {
-            Axis axis = Axis.values()[i];
-            boolean[] flipped = cache[i];
-            for (int j = 0; j < Facing.values().length; j++) {
-                Facing facing = Facing.values()[j];
-                BoxFace face = BoxFace.get(facing);
-                BoxCorner corner = face.getCornerInQuestion(false, false);
-                
-                Vec3f vec = box.getCorner(corner);
-                vec.sub(center);
-                axis.mirror(vec);
-                vec.add(center);
-                
-                Facing rotatedFacing = axis.mirror(facing);
-                BoxFace rotatedFace = BoxFace.get(rotatedFacing);
-                
-                if (vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(false, false)), 0.0001F) || vec.epsilonEquals(box.getCorner(rotatedFace.getCornerInQuestion(
-                    true, false)), 0.0001F))
-                    flipped[j] = false;
-                else
-                    flipped[j] = true;
-            }
-        }
-        return cache;
-    }
-    
     private static final Vec3f ZERO = new Vec3f();
     
     protected static final int dataStartIndex = 0;
     protected static final int dataEndIndex = 23;
     protected static final int flipStartIndex = 24;
     protected static final int flipEndIndex = 29;
+    
+    protected static boolean[] calculateFlipped(IntMatrix3c matrix) {
+        boolean[] flipped = new boolean[Facing.VALUES.length];
+        for (int i = 0; i < flipped.length; i++) {
+            Facing facing = Facing.VALUES[i];
+            BoxFace face = BoxFace.get(facing);
+            BoxCorner corner = face.getCornerInQuestion(false, false);
+            
+            BoxCorner transformedCorner = corner.transform(matrix);
+            Facing transformedFacing = facing.transform(matrix);
+            BoxFace transformedFace = BoxFace.get(transformedFacing);
+            
+            if (transformedFace.getCornerInQuestion(false, false) != transformedCorner && transformedFace.getCornerInQuestion(true, false) != transformedCorner)
+                flipped[i] = true;
+        }
+        return flipped;
+    }
     
     private int[] data;
     private SoftReference<VectorFanCache> cache;
@@ -651,7 +604,7 @@ public class LittleTransformableBox extends LittleBox {
     }
     
     @Override
-    public void rotate(Rotation rotation, LittleVec doubledCenter) {
+    public void transform(IntMatrix3c matrix, LittleVec doubledCenter) {
         CornerCache cache = new CornerCache(false);
         Iterator<TransformableVec> corners = corners();
         while (corners.hasNext()) {
@@ -661,68 +614,22 @@ public class LittleTransformableBox extends LittleBox {
             long tempY = (vec.getAbsoluteY()) * 2 - doubledCenter.y;
             long tempZ = (vec.getAbsoluteZ()) * 2 - doubledCenter.z;
             LittleVec rotatedVec = new LittleVec(0, 0, 0);
-            rotatedVec.x = (int) ((rotation.getMatrix().getX(tempX, tempY, tempZ) + doubledCenter.x) / 2);
-            rotatedVec.y = (int) ((rotation.getMatrix().getY(tempX, tempY, tempZ) + doubledCenter.y) / 2);
-            rotatedVec.z = (int) ((rotation.getMatrix().getZ(tempX, tempY, tempZ) + doubledCenter.z) / 2);
-            cache.setAbsolute(vec.corner.rotate(rotation), rotatedVec);
+            rotatedVec.x = (int) ((matrix.getX(tempX, tempY, tempZ) + doubledCenter.x) / 2);
+            rotatedVec.y = (int) ((matrix.getY(tempX, tempY, tempZ) + doubledCenter.y) / 2);
+            rotatedVec.z = (int) ((matrix.getZ(tempX, tempY, tempZ) + doubledCenter.z) / 2);
+            cache.setAbsolute(vec.corner.transform(matrix), rotatedVec);
         }
-        
-        super.rotate(rotation, doubledCenter);
+        super.transform(matrix, doubledCenter);
         this.data = cache.getData();
         
         boolean[] cachedFlipped = new boolean[6];
         for (int i = 0; i < Facing.VALUES.length; i++)
             cachedFlipped[i] = getFlipped(i);
         
+        boolean[] transformed = calculateFlipped(matrix);
         for (int i = 0; i < Facing.VALUES.length; i++) {
-            Facing facing = rotation.rotate(Facing.get(i));
-            if (flipRotationMatrix[rotation.ordinal()][i])
-                setFlipped(facing.ordinal(), !cachedFlipped[i]);
-            else
-                setFlipped(facing.ordinal(), cachedFlipped[i]);
-        }
-    }
-    
-    @Override
-    public void mirror(Axis axis, LittleVec doubledCenter) {
-        CornerCache cache = new CornerCache(false);
-        Iterator<TransformableVec> corners = corners();
-        while (corners.hasNext()) {
-            TransformableVec vec = corners.next();
-            
-            long tempX = (vec.getAbsoluteX()) * 2 - doubledCenter.x;
-            long tempY = (vec.getAbsoluteY()) * 2 - doubledCenter.y;
-            long tempZ = (vec.getAbsoluteZ()) * 2 - doubledCenter.z;
-            LittleVec flippedVec = new LittleVec(0, 0, 0);
-            switch (axis) {
-                case X:
-                    tempX = -tempX;
-                    break;
-                case Y:
-                    tempY = -tempY;
-                    break;
-                case Z:
-                    tempZ = -tempZ;
-                    break;
-            }
-            
-            flippedVec.x = (int) ((tempX + doubledCenter.x) / 2);
-            flippedVec.y = (int) ((tempY + doubledCenter.y) / 2);
-            flippedVec.z = (int) ((tempZ + doubledCenter.z) / 2);
-            cache.setAbsolute(vec.corner.mirror(axis), flippedVec);
-        }
-        
-        super.mirror(axis, doubledCenter);
-        
-        this.data = cache.getData();
-        
-        boolean[] cachedFlipped = new boolean[6];
-        for (int i = 0; i < Facing.VALUES.length; i++)
-            cachedFlipped[i] = getFlipped(i);
-        
-        for (int i = 0; i < Facing.VALUES.length; i++) {
-            Facing facing = axis.mirror(Facing.get(i));
-            if (flipMirrorMatrix[axis.ordinal()][i])
+            Facing facing = Facing.VALUES[i].transform(matrix);
+            if (transformed[i])
                 setFlipped(facing.ordinal(), !cachedFlipped[i]);
             else
                 setFlipped(facing.ordinal(), cachedFlipped[i]);
@@ -1224,6 +1131,19 @@ public class LittleTransformableBox extends LittleBox {
             return vec;
         }
         
+        private LittleVec getRelativeCopy(BoxCorner corner) {
+            LittleVec vec = corners[corner.ordinal()];
+            if (vec == null)
+                return new LittleVec(0, 0, 0);
+            if (relative)
+                return vec.copy();
+            vec = vec.copy();
+            vec.x -= get(corner, Axis.X);
+            vec.y -= get(corner, Axis.Y);
+            vec.z -= get(corner, Axis.Z);
+            return vec;
+        }
+        
         public void setAbsolute(BoxCorner corner, LittleVec vec) {
             corners[corner.ordinal()] = vec;
             if (relative) {
@@ -1254,6 +1174,18 @@ public class LittleTransformableBox extends LittleBox {
                 getOrCreate(corner).set(axis, value);
             else
                 getOrCreate(corner).set(axis, value + get(corner, axis));
+        }
+        
+        public void transform(IntMatrix3c matrix) {
+            LittleVec[] corners = this.corners;
+            if (!relative)
+                for (int i = 0; i < corners.length; i++)
+                    corners[i] = getRelativeCopy(BoxCorner.values()[i]);
+            for (int i = 0; i < corners.length; i++)
+                corners[i].transform(matrix);
+            if (!relative)
+                for (int i = 0; i < corners.length; i++)
+                    setRelative(BoxCorner.values()[i], corners[i]);
         }
         
         public int[] getData() {

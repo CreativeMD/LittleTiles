@@ -23,18 +23,17 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.parent.GuiPanel;
-import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiShowItem;
-import team.creative.creativecore.common.gui.controls.tree.GuiTree;
-import team.creative.creativecore.common.gui.controls.tree.GuiTreeItem;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.parent.GuiPanel;
+import team.creative.creativecore.common.gui.control.parent.GuiScrollY;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiShowItem;
+import team.creative.creativecore.common.gui.control.tree.GuiTree;
+import team.creative.creativecore.common.gui.control.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.util.math.geo.Rect;
@@ -44,8 +43,8 @@ import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.AnimationPreview;
-import team.creative.littletiles.common.gui.controls.animation.GuiAnimationPanel;
-import team.creative.littletiles.common.gui.controls.animation.GuiAnimationViewerStorage;
+import team.creative.littletiles.common.gui.control.animation.GuiAnimationPanel;
+import team.creative.littletiles.common.gui.control.animation.GuiAnimationViewerStorage;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.server.level.little.FakeServerLevel;
 
@@ -205,7 +204,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
     }
     
     @Override
-    public void render(GuiGraphics graphics, GuiChildControl control, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
+    public void render(GuiGraphics graphics, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
         synchronized (scheduled) {
             GuiRecipeAddAnimationRequest request = scheduled.getAndSet(null);
             if (request != null && executedPreview < request.index) {
@@ -215,7 +214,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
                 executedPreview = request.index;
             }
         }
-        super.render(graphics, control, controlRect, realRect, scale, mouseX, mouseY);
+        super.render(graphics, controlRect, realRect, scale, mouseX, mouseY);
     }
     
     protected LittleGroup reconstructBlueprint(GuiRecipeAddTreeItem item) {
@@ -262,7 +261,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
         }
         
         @Override
-        public boolean mouseClicked(Rect rect, double x, double y, int button) {
+        public boolean mouseClicked(double x, double y, int button) {
             select(stack);
             playSound(SoundEvents.UI_BUTTON_CLICK);
             return true;

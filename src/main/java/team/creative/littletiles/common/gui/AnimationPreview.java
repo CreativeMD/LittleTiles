@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.common.action.LittleActionException;
@@ -66,7 +65,7 @@ public class AnimationPreview {
         StructureAbsolute absolute = structure != null ? structure.createAnimationCenter(pos, grid) : null;
         if (absolute == null)
             absolute = new StructureAbsolute(pos, entireBox, previews.getGrid());
-        Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.ALL, new LittleGroupAbsolute(pos, previews), Facing.EAST));
+        Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.ALL, new LittleGroupAbsolute(pos, previews)));
         
         animation = new LittleAnimationEntity((Level) fakeLevel, subLevel, absolute, placement);
     }

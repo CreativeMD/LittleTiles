@@ -14,8 +14,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
-import team.creative.creativecore.common.gui.GuiChildControl;
 import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.creativecore.common.gui.GuiControlRect;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.integration.IGuiIntegratedParent;
 import team.creative.creativecore.common.gui.integration.ScreenEventListener;
@@ -28,7 +28,7 @@ import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.list.TupleList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.level.LevelAwareHandler;
-import team.creative.littletiles.common.gui.controls.GuiActionDisplay;
+import team.creative.littletiles.common.gui.control.GuiActionDisplay;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 
 public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler {
@@ -38,7 +38,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     private boolean doneInit = false;
     private final GuiLayer transparentLayer = new GuiLayer("overlay") {
         
-        private TupleList<GuiChildControl, OverlayPosition> positions = new TupleList<>();
+        private TupleList<GuiControl, OverlayPosition> positions = new TupleList<>();
         
         @Override
         public void create() {
@@ -46,7 +46,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         }
         
         public void addOverlayControl(GuiControl control, OverlayPosition position) {
-            positions.add(super.addControl(control), position);
+            positions.add(super.add(control), position);
         }
         
         @Override
@@ -62,8 +62,8 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         @Override
         public void flowY(int width, int height, int preferred) {
             super.flowY(width, height, preferred);
-            for (Tuple<GuiChildControl, OverlayPosition> tuple : positions)
-                tuple.value.positionControl(tuple.key, width, height);
+            for (Tuple<GuiControl, OverlayPosition> tuple : positions)
+                tuple.value.positionControl(tuple.key.rect, width, height);
         }
         
         @Override
@@ -191,7 +191,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         
         CENTER {
             @Override
-            protected void positionControl(GuiChildControl control, int width, int height) {
+            protected void positionControl(GuiControlRect control, int width, int height) {
                 control.setX(width / 2 - control.getWidth() / 2);
                 control.setY(height / 2 - control.getHeight() / 2);
             }
@@ -199,13 +199,13 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         ACTION_BAR {
             
             @Override
-            protected void positionControl(GuiChildControl control, int width, int height) {
+            protected void positionControl(GuiControlRect control, int width, int height) {
                 control.setX(width / 2 - control.getWidth() / 2);
                 control.setY(height - control.getHeight() - 30);
             }
         };
         
-        protected abstract void positionControl(GuiChildControl control, int width, int height);
+        protected abstract void positionControl(GuiControlRect control, int width, int height);
     }
     
 }

@@ -6,21 +6,21 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
-import team.creative.creativecore.common.gui.controls.parent.GuiColumn;
-import team.creative.creativecore.common.gui.controls.parent.GuiLabeledControl;
-import team.creative.creativecore.common.gui.controls.parent.GuiPanel;
-import team.creative.creativecore.common.gui.controls.parent.GuiRow;
-import team.creative.creativecore.common.gui.controls.parent.GuiTable;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiCheckBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiColorPicker;
-import team.creative.creativecore.common.gui.controls.simple.GuiCounter;
-import team.creative.creativecore.common.gui.controls.simple.GuiCounterDecimal;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiSteppedSlider;
-import team.creative.creativecore.common.gui.controls.simple.GuiTabButtonMapped;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.parent.GuiColumn;
+import team.creative.creativecore.common.gui.control.parent.GuiLabeledControl;
+import team.creative.creativecore.common.gui.control.parent.GuiPanel;
+import team.creative.creativecore.common.gui.control.parent.GuiRow;
+import team.creative.creativecore.common.gui.control.parent.GuiTable;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
+import team.creative.creativecore.common.gui.control.simple.GuiColorPicker;
+import team.creative.creativecore.common.gui.control.simple.GuiCounter;
+import team.creative.creativecore.common.gui.control.simple.GuiCounterDecimal;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiSlider;
+import team.creative.creativecore.common.gui.control.simple.GuiSteppedSlider;
+import team.creative.creativecore.common.gui.control.simple.GuiTabButton;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.registry.NamedClassBoundHandlerRegistry;
@@ -129,8 +129,8 @@ public class GuiParticle extends GuiLayer {
     }
     
     public LittleParticleEmitter particle;
-    public GuiComboBoxMapped<LittleParticlePresets> presetBox;
-    GuiComboBoxMapped<LittleParticleTexture> textureBox;
+    public GuiComboBox<LittleParticlePresets> presetBox;
+    public GuiComboBox<LittleParticleTexture> textureBox;
     public GuiCounterDecimal sizeStart;
     public GuiCounterDecimal sizeEnd;
     public GuiCounterDecimal sizeDiv;
@@ -142,7 +142,7 @@ public class GuiParticle extends GuiLayer {
     public GuiCounter ageDiv;
     public GuiCounter count;
     public GuiCounter delay;
-    public GuiTabButtonMapped<ParticleSpreadGuiHandler> spread;
+    public GuiTabButton<ParticleSpreadGuiHandler> spread;
     public GuiPanel spreadPanel;
     
     public GuiSyncLocal<CompoundTag> SAVE = getSyncHolder().register("save", x -> {
@@ -166,16 +166,16 @@ public class GuiParticle extends GuiLayer {
     public void create() {
         GuiParent presets = new GuiParent();
         add(presets);
-        presets.add(presetBox = new GuiComboBoxMapped<>("presets", new TextMapBuilder<LittleParticlePresets>().addComponent(null, Component.literal("")).addComponent(
+        presets.add(presetBox = new GuiComboBox<>("presets", new TextMapBuilder<LittleParticlePresets>().addComponent(null, Component.literal("")).addComponent(
             LittleParticlePresets.values(), x -> Component.translatable("gui.particle.preset." + x.name().toLowerCase()))));
         presetBox.setExpandableX();
         presets.add(new GuiButton("save_preset", x -> {
-            if (presetBox.getSelected() != null)
-                loadPreset(presetBox.getSelected());
+            if (presetBox.selected() != null)
+                loadPreset(presetBox.selected());
         }).setTranslate("gui.particle.load"));
         
-        add(new GuiLabeledControl("gui.particle.texture", textureBox = new GuiComboBoxMapped<LittleParticleTexture>("texture", new TextMapBuilder<LittleParticleTexture>()
-                .addComponent(LittleParticleTexture.values(), x -> x.title()))));
+        add(new GuiLabeledControl("gui.particle.texture", textureBox = new GuiComboBox<LittleParticleTexture>("texture", new TextMapBuilder<LittleParticleTexture>().addComponent(
+            LittleParticleTexture.values(), x -> x.title()))));
         
         GuiParent size = new GuiParent();
         add(size.setVAlign(VAlign.CENTER));
@@ -206,7 +206,7 @@ public class GuiParticle extends GuiLayer {
         amount.add(new GuiLabeledControl("gui.particle.per", delay = new GuiCounter("delay", particle.delay)));
         amount.add(new GuiLabel("tickLabel").setTranslate("gui.particle.tick"));
         
-        add(spread = new GuiTabButtonMapped<>("spread", new TextMapBuilder<ParticleSpreadGuiHandler>().addEntrySet(REGISTRY.entrySet(), (x) -> Component.translatable(
+        add(spread = new GuiTabButton<>("spread", new TextMapBuilder<ParticleSpreadGuiHandler>().addEntrySet(REGISTRY.entrySet(), (x) -> Component.translatable(
             "gui.particle.spread." + x.getKey()))));
         
         add(spreadPanel = new GuiPanel());
@@ -226,7 +226,7 @@ public class GuiParticle extends GuiLayer {
             ParticleSettings newSettings = new ParticleSettings();
             newSettings.randomColor = randomColor.value;
             newSettings.collision = collision.value;
-            newSettings.texture = textureBox.getSelected();
+            newSettings.texture = textureBox.selected();
             newSettings.lifetime = age.getIntValue();
             newSettings.lifetimeDeviation = ageDiv.getValue();
             newSettings.color = color.color.toInt();
@@ -252,14 +252,14 @@ public class GuiParticle extends GuiLayer {
     }
     
     public void loadSpread(ParticleSpread particleSpread) {
-        ParticleSpreadGuiHandler handler = spread.getSelected();
+        ParticleSpreadGuiHandler handler = spread.selected();
         spreadPanel.clear();
         handler.load(spreadPanel, particleSpread);
         reflow();
     }
     
     public ParticleSpread saveSpread() {
-        ParticleSpreadGuiHandler handler = spread.getSelected();
+        ParticleSpreadGuiHandler handler = spread.selected();
         if (handler != null)
             return handler.save(spreadPanel);
         return new ParticleSpreadRandom();

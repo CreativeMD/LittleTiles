@@ -7,16 +7,16 @@ import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.parent.GuiPanel;
-import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiCounter;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.parent.GuiPanel;
+import team.creative.creativecore.common.gui.control.parent.GuiScrollY;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiCounter;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiStateButton;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.util.text.TextListBuilder;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
@@ -116,27 +116,28 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
                 state = virtual.number == 1 ? 1 : 0;
             else
                 state = 2;
-            panel.add(new GuiStateButton("type", state, new TextListBuilder().add("false", "true", "equation")));
-            panel.add(new GuiButton("edit", x -> LittleTilesGuiRegistry.SIGNAL_DIALOG.open(getIntegratedParent(), new CompoundTag())
-                    .init(inputs, GuiVirtualInputIndexConfiguration.this)).setTranslate("gui.edit"));
+            panel.add(new GuiStateButton<Integer>("type", state, new TextMapBuilder<Integer>().addComponent(0, Component.translatable("gui.false")).addComponent(1, Component
+                    .translatable("gui.true")).addComponent(2, Component.translatable("gui.signal.equation"))));
+            panel.add(new GuiButton("edit", x -> LittleTilesGuiRegistry.SIGNAL_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(inputs,
+                GuiVirtualInputIndexConfiguration.this)).setTranslate("gui.edit"));
             update();
         }
         
         @Override
         public void update() {
             GuiLabel label = (GuiLabel) panel.get("label");
-            GuiStateButton type = (GuiStateButton) panel.get("type");
+            GuiStateButton<Integer> type = (GuiStateButton) panel.get("type");
             GuiButton edit = (GuiButton) panel.get("edit");
             
             label.setTitle(Component.literal(index + ": " + parse().write()));
-            edit.setEnabled(type.getState() == 2);
+            edit.setEnabled(type.selected() == 2);
         }
         
         public SignalInputCondition parse() {
-            GuiStateButton type = (GuiStateButton) panel.get("type");
-            if (type.getState() == 0)
+            GuiStateButton<Integer> type = (GuiStateButton) panel.get("type");
+            if (type.selected() == 0)
                 return new SignalInputVirtualNumber(0);
-            else if (type.getState() == 1)
+            else if (type.selected() == 1)
                 return new SignalInputVirtualNumber(1);
             if (condition != null)
                 return condition;
@@ -169,9 +170,7 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
         }
         
         @Override
-        public void setModeConfiguration(GuiSignalModeConfiguration config) {
-            
-        }
+        public void setModeConfiguration(GuiSignalModeConfiguration config) {}
         
     }
     

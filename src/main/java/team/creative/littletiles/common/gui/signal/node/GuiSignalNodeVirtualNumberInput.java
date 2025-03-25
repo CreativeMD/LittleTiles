@@ -8,7 +8,6 @@ import java.util.List;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
-import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
@@ -37,7 +36,7 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     }
     
     @Override
-    public boolean mouseDoubleClicked(Rect rect, double x, double y, int button) {
+    public boolean mouseDoubleClicked(double x, double y, int button) {
         LittleTilesGuiRegistry.VIRTUAL_NUMBER_DIALOG.open(getIntegratedParent(), new CompoundTag()).init(number, this);
         return true;
     }

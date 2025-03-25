@@ -52,10 +52,10 @@ public class LittleBlockTransformer {
     }
     
     public static void mirrorTile(LittleGrid grid, LittleTile tile, Axis axis) {
-        tile.mirror(axis, grid.rotationCenter);
+        tile.transform(axis.getMatrix(), grid.rotationCenter);
     }
     
     public static void rotateTile(LittleGrid grid, LittleTile tile, Rotation rotation) {
-        tile.rotate(rotation, grid.rotationCenter);
+        tile.transform(rotation.getMatrix(), grid.rotationCenter);
     }
 }

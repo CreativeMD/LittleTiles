@@ -1,18 +1,16 @@
 package team.creative.littletiles.common.item;
 
-import java.util.HashMap;
+import java.util.Arrays;
 import java.util.List;
 
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.NBTUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
@@ -20,13 +18,13 @@ import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.tool.LittleTool;
+import team.creative.littletiles.client.tool.LittleToolPlacer;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.GuiModeSelector;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
-import team.creative.littletiles.common.placement.PlacementPosition;
-import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -35,8 +33,6 @@ import team.creative.littletiles.common.structure.registry.premade.LittlePremade
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
 public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTooltip {
-    
-    private static HashMap<String, LittleGroup> cachedPreviews = new HashMap<>();
     
     public static ItemStack of(String structure) {
         ItemStack stack = new ItemStack(LittleTilesRegistry.PREMADE.value());
@@ -80,9 +76,9 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
         return new GuiModeSelector(view, PlacementPlayerSetting.grid(player), PlacementPlayerSetting.placementMode(player)) {
             
             @Override
-            public CompoundTag saveConfiguration(CompoundTag nbt, LittleGrid grid, PlacementMode mode) {
+            public boolean saveConfiguration(DataComponentMap data, LittleGrid grid, PlacementMode mode) {
                 LittleTilesClient.setPlace(grid, mode);
-                return null;
+                return false;
             }
         };
     }
@@ -90,11 +86,6 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     @Override
     public boolean hasTiles(ItemStack stack) {
         return LittlePremadeRegistry.getPreview(getPremadeId(stack)) != null;
-    }
-    
-    @Override
-    public boolean shouldRenderInHand(ItemStack stack) {
-        return hasTiles(stack);
     }
     
     public void removeUnnecessaryData(ItemStack stack) {
@@ -107,13 +98,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
         ILittleTool.setData(stack, data);
     }
     
-    public static void clearCache() {
-        cachedPreviews.clear();
-    }
-    
     private LittleGroup getPreviews(String id) {
-        if (cachedPreviews.containsKey(id))
-            return cachedPreviews.get(id).copy();
         LittleGroup previews = LittlePremadeRegistry.getLittleGroup(id);
         if (previews != null)
             return previews.copy();
@@ -136,48 +121,8 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     }
     
     @Override
-    public void rotate(Player player, ItemStack stack, Rotation rotation, boolean client) {
-        String id = getPremadeId(stack);
-        LittleGroup previews = getPreviews(id);
-        if (previews.isEmpty())
-            return;
-        previews.rotate(rotation, previews.getGrid().rotationCenter);
-        saveTiles(stack, previews);
-    }
-    
-    @Override
-    public void mirror(Player player, ItemStack stack, Axis axis, boolean client) {
-        String id = getPremadeId(stack);
-        LittleGroup previews = getPreviews(id);
-        if (previews.isEmpty())
-            return;
-        previews.mirror(axis, previews.getGrid().rotationCenter);
-        saveTiles(stack, previews);
-    }
-    
-    @Override
-    public PlacementPreview getPlacement(Player player, Level level, ItemStack stack, PlacementPosition position, boolean allowLowResolution) {
-        return PlacementPreview.relative(level, stack, position, allowLowResolution);
-    }
-    
-    @Override
-    public void saveTiles(ItemStack stack, LittleGroup group) {
-        cachedPreviews.put(getPremadeId(stack), group);
-    }
-    
-    @Override
-    public boolean sendTransformationUpdate() {
-        return false;
-    }
-    
-    @Override
     public boolean containsIngredients(ItemStack stack) {
         return true;
-    }
-    
-    @Override
-    public boolean shouldCache() {
-        return false;
     }
     
     @Override
@@ -203,7 +148,12 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { LittleTilesClient.configure.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.mirror.getTranslatedKeyMessage() };
+        return new Object[] { LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.KEY_MIRROR
+                .getTranslatedKeyMessage() };
     }
     
+    @Override
+    public Iterable<LittleTool> tools(ItemStack stack) {
+        return Arrays.asList(new LittleToolPlacer(stack));
+    }
 }

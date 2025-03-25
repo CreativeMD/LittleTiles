@@ -114,6 +114,8 @@ public class LittleGrid {
                 return grid;
             throw new RuntimeException("Grid " + nbt.getInt(GRID_KEY) + " is not available.");
         }
+        if (GRID_DEFAULT == null)
+            throw new RuntimeException("Grid " + OVERALL_DEFAULT + " is not available.");
         return LittleGrid.overallDefault();
     }
     

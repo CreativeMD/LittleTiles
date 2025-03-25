@@ -7,7 +7,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -49,7 +48,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
         if (structurePreview != null)
             return structurePreview.getPlaceAction();
         destroyedTiles.convertToSmallest();
-        return new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(uuid, PlacementMode.NORMAL, destroyedTiles, Facing.EAST));
+        return new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.load(uuid, PlacementMode.FILL, destroyedTiles));
     }
     
     @Override
@@ -154,7 +153,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
         
         public LittleAction getPlaceAction() {
             return new LittleActionPlace(requiresItemStack ? PlaceAction.PREMADE : PlaceAction.ABSOLUTE, PlacementPreview.absolute(structure.getStructureLevel(), PlacementMode.ALL,
-                previews, Facing.EAST));
+                previews));
         }
         
         @Override

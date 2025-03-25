@@ -15,7 +15,6 @@ import net.minecraft.world.item.ItemStack;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.model.CreativeItemModel;
-import team.creative.littletiles.api.common.tool.ILittlePlacer;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleModelItemBackground extends CreativeItemModel {
@@ -31,20 +30,20 @@ public class LittleModelItemBackground extends CreativeItemModel {
         return top.apply(current);
     }
     
-    public boolean shouldRenderFake(ItemStack stack) {
-        return ((ILittlePlacer) stack.getItem()).shouldRenderInHand(stack);
-    }
-    
     @Override
     public void applyCustomOpenGLHackery(PoseStack pose, ItemStack stack, ItemDisplayContext cameraTransformType) {
-        if (cameraTransformType == ItemDisplayContext.GUI || shouldRenderFake(stack)) {
+        if (cameraTransformType == ItemDisplayContext.GUI) {
+            
+            ItemStack toFake = getFakeStack(stack);
+            
+            if (toFake.isEmpty())
+                return;
             
             if (cameraTransformType == ItemDisplayContext.GUI)
                 RenderSystem.disableDepthTest();
             
             pose.pushPose();
             
-            ItemStack toFake = getFakeStack(stack);
             Minecraft mc = Minecraft.getInstance();
             BakedModel model = mc.getItemRenderer().getModel(toFake, null, null, 0);
             

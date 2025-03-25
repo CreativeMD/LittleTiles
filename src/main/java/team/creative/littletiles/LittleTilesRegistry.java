@@ -6,6 +6,7 @@ import com.mojang.serialization.Codec;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.Util;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -40,6 +41,7 @@ import net.neoforged.neoforge.registries.NeoForgeRegistries;
 import team.creative.littletiles.common.block.entity.BESignalConverter;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.entity.BETilesRendered;
+import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.mc.BlockArrow;
 import team.creative.littletiles.common.block.mc.BlockFlowingLava;
 import team.creative.littletiles.common.block.mc.BlockFlowingWater;
@@ -65,8 +67,10 @@ import team.creative.littletiles.common.item.ItemLittleSaw;
 import team.creative.littletiles.common.item.ItemLittleScrewdriver;
 import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
-import team.creative.littletiles.common.item.ItemMultiTiles.ExampleStructures;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
+import team.creative.littletiles.common.item.component.MatrixDataComponent;
+import team.creative.littletiles.common.item.component.TileFilterComponent;
+import team.creative.littletiles.common.placement.shape.LittleShapeInstance;
 import team.creative.littletiles.common.recipe.PremadeShapedRecipeSerializer;
 import team.creative.littletiles.common.recipe.StructureIngredient;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
@@ -105,12 +109,29 @@ public class LittleTilesRegistry {
     
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<CustomData>> DATA = DATA_COMPONENTS.register("tool_config", x -> DataComponentType
             .<CustomData>builder().persistent(CustomData.CODEC).networkSynchronized(CUSTOM_DATA_STREAM_CODEC).build());
+    
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COLOR_AMOUNT = DATA_COMPONENTS.register("color_amount", x -> DataComponentType
             .<Integer>builder().persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.INT).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COLOR = DATA_COMPONENTS.register("color", x -> DataComponentType.<Integer>builder()
             .persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build());
+    
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockIngredientEntry>> BLOCK_INGREDIENT_ENTRY = DATA_COMPONENTS.register("block_ingredient",
         x -> DataComponentType.<BlockIngredientEntry>builder().persistent(BlockIngredientEntry.CODEC).networkSynchronized(BlockIngredientEntry.STREAM_CODEC).build());
+    
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MatrixDataComponent>> MATRIX = DATA_COMPONENTS.register("matrix", x -> DataComponentType
+            .<MatrixDataComponent>builder().persistent(MatrixDataComponent.CODEC).networkSynchronized(MatrixDataComponent.STREAM_CODEC).build());
+    
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LittleElement>> ELEMENT = DATA_COMPONENTS.register("element", x -> DataComponentType
+            .<LittleElement>builder().persistent(LittleElement.CODEC).networkSynchronized(LittleElement.STREAM_CODEC).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<LittleShapeInstance>> SHAPE = DATA_COMPONENTS.register("shape", x -> DataComponentType
+            .<LittleShapeInstance>builder().persistent(LittleShapeInstance.CODEC).networkSynchronized(LittleShapeInstance.STREAM_CODEC).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<TileFilterComponent>> FILTER = DATA_COMPONENTS.register("filter", x -> DataComponentType
+            .<TileFilterComponent>builder().persistent(TileFilterComponent.CODEC).networkSynchronized(TileFilterComponent.STREAM_CODEC).build());
+    
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockPos>> FIRST_POS = DATA_COMPONENTS.register("pos1", x -> DataComponentType.<BlockPos>builder()
+            .persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockPos>> SECOND_POS = DATA_COMPONENTS.register("pos2", x -> DataComponentType.<BlockPos>builder()
+            .persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC).build());
     
     // BLOCKS
     
@@ -216,10 +237,8 @@ public class LittleTilesRegistry {
     
     public static final Holder<CreativeModeTab> TAB = CREATIVE_TABS.register("items", () -> CreativeModeTab.builder().icon(() -> new ItemStack(LittleTilesRegistry.HAMMER.value()))
             .title(Component.translatable("creative_tab.littletiles")).displayItems((features, output) -> {
-                for (ExampleStructures example : ExampleStructures.values())
-                    if (example.stack != null)
-                        output.accept(example.stack);
-                    
+                ItemMultiTiles.collectExamples(output);
+                
                 for (LittlePremadeType entry : LittlePremadeRegistry.types())
                     if (entry.showInCreativeTab && !entry.hasCustomTab())
                         output.accept(entry.createItemStack());

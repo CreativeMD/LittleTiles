@@ -2,23 +2,14 @@ package team.creative.littletiles.common.placement.shape.type;
 
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.littletiles.client.tool.shaper.ShapeSelection;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.shape.LittleShape;
-import team.creative.littletiles.common.placement.shape.ShapeSelection;
 
-public abstract class LittleShapeSelectable extends LittleShape {
-    
-    public LittleShapeSelectable(int pointsBeforePlacing) {
-        super(pointsBeforePlacing);
-    }
-    
-    @Override
-    public boolean requiresNoOverlap(ShapeSelection selection) {
-        return true;
-    }
+public abstract class LittleShapeSelectable<T> extends LittleShape<T> {
     
     public static void addBox(LittleBoxes boxes, boolean inside, LittleGrid grid, IParentCollection parent, LittleBox box, Facing facing) {
         if (inside)
@@ -43,6 +34,15 @@ public abstract class LittleShapeSelectable extends LittleShape {
         }
     }
     
+    public LittleShapeSelectable(int pointsBeforePlacing) {
+        super(pointsBeforePlacing);
+    }
+    
+    @Override
+    protected boolean requiresNoOverlap(ShapeSelection selection, T config) {
+        return true;
+    }
+    
     public void addBox(LittleBoxes boxes, boolean inside, LittleGrid grid, BlockPos pos, Facing facing) {
         LittleBox box = new LittleBox(0, 0, 0, grid.count, grid.count, grid.count);
         
@@ -55,7 +55,6 @@ public abstract class LittleShapeSelectable extends LittleShape {
                 box.setMin(facing.axis, grid.count - 1);
             boxes.addBox(grid, pos.relative(facing.toVanilla()), box);
         }
-        
     }
     
 }

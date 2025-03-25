@@ -17,12 +17,14 @@ import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.placement.PlacementContext;
+import team.creative.littletiles.common.placement.PreviewMode;
 import team.creative.littletiles.common.structure.LittleStructure;
 
 public abstract class PlacementMode {
     
     private static final NamedHandlerRegistry<PlacementMode> REGISTRY = new NamedHandlerRegistry<PlacementMode>(null);
     
+    /** Not in use anymore */
     public static final PlacementMode NORMAL = new PlacementModeNormal(PreviewMode.PREVIEWS, false);
     
     /** Tries to fill in the tiles where it is possible. **/
@@ -82,7 +84,7 @@ public abstract class PlacementMode {
     }
     
     static {
-        register("normal", NORMAL);
+        //register("normal", NORMAL);
         registerDefault("fill", FILL);
         register("all", ALL);
         register("overwrite", OVERWRITE);
@@ -143,11 +145,6 @@ public abstract class PlacementMode {
     
     public LittleIngredients getBeforePlaceIngredients(HolderLookup.Provider provider, LittleGroup previews) {
         return LittleAction.getIngredients(provider, previews);
-    }
-    
-    public static enum PreviewMode {
-        LINES,
-        PREVIEWS;
     }
     
 }

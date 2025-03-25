@@ -3,11 +3,11 @@ package team.creative.littletiles.common.gui.signal.dialog;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.collection.GuiComboBoxMapped;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
@@ -39,8 +39,8 @@ public class GuiDialogSignalMode extends GuiLayer {
         if (event == null)
             return;
         
-        GuiComboBoxMapped<SignalMode> box = new GuiComboBoxMapped<SignalMode>("mode", new TextMapBuilder<SignalMode>().addComponent(SignalMode.values(), x -> Component
-                .translatable(x.translateKey)));
+        GuiComboBox<SignalMode> box = new GuiComboBox<SignalMode>("mode", new TextMapBuilder<SignalMode>().addComponent(SignalMode.values(), x -> Component.translatable(
+            x.translateKey)));
         box.select(event.getModeConfiguration().getMode());
         add(box.setExpandableX());
         
@@ -58,7 +58,7 @@ public class GuiDialogSignalMode extends GuiLayer {
         
         bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
         bottom.addRight(new GuiButton("save", x -> {
-            SignalMode mode = box.getSelected();
+            SignalMode mode = box.selected();
             GuiTextfield text = (GuiTextfield) get("delay");
             int delay = text.parseInteger();
             config = mode.parseControls(panel, delay);
@@ -74,8 +74,8 @@ public class GuiDialogSignalMode extends GuiLayer {
     
     public void changed(GuiControlChangedEvent event) {
         if (event.control.is("mode")) {
-            GuiComboBoxMapped<SignalMode> box = (GuiComboBoxMapped<SignalMode>) event.control;
-            SignalMode mode = box.getSelected();
+            GuiComboBox<SignalMode> box = (GuiComboBox<SignalMode>) event.control;
+            SignalMode mode = box.selected();
             GuiParent panel = get("panel");
             panel.clear();
             mode.createControls(panel, config);

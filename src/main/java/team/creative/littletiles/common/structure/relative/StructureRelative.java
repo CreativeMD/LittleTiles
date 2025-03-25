@@ -2,7 +2,7 @@ package team.creative.littletiles.common.structure.relative;
 
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.IGridBased;
@@ -82,7 +82,7 @@ public class StructureRelative implements IGridBased {
         sameGrid(offset, () -> box.add(offset.getVec()));
     }
     
-    public void mirror(LittleGrid grid, Axis axis, LittleVec doubledCenter) {
+    public void transform(LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
         if (grid.count > this.grid.count)
             convertTo(grid);
         else if (grid.count < this.grid.count) {
@@ -90,20 +90,7 @@ public class StructureRelative implements IGridBased {
             doubledCenter.convertTo(grid, this.grid);
         }
         
-        box.mirror(axis, doubledCenter);
-        
-        convertToSmallest();
-    }
-    
-    public void rotate(LittleGrid grid, Rotation rotation, LittleVec doubledCenter) {
-        if (grid.count > this.grid.count)
-            convertTo(grid);
-        else if (grid.count < this.grid.count) {
-            doubledCenter = doubledCenter.copy();
-            doubledCenter.convertTo(grid, this.grid);
-        }
-        
-        box.rotate(rotation, doubledCenter);
+        box.transform(matrix, doubledCenter);
         
         convertToSmallest();
     }

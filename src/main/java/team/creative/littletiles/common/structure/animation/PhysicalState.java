@@ -3,7 +3,7 @@ package team.creative.littletiles.common.structure.animation;
 import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 
 public class PhysicalState {
@@ -158,14 +158,9 @@ public class PhysicalState {
         offset.set(axis, value);
     }
     
-    public void mirror(Axis axis) {
-        axis.mirror(offset);
-        axis.mirror(rotation);
-    }
-    
-    public void rotate(Rotation rotation) {
-        rotation.transform(this.offset);
-        rotation.transform(this.rotation);
+    public void transform(IntMatrix3c matrix) {
+        matrix.transform(this.offset);
+        matrix.transform(this.rotation);
     }
     
     @Override

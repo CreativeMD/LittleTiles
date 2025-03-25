@@ -8,17 +8,15 @@ import java.util.List;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
-import team.creative.creativecore.common.gui.controls.parent.GuiLeftRightBox;
-import team.creative.creativecore.common.gui.controls.parent.GuiScrollY;
-import team.creative.creativecore.common.gui.controls.simple.GuiButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiLabel;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButton;
-import team.creative.creativecore.common.gui.controls.simple.GuiStateButtonMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiTabButtonMapped;
-import team.creative.creativecore.common.gui.controls.simple.GuiTextfield;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
+import team.creative.creativecore.common.gui.control.parent.GuiScrollY;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
+import team.creative.creativecore.common.gui.control.simple.GuiStateButton;
+import team.creative.creativecore.common.gui.control.simple.GuiTabButton;
+import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
-import team.creative.creativecore.common.util.text.TextListBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeInput;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -66,13 +64,14 @@ public class GuiDialogSignalInput extends GuiLayer {
             
             @Override
             public void load(GuiSignalNodeInput input, GuiParent panel) {
-                panel.add(new GuiStateButtonMapped<SignalLogicOperator>("operation", input.logic == null ? SignalLogicOperator.AND : input.logic, new TextMapBuilder<SignalLogicOperator>()
-                        .addComponent(Arrays.asList(SignalLogicOperator.AND, SignalLogicOperator.OR, SignalLogicOperator.XOR), x -> Component.literal(x.display))));
+                panel.add(
+                    new GuiStateButton<SignalLogicOperator>("operation", input.logic == null ? SignalLogicOperator.AND : input.logic, new TextMapBuilder<SignalLogicOperator>()
+                            .addComponent(Arrays.asList(SignalLogicOperator.AND, SignalLogicOperator.OR, SignalLogicOperator.XOR), x -> Component.literal(x.display))));
             }
             
             @Override
             public void save(GuiSignalNodeInput input, GuiParent panel) {
-                input.logic = ((GuiStateButtonMapped<SignalLogicOperator>) panel.get("operation")).getSelected();
+                input.logic = ((GuiStateButton<SignalLogicOperator>) panel.get("operation")).selected();
             }
             
         });
@@ -88,7 +87,8 @@ public class GuiDialogSignalInput extends GuiLayer {
                         state = input.pattern[i];
                     
                     line.add(new GuiLabel("label" + i).setTitle(Component.literal(i + ":")));
-                    line.add(new GuiStateButton(i + "", state, new TextListBuilder().add("false", "true", "ignore")));
+                    line.add(new GuiStateButton<Integer>(i + "", state, new TextMapBuilder<Integer>().addComponent(0, Component.translatable("gui.false")).addComponent(1, Component
+                            .translatable("gui.true")).addComponent(2, Component.translatable("gui.ignore"))));
                 }
             }
             
@@ -96,8 +96,8 @@ public class GuiDialogSignalInput extends GuiLayer {
             public void save(GuiSignalNodeInput input, GuiParent panel) {
                 int[] indexes = new int[bandwidth];
                 for (int i = 0; i < bandwidth; i++) {
-                    GuiStateButton stateButton = panel.get(i + "");
-                    indexes[i] = stateButton.getState();
+                    GuiStateButton<Integer> stateButton = panel.get(i + "");
+                    indexes[i] = stateButton.selected();
                 }
                 input.pattern = indexes;
             }
@@ -126,7 +126,7 @@ public class GuiDialogSignalInput extends GuiLayer {
             }
             
         });
-        upper.add(new GuiTabButtonMapped<GuiSignalInputOperator>("type", input.operator, new TextMapBuilder<GuiSignalInputOperator>().addComponent(modes, x -> x.translatable())));
+        upper.add(new GuiTabButton<GuiSignalInputOperator>("type", input.operator, new TextMapBuilder<GuiSignalInputOperator>().addComponent(modes, x -> x.translatable())));
         add(new GuiScrollY("config").setExpandable());
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
@@ -139,10 +139,10 @@ public class GuiDialogSignalInput extends GuiLayer {
                 input.indexes = parseRange(range.getText());
             } catch (ParseException e) {}
             
-            GuiTabButtonMapped<GuiSignalInputOperator> tab = get("type");
+            GuiTabButton<GuiSignalInputOperator> tab = get("type");
             GuiScrollY panel = get("config");
             input.operator = tab.index();
-            tab.getSelected().save(input, panel);
+            tab.selected().save(input, panel);
             input.updateLabel();
             closeTopLayer();
         }).setTranslate("gui.save"));
@@ -153,10 +153,10 @@ public class GuiDialogSignalInput extends GuiLayer {
     
     public void changed(GuiControlChangedEvent event) {
         if (event.control.is("type")) {
-            GuiTabButtonMapped<GuiSignalInputOperator> tab = get("type");
+            GuiTabButton<GuiSignalInputOperator> tab = get("type");
             GuiScrollY panel = get("config");
             panel.clear();
-            tab.getSelected().load(input, panel);
+            tab.selected().load(input, panel);
             tab.reflow();
         } else if (event.control.is("range"))
             updateBandwidth();
