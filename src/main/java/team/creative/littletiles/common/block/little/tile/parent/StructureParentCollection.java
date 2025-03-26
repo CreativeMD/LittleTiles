@@ -140,7 +140,7 @@ public class StructureParentCollection extends ParentCollection implements IStru
         if (cache instanceof BETiles && !((BETiles) cache).isRemoved())
             return (BETiles) cache;
         
-        if (relativePos == null)
+        if (relativePos == null || isRemoved())
             throw new CorruptedLinkException();
         
         Level level = getBE().getLevel();
