@@ -5,6 +5,7 @@ import java.security.InvalidParameterException;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.Vec3;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -162,6 +163,17 @@ public class LittleVecGrid implements IGridBased {
     
     public LittleVecGrid calculateInvertedCenter() {
         return new LittleVecGrid(vec.calculateInvertedCenter(), grid);
+    }
+    
+    public void transform(IntMatrix3c matrix) {
+        vec.transform(matrix);
+    }
+    
+    public void transformABS(IntMatrix3c matrix) {
+        vec.transform(matrix);
+        vec.x = Math.abs(vec.x);
+        vec.y = Math.abs(vec.y);
+        vec.z = Math.abs(vec.z);
     }
     
 }

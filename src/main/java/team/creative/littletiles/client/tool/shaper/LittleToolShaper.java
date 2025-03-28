@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -70,13 +71,15 @@ public class LittleToolShaper extends LittleTool {
     }
     
     protected void removeCache() {
-        if (built)
-            clearBuffer();
         built = false;
-        // To save a bit of memory if no new cache is built
         if (worker != null)
-            worker.cancel(false);
+            worker.whenComplete((x, y) -> {
+                if (x != null)
+                    x.close();
+            }); // Make sure the buffers are closed either way
         worker = null;
+        if (builtResult != null)
+            builtResult.close();
         builtResult = null;
         builtShape = null;
     }
@@ -114,9 +117,11 @@ public class LittleToolShaper extends LittleTool {
         worker = CompletableFuture.supplyAsync(() -> {
             PoseStack pose = new PoseStack();
             var boxes = shape.build(sel, config);
+            ByteBufferBuilder buffer = null;
             MeshData mesh = null;
             if (!boxes.isEmpty()) {
-                var builder = createBuilder(lines);
+                buffer = createBuffer();
+                var builder = createBuilder(buffer, lines);
                 for (LittleBox box : boxes.all()) {
                     LittleRenderBox cube = box.getRenderingBox(boxes.getGrid());
                     if (cube != null)
@@ -127,7 +132,7 @@ public class LittleToolShaper extends LittleTool {
                     m.keepAlive(true);
                 
             }
-            return new ShapeResult(boxes, boxes.pos, mesh);
+            return new ShapeResult(boxes, boxes.pos, buffer, mesh);
         }, Util.backgroundExecutor());
     }
     
@@ -152,6 +157,8 @@ public class LittleToolShaper extends LittleTool {
             if (shaper.hasShape(player, stack) && (last != null || marked))
                 buildCache(level, shape, grid, shapeConfig, lines, shaper.previewInside(player, stack));
             else {
+                if (builtResult != null)
+                    builtResult.close();
                 builtResult = null;
                 builtShape = null;
                 builtShapeConfig = null;
@@ -242,10 +249,8 @@ public class LittleToolShaper extends LittleTool {
         if (worker != null) {
             try {
                 var temp = worker.get(10, TimeUnit.MILLISECONDS);
-                if (builtResult != null && builtResult.data instanceof MeshDataExtender m) {
-                    m.keepAlive(false);
-                    builtResult.data.close();
-                }
+                if (builtResult != null)
+                    builtResult.close();
                 builtResult = temp;
                 worker = null;
             } catch (InterruptedException | ExecutionException e) {
@@ -319,5 +324,15 @@ public class LittleToolShaper extends LittleTool {
         clearPositions();
     }
     
-    public static record ShapeResult(LittleBoxes boxes, BlockPos pos, MeshData data) {}
+    public static record ShapeResult(LittleBoxes boxes, BlockPos pos, ByteBufferBuilder buffer, MeshData data) {
+        
+        public void close() {
+            if (data instanceof MeshDataExtender m) {
+                m.keepAlive(false);
+                data.close();
+            }
+            if (buffer != null)
+                buffer.close();
+        }
+    }
 }

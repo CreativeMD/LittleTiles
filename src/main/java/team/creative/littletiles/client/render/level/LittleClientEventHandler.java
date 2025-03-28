@@ -28,7 +28,6 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
-import team.creative.littletiles.client.tool.LittleToolPlacer;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
@@ -39,10 +38,8 @@ public class LittleClientEventHandler {
     
     @SubscribeEvent
     public synchronized void levelUnload(LevelEvent.Unload event) {
-        if (event.getLevel().isClientSide()) {
+        if (event.getLevel().isClientSide())
             RenderingThread.unload();
-            LittleToolPlacer.unload();
-        }
     }
     
     @SubscribeEvent

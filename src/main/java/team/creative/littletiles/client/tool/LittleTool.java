@@ -27,16 +27,6 @@ import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 
 public abstract class LittleTool {
     
-    private static ByteBufferBuilder BUFFER_TO_USE;
-    private static ByteBufferBuilder BUFFER_IN_USE;
-    
-    public static void unload() {
-        if (BUFFER_TO_USE != null)
-            BUFFER_TO_USE.close();
-        if (BUFFER_IN_USE != null)
-            BUFFER_IN_USE.close();
-    }
-    
     public ItemStack stack;
     
     public LittleTool(ItemStack stack) {
@@ -76,13 +66,11 @@ public abstract class LittleTool {
         RenderSystem.depthMask(Minecraft.useShaderTransparency());
     }
     
-    protected BufferBuilder createBuilder(boolean lines) {
-        if (BUFFER_TO_USE == null)
-            BUFFER_TO_USE = new ByteBufferBuilder(86432);
-        var buffer = BUFFER_TO_USE;
-        BUFFER_TO_USE = BUFFER_IN_USE;
-        BUFFER_IN_USE = buffer;
-        
+    protected ByteBufferBuilder createBuffer() {
+        return new ByteBufferBuilder(86432);
+    }
+    
+    protected BufferBuilder createBuilder(ByteBufferBuilder buffer, boolean lines) {
         if (lines)
             return new BufferBuilder(buffer, VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
         return new BufferBuilder(buffer, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
@@ -99,11 +87,6 @@ public abstract class LittleTool {
             box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.002);
         else
             box.renderPreview(pose, builder, colorAlpha);
-    }
-    
-    protected void clearBuffer() {
-        if (BUFFER_IN_USE != null)
-            BUFFER_IN_USE.discard();
     }
     
     public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult result) {

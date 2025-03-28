@@ -50,4 +50,12 @@ public class LittleBoxGrid implements IGridBased {
         this.box = box;
     }
     
+    public LittleVecGrid getMin() {
+        return new LittleVecGrid(box.getMinVec(), grid);
+    }
+    
+    public LittleVecGrid getSize() {
+        return new LittleVecGrid(box.getSize(), grid);
+    }
+    
 }

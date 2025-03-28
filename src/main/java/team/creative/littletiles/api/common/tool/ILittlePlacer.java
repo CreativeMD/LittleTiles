@@ -33,7 +33,7 @@ public interface ILittlePlacer extends ILittleTool {
     }
     
     public default void transformMatrix(ItemStack stack, IntMatrix3c matrix) {
-        var m = new IntMatrix3(getMatrix(stack), matrix);
+        var m = new IntMatrix3(matrix, getMatrix(stack));
         if (m.isIdentity())
             stack.remove(LittleTilesRegistry.MATRIX);
         else

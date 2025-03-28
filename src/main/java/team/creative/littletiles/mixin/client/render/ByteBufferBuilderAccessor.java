@@ -10,4 +10,7 @@ public interface ByteBufferBuilderAccessor {
     
     @Accessor
     public int getWriteOffset();
+    
+    @Accessor
+    public long getPointer();
 }

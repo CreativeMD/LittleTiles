@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -40,6 +41,7 @@ import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.item.PlacerMatrixPacket;
@@ -69,6 +71,7 @@ public class LittleToolPlacer extends LittleTool {
     
     private boolean built = false;
     private boolean builtLines;
+    private LittleBoxGrid builtBox;
     private PlacementMode builtMode;
     private LittleVecGrid builtInternalOffset;
     private LittleVecGrid builtSize;
@@ -98,7 +101,6 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     public PlacementPreview getPlacement(Level level) {
-        builtResult.group.transform(placer.getMatrix(stack), builtResult.group.getGrid().rotationCenter);
         return PlacementPreview.relative(level, builtResult.group, builtMode, placedPosition);
     }
     
@@ -106,15 +108,25 @@ public class LittleToolPlacer extends LittleTool {
         built = true;
         builtMode = mode;
         builtInternalOffset = placer.getCachedMin(stack);
-        
         builtSize = placer.getCachedSize(stack);
+        if (builtInternalOffset != null && builtSize != null)
+            builtInternalOffset.sameGrid(builtSize, () -> {
+                LittleVec max = builtSize.getVec().copy();
+                max.add(builtInternalOffset.getVec());
+                builtBox = new LittleBoxGrid(new LittleBox(builtInternalOffset.getVec(), max), builtInternalOffset.getGrid());
+                builtBox.getBox().transform(matrix, builtBox.getGrid().rotationCenter);
+                builtInternalOffset = builtBox.getMin();
+                builtSize = builtBox.getSize();
+            });
+        
         builtLines = mode.getPreviewMode() == PreviewMode.LINES;
         
         worker = CompletableFuture.supplyAsync(() -> {
+            var buffer = createBuffer();
             LittleGroup group = placer.get(stack, false);
             group.transform(matrix, group.getGrid().rotationCenter);
             
-            BufferBuilder builder = createBuilder(builtLines);
+            BufferBuilder builder = createBuilder(buffer, builtLines);
             
             int colorAlpha = 255;
             
@@ -123,23 +135,21 @@ public class LittleToolPlacer extends LittleTool {
             
             var data = builder.build();
             ((MeshDataExtender) data).keepAlive(true);
-            return new LittleGroupResult(group, data);
+            return new LittleGroupResult(group, buffer, data);
         }, Util.backgroundExecutor());
         
     }
     
     protected void removeCache() {
-        if (built)
-            clearBuffer();
         built = false;
-        // To save a bit of memory if no new cache is built
         if (worker != null)
-            worker.cancel(false);
+            worker.whenComplete((x, y) -> {
+                if (x != null)
+                    x.close();
+            }); // Make sure the buffers are closed either way
         worker = null;
-        if (builtResult != null) {
-            ((MeshDataExtender) builtResult.data).keepAlive(false);
-            builtResult.data.close();
-        }
+        if (builtResult != null)
+            builtResult.close();
         builtLowGroup = null;
         builtResult = null;
         builtMode = null;
@@ -165,9 +175,9 @@ public class LittleToolPlacer extends LittleTool {
         aimedPosition = pos;
         lastGrid = grid;
         if (checkForWorker())
-            placedPosition = calculatePlacementPosition(builtResult.group, level);
+            placedPosition = calculatePlacementPosition(level, builtResult.group);
         else if (checkForGroupLow())
-            placedPosition = calculatePlacementPosition(builtLowGroup, level);
+            placedPosition = calculatePlacementPosition(level, null);
     }
     
     @Override
@@ -243,18 +253,16 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     public boolean checkForGroupLow() {
-        if (builtInternalOffset == null || builtSize == null)
+        if (builtBox == null)
             return false;
         
-        if (builtLowGroup == null)
-            builtInternalOffset.sameGrid(builtSize, () -> {
-                builtLowGroup = new LittleGroup();
-                LittleVec max = builtSize.getVec().copy();
-                max.add(builtInternalOffset.getVec());
-                LittleBox box = new LittleBox(builtInternalOffset.getVec(), max);
-                builtLowGroup.add(builtInternalOffset.getGrid(), new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE), box);
-            });
+        if (builtLowGroup == null) {
+            builtLowGroup = new LittleGroup();
+            builtLowGroup.add(builtBox, new LittleElement(Blocks.STONE.defaultBlockState(), ColorUtils.WHITE));
+        }
+        
         return builtLowGroup != null;
+        
     }
     
     public MeshData getMeshData(boolean lines) {
@@ -268,7 +276,6 @@ public class LittleToolPlacer extends LittleTool {
         for (RenderBox box : builtLowGroup.getPlaceBoxes(LittleVec.ZERO))
             buildBox(EMPTY, box, builder, 255, lines);
         return builder.build();
-        
     }
     
     @Override
@@ -332,35 +339,32 @@ public class LittleToolPlacer extends LittleTool {
         removeCache();
     }
     
-    public PlacementPosition calculatePlacementPosition(LittleGroup group, Level level) {
-        if (group.isEmptyIncludeChildren())
+    public PlacementPosition calculatePlacementPosition(Level level, @Nullable LittleGroup group) {
+        if (group != null && group.isEmptyIncludeChildren())
             return null;
         
         boolean centered = isCentered();
         boolean fixed = isFixed();
         LittleVecGrid size = builtSize.copy();
         PlacementPosition pos = aimedPosition.copy();
-        group.forceSameGrid(pos, size);
-        LittleGrid grid = group.getGrid();
         
-        List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
+        if (group != null)
+            group.forceSameGrid(pos, size);
+        else
+            pos.forceSameGrid(size);
+        LittleGrid grid = pos.getGrid();
         
-        boolean singleMode = group.totalBoxes() == 1;
+        boolean singleMode = group != null && group.totalBoxes() == 1;
         
-        if (singleMode) {
-            shifthandlers.add(new InsideFixedHandler());
-            centered = true;
-        }
-        
-        LittleBox box = PlacementHelper.getTilesBox(pos, size.getVec(), centered, pos.facing, builtMode.placeInside);
-        
-        boolean canBePlaceFixed = false;
+        LittleBox box = PlacementHelper.getTilesBox(pos, size.getVec(), centered || singleMode, builtMode.placeInside);
         
         if (fixed) {
-            canBePlaceFixed = !singleMode && LittleAction.canPlaceInside(group, level, pos.getPos(), builtMode.placeInside);
-            
-            if (canBePlaceFixed)
-                return new PlacementPosition(pos.getPos(), grid, new LittleVec(0, 0, 0), pos.facing);
+            if (!singleMode && LittleAction.canPlaceInside(level, pos.getPos(), builtMode.placeInside))
+                return new PlacementPosition(pos.getPos(), grid, new LittleVec(0, 0, 0), pos.facing); // Return
+                
+            List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
+            if (singleMode)
+                shifthandlers.add(new InsideFixedHandler());
             for (int i = 0; i < shifthandlers.size(); i++)
                 box = shifthandlers.get(i).getBox(level, pos.getPos(), grid, box);
         }
@@ -385,7 +389,7 @@ public class LittleToolPlacer extends LittleTool {
     
     @Override
     public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult result) {
-        if (built)
+        if (!built)
             return false;
         if (!checkForWorker())
             builtResult = worker.join();
@@ -400,5 +404,15 @@ public class LittleToolPlacer extends LittleTool {
         return true;
     }
     
-    public static record LittleGroupResult(LittleGroup group, MeshData data) {}
+    public static record LittleGroupResult(LittleGroup group, ByteBufferBuilder buffer, MeshData data) {
+        
+        public void close() {
+            if (data instanceof MeshDataExtender m) {
+                m.keepAlive(false);
+                data.close();
+            }
+            if (buffer != null)
+                buffer.close();
+        }
+    }
 }

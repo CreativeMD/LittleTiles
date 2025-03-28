@@ -84,4 +84,9 @@ public class MatrixDataComponent {
         return super.equals(obj);
     }
     
+    @Override
+    public int hashCode() {
+        return data;
+    }
+    
 }

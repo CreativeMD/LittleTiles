@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.placement;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -28,11 +26,11 @@ public class PlacementHelper {
         int y = moving.getBlockPos().getY();
         int z = moving.getBlockPos().getZ();
         
-        Facing facing = Facing.get(moving.getDirection());
+        Facing facing = moving.getType() != Type.MISS ? Facing.get(moving.getDirection()) : null;
         
         boolean canBePlacedInsideBlock = true;
-        if (moving.getType() != Type.MISS && !canBePlacedInside(level, moving.getBlockPos(), moving.getLocation(), facing)) {
-            switch (moving.getDirection()) {
+        if (facing != null && !canBePlacedInside(level, moving.getBlockPos(), moving.getLocation(), facing)) {
+            switch (facing) {
                 case EAST -> x++;
                 case WEST -> x--;
                 case UP -> y++;
@@ -60,12 +58,9 @@ public class PlacementHelper {
     }
     
     public static LittleBox getTilesBox(PlacementPosition pos, LittleVec size, boolean centered, boolean placeInside) {
-        return getTilesBox(pos, size, centered, pos.facing, placeInside);
-    }
-    
-    public static LittleBox getTilesBox(LittleVecAbsolute pos, LittleVec size, boolean centered, @Nullable Facing facing, boolean placeInside) {
         LittleVec temp = pos.getVec().copy();
-        if (centered && facing != null) {
+        if (centered && pos.facing != null) {
+            Facing facing = pos.facing;
             if (placeInside)
                 facing = facing.opposite();
             

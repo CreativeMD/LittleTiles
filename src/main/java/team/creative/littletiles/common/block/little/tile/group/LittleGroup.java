@@ -32,6 +32,7 @@ import team.creative.littletiles.common.block.little.tile.collection.LittleColle
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxGrid;
 import team.creative.littletiles.common.math.box.volume.LittleVolumes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -666,6 +667,10 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
                 box.convertTo(grid, this.grid);
             
         content.add(element, box);
+    }
+    
+    public void add(LittleBoxGrid box, LittleElement element) {
+        add(box.getGrid(), element, box.getBox().copy());
     }
     
     public void add(LittleGrid grid, LittleElement element, LittleBox box) {

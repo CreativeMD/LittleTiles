@@ -133,20 +133,10 @@ public abstract class LittleAction<T> extends CreativePacket {
         return false;
     }
     
-    public static boolean canPlaceInside(LittleGroup previews, Level level, BlockPos pos, boolean placeInside) {
+    public static boolean canPlaceInside(Level level, BlockPos pos, boolean placeInside) {
         BlockState state = level.getBlockState(pos);
-        Block block = state.getBlock();
-        if (state.canBeReplaced(new DirectionalPlaceContext(level, pos, Direction.EAST, ItemStack.EMPTY, Direction.EAST)) || block instanceof BlockTile) {
-            if (!placeInside) {
-                BlockEntity be = level.getBlockEntity(pos);
-                if (be instanceof BETiles)
-                    for (LittleTile tile : previews)
-                        for (LittleBox box : tile)
-                            if (!((BETiles) be).isSpaceFor(box))
-                                return false;
-            }
+        if (state.canBeReplaced(new DirectionalPlaceContext(level, pos, Direction.EAST, ItemStack.EMPTY, Direction.EAST)) || state.getBlock() instanceof BlockTile)
             return true;
-        }
         return false;
     }
     

@@ -33,11 +33,12 @@ public class ShapePosition extends PlacementPosition {
         this.ray = result;
         this.result = LittleTileContext.selectFocused(player.level(), result.getBlockPos(), player, whenClicked ? 1 : TickUtils.getFrameTime(player.level()));
         LittleGrid grid = getGrid();
-        if (inside) {
-            if (position.facing.positive && grid.isAtEdge(position.facing.axis.get(result.getLocation())))
-                getVec().sub(position.facing);
-        } else if (!position.facing.positive && grid.isAtEdge(position.facing.axis.get(result.getLocation())))
-            getVec().add(position.facing);
+        if (position.facing != null)
+            if (inside) {
+                if (position.facing.positive && grid.isAtEdge(position.facing.axis.get(result.getLocation())))
+                    getVec().sub(position.facing);
+            } else if (!position.facing.positive && grid.isAtEdge(position.facing.axis.get(result.getLocation())))
+                getVec().add(position.facing);
     }
     
     public ShapePosition(PlacementPosition position, BlockHitResult ray, LittleTileContext result) {
