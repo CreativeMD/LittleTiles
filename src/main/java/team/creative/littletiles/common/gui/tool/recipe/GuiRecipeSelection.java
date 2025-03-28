@@ -20,28 +20,31 @@ import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
-import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTilesGuiRegistry;
-import team.creative.littletiles.api.common.tool.ILittleTool;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
+import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
-import team.creative.littletiles.common.placement.selection.SelectionMode.SelectionResult;
+import team.creative.littletiles.common.placement.selection.SelectionParameters;
+import team.creative.littletiles.common.placement.selection.SelectionResult;
 
 public class GuiRecipeSelection extends GuiConfigure {
     
     public SelectionResult result;
     
     public final GuiSyncLocal<CompoundTag> SAVE_SELECTION = getSyncHolder().register("save_selection", nbt -> {
-        ItemStack stack = tool.get();
-        SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
+        
         try {
-            LittleGroup previews = mode.getGroup(getPlayer().level(), getPlayer(), ItemLittleBlueprint.getSelection(stack), nbt.getBoolean("includeVanilla"), nbt.getBoolean(
-                "includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean("remember_structure"));
+            SelectionMode mode = SelectionMode.REGISTRY.get(nbt.getString("mode"));
+            SelectionParameters selection = new SelectionParameters(getPlayer().level(), getPlayer(), nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean(
+                "includeLT"), nbt.getBoolean("remember_structure"));
+            SelectionComponent component = SelectionComponent.of(mode, nbt.getCompound("sel_config"));
+            LittleGroup previews = mode.select(selection, component);
             if (nbt.contains("grid")) {
                 LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
                 previews.convertTo(grid);
@@ -55,9 +58,9 @@ public class GuiRecipeSelection extends GuiConfigure {
             
             previews.removeOffset();
             
-            ((ItemLittleBlueprint) stack.getItem()).saveTiles(stack, previews);
-            mode.clear(stack);
-            
+            ((ItemLittleBlueprint) tool.get().getItem()).saveTiles(tool.get(), previews);
+            tool.get().remove(LittleTilesRegistry.SELECTION);
+            tool.get().remove(LittleTilesRegistry.MATRIX);
             tool.changed();
             LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
         } catch (LittleActionException e) {
@@ -67,11 +70,7 @@ public class GuiRecipeSelection extends GuiConfigure {
     });
     
     public final GuiSyncLocal<EndTag> CLEAR_SELECTION = getSyncHolder().register("clear_selection", x -> {
-        SelectionMode mode = ItemLittleBlueprint.getSelectionMode(tool.get());
-        var data = ILittleTool.getData(tool.get());
-        data.remove(ItemLittleBlueprint.SELECTION_KEY);
-        ILittleTool.setData(tool.get(), data);
-        ItemLittleBlueprint.setSelectionMode(tool.get(), mode);
+        tool.get().remove(LittleTilesRegistry.SELECTION);
         tool.changed();
         LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
     });
@@ -88,39 +87,39 @@ public class GuiRecipeSelection extends GuiConfigure {
     
     @Override
     public boolean saveConfiguration(PatchedDataComponentMap data) {
-        return false;
+        GuiComboBox<SelectionMode> box = get("selection_mode");
+        data.set(LittleTilesRegistry.SELECTION.get(), SelectionComponent.getOrDefault(tool.get()).withMode(box.selected(SelectionMode.REGISTRY.getDefault())));
+        return false; // Needs to be changed to true for more selection modes
     }
     
     @Override
     public void create() {
         ItemStack stack = tool.get();
-        SelectionMode mode = ItemLittleBlueprint.getSelectionMode(stack);
+        SelectionComponent component = SelectionComponent.getOrDefault(stack);
         GuiComboBox<SelectionMode> box = new GuiComboBox<>("selection_mode", new TextMapBuilder<SelectionMode>().addEntrySet(SelectionMode.REGISTRY.entrySet(), x -> x.getValue()
                 .getTranslation()));
-        box.select(mode);
+        box.select(component.mode);
         add(box.setExpandableX());
         
-        result = mode.generateResult(getPlayer().level(), ItemLittleBlueprint.getSelection(stack));
+        result = component.mode.scan(getPlayer().level(), component);
         
         GuiCheckBox vanilla = new GuiCheckBox("includeVanilla", false).setTranslate("selection.include.vanilla");
-        if (result != null && result.blocks > 0)
-            vanilla.setTooltip(new TextBuilder().text(result.blocks + " ").translate("selection.blocks").build());
+        if (result != null && result.hasBlocks())
+            vanilla.setTooltip(result.blockInfo());
         else
             vanilla.enabled = false;
         add(vanilla);
         
         GuiCheckBox cb = new GuiCheckBox("includeCB", true).setTranslate("selection.include.cb");
-        if (result != null && result.cbBlocks > 0)
-            cb.setTooltip(new TextBuilder().text(result.cbBlocks + " ").translate("gui.blocks").text(", " + result.cbTiles + " ").translate("gui.tiles").text(
-                ", " + result.minCBGrid.count + " ").translate("gui.grid").build());
+        if (result != null && result.hasCB())
+            cb.setTooltip(result.cbInfo());
         else
             cb.enabled = false;
         add(cb);
         
         GuiCheckBox lt = new GuiCheckBox("includeLT", true).setTranslate("selection.include.lt");
-        if (result != null && result.ltBlocks > 0)
-            cb.setTooltip(new TextBuilder().text(result.ltBlocks + " ").translate("gui.blocks").text(", " + result.ltTiles + " ").translate("gui.tiles").text(
-                ", " + result.minLtGrid.count + " ").translate("gui.grid").build());
+        if (result != null && result.hasTiles())
+            cb.setTooltip(result.ltInfo());
         else
             lt.enabled = false;
         add(lt);
@@ -144,14 +143,13 @@ public class GuiRecipeSelection extends GuiConfigure {
             }, DialogButton.NO, DialogButton.YES);
         }).setTranslate("selection.clear"));
         bottom.addRight(new GuiButton("save", x -> {
-            boolean rememberStructure = ((GuiCheckBox) get("remember_structure")).value;
-            boolean includeVanilla = ((GuiCheckBox) get("includeVanilla")).value;
-            boolean includeCB = ((GuiCheckBox) get("includeCB")).value;
-            boolean includeLT = ((GuiCheckBox) get("includeLT")).value;
+            SelectionParameters selection = new SelectionParameters(getPlayer().level(), getPlayer(), get("includeVanilla", GuiCheckBox.class).value, get("includeCB",
+                GuiCheckBox.class).value, get("includeLT", GuiCheckBox.class).value, get("remember_structure", GuiCheckBox.class).value);
+            
+            SelectionMode mode = box.selected(SelectionMode.REGISTRY.getDefault());
             
             try {
-                if (rememberStructure && mode.getGroup(getPlayer().level(), getPlayer(), ItemLittleBlueprint.getSelection(stack), includeVanilla, includeCB, includeLT,
-                    rememberStructure).isEmptyIncludeChildren()) {
+                if (selection.rememberStructure() && mode.select(selection, component).isEmptyIncludeChildren()) {
                     GuiDialogHandler.openDialog(getIntegratedParent(), "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                     return;
                 }
@@ -160,19 +158,15 @@ public class GuiRecipeSelection extends GuiConfigure {
                 return;
             }
             
-            mode.save(stack);
             CompoundTag nbt = new CompoundTag();
-            nbt.putBoolean("save_selection", true);
-            nbt.putBoolean("includeVanilla", includeVanilla);
-            nbt.putBoolean("includeCB", includeCB);
-            nbt.putBoolean("includeLT", includeLT);
-            nbt.putBoolean("remember_structure", rememberStructure);
+            nbt.putString("mode", mode.getName());
+            nbt.put("sel_config", component.getConfig());
+            nbt.putBoolean("includeVanilla", selection.includeVanilla());
+            nbt.putBoolean("includeCB", selection.includeCB());
+            nbt.putBoolean("includeLT", selection.includeLT());
+            nbt.putBoolean("remember_structure", selection.rememberStructure());
             
-            LittleGrid minRequired = LittleGrid.MIN;
-            if (nbt.getBoolean("includeCB") && result.minCBGrid != null)
-                minRequired = LittleGrid.max(minRequired, result.minCBGrid);
-            if (nbt.getBoolean("includeLT") && result.minLtGrid != null)
-                minRequired = LittleGrid.max(minRequired, result.minLtGrid);
+            LittleGrid minRequired = result.minGrid(selection.includeLT(), selection.includeCB());
             LittleGrid selected = LittleGrid.gridByIndex(LittleGrid.gridCount() - 1 - ((GuiArraySlider) get("scale")).getIntValue());
             if (minRequired != selected) {
                 nbt.putInt("grid", minRequired.count);
@@ -185,19 +179,14 @@ public class GuiRecipeSelection extends GuiConfigure {
     
     public void updateSlider() {
         GuiArraySlider slider = (GuiArraySlider) get("scale");
-        boolean includeVanilla = ((GuiCheckBox) get("includeVanilla")).enabled && ((GuiCheckBox) get("includeVanilla")).value;
-        boolean includeCB = ((GuiCheckBox) get("includeCB")).enabled && ((GuiCheckBox) get("includeCB")).value;
-        boolean includeLT = ((GuiCheckBox) get("includeLT")).enabled && ((GuiCheckBox) get("includeLT")).value;
+        boolean includeVanilla = get("includeVanilla", GuiCheckBox.class).enabled && get("includeVanilla", GuiCheckBox.class).value;
+        boolean includeCB = get("includeCB", GuiCheckBox.class).enabled && get("includeCB", GuiCheckBox.class).value;
+        boolean includeLT = get("includeLT", GuiCheckBox.class).enabled && get("includeLT", GuiCheckBox.class).value;
         
         if (result == null || (!includeVanilla && !includeCB && !includeLT))
             slider.setEnabled(false);
         else {
-            LittleGrid minRequired = LittleGrid.MIN;
-            if (includeCB && result.minCBGrid != null)
-                minRequired = LittleGrid.max(minRequired, result.minCBGrid);
-            if (includeLT && result.minLtGrid != null)
-                minRequired = LittleGrid.max(minRequired, result.minLtGrid);
-            
+            LittleGrid minRequired = result.minGrid(includeLT, includeCB);
             String value = slider.get();
             
             String[] values = new String[LittleGrid.gridCount()];

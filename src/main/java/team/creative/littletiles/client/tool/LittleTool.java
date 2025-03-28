@@ -89,11 +89,11 @@ public abstract class LittleTool {
             box.renderPreview(pose, builder, colorAlpha);
     }
     
-    public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult result) {
+    public boolean onRightClick(Level level, Player player, BlockHitResult result) {
         return true;
     }
     
-    public boolean onLeftClick(Level level, Player player, @Nullable BlockHitResult result) {
+    public boolean onLeftClick(Level level, Player player, BlockHitResult result) {
         return false;
     }
     

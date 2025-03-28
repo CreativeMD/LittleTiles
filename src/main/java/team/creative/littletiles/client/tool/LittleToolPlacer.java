@@ -9,6 +9,7 @@ import java.util.concurrent.TimeoutException;
 
 import javax.annotation.Nullable;
 
+import com.google.common.base.Objects;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -30,6 +31,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
@@ -71,11 +73,14 @@ public class LittleToolPlacer extends LittleTool {
     
     private boolean built = false;
     private boolean builtLines;
+    private IntMatrix3c builtMatrix;
+    private int builtHash;
     private LittleBoxGrid builtBox;
     private PlacementMode builtMode;
     private LittleVecGrid builtInternalOffset;
     private LittleVecGrid builtSize;
     private LittleGroup builtLowGroup;
+    private boolean builtEmpty;
     private LittleGroupResult builtResult;
     private CompletableFuture<LittleGroupResult> worker;
     
@@ -107,8 +112,10 @@ public class LittleToolPlacer extends LittleTool {
     protected void buildCache(Level level, IntMatrix3c matrix, PlacementMode mode) {
         built = true;
         builtMode = mode;
+        builtMatrix = matrix;
         builtInternalOffset = placer.getCachedMin(stack);
         builtSize = placer.getCachedSize(stack);
+        builtEmpty = false;
         if (builtInternalOffset != null && builtSize != null)
             builtInternalOffset.sameGrid(builtSize, () -> {
                 LittleVec max = builtSize.getVec().copy();
@@ -120,6 +127,7 @@ public class LittleToolPlacer extends LittleTool {
             });
         
         builtLines = mode.getPreviewMode() == PreviewMode.LINES;
+        builtHash = stack.get(LittleTilesRegistry.DATA).hashCode();
         
         worker = CompletableFuture.supplyAsync(() -> {
             var buffer = createBuffer();
@@ -153,6 +161,7 @@ public class LittleToolPlacer extends LittleTool {
         builtLowGroup = null;
         builtResult = null;
         builtMode = null;
+        builtBox = null;
     }
     
     @Override
@@ -160,16 +169,23 @@ public class LittleToolPlacer extends LittleTool {
         var grid = placer.getPositionGrid(player, stack);
         var pos = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, grid, placer, stack);
         var mode = placer.getPlacementMode(stack);
+        var matrix = placer.getMatrix(stack);
+        var hasTiles = placer.hasTiles(stack);
+        var hash = stack.get(LittleTilesRegistry.DATA).hashCode();
         
-        if (built && (builtMode != mode || builtLines != (mode.getPreviewMode() == PreviewMode.LINES)))
+        if (built && (builtMode != mode || builtLines != (mode.getPreviewMode() == PreviewMode.LINES) || !Objects.equal(builtMatrix, matrix) || !hasTiles || builtHash != hash))
             removeCache();
         
         if (!built) {
-            if (placer.hasTiles(stack))
-                buildCache(level, placer.getMatrix(stack), mode);
-            else if (builtResult != null)
-                removeCache();
+            if (hasTiles)
+                buildCache(level, matrix, mode);
+            else {
+                builtEmpty = true;
+                if (builtResult != null || worker != null)
+                    removeCache();
+            }
             built = true;
+            
         }
         
         aimedPosition = pos;
@@ -253,7 +269,7 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     public boolean checkForGroupLow() {
-        if (builtBox == null)
+        if (builtBox == null || builtEmpty)
             return false;
         
         if (builtLowGroup == null) {
@@ -388,7 +404,7 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     @Override
-    public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult result) {
+    public boolean onRightClick(Level level, Player player, BlockHitResult result) {
         if (!built)
             return false;
         if (!checkForWorker())

@@ -19,7 +19,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.QuadGeneratorContext;
-import team.creative.creativecore.common.level.LevelAccesorFake;
+import team.creative.creativecore.common.level.LevelAccessorFake;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
@@ -115,7 +115,7 @@ public class RenderingThread extends Thread {
     }
     
     private final SingletonList<BakedQuad> bakedQuadWrapper = new SingletonList<BakedQuad>(null);
-    private final LevelAccesorFake fakeAccess = new LevelAccesorFake();
+    private final LevelAccessorFake fakeAccess = new LevelAccessorFake();
     private final ChunkLayerMap<BufferCache> buffers = new ChunkLayerMap<>();
     public boolean active = true;
     private volatile boolean requiresReload = false;

@@ -335,7 +335,7 @@ public class LittleTilesClient {
                     if (!LittleGroup.shouldRenderInHand(ItemLittleBlueprint.getContent(x)))
                         return ItemStack.EMPTY;
                     ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
-                    ILittleTool.setData(stack, ILittleTool.getData(x).getCompound(ItemLittleBlueprint.CONTENT_KEY));
+                    ILittleTool.setData(stack, ILittleTool.getData(x));
                     return stack;
                 }));
         

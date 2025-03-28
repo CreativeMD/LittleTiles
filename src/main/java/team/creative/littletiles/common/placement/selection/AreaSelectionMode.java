@@ -5,19 +5,17 @@ import java.util.List;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -28,6 +26,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.config.LittleBuildingConfig;
 import team.creative.littletiles.common.config.LittleTilesConfig.AreaTooLarge;
 import team.creative.littletiles.common.entity.LittleEntity;
+import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -39,7 +38,8 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 public class AreaSelectionMode extends SelectionMode {
     
     @Override
-    public SelectionResult generateResult(Level level, CompoundTag nbt) {
+    public SelectionResult scan(Level level, SelectionComponent component) {
+        var nbt = component.getConfig();
         BlockPos pos = null;
         if (nbt.contains("pos1")) {
             int[] array = nbt.getIntArray("pos1");
@@ -66,32 +66,26 @@ public class AreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public CompoundTag leftClick(Player player, CompoundTag nbt, BlockPos pos) {
+    public SelectionComponent leftClick(Player player, SelectionComponent component, BlockPos pos) {
+        var nbt = component.getConfig();
         nbt.putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level().isClientSide)
             player.sendSystemMessage(Component.translatable("selection.mode.area.pos.first", pos.getX(), pos.getY(), pos.getZ()));
-        return nbt;
+        return component.withConfig(nbt);
     }
     
     @Override
-    public CompoundTag rightClick(Player player, CompoundTag nbt, BlockPos pos) {
+    public SelectionComponent rightClick(Player player, SelectionComponent component, BlockPos pos) {
+        var nbt = component.getConfig();
         nbt.putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (!player.level().isClientSide)
             player.sendSystemMessage(Component.translatable("selection.mode.area.pos.second", pos.getX(), pos.getY(), pos.getZ()));
-        return nbt;
+        return component.withConfig(nbt);
     }
     
     @Override
-    public void clear(ItemStack stack) {
-        var data = ILittleTool.getData(stack);
-        data.remove("pos1");
-        data.remove("pos2");
-        ILittleTool.setData(stack, data);
-    }
-    
-    @Override
-    public LittleGroup getGroup(Level level, Player player, CompoundTag nbt, boolean includeVanilla, boolean includeCB, boolean includeLT,
-            boolean rememberStructure) throws LittleActionException {
+    public LittleGroup select(SelectionParameters selection, SelectionComponent component) throws LittleActionException {
+        var nbt = component.getConfig();
         BlockPos pos = null;
         if (nbt.contains("pos1")) {
             int[] array = nbt.getIntArray("pos1");
@@ -119,87 +113,73 @@ public class AreaSelectionMode extends SelectionMode {
         int maxY = Math.max(pos.getY(), pos2.getY());
         int maxZ = Math.max(pos.getZ(), pos2.getZ());
         
-        LittleBuildingConfig config = LittleTiles.CONFIG.build.get(player);
+        LittleBuildingConfig config = LittleTiles.CONFIG.build.get(selection.player());
         
         if (config.blueprintSizeLimit.isEnabled() && (maxX - minX) * (maxY - minY) * (maxZ - minZ) > config.blueprintSizeLimit.value)
-            throw new AreaTooLarge(player, config);
+            throw new AreaTooLarge(selection.player(), config);
         
-        AreaSelectionSearch search = new AreaSelectionSearch(player, includeVanilla, includeCB, includeLT, rememberStructure);
-        search.scanLevel(level, minX, minY, minZ, maxX, maxY, maxZ);
+        AreaSelectionSearch search = new AreaSelectionSearch(selection);
+        search.scanLevel(selection.level(), minX, minY, minZ, maxX, maxY, maxZ);
         
         AABB bb = new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1);
-        for (LittleEntity animation : LittleTiles.ANIMATION_HANDLERS.get(level).find(bb))
-            search.scanLevel(level, animation.getOrigin().getOBB(bb));
+        for (LittleEntity animation : LittleTiles.ANIMATION_HANDLERS.get(selection.level()).find(bb))
+            search.scanLevel(animation.getSubLevel(), animation.getOrigin().getOBB(bb));
         
         return search.build();
     }
     
     public static class AreaSelectionSearch {
         
-        public final Player player;
+        public final SelectionParameters selection;
         private final List<LittleStructure> structures;
         private final List<LittleGroup> children = new ArrayList<>();
         private final LittleGroup previews = new LittleGroup();
-        private final boolean includeVanilla;
-        private final boolean includeCB;
-        private final boolean includeLT;
-        private final boolean rememberStructure;
-        private final boolean includeBE;
-        
         private final MutableBlockPos temp = new MutableBlockPos();
         
-        public AreaSelectionSearch(Player player, boolean includeVanilla, boolean includeCB, boolean includeLT, boolean rememberStructure) throws AreaTooLarge {
-            this.player = player;
-            this.includeVanilla = includeVanilla;
-            this.includeCB = includeCB;
-            this.includeLT = includeLT;
-            this.rememberStructure = rememberStructure;
-            this.includeBE = includeCB || includeLT;
-            this.structures = rememberStructure ? new ArrayList<>() : null;
+        public AreaSelectionSearch(SelectionParameters selection) throws AreaTooLarge {
+            this.selection = selection;
+            this.structures = selection.rememberStructure() ? new ArrayList<>() : null;
         }
         
-        public void scanLevel(Level level, ABB bb) throws LittleActionException {
+        public void scanLevel(LevelAccessor level, ABB bb) throws LittleActionException {
             scanLevel(level, Mth.floor(bb.minX), Mth.floor(bb.minY), Mth.floor(bb.minZ), Mth.ceil(bb.maxX), Mth.ceil(bb.maxY), Mth.ceil(bb.maxZ));
         }
         
-        public void scanLevel(Level level, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) throws LittleActionException {
+        public void scanLevel(LevelAccessor level, int minX, int minY, int minZ, int maxX, int maxY, int maxZ) throws LittleActionException {
             BlockPos center = new BlockPos(minX, minY, minZ);
             for (int posX = minX; posX <= maxX; posX++) {
                 for (int posY = minY; posY <= maxY; posY++) {
                     for (int posZ = minZ; posZ <= maxZ; posZ++) {
                         temp.set(posX, posY, posZ);
-                        if (includeBE) {
+                        if (selection.includeBE()) {
                             BlockEntity blockEntity = level.getBlockEntity(temp);
                             
-                            if (includeLT) {
-                                if (blockEntity instanceof BETiles be) {
-                                    for (IParentCollection parent : be.groups()) {
-                                        if (rememberStructure && parent.isStructure()) {
-                                            try {
-                                                LittleStructure structure = parent.getStructure();
-                                                while (structure.getParent() != null)
-                                                    structure = structure.getParent().getStructure();
-                                                structure.checkConnections();
-                                                if (!structures.contains(structure)) {
-                                                    children.add(structure.getPreviews(center));
-                                                    structures.add(structure);
-                                                }
-                                            } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                                                continue;
+                            if (selection.includeLT() && blockEntity instanceof BETiles be)
+                                for (IParentCollection parent : be.groups()) {
+                                    if (selection.rememberStructure() && parent.isStructure()) {
+                                        try {
+                                            LittleStructure structure = parent.getStructure();
+                                            while (structure.getParent() != null)
+                                                structure = structure.getParent().getStructure();
+                                            structure.checkConnections();
+                                            if (!structures.contains(structure)) {
+                                                children.add(structure.getPreviews(center));
+                                                structures.add(structure);
                                             }
-                                            
-                                        } else
-                                            for (LittleTile tile : parent) {
-                                                tile = tile.copy();
-                                                tile.move(new LittleVec(parent.getGrid().toGrid(posX - minX), parent.getGrid().toGrid(posY - minY), parent.getGrid().toGrid(
-                                                    posZ - minZ)));
-                                                previews.add(parent.getGrid(), tile, tile);
-                                            }
-                                    }
+                                        } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                                            continue;
+                                        }
+                                        
+                                    } else
+                                        for (LittleTile tile : parent) {
+                                            tile = tile.copy();
+                                            tile.move(new LittleVec(parent.getGrid().toGrid(posX - minX), parent.getGrid().toGrid(posY - minY), parent.getGrid().toGrid(
+                                                posZ - minZ)));
+                                            previews.add(parent.getGrid(), tile, tile);
+                                        }
                                 }
-                            }
                             
-                            if (includeCB) {
+                            if (selection.includeCB()) {
                                 LittleGroup specialPreviews = ChiselsAndBitsManager.getGroup(blockEntity);
                                 if (specialPreviews != null) {
                                     specialPreviews.move(new LittleVecGrid(new LittleVec(previews.getGrid().toGrid(posX - minX), previews.getGrid().toGrid(posY - minY), previews
@@ -210,7 +190,7 @@ public class AreaSelectionMode extends SelectionMode {
                             }
                         }
                         
-                        if (includeVanilla) {
+                        if (selection.includeVanilla()) {
                             BlockState state = level.getBlockState(temp);
                             if (LittleAction.isBlockValid(state)) {
                                 LittleBox box = previews.getGrid().box();

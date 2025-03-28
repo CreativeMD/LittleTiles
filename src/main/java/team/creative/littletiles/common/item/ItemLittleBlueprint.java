@@ -3,8 +3,6 @@ package team.creative.littletiles.common.item;
 import java.util.Arrays;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -36,41 +34,16 @@ import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
-import team.creative.littletiles.common.placement.selection.SelectionMode;
 
 public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemTooltip {
     
-    public static SelectionMode getSelectionMode(ItemStack stack) {
-        return SelectionMode.REGISTRY.get(getSelection(stack).getString("selmode"));
-    }
-    
-    public static void setSelectionMode(ItemStack stack, SelectionMode mode) {
-        var selection = getSelection(stack);
-        selection.putString("selmode", mode.getName());
-        setSelection(stack, selection);
-    }
-    
     public static final String CONTENT_KEY = "c";
-    public static final String SELECTION_KEY = "s";
-    
-    public static CompoundTag getSelection(ItemStack stack) {
-        return ILittleTool.getData(stack).getCompound(SELECTION_KEY);
-    }
-    
-    public static void setSelection(ItemStack stack, CompoundTag selection) {
-        var data = ILittleTool.getData(stack);
-        data.put(SELECTION_KEY, selection);
-        ILittleTool.setData(stack, data);
-    }
     
     public static CompoundTag getContent(ItemStack stack) {
-        return ILittleTool.getData(stack).getCompound(CONTENT_KEY);
-    }
-    
-    public static void setContent(ItemStack stack, CompoundTag content) {
-        var data = ILittleTool.getData(stack);
-        data.put(CONTENT_KEY, content);
-        ILittleTool.setData(stack, data);
+        var nbt = ILittleTool.getData(stack);
+        if (nbt.contains(CONTENT_KEY) && !nbt.contains(LittleGroup.BOXES_COUNT_KEY))
+            return nbt.getCompound(CONTENT_KEY);
+        return nbt;
     }
     
     public ItemLittleBlueprint() {
@@ -87,7 +60,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public boolean hasTiles(ItemStack stack) {
-        return !getContent(stack).isEmpty();
+        return ILittleTool.hasData(stack);
     }
     
     @Override
@@ -101,7 +74,7 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     public void saveTiles(ItemStack stack, LittleGroup group) {
-        setContent(stack, LittleGroup.save(group));
+        ILittleTool.setData(stack, LittleGroup.save(group));
     }
     
     @Override
@@ -182,27 +155,29 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
         }
         
         @Override
-        public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult result) {
+        public boolean onRightClick(Level level, Player player, BlockHitResult result) {
             if (result == null)
                 return false;
             if (hasTiles(stack))
                 return super.onRightClick(level, player, result);
             
-            setSelection(stack, getSelectionMode(stack).rightClick(player, getSelection(stack), result.getBlockPos()));
-            LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), true));
+            var packet = new SelectionModePacket(result.getBlockPos(), true);
+            packet.execute(player);
+            LittleTiles.NETWORK.sendToServer(packet);
             return true;
         }
         
         @Override
-        public boolean onLeftClick(Level level, Player player, @Nullable BlockHitResult result) {
+        public boolean onLeftClick(Level level, Player player, BlockHitResult result) {
             if (result == null)
                 return false;
             
             if (hasTiles(stack))
                 return super.onLeftClick(level, player, result);
             
-            setSelection(stack, getSelectionMode(stack).leftClick(player, getSelection(stack), result.getBlockPos()));
-            LittleTiles.NETWORK.sendToServer(new SelectionModePacket(result.getBlockPos(), false));
+            var packet = new SelectionModePacket(result.getBlockPos(), false);
+            packet.execute(player);
+            LittleTiles.NETWORK.sendToServer(packet);
             return true;
         }
         

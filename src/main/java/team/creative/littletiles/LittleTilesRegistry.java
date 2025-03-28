@@ -69,6 +69,7 @@ import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.item.component.MatrixDataComponent;
+import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.item.component.TileFilterComponent;
 import team.creative.littletiles.common.placement.shape.LittleShapeInstance;
 import team.creative.littletiles.common.recipe.PremadeShapedRecipeSerializer;
@@ -127,6 +128,8 @@ public class LittleTilesRegistry {
             .<LittleShapeInstance>builder().persistent(LittleShapeInstance.CODEC).networkSynchronized(LittleShapeInstance.STREAM_CODEC).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<TileFilterComponent>> FILTER = DATA_COMPONENTS.register("filter", x -> DataComponentType
             .<TileFilterComponent>builder().persistent(TileFilterComponent.CODEC).networkSynchronized(TileFilterComponent.STREAM_CODEC).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<SelectionComponent>> SELECTION = DATA_COMPONENTS.register("selection", x -> DataComponentType
+            .<SelectionComponent>builder().persistent(SelectionComponent.CODEC).networkSynchronized(SelectionComponent.STREAM_CODEC).build());
     
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockPos>> FIRST_POS = DATA_COMPONENTS.register("pos1", x -> DataComponentType.<BlockPos>builder()
             .persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC).build());

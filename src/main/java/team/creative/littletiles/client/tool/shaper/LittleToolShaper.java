@@ -8,8 +8,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import javax.annotation.Nullable;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
@@ -182,7 +180,7 @@ public class LittleToolShaper extends LittleTool {
         }
     }
     
-    private boolean interact(Level level, Player player, ItemStack stack, @Nullable BlockHitResult hit, boolean left) {
+    private boolean interact(Level level, Player player, ItemStack stack, BlockHitResult hit, boolean left) {
         boolean main = left == shaper.selectLeftClick(player, stack);
         
         if (!main && marked) {
@@ -236,12 +234,12 @@ public class LittleToolShaper extends LittleTool {
     }
     
     @Override
-    public boolean onLeftClick(Level level, Player player, @Nullable BlockHitResult hit) {
+    public boolean onLeftClick(Level level, Player player, BlockHitResult hit) {
         return interact(level, player, stack, hit, true);
     }
     
     @Override
-    public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult hit) {
+    public boolean onRightClick(Level level, Player player, BlockHitResult hit) {
         return interact(level, player, stack, hit, false);
     }
     

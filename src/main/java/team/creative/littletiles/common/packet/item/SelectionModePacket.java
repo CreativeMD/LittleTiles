@@ -5,7 +5,9 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
+import team.creative.littletiles.common.item.component.SelectionComponent;
 
 public class SelectionModePacket extends CreativePacket {
     
@@ -20,16 +22,20 @@ public class SelectionModePacket extends CreativePacket {
     public SelectionModePacket() {}
     
     @Override
+    public void execute(Player player) {
+        ItemStack stack = player.getMainHandItem();
+        SelectionComponent sel = SelectionComponent.getOrDefault(stack);
+        if (stack.getItem() instanceof ItemLittleBlueprint)
+            if (rightClick)
+                stack.set(LittleTilesRegistry.SELECTION, sel.mode.rightClick(player, sel, pos));
+            else
+                stack.set(LittleTilesRegistry.SELECTION, sel.mode.leftClick(player, sel, pos));
+    }
+    
+    @Override
     public void executeClient(Player player) {}
     
     @Override
-    public void executeServer(ServerPlayer player) {
-        ItemStack stack = player.getMainHandItem();
-        if (stack.getItem() instanceof ItemLittleBlueprint)
-            if (rightClick)
-                ItemLittleBlueprint.setSelection(stack, ItemLittleBlueprint.getSelectionMode(stack).rightClick(player, ItemLittleBlueprint.getSelection(stack), pos));
-            else
-                ItemLittleBlueprint.setSelection(stack, ItemLittleBlueprint.getSelectionMode(stack).leftClick(player, ItemLittleBlueprint.getSelection(stack), pos));
-    }
+    public void executeServer(ServerPlayer player) {}
     
 }

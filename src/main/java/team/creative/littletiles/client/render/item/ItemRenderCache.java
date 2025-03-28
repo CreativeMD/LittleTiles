@@ -61,7 +61,7 @@ public class ItemRenderCache implements LevelAwareHandler {
             ItemModelCache cache = caches.get(temp.set(stack));
             if (cache != null)
                 return cache.getQuads(translucent);
-            if (ILittleTool.hasData(stack))
+            if (!ILittleTool.hasData(stack))
                 return null;
             CreativeItemBoxModel renderer = get(stack);
             if (renderer != null) {
