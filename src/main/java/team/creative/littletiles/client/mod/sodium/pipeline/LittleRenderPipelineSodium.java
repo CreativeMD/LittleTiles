@@ -302,7 +302,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     int index = newIndexes.getInt(i);
                     bufferMap.put(index, buffer.slice(current, length));
                     correctIndexes[i] = index;
-                    correctIndexes[i + 1] = current;
+                    correctIndexes[i + 1] = current + length;
                     current += length;
                 }
                 
