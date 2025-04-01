@@ -166,6 +166,8 @@ public class LittleToolPlacer extends LittleTool {
     
     @Override
     public void tick(Level level, Player player, @Nullable BlockHitResult blockHit) {
+        if (blockHit == null)
+            return;
         var grid = placer.getPositionGrid(player, stack);
         var pos = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, grid, placer, stack);
         var mode = placer.getPlacementMode(stack);

@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import javax.annotation.Nullable;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
@@ -135,7 +137,9 @@ public class LittleToolShaper extends LittleTool {
     }
     
     @Override
-    public void tick(Level level, Player player, BlockHitResult blockHit) {
+    public void tick(Level level, Player player, @Nullable BlockHitResult blockHit) {
+        if (blockHit == null)
+            return;
         var grid = shaper.getPositionGrid(player, stack);
         boolean lines = shaper.previewMode(player, stack) == PreviewMode.LINES;
         var in = shaper.getShape(stack);
