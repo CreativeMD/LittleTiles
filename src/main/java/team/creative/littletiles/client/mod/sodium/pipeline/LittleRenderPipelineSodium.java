@@ -272,7 +272,8 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
             
             var indexArray = indexes.get(pass);
             BufferHolder[] holders = new BufferHolder[ModelQuadFacing.COUNT];
-            int count = indexArray[0].size() / 2;
+            
+            boolean hasData = false;
             
             if (pass.isTranslucent()) {
                 // For translucent stuff the rendering data is all put into the unassigned face.
@@ -293,39 +294,43 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     vertexCount += v.getVertexCount();
                 }
                 
-                ByteBuffer buffer = ByteBuffer.allocateDirect(size);
-                Int2ObjectMap<ByteBuffer> bufferMap = new Int2ObjectArrayMap<>();
-                int[] correctIndexes = new int[newIndexes.size()];
-                int current = 0;
-                for (int i = 0; i < newIndexes.size(); i += 2) {
-                    int length = newIndexes.getInt(i + 1);
-                    int index = newIndexes.getInt(i);
-                    bufferMap.put(index, buffer.slice(current, length));
-                    correctIndexes[i] = index;
-                    correctIndexes[i + 1] = current + length;
-                    current += length;
-                }
+                hasData = size > 0;
                 
-                for (int i = 0; i < indexArray.length; i++) {
-                    ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
-                    ByteBuffer threadBuffer = v.getBuffer();
-                    int threadIndex = 0;
-                    for (int j = 0; j < indexArray[i].size(); j += 2) {
-                        int start = j == 0 ? 0 : indexArray[i].getInt(j - 1);
-                        int next = indexArray[i].getInt(j + 1);
-                        int length = next - start;
-                        if (length == 0)
-                            continue;
-                        var b = bufferMap.get(indexArray[i].getInt(j));
-                        b.put(b.position(), threadBuffer, threadIndex, length);
-                        b.position(b.position() + length);
-                        threadIndex += length;
+                if (hasData) {
+                    ByteBuffer buffer = ByteBuffer.allocateDirect(size);
+                    Int2ObjectMap<ByteBuffer> bufferMap = new Int2ObjectArrayMap<>();
+                    int[] correctIndexes = new int[newIndexes.size()];
+                    int current = 0;
+                    for (int i = 0; i < newIndexes.size(); i += 2) {
+                        int length = newIndexes.getInt(i + 1);
+                        int index = newIndexes.getInt(i);
+                        bufferMap.put(index, buffer.slice(current, length));
+                        correctIndexes[i] = index;
+                        correctIndexes[i + 1] = current + length;
+                        current += length;
                     }
                     
-                    indexArray[i].clear();
+                    for (int i = 0; i < indexArray.length; i++) {
+                        ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
+                        ByteBuffer threadBuffer = v.getBuffer();
+                        int threadIndex = 0;
+                        for (int j = 0; j < indexArray[i].size(); j += 2) {
+                            int start = j == 0 ? 0 : indexArray[i].getInt(j - 1);
+                            int next = indexArray[i].getInt(j + 1);
+                            int length = next - start;
+                            if (length == 0)
+                                continue;
+                            var b = bufferMap.get(indexArray[i].getInt(j));
+                            b.put(b.position(), threadBuffer, threadIndex, length);
+                            b.position(b.position() + length);
+                            threadIndex += length;
+                        }
+                        
+                        indexArray[i].clear();
+                    }
+                    
+                    holders[ModelQuadFacing.UNASSIGNED.ordinal()] = new BufferHolder(buffer, size, vertexCount, correctIndexes);
                 }
-                
-                holders[ModelQuadFacing.UNASSIGNED.ordinal()] = new BufferHolder(buffer, size, vertexCount, correctIndexes);
             } else {
                 for (int i = 0; i < indexArray.length; i++) {
                     ChunkMeshBufferBuilderAccessor v = (ChunkMeshBufferBuilderAccessor) builder.getVertexBuffer(ModelQuadFacing.VALUES[i]);
@@ -337,11 +342,13 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                         threadBuffer.limit(threadBuffer.capacity());
                         holders[i] = new BufferHolder(buffer, buffer.limit(), v.getVertexCount(), indexArray[i].toIntArray());
                         indexArray[i].clear();
+                        hasData = true;
                     }
                 }
             }
             
-            buffers.put(((TerrainRenderPassAccessor) pass).getRenderType(), new SodiumBufferCache(holders, new ArrayList<>(sprites), count));
+            if (hasData)
+                buffers.put(((TerrainRenderPassAccessor) pass).getRenderType(), new SodiumBufferCache(holders, new ArrayList<>(sprites)));
             sprites.clear();
         }
         
