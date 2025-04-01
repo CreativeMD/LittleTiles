@@ -1,3 +1,27 @@
+1.6.0-pre158
+Reworked tools
+- Introduced several new data components for tools
+- enhanced performance of preview
+- reorganized tools
+- added pixel, blob and cube shape
+- reworked shape configuration
+- removed glove functionality for now
+Changed all mirror and rotate methods to transform with a matrix (change applies to items, tiles, elements, structures, doors, groups)
+Adapted CreativeCore v2.13.0
+Readded lt-open command
+Added several performance improvements for item rendering
+Added itemLowResolutionBoxCount option which will disable all rendering for items that have more than the specified count
+Added check to structure parent if it has been removed before getting the block entity
+Removed normal placement mode
+Fixed several issues with handling buffers in transitions (fixes door with children rendering glitches)
+Fixed adding empty additional layers during block to entity transition
+Fixed creating empty buffers for translucent layer with sodium installed
+Fixed translucent layer not having the correct structure indexes with sodium installed
+Fixed several issues related to blueprint and place caching
+Fixed blueprints not being rendered
+Fixed clock going from 0 to 16 (which it did not)
+Fixed tile items running into size limit
+
 1.6.0-pre157
 Fixed block emitting light not getting properly remembered when loading chunk again
 
