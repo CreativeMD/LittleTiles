@@ -65,7 +65,9 @@ public class StructureBlockToEntityPacket extends StructurePacket {
                             holder.applyOffset(offset);
                         layers.put(layer, holder);
                     }
-                    x.additional(uuid, layers);
+                    
+                    if (!layers.isEmpty())
+                        x.additional(uuid, layers);
                 });
             }
         }
