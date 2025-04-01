@@ -6,6 +6,8 @@ import java.util.UUID;
 
 import net.minecraft.client.renderer.RenderType;
 import team.creative.creativecore.common.util.type.itr.FunctionNonNullIterator;
+import team.creative.creativecore.common.util.type.itr.SingleIterator;
+import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.littletiles.client.render.cache.AdditionalBufferReceiver;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
@@ -43,19 +45,20 @@ public class AdditionalBuffers implements AdditionalBufferReceiver {
         return false;
     }
     
-    public boolean contains(UUID uuid) {
+    public int indexOf(UUID uuid) {
         for (int i = 0; i < content.size(); i++)
             if (content.get(i).uuid.equals(uuid))
-                return true;
-        return false;
+                return i;
+        return -1;
     }
     
     @Override
     public synchronized void additional(UUID uuid, LayeredBufferCache cache) {
-        if (contains(uuid))
-            return;
-        
-        content.add(new AdditionalBuffer(uuid, cache));
+        int index = indexOf(uuid);
+        if (index == -1)
+            content.add(new AdditionalBuffer(uuid, cache));
+        else
+            content.get(index).add(cache);
     }
     
     @Override
@@ -67,6 +70,25 @@ public class AdditionalBuffers implements AdditionalBufferReceiver {
         return new FunctionNonNullIterator<>(content, x -> x.buffers);
     }
     
-    private static record AdditionalBuffer(UUID uuid, LayeredBufferCache buffers) {}
+    @Override
+    public String toString() {
+        return content.toString();
+    }
+    
+    private static record AdditionalBuffer(UUID uuid, LayeredBufferCache buffers) {
+        
+        public void add(LayeredBufferCache cache) {
+            for (Tuple<RenderType, BufferCache> tuple : cache.tuples())
+                if (buffers.containsKey(tuple.key))
+                    buffers.put(tuple.key, BufferCache.combineOrCopy(buffers.get(tuple.key), new SingleIterator<BufferCache>(tuple.value)));
+                else
+                    buffers.put(tuple.key, tuple.value);
+        }
+        
+        @Override
+        public String toString() {
+            return uuid + "|" + buffers;
+        }
+    }
     
 }

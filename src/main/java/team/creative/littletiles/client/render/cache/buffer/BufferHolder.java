@@ -3,14 +3,18 @@ package team.creative.littletiles.client.render.cache.buffer;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
 import com.mojang.blaze3d.vertex.MeshData;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.client.render.VertexFormatUtils;
+import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.mixin.client.render.ByteBufferBuilderResultAccessor;
 import team.creative.littletiles.mixin.client.render.MeshDataAccessor;
 
@@ -24,7 +28,7 @@ public class BufferHolder implements BufferCache {
         if (second == null)
             return first;
         
-        return (BufferHolder) first.combine(second);
+        return (BufferHolder) first.combine(new SingleIterator<>(second));
     }
     
     private ByteBuffer buffer;
@@ -34,8 +38,7 @@ public class BufferHolder implements BufferCache {
      * Example: [-1, 120, 1, 160]
      * Structure -1: 0-120
      * Structure 1: 120-160 */
-    private final int[] indexes;
-    private int groupCount;
+    private int[] indexes;
     
     private boolean invalid;
     private int uploadIndex;
@@ -45,7 +48,6 @@ public class BufferHolder implements BufferCache {
         this.length = length;
         this.vertexCount = vertexCount;
         this.indexes = indexes;
-        this.groupCount = indexes != null ? indexes.length / 2 : 0;
     }
     
     public BufferHolder(MeshData buffer, int[] indexes) {
@@ -56,7 +58,6 @@ public class BufferHolder implements BufferCache {
         this.vertexCount = buffer.drawState().vertexCount();
         buffer.close();
         this.indexes = indexes;
-        this.groupCount = indexes != null ? indexes.length / 2 : 0;
     }
     
     @Override
@@ -94,17 +95,6 @@ public class BufferHolder implements BufferCache {
         return indexes;
     }
     
-    @Override
-    public int groupCount() {
-        return groupCount;
-    }
-    
-    protected void removeEntry(int length, int vertexCount) {
-        this.length -= length;
-        this.vertexCount -= vertexCount;
-        this.groupCount--;
-    }
-    
     public ByteBuffer byteBuffer() {
         return buffer;
     }
@@ -135,6 +125,11 @@ public class BufferHolder implements BufferCache {
     
     public int vertexCount() {
         return vertexCount;
+    }
+    
+    @Override
+    public boolean isEmpty() {
+        return indexes == null || indexes.length == 0;
     }
     
     @Override
@@ -172,87 +167,80 @@ public class BufferHolder implements BufferCache {
         return false;
     }
     
-    @Override
-    public BufferCache combine(BufferCache cache) {
-        if (!(cache instanceof BufferHolder))
-            return cache.combine(this);
-        
-        BufferHolder holder = (BufferHolder) cache;
-        
-        int vertexCount = 0;
-        int length = 0;
-        ByteBuffer firstBuffer = byteBuffer();
-        if (firstBuffer != null) {
-            vertexCount += vertexCount();
-            length += length();
-        }
-        
-        ByteBuffer secondBuffer = holder.byteBuffer();
-        if (secondBuffer != null) {
-            vertexCount += holder.vertexCount();
-            length += holder.length();
-        }
-        
-        if (vertexCount == 0)
-            return null;
-        
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(length);
-        
-        if (firstBuffer != null) {
-            firstBuffer.position(0);
-            firstBuffer.limit(length());
-            byteBuffer.put(firstBuffer);
-            firstBuffer.rewind();
-        }
-        
-        if (secondBuffer != null) {
-            secondBuffer.position(0);
-            secondBuffer.limit(holder.length());
-            byteBuffer.put(secondBuffer);
-            secondBuffer.rewind();
-        }
-        byteBuffer.rewind();
-        return new BufferHolder(byteBuffer, length, vertexCount, null);
+    private int indexOf(IntList list, int index) {
+        for (int i = 0; i < list.size(); i += 2)
+            if (list.getInt(i) == index)
+                return i;
+        return -1;
+    }
+    
+    private void add(IntList list, int index, int length) {
+        int foundIndex = indexOf(list, index);
+        if (foundIndex == -1) {
+            list.add(index);
+            list.add(length);
+        } else
+            list.set(foundIndex + 1, list.getInt(foundIndex + 1) + length);
     }
     
     @Override
     public BufferCache combine(Iterator<BufferCache> itr) {
-        int vertexCount = vertexCount();
-        int length = length();
+        int vertexCount = 0;
+        int totalLength = 0;
         
-        List<BufferCache> holders = new ArrayList<>();
-        while (itr.hasNext()) {
-            BufferHolder n = (BufferHolder) itr.next();
-            vertexCount += n.vertexCount();
-            length += n.length();
-            holders.add(n);
+        List<BufferHolder> holders = new ArrayList<>();
+        IntList indexes = new IntArrayList();
+        boolean self = !isEmpty();
+        
+        while (self || itr.hasNext()) {
+            BufferHolder holder = self ? this : (BufferHolder) itr.next();
+            self = false;
+            if (holder.isEmpty())
+                continue;
+            
+            vertexCount += holder.vertexCount();
+            totalLength += holder.length();
+            
+            for (int i = 0; i < holder.indexes.length; i += 2) {
+                int start = i == 0 ? 0 : holder.indexes[i - 1];
+                int length = holder.indexes[i + 1] - start;
+                add(indexes, holder.indexes[i], length);
+            }
+            
+            holders.add(holder);
         }
         
         if (vertexCount == 0)
             return null;
         
-        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(length);
-        
-        var b = byteBufferOrThrow();
-        b.position(0);
-        b.limit(length());
-        byteBuffer.put(b);
-        b.rewind();
-        
-        for (BufferCache bufferCache : holders) {
-            b = ((BufferHolder) bufferCache).byteBufferOrThrow();
-            b.position(0);
-            b.limit(length());
-            byteBuffer.put(b);
-            b.rewind();
+        ByteBuffer byteBuffer = ByteBuffer.allocateDirect(totalLength);
+        int totalIndex = 0;
+        int[] bufferIndexes = new int[indexes.size()];
+        for (int i = 0; i < indexes.size(); i += 2) {
+            int length = indexes.getInt(i + 1);
+            bufferIndexes[i] = indexes.getInt(i);
+            bufferIndexes[i + 1] = totalIndex; // Set to the start and will be used to save the offset once a buffer has been merged
+            totalIndex += length;
+            indexes.set(i + 1, totalIndex); // set to the end as it is the default format, will be used for the newly created buffer holder
         }
         
-        byteBuffer.rewind();
-        return new BufferHolder(byteBuffer, length, vertexCount, null);
+        for (BufferHolder holder : holders) {
+            var b = holder.byteBufferOrThrow();
+            for (int i = 0; i < holder.indexes.length; i += 2) {
+                int start = i == 0 ? 0 : holder.indexes[i - 1];
+                int length = holder.indexes[i + 1] - start;
+                
+                int index = indexOf(indexes, holder.indexes[i]);
+                
+                byteBuffer.put(bufferIndexes[index + 1], b, start, length);
+                bufferIndexes[index + 1] += length;
+            }
+        }
+        return new BufferHolder(byteBuffer, totalLength, vertexCount, indexes.toIntArray());
     }
     
     @Override
-    public BufferCache copy() {
+    public BufferHolder copy() {
         ByteBuffer byteBuffer = ByteBuffer.allocateDirect(length);
         var b = byteBufferOrThrow();
         b.position(0);
@@ -260,52 +248,169 @@ public class BufferHolder implements BufferCache {
         byteBuffer.put(b);
         b.rewind();
         byteBuffer.rewind();
-        return new BufferHolder(byteBuffer, length, vertexCount, null);
+        return new BufferHolder(byteBuffer, length, vertexCount, indexes.clone());
+    }
+    
+    private boolean isIdentitcal(int[] toExtract) {
+        if (toExtract.length * 2 != indexes.length)
+            return false;
+        for (int i = 0; i < toExtract.length; i++)
+            if (toExtract[i] != indexes[i * 2])
+                return false;
+        return true;
     }
     
     @Override
-    public BufferHolder extract(int index) {
-        int[] indexes = indexes(); // format of one entry: [index of structure, start index of vertex data]
+    public BufferHolder extract(int toExtract) {
+        int[] indexes = indexes(); // format of one entry: [index of structure, end index of vertex data]
         if (indexes == null)
             return null;
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return null;
         
-        if (indexes.length == 2 && indexes[0] == index)
-            return new BufferHolder(buffer, length(), vertexCount(), indexes.clone());
+        if (indexes.length == 2 && indexes[0] == toExtract) {
+            int length = this.length;
+            int vertexCount = this.vertexCount;
+            this.buffer = null;
+            this.indexes = null;
+            this.vertexCount = this.length = 0;
+            return new BufferHolder(buffer, length, vertexCount, indexes);
+        }
         
-        int start = -1;
-        int length = -1;
-        int entryIndex = -1;
+        // First the array is filled with index followed by length
+        int[] extractedIndexes = new int[2];
+        int found = 0;
+        int extractedTotalLength = 0;
+        
         for (int i = 0; i < indexes.length; i += 2) {
-            if (indexes[i] == index) {
-                start = i == 0 ? 0 : indexes[i - 1];
-                entryIndex = i;
-                length = indexes[i + 1] - start;
-                break;
+            if (indexes[i] == toExtract) {
+                int start = i == 0 ? 0 : indexes[i - 1];
+                int length = indexes[i + 1] - start;
+                
+                extractedIndexes[0] = toExtract;
+                
+                found++;
+                extractedTotalLength += length;
             }
         }
-        if (start == -1)
-            return null;
-        if (length == 0)
+        
+        if (extractedTotalLength == 0)
             return null;
         
-        int div = length() / vertexCount();
-        int vertexCount = length / div;
-        ByteBuffer newBuffer = ByteBuffer.allocateDirect(length); // Create new vertex buffer
-        newBuffer.put(0, buffer, start, length);
-        newBuffer.rewind();
-        removeEntry(length, vertexCount); // Notify buffer holder of changed length and vertexCount
-        indexes[entryIndex + 1] = start;
+        // Create extracted and newBuffer and fill in the data
+        ByteBuffer extractedBuffer = ByteBuffer.allocateDirect(extractedTotalLength);
+        int div = length / vertexCount;
+        int extractedVertexCount = extractedTotalLength / div;
         
-        if (entryIndex < indexes.length - 2) { // Remove extracted data from buffer holder
-            buffer.put(start, buffer, start + length, buffer.limit() - (start + length));
-            for (int i = entryIndex + 2; i < indexes.length; i += 2)
-                indexes[i + 1] -= length;
+        ByteBuffer newBuffer = ByteBuffer.allocateDirect(length - extractedTotalLength);
+        int[] newIndexes = new int[indexes.length - found * 2];
+        int otherIndex = 0;
+        int newIndex = 0;
+        for (int i = 0; i < indexes.length; i += 2) {
+            int start = i == 0 ? 0 : indexes[i - 1];
+            int length = indexes[i + 1] - start;
+            if (indexes[i] == extractedIndexes[otherIndex]) {
+                extractedBuffer.put(extractedBuffer.position(), buffer, start, length);
+                extractedBuffer.position(extractedBuffer.position() + length);
+                extractedIndexes[otherIndex + 1] = extractedBuffer.position();
+                otherIndex++;
+            } else {
+                newBuffer.put(newBuffer.position(), buffer, start, length);
+                newBuffer.position(newBuffer.position() + length);
+                newIndexes[newIndex] = indexes[i];
+                newIndexes[newIndex + 1] = newBuffer.position();
+                newIndex++;
+            }
         }
-        buffer.limit(buffer.limit() - length);
-        return new BufferHolder(newBuffer, length, vertexCount, null);
+        
+        extractedBuffer.rewind();
+        newBuffer.rewind();
+        
+        // Saving the new buffer to this object
+        this.buffer = newBuffer;
+        this.indexes = newIndexes;
+        this.length = newBuffer.capacity();
+        this.vertexCount = this.length / div;
+        
+        // Return the extracted stuff
+        return new BufferHolder(extractedBuffer, extractedTotalLength, extractedVertexCount, extractedIndexes);
+    }
+    
+    @Override
+    public BufferHolder extract(int[] toExtract) {
+        int[] indexes = indexes(); // format of one entry: [index of structure, end index of vertex data]
+        if (indexes == null)
+            return null;
+        ByteBuffer buffer = byteBuffer();
+        if (buffer == null)
+            return null;
+        
+        if (isIdentitcal(toExtract)) {
+            this.buffer = null;
+            this.indexes = null;
+            this.vertexCount = this.length = 0;
+            return new BufferHolder(buffer, length, vertexCount, indexes.clone());
+        }
+        
+        // First the array is filled with index followed by length
+        int[] extractedIndexes = new int[toExtract.length * 2];
+        int found = 0;
+        int extractedTotalLength = 0;
+        
+        for (int i = 0; i < indexes.length; i += 2) {
+            int index = Arrays.binarySearch(toExtract, indexes[i]);
+            if (index != -1) {
+                int start = i == 0 ? 0 : indexes[i - 1];
+                int length = indexes[i + 1] - start;
+                
+                extractedIndexes[index * 2] = toExtract[index];
+                
+                found++;
+                extractedTotalLength += length;
+            }
+        }
+        
+        if (extractedTotalLength == 0)
+            return null;
+        
+        // Create extracted and newBuffer and fill in the data
+        ByteBuffer extractedBuffer = ByteBuffer.allocateDirect(extractedTotalLength);
+        int div = length / vertexCount;
+        int extractedVertexCount = extractedTotalLength / div;
+        
+        ByteBuffer newBuffer = ByteBuffer.allocateDirect(length - extractedTotalLength);
+        int[] newIndexes = new int[indexes.length - found * 2];
+        int otherIndex = 0;
+        int newIndex = 0;
+        for (int i = 0; i < indexes.length; i += 2) {
+            int start = i == 0 ? 0 : indexes[i - 1];
+            int length = indexes[i + 1] - start;
+            if (indexes[i] == extractedIndexes[otherIndex]) {
+                extractedBuffer.put(extractedBuffer.position(), buffer, start, length);
+                extractedBuffer.position(extractedBuffer.position() + length);
+                extractedIndexes[otherIndex + 1] = extractedBuffer.position();
+                otherIndex++;
+            } else {
+                newBuffer.put(newBuffer.position(), buffer, start, length);
+                newBuffer.position(newBuffer.position() + length);
+                newIndexes[newIndex] = indexes[i];
+                newIndexes[newIndex + 1] = newBuffer.position();
+                newIndex++;
+            }
+        }
+        
+        extractedBuffer.rewind();
+        newBuffer.rewind();
+        
+        // Saving the new buffer to this object
+        this.buffer = newBuffer;
+        this.indexes = newIndexes;
+        this.length = newBuffer.capacity();
+        this.vertexCount = this.length / div;
+        
+        // Return the extracted stuff
+        return new BufferHolder(extractedBuffer, extractedTotalLength, extractedVertexCount, extractedIndexes);
     }
     
     @Override
@@ -331,5 +436,10 @@ public class BufferHolder implements BufferCache {
     
     public void moveUploadIndex(int offset) {
         uploadIndex += offset;
+    }
+    
+    @Override
+    public String toString() {
+        return "length: " + length + ", indexes: " + Arrays.toString(indexes) + ", uploadIndex: " + uploadIndex;
     }
 }

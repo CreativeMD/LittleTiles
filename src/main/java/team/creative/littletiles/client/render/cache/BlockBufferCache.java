@@ -1,5 +1,7 @@
 package team.creative.littletiles.client.render.cache;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -38,8 +40,11 @@ public class BlockBufferCache implements IBlockBufferCache {
     }
     
     @Override
-    public BufferCache get(RenderType layer) {
-        return getOriginal(layer);
+    public BufferCache getIncludingAdditional(RenderType layer) {
+        var original = getOriginal(layer);
+        if (hasAdditional())
+            return additional.getAdditional(original, layer);
+        return original;
     }
     
     @Override
@@ -83,17 +88,41 @@ public class BlockBufferCache implements IBlockBufferCache {
     }
     
     @Override
-    public BufferCache extract(RenderType layer, int index) {
+    public synchronized BufferCache extract(RenderType layer, int toExtract) {
+        List<BufferCache> buffers = null;
+        if (additional != null)
+            for (LayeredBufferCache layeredCache : additional.additionals()) {
+                BufferCache holder = layeredCache.get(layer);
+                
+                if (holder == null)
+                    continue;
+                
+                BufferCache extracted = holder.extract(toExtract);
+                if (holder.isEmpty())
+                    layeredCache.remove(layer);
+                
+                if (extracted != null) {
+                    if (buffers == null)
+                        buffers = new ArrayList<>();
+                    buffers.add(extracted);
+                }
+            }
+        
         BufferCache holder = getOriginal(layer);
-        if (holder == null)
+        if (holder == null) {
+            if (buffers != null)
+                return BufferCache.combineOrCopy(null, buffers);
             return null;
+        }
         boolean holderUploaded = uploaded.get(layer) != null;
-        BufferCache extracted = holder.extract(index);
-        if (holder.groupCount() == 0)
+        BufferCache extracted = holder.extract(toExtract);
+        if (holder.isEmpty())
             if (holderUploaded)
                 uploaded.remove(layer);
             else
                 queue.remove(layer);
+        if (buffers != null)
+            return BufferCache.combineOrCopy(extracted, buffers);
         return extracted;
     }
     
@@ -105,7 +134,7 @@ public class BlockBufferCache implements IBlockBufferCache {
     public synchronized void setEmpty() {
         queue.clear();
         uploaded.clear();
-        additional = null;
+        clearAdditional();
     }
     
     public boolean hasAdditional() {

@@ -26,13 +26,11 @@ public class SodiumBufferCache implements BufferCache {
     
     private final BufferHolder[] buffers;
     private List<TextureAtlasSprite> textures;
-    private int groupCount;
     private boolean invalid;
     
-    public SodiumBufferCache(BufferHolder[] buffers, List<TextureAtlasSprite> textures, int groupCount) {
+    public SodiumBufferCache(BufferHolder[] buffers, List<TextureAtlasSprite> textures) {
         this.buffers = buffers;
         this.textures = textures;
-        this.groupCount = groupCount;
     }
     
     public BufferHolder buffer(ModelQuadFacing facing) {
@@ -46,51 +44,50 @@ public class SodiumBufferCache implements BufferCache {
     @Override
     public BufferCache extract(int index) {
         BufferHolder[] buffers = new BufferHolder[ModelQuadFacing.COUNT];
+        boolean found = false;
         for (int i = 0; i < buffers.length; i++)
-            if (this.buffers[i] != null)
+            if (this.buffers[i] != null) {
                 buffers[i] = this.buffers[i].extract(index);
-        groupCount--;
-        return new SodiumBufferCache(buffers, textures, 1);
+                if (this.buffers[i].isEmpty())
+                    this.buffers[i] = null;
+                if (buffers[i] != null)
+                    found = true;
+            }
+        if (found)
+            return new SodiumBufferCache(buffers, textures);
+        return null;
+    }
+    
+    @Override
+    public BufferCache extract(int[] toExtract) {
+        BufferHolder[] buffers = new BufferHolder[ModelQuadFacing.COUNT];
+        boolean found = false;
+        for (int i = 0; i < buffers.length; i++)
+            if (this.buffers[i] != null) {
+                buffers[i] = this.buffers[i].extract(toExtract);
+                if (this.buffers[i].isEmpty())
+                    this.buffers[i] = null;
+                if (buffers[i] != null)
+                    found = true;
+            }
+        if (found)
+            return new SodiumBufferCache(buffers, textures);
+        return null;
     }
     
     @Override
     public BufferCache copy() {
         BufferHolder[] buffers = new BufferHolder[ModelQuadFacing.COUNT];
         for (int i = 0; i < buffers.length; i++)
-            if (buffers[i] != null)
-                buffers[i] = (BufferHolder) this.buffers[i].copy();
-        return new SodiumBufferCache(buffers, new ArrayList<>(textures), groupCount);
-    }
-    
-    @Override
-    public BufferCache combine(BufferCache cache) {
-        if (cache instanceof SodiumBufferCache r) {
-            List<TextureAtlasSprite> sprites = new ArrayList<>();
-            for (TextureAtlasSprite texture : r.getUsedTextures())
-                if (!sprites.contains(texture))
-                    sprites.add(texture);
-            BufferHolder[] buffers = new BufferHolder[ModelQuadFacing.COUNT];
-            for (int i = 0; i < buffers.length; i++)
-                buffers[i] = BufferHolder.combine(this.buffers[i], r.buffer(ModelQuadFacing.VALUES[i]));
-            return new SodiumBufferCache(buffers, sprites, groupCount + r.groupCount());
-        }
-        
-        if (!(cache instanceof BufferHolder))
-            return null;
-        
-        BufferHolder[] buffers = Arrays.copyOf(this.buffers, ModelQuadFacing.COUNT);
-        
-        int un = ModelQuadFacing.UNASSIGNED.ordinal();
-        buffers[un] = BufferHolder.combine(this.buffers[un], (BufferHolder) cache);
-        
-        return new SodiumBufferCache(buffers, textures, groupCount + cache.groupCount());
+            if (this.buffers[i] != null)
+                buffers[i] = this.buffers[i].copy();
+        return new SodiumBufferCache(buffers, new ArrayList<>(textures));
     }
     
     @Override
     public BufferCache combine(Iterator<BufferCache> itr) {
         List<SodiumBufferCache> list = new ArrayList<>();
         List<TextureAtlasSprite> sprites = new ArrayList<>();
-        int totalGroupCount = groupCount;
         
         while (itr.hasNext()) {
             SodiumBufferCache b = (SodiumBufferCache) itr.next();
@@ -98,7 +95,6 @@ public class SodiumBufferCache implements BufferCache {
                 if (!sprites.contains(texture))
                     sprites.add(texture);
             list.add(b);
-            totalGroupCount += b.groupCount;
         }
         
         BufferHolder[] buffers = new BufferHolder[ModelQuadFacing.COUNT];
@@ -106,7 +102,7 @@ public class SodiumBufferCache implements BufferCache {
             final int index = i;
             buffers[i] = (BufferHolder) BufferCache.combineOrCopy(this.buffers[i], new FunctionNonNullIterator<BufferCache>(list, x -> x.buffers[index]));
         }
-        return new SodiumBufferCache(buffers, sprites, totalGroupCount);
+        return new SodiumBufferCache(buffers, sprites);
     }
     
     private void applySodiumOffset(ByteBuffer buffer, Vec3 vec) {
@@ -159,6 +155,14 @@ public class SodiumBufferCache implements BufferCache {
     }
     
     @Override
+    public boolean isEmpty() {
+        for (int i = 0; i < buffers.length; i++)
+            if (buffers[i] != null && !buffers[i].isEmpty())
+                return false;
+        return true;
+    }
+    
+    @Override
     public int lengthToUpload() {
         int length = 0;
         for (int i = 0; i < buffers.length; i++)
@@ -172,11 +176,6 @@ public class SodiumBufferCache implements BufferCache {
         if (buffers[facing] != null && buffers[facing].isAvailable())
             return buffers[facing].lengthToUpload();
         return 0;
-    }
-    
-    @Override
-    public int groupCount() {
-        return groupCount;
     }
     
     @Override
@@ -250,5 +249,10 @@ public class SodiumBufferCache implements BufferCache {
         for (int i = 0; i < buffers.length; i++)
             if (buffers[i] != null)
                 buffers[i].moveUploadIndex(offset);
+    }
+    
+    @Override
+    public String toString() {
+        return Arrays.toString(buffers);
     }
 }

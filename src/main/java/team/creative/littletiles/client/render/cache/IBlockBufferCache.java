@@ -11,12 +11,12 @@ public interface IBlockBufferCache {
     
     public boolean has(RenderType layer);
     
-    public BufferCache get(RenderType layer);
+    public BufferCache getIncludingAdditional(RenderType layer);
     
     public void upload(Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier);
     
     public void markUploaded(Function<RenderType, BufferCollection> bufferSupplier);
     
-    public BufferCache extract(RenderType layer, int index);
+    public BufferCache extract(RenderType layer, int toExtract);
     
 }

@@ -153,7 +153,7 @@ public class RenderUploader {
                 
                 LayeredBufferCache layers = new LayeredBufferCache();
                 for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
-                    BufferCache holder = cache.get(layer);
+                    BufferCache holder = cache.getIncludingAdditional(layer);
                     if (holder == null)
                         continue;
                     if (vec != null)
