@@ -173,7 +173,9 @@ public class LittleToolPlacer extends LittleTool {
         var mode = placer.getPlacementMode(stack);
         var matrix = placer.getMatrix(stack);
         var hasTiles = placer.hasTiles(stack);
-        var hash = stack.get(LittleTilesRegistry.DATA).hashCode();
+        var data = stack.get(LittleTilesRegistry.DATA);
+        if (data == null) return;
+        var hash = data.hashCode();
         
         if (built && (builtMode != mode || builtLines != (mode.getPreviewMode() == PreviewMode.LINES) || !Objects.equal(builtMatrix, matrix) || !hasTiles || builtHash != hash))
             removeCache();
@@ -410,7 +412,10 @@ public class LittleToolPlacer extends LittleTool {
         if (!built)
             return false;
         if (!checkForWorker())
+        {
+            if (worker == null) return false;
             builtResult = worker.join();
+        }
         if (LittleTilesClient.INTERACTION.start(true)) {
             PlacementPreview preview = getPlacement(level);
             if (preview == null)
