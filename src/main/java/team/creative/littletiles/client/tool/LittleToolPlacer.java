@@ -2,6 +2,7 @@ package team.creative.littletiles.client.tool;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -22,6 +23,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
@@ -173,10 +175,8 @@ public class LittleToolPlacer extends LittleTool {
         var mode = placer.getPlacementMode(stack);
         var matrix = placer.getMatrix(stack);
         var hasTiles = placer.hasTiles(stack);
-        var data = stack.get(LittleTilesRegistry.DATA);
-        if (data == null) return;
-        var hash = data.hashCode();
-        
+        var hash = Optional.ofNullable(stack.get(LittleTilesRegistry.DATA)).map(CustomData::hashCode).orElse(0);
+
         if (built && (builtMode != mode || builtLines != (mode.getPreviewMode() == PreviewMode.LINES) || !Objects.equal(builtMatrix, matrix) || !hasTiles || builtHash != hash))
             removeCache();
         
@@ -413,7 +413,7 @@ public class LittleToolPlacer extends LittleTool {
             return false;
         if (!checkForWorker())
         {
-            if (worker == null) return false;
+            if (builtEmpty) return false;
             builtResult = worker.join();
         }
         if (LittleTilesClient.INTERACTION.start(true)) {
