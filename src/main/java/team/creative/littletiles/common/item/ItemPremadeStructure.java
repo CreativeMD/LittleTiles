@@ -34,8 +34,7 @@ import team.creative.littletiles.common.structure.type.premade.LittleStructurePr
 
 public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTooltip {
     
-    public static ItemStack of(String structure) {
-        ItemStack stack = new ItemStack(LittleTilesRegistry.PREMADE.value());
+    public static ItemStack of(ItemStack stack, String structure) {
         CompoundTag nbt = new CompoundTag();
         CompoundTag structNbt = new CompoundTag();
         structNbt.putString("id", structure);
