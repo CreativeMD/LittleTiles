@@ -37,6 +37,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelDataManager;
+import net.neoforged.neoforge.common.extensions.ILevelExtension;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -191,7 +192,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
                     pose.translate(blockpos2.getX() - cam.x, blockpos2.getY() - cam.y, blockpos2.getZ() - cam.z);
                     VertexConsumer consumer = new SheetedDecalTextureGenerator(mc.renderBuffers().crumblingBufferSource().getBuffer(ModelBakery.DESTROY_TYPES.get(k1)), pose
                             .last(), 1.0F);
-                    ModelDataManager manager = level.getModelDataManager();
+                    ModelDataManager manager = ((ILevelExtension) level).getModelDataManager();
                     ModelData modelData = null;
                     if (manager != null)
                         modelData = manager.getAt(blockpos2);
