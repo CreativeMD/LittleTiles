@@ -1,3 +1,10 @@
+1.6.0-pre159
+Fixed action message being invisible
+Fixed tools like hammer & paint brush getting used too quickly in survival
+Adapted CreativeCore v2.13.2
+Fixed blueprint crash (Thanks to paring-chan)
+Fixed hammer crash in survival (Thanks to paring-chan)
+
 1.6.0-pre158
 Reworked tools
 - Introduced several new data components for tools
