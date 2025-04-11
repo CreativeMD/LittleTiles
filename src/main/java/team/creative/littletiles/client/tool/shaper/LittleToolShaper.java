@@ -226,10 +226,10 @@ public class LittleToolShaper extends LittleTool {
                         builtShapeConfig);
                 shaper.shapeFinished(level, player, stack, builtSelection, boxes);
                 clearPositions();
-                return false;
+                return true;
             } else if (hit != null) {
                 positions.add(last.copy());
-                return false;
+                return true;
             }
             
         }

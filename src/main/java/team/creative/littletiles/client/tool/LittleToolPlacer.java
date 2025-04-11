@@ -129,7 +129,8 @@ public class LittleToolPlacer extends LittleTool {
             });
         
         builtLines = mode.getPreviewMode() == PreviewMode.LINES;
-        builtHash = stack.get(LittleTilesRegistry.DATA).hashCode();
+        var stackData = stack.get(LittleTilesRegistry.DATA);
+        builtHash = stackData != null ? stackData.hashCode() : 0;
         
         worker = CompletableFuture.supplyAsync(() -> {
             var buffer = createBuffer();
@@ -176,7 +177,7 @@ public class LittleToolPlacer extends LittleTool {
         var matrix = placer.getMatrix(stack);
         var hasTiles = placer.hasTiles(stack);
         var hash = Optional.ofNullable(stack.get(LittleTilesRegistry.DATA)).map(CustomData::hashCode).orElse(0);
-
+        
         if (built && (builtMode != mode || builtLines != (mode.getPreviewMode() == PreviewMode.LINES) || !Objects.equal(builtMatrix, matrix) || !hasTiles || builtHash != hash))
             removeCache();
         
@@ -396,10 +397,6 @@ public class LittleToolPlacer extends LittleTool {
         
         offset.convertTo(grid);
         
-        /*if (fixed && singleMode && builtMode.placeInside) TODO Test if this is actually necessary
-            if (pos.getVec().get(pos.facing.axis) % grid.count == 0)
-                offset.getVec().add(pos.facing.opposite());*/
-        
         return offset;
     }
     
@@ -411,9 +408,9 @@ public class LittleToolPlacer extends LittleTool {
     public boolean onRightClick(Level level, Player player, BlockHitResult result) {
         if (!built)
             return false;
-        if (!checkForWorker())
-        {
-            if (builtEmpty) return false;
+        if (!checkForWorker()) {
+            if (builtEmpty)
+                return false;
             builtResult = worker.join();
         }
         if (LittleTilesClient.INTERACTION.start(true)) {
