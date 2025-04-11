@@ -6,6 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.ShapedRecipe;
@@ -17,7 +18,7 @@ public class PremadeShapedRecipeSerializer implements RecipeSerializer<ShapedRec
     public static final MapCodec<ShapedRecipe> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(Codec.STRING.optionalFieldOf("group", "").forGetter(x -> x
             .getGroup()), CraftingBookCategory.CODEC.fieldOf("category").orElse(CraftingBookCategory.MISC).forGetter(x -> x.category()), ShapedRecipePattern.MAP_CODEC.forGetter(
                 x -> x.pattern), Codec.STRING.fieldOf("structure").forGetter(x -> ""), Codec.BOOL.optionalFieldOf("show_notification", Boolean.valueOf(true)).forGetter(x -> x
-                        .showNotification())).apply(instance, (a, b, c, structure, e) -> new ShapedRecipe(a, b, c, ItemPremadeStructure.of(structure), e)));
+                        .showNotification()), ItemStack.CODEC.fieldOf("result").forGetter(x -> x.getResultItem(null))).apply(instance, (a, b, c, structure, e, result) -> new ShapedRecipe(a, b, c, ItemPremadeStructure.of(result, structure), e)));
     
     @Override
     public MapCodec<ShapedRecipe> codec() {
