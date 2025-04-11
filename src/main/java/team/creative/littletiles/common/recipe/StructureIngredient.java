@@ -42,7 +42,7 @@ public class StructureIngredient implements ICustomIngredient {
     
     @Override
     public Stream<ItemStack> getItems() {
-        return Stream.of(ItemPremadeStructure.of(new ItemStack(LittleTilesRegistry.PREMADE), structureType));
+        return Stream.of(ItemPremadeStructure.of(structureType));
     }
     
     @Override

@@ -43,6 +43,10 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
         return stack;
     }
     
+    public static ItemStack of(String structure) {
+        return of(new ItemStack(LittleTilesRegistry.PREMADE), structure);
+    }
+    
     public static String getPremadeId(ItemStack stack) {
         return ILittleTool.getData(stack).getCompound(LittleGroup.STRUCTURE_KEY).getString("id");
     }
