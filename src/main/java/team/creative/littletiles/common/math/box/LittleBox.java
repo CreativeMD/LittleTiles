@@ -1325,6 +1325,9 @@ public class LittleBox {
         if (identifier < 0)
             return new LittleTransformableBox(offset, array);
         
+        if (array.length == offset + 7 || array.length == offset + 11) // Old slices format, this is done to prevent crashes
+            return new LittleBox(array[offset], array[offset + 1], array[offset + 2], array[offset + 3], array[offset + 4], array[offset + 5]);
+        
         throw new InvalidParameterException("No valid box given " + Arrays.toString(array));
     }
     
