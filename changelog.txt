@@ -1,3 +1,6 @@
+1.6.0-pre157
+Fixed crash when loading old slice boxes
+
 1.6.0-pre156
 Fixed lighting not getting updated properly
 
