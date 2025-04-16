@@ -131,6 +131,15 @@ public class OldLittleTilesDataParser {
         if (oldData.contains("n"))
             newData.putString("n", oldData.getString("n"));
         
+        if (oldData.contains("ex"))
+            newData.put("ex", oldData.get("ex"));
+        
+        if (oldData.contains("n"))
+            newData.putString("n", oldData.getString("n"));
+        
+        if (oldData.contains("b"))
+            newData.putIntArray("b", oldData.getIntArray("b"));
+        
         newData.put("state", oldData.get("state"));
         
         newData.putBoolean("actP", oldData.getBoolean("activateParent"));
