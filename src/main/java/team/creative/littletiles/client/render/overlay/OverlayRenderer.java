@@ -12,6 +12,8 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
+import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -28,6 +30,7 @@ import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.list.TupleList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.level.LevelAwareHandler;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.gui.control.GuiActionDisplay;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 
@@ -86,10 +89,16 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     
     public OverlayRenderer() {
         NeoForge.EVENT_BUS.addListener(this::renderPost);
+        NeoForge.EVENT_BUS.addListener(this::renderBlockOverlay);
     }
     
     public void displayActionMessage(List<Component> message) {
         actionDisplay.addMessage(message);
+    }
+    
+    public void renderBlockOverlay(RenderBlockScreenEffectEvent event) {
+        if (event.getBlockState().getBlock() instanceof BlockTile && event.getOverlayType() == OverlayType.BLOCK)
+            event.setCanceled(true);
     }
     
     public void renderPost(RenderGuiEvent.Post event) {
