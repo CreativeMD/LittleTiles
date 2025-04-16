@@ -1,3 +1,9 @@
+1.6.0-pre160
+Fixed not taking name, signal and blocks when importing doors from 1.5.0
+Fixed obstructive block overlay for water tiles
+Fixed crash when loading old slice boxes
+Fixed recipe result count is not respected (Thanks to paring-chan)
+
 1.6.0-pre159
 Fixed action message being invisible
 Fixed tools like hammer & paint brush getting used too quickly in survival
