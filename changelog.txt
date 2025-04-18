@@ -1,3 +1,6 @@
+1.6.0-pre160
+Fixed not importing parent and children connections when loading old worlds from 1.12
+
 1.6.0-pre159
 Fixed a few block converting issues from 1.12 (related to stone bricks and silver glazzed terracotta)
 
