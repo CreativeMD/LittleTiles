@@ -125,20 +125,7 @@ public class OldLittleTilesDataParser {
     }
     
     private static void convertDoorBaseData(CompoundTag oldData, CompoundTag newData) {
-        if (oldData.contains("ex"))
-            newData.put("ex", oldData.get("ex"));
-        
-        if (oldData.contains("n"))
-            newData.putString("n", oldData.getString("n"));
-        
-        if (oldData.contains("ex"))
-            newData.put("ex", oldData.get("ex"));
-        
-        if (oldData.contains("n"))
-            newData.putString("n", oldData.getString("n"));
-        
-        if (oldData.contains("b"))
-            newData.putIntArray("b", oldData.getIntArray("b"));
+        convertStructureDataBase(oldData, newData);
         
         newData.put("state", oldData.get("state"));
         
@@ -242,32 +229,51 @@ public class OldLittleTilesDataParser {
         return curve;
     }
     
+    public static CompoundTag convertStructureDataBase(CompoundTag oldData, CompoundTag newData) {
+        if (oldData.contains("signal")) {
+            Tag signal = oldData.get("signal");
+            oldData.remove("signal");
+            newData.put("ex", signal);
+        }
+        
+        if (oldData.contains("name")) {
+            String name = oldData.getString("name");
+            oldData.remove("name");
+            newData.putString("n", name);
+        }
+        
+        if (oldData.contains("blocks")) {
+            int[] array = oldData.getIntArray("blocks");
+            oldData.remove("blocks");
+            newData.putIntArray("b", array);
+        }
+        
+        if (oldData.contains("parent")) {
+            CompoundTag parent = oldData.getCompound("parent");
+            oldData.remove("parent");
+            newData.put(LittleGroup.PARENT_KEY, parent);
+        }
+        
+        if (oldData.contains("children")) {
+            ListTag children = oldData.getList("children", Tag.TAG_COMPOUND);
+            oldData.remove("children");
+            newData.put(LittleGroup.CHILDREN_KEY, children);
+        }
+        
+        return newData;
+    }
+    
     public static CompoundTag convertStructureData(CompoundTag nbt) throws LittleConvertException {
         if (nbt == null)
             return null;
         
-        if (nbt.contains("signal")) {
-            Tag signal = nbt.get("signal");
-            nbt.remove("signal");
-            nbt.put("ex", signal);
-        }
-        
-        if (nbt.contains("name")) {
-            String name = nbt.getString("name");
-            nbt.remove("name");
-            nbt.putString("n", name);
-        }
-        
-        if (nbt.contains("blocks")) {
-            int[] array = nbt.getIntArray("blocks");
-            nbt.remove("blocks");
-            nbt.putIntArray("b", array);
-        }
-        
         return switch (nbt.getString("id")) {
-            case "workbench", "importer", "exporter", "blankomatic", "particle_emitter", "signal_display", "structure_builder", "fixed", "ladder", "bed", "chair", "storage", "noclip", "message", "item_holder" -> nbt;
-            case "single_cable1", "single_cable4", "single_cable16", "single_input1", "single_input4", "single_input16", "single_output1", "single_output4", "single_output16" -> nbt;
+            case "workbench", "importer", "exporter", "blankomatic", "particle_emitter", "signal_display", "structure_builder", "fixed", "ladder", "bed", "chair", "storage", "noclip", "message", "item_holder" -> convertStructureDataBase(
+                nbt, nbt);
+            case "single_cable1", "single_cable4", "single_cable16", "single_input1", "single_input4", "single_input16", "single_output1", "single_output4", "single_output16" -> convertStructureDataBase(
+                nbt, nbt);
             case "light" -> {
+                convertStructureDataBase(nbt, nbt);
                 nbt.putBoolean("right", !nbt.getBoolean("disableRightClick"));
                 nbt.remove("disableRightClick");
                 yield nbt;
