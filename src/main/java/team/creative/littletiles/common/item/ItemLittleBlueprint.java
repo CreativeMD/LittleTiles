@@ -74,7 +74,9 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     public void saveTiles(ItemStack stack, LittleGroup group) {
-        ILittleTool.setData(stack, LittleGroup.save(group));
+        CompoundTag stackTag = ILittleTool.getData(stack);
+        stackTag.put(ItemLittleBlueprint.CONTENT_KEY, LittleGroup.save(group));
+        ILittleTool.setData(stack, stackTag);
     }
     
     @Override
