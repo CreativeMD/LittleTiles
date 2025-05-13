@@ -4,9 +4,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Predicate;
 
+import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -28,7 +32,8 @@ import team.creative.littletiles.common.structure.animation.PhysicalState;
 public abstract class LittleEntityPhysic<T extends LittleEntity<? extends LittleEntityPhysic>> {
     
     private static final Predicate<Entity> NO_ANIMATION = x -> !(x instanceof INoPushEntity);
-    
+    private static final TagKey<EntityType<?>> NO_COLLISION = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(LittleTiles.MODID, "no_collision"));
+
     protected double minX;
     protected double minY;
     protected double minZ;
@@ -189,6 +194,10 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         if (!entities.isEmpty()) {
             for (int i = 0; i < entities.size(); i++) {
                 Entity entity = entities.get(i);
+
+                if (entity.getType().is(NO_COLLISION)) {
+                    continue;
+                }
                 
                 AABB entityBB = entity.getBoundingBox();
                 AABB originalBox = entity.getBoundingBox();

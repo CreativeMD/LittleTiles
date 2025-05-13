@@ -1,0 +1,7 @@
+{
+  "replace": false,
+  "values": [
+    "create:carriage_contraption",
+    "create:stationary_contraption"
+  ]
+}
