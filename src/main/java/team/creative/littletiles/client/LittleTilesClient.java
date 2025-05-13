@@ -21,6 +21,7 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ReloadableResourceManager;
@@ -330,12 +331,15 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
             LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
         
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
-                .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT), x -> {
-                    if (!LittleGroup.shouldRenderInHand(ItemLittleBlueprint.getContent(x)))
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"),
+        new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
+                .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT),
+                x -> {
+                    CompoundTag contentData = ItemLittleBlueprint.getContent(x);
+                    if (!LittleGroup.shouldRenderInHand(contentData))
                         return ItemStack.EMPTY;
                     ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
-                    ILittleTool.setData(stack, ILittleTool.getData(x));
+                    ILittleTool.setData(stack, contentData);
                     return stack;
                 }));
         
