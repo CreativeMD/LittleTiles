@@ -20,9 +20,7 @@ public abstract class LittleExportType {
         
         @Override
         public String export(ItemStack stack) {
-            if (stack.getItem() instanceof ItemLittleBlueprint)
-                return ILittleTool.getData(stack).getCompound(ItemLittleBlueprint.CONTENT_KEY).toString();
-            if (stack.getItem() instanceof ItemMultiTiles)
+            if (stack.getItem() instanceof ItemLittleBlueprint || stack.getItem() instanceof ItemMultiTiles)
                 return ILittleTool.getData(stack).toString();
             return "";
         }
