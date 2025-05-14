@@ -248,9 +248,10 @@ public class PreviewRenderer implements LevelAwareHandler {
         if (!event.getLevel().isClientSide || tools == null || event.getAction() != Action.START)
             return;
         
-        for (LittleTool t : tools)
-            if (t.onLeftClick(event.getLevel(), event.getEntity(), (BlockHitResult) mc.hitResult))
+        for (LittleTool t : tools) {
+            if (mc.hitResult instanceof BlockHitResult res && t.onLeftClick(event.getLevel(), event.getEntity(), res))
                 event.setUseItem(TriState.TRUE);
+        }
     }
     
     @SubscribeEvent
@@ -267,7 +268,7 @@ public class PreviewRenderer implements LevelAwareHandler {
             return;
         
         for (LittleTool t : tools)
-            if (t.onRightClick(mc.level, mc.player, (BlockHitResult) mc.hitResult)) {
+            if (t.onRightClick(mc.level, mc.player, mc.hitResult instanceof BlockHitResult b ? b : null)) {
                 event.setCancellationResult(InteractionResult.CONSUME);
                 event.setCanceled(true);
             }
