@@ -1,3 +1,12 @@
+1.6.0-pre162
+Fixed not being able to export blueprints (Thanks to zmr-233)
+Fixed no blueprint preview in inventory (Thanks to zmr-233)
+Prevent create's contraption entities from pushing (Thanks to zmr-233)
+Fixed inner and outer corner shape
+Fixed grid 1 always getting converted to grid 2 (caused issues of not being able to use grid 1 in tools)
+Fixed block update not working properly (causing glitched blocks if placement is denied by server)
+Fixed not importing parent and children connections when loading old worlds from 1.12
+
 1.6.0-pre161
 Fixed a few block converting issues from 1.12 (related to stone bricks and silver glazzed terracotta)
 
