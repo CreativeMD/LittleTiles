@@ -21,8 +21,8 @@ public class LittleShapeOuterCorner extends LittleShape<CornerShapeConfig> {
         LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[1]);
         CornerCache cache = box.new CornerCache(false);
         
-        BoxCorner from = BoxCorner.EUS.transform(config.matrix);
-        BoxCorner to = BoxCorner.EDS.transform(config.matrix);
+        BoxCorner from = BoxCorner.EDS.transform(config.matrix);
+        BoxCorner to = BoxCorner.EUS.transform(config.matrix);
         
         Facing facing = from.facingTo(to);
         BoxFace face = BoxFace.get(facing);
