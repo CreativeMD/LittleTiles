@@ -51,7 +51,7 @@ public class BlockUpdate extends CreativePacket {
         }
         
         if (level instanceof ClientLevel c)
-            c.setBlocksDirty(pos, state, state);
+            c.setServerVerifiedBlockState(pos, state, 19);
         else
             level.setBlock(pos, state, 3);
         if (tag != null)
