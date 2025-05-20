@@ -159,11 +159,15 @@ public class LittleGrid {
         this.isDefault = LittleGrid.OVERALL_DEFAULT == gridSize;
         
         this.minSizes = new int[this.count];
-        this.minSizes[0] = BASE;
-        for (int i = 1; i < this.minSizes.length; i++) {
-            this.minSizes[i] = this.count / IntMath.gcd(i, this.count);
-            if (this.minSizes[i] < BASE || this.minSizes[i] % BASE != 0)
-                this.minSizes[i] = this.count;
+        if (this.count == 1)
+            this.minSizes[0] = this.count;
+        else {
+            this.minSizes[0] = BASE;
+            for (int i = 1; i < this.minSizes.length; i++) {
+                this.minSizes[i] = this.count / IntMath.gcd(i, this.count);
+                if (this.minSizes[i] < BASE || this.minSizes[i] % BASE != 0)
+                    this.minSizes[i] = this.count;
+            }
         }
         
         this.rotationCenter = new LittleVec(this.count, this.count, this.count);
