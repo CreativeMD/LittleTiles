@@ -173,7 +173,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     public void drawNonHighlight(RenderLevelStageEvent event) {
         if (event.getStage() != Stage.AFTER_BLOCK_ENTITIES)
             return;
-        if (mc.getCameraEntity() instanceof Player && !mc.options.hideGui && mc.hitResult.getType() == Type.MISS && tools != null) {
+        if (mc.getCameraEntity() instanceof Player && !mc.options.hideGui && mc.hitResult != null && mc.hitResult.getType() == Type.MISS && tools != null) {
             Player player = mc.player;
             Level level = player.level();
             Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
