@@ -100,7 +100,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
                     checkAndGive(player, inventory, placement.overflow());
                 }
                 
-                if (!placement.removedTiles.isEmpty())
+                if (!placement.removedTiles.isEmpty() && player.level().isClientSide)
                     destroyed = placement.removedTiles.copy();
                 
                 if (toVanilla)
