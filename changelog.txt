@@ -1,3 +1,7 @@
+1.6.0-pre163
+Potential fix for crash with immersive portals
+Fixed crash on server side of stuff is placed in survival
+
 1.6.0-pre162
 Fixed not being able to export blueprints (Thanks to zmr-233)
 Fixed no blueprint preview in inventory (Thanks to zmr-233)
