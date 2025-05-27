@@ -113,7 +113,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         }
         
         if (tools != null) {
-            BlockHitResult blockHit = mc.hitResult instanceof BlockHitResult b ? b : null;
+            BlockHitResult blockHit = blockHit();
             for (LittleTool t : tools) {
                 t.stack = stack;
                 t.tick(level, player, blockHit);
@@ -215,17 +215,19 @@ public class PreviewRenderer implements LevelAwareHandler {
         RenderSystem.enableCull();
     }
     
+    public BlockHitResult blockHit() {
+        if (mc.hitResult instanceof BlockHitResult b)
+            return b;
+        if (mc.hitResult instanceof LittleHitResult result && result.isBlock())
+            return result.asBlockHit();
+        return null;
+    }
+    
     @SubscribeEvent
     public void onMouseWheelClick(InteractionKeyMappingTriggered event) {
         if (!event.isPickBlock() || tools == null)
             return;
-        Minecraft mc = Minecraft.getInstance();
-        BlockHitResult hit = null;
-        
-        if (mc.hitResult.getType() == Type.BLOCK && mc.hitResult instanceof BlockHitResult b)
-            hit = b;
-        else if (mc.hitResult instanceof LittleHitResult result && result.isBlock())
-            hit = result.asBlockHit();
+        BlockHitResult hit = blockHit();
         
         for (LittleTool t : tools)
             if (t.onMouseWheelClickBlock(mc.level, mc.player, hit)) {
@@ -239,8 +241,9 @@ public class PreviewRenderer implements LevelAwareHandler {
         if (!event.getLevel().isClientSide || tools == null)
             return;
         
+        var hit = blockHit();
         for (LittleTool t : tools)
-            t.onLeftClick(event.getLevel(), event.getEntity(), mc.hitResult instanceof BlockHitResult b ? b : null);
+            t.onLeftClick(event.getLevel(), event.getEntity(), hit);
     }
     
     @SubscribeEvent
@@ -248,8 +251,9 @@ public class PreviewRenderer implements LevelAwareHandler {
         if (!event.getLevel().isClientSide || tools == null || event.getAction() != Action.START)
             return;
         
+        var hit = blockHit();
         for (LittleTool t : tools)
-            if (t.onLeftClick(event.getLevel(), event.getEntity(), (BlockHitResult) mc.hitResult))
+            if (t.onLeftClick(event.getLevel(), event.getEntity(), hit))
                 event.setUseItem(TriState.TRUE);
     }
     
@@ -257,8 +261,9 @@ public class PreviewRenderer implements LevelAwareHandler {
     public void onRightClickAir(RightClickEmpty event) {
         if (!event.getLevel().isClientSide || tools == null)
             return;
+        var hit = blockHit();
         for (LittleTool t : tools)
-            t.onRightClick(event.getLevel(), event.getEntity(), mc.hitResult instanceof BlockHitResult b ? b : null);
+            t.onRightClick(event.getLevel(), event.getEntity(), hit);
     }
     
     @SubscribeEvent
@@ -266,8 +271,9 @@ public class PreviewRenderer implements LevelAwareHandler {
         if (event.getHand() != InteractionHand.MAIN_HAND || !event.getLevel().isClientSide || tools == null)
             return;
         
+        var hit = blockHit();
         for (LittleTool t : tools)
-            if (t.onRightClick(mc.level, mc.player, (BlockHitResult) mc.hitResult)) {
+            if (t.onRightClick(mc.level, mc.player, hit)) {
                 event.setCancellationResult(InteractionResult.CONSUME);
                 event.setCanceled(true);
             }
