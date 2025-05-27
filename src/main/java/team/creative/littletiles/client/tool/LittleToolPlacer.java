@@ -205,7 +205,7 @@ public class LittleToolPlacer extends LittleTool {
     public boolean keyPressed(Level level, Player player, KeyMapping key) {
         if (key == LittleTilesClient.KEY_MARK) {
             if (marked == null) {
-                marked = onMark(player, placedPosition.copy());
+                marked = onMark(player, aimedPosition.copy());
                 //if (Screen.hasControlDown())
                 //    GuiCreator.openClientSide(marked.getConfigurationGui());
             } // else if (Screen.hasControlDown())
