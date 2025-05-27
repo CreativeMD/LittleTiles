@@ -35,7 +35,6 @@ import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.entity.LevelTransitionListener;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
-import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
@@ -147,12 +146,6 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         changedLevel = true;
     }
     
-    public AABB getRealBB() {
-        if (level() instanceof ISubLevel or)
-            return or.getOrigin().getAABB(getBoundingBox()).toVanilla();
-        return getBoundingBox();
-    }
-    
     public Vec3 getRealCenter() {
         if (level() instanceof ISubLevel or)
             return or.getOrigin().transformPointToWorld(position());
@@ -162,7 +155,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     // ================Children================
     
     public Iterable<Entity> entities() {
-        return ((LittleLevel) subLevel).entities();
+        return subLevel.entities();
     }
     
     public Iterable<OrientationAwareEntity> children() {

@@ -27,7 +27,7 @@ public class LittleEntityRenderer extends EntityRenderer<LittleEntity> {
         if (!animation.hasLoaded())
             return false;
         if (animation.getRenderManager().isInSight == null)
-            animation.getRenderManager().isInSight = animation.shouldRender(camX, camY, camZ) && frustum.isVisible(animation.getRealBB().inflate(0.5D));
+            animation.getRenderManager().isInSight = animation.shouldRender(camX, camY, camZ) && frustum.isVisible(animation.getBoundingBox().inflate(0.5D));
         return animation.getRenderManager().isInSight;
     }
     
