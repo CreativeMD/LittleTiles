@@ -36,9 +36,9 @@ public class LittleShapeWall extends LittleShape<AxisThicknessShapeConfig> {
         Facing minFacing = originalMin.facing;
         Facing maxFacing = originalMax.facing;
         
-        if (minFacing.axis == toIgnore || box.getSize(minFacing.axis) == 1)
+        if (minFacing == null || minFacing.axis == toIgnore || box.getSize(minFacing.axis) == 1)
             minFacing = null;
-        if (maxFacing.axis == toIgnore || box.getSize(maxFacing.axis) == 1)
+        if (maxFacing == null || maxFacing.axis == toIgnore || box.getSize(maxFacing.axis) == 1)
             maxFacing = null;
         
         if (minFacing != null && minFacing.axis != axis)
