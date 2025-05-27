@@ -154,8 +154,11 @@ public interface RenderChunkExtender {
             if (vanillaBuffer != null)
                 ((ChunkBufferUploader) builder).upload(vanillaBuffer);
             
-            for (LayeredBufferCache data : blocks)
-                data.get(layer).upload((ChunkBufferUploader) builder);
+            for (LayeredBufferCache data : blocks) {
+                var layerData = data.get(layer);
+                if (layerData != null)
+                    layerData.upload((ChunkBufferUploader) builder);
+            }
             
             MeshData data = builder.build();
             if (layer == RenderType.translucent()) {
