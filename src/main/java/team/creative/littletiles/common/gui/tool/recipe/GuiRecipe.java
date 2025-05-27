@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map.Entry;
 import java.util.function.Consumer;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.nbt.CompoundTag;
@@ -17,6 +18,7 @@ import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.VAlign;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.control.collection.GuiComboBoxFlexible;
 import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.control.simple.GuiButton;
@@ -28,6 +30,7 @@ import team.creative.creativecore.common.gui.control.tree.GuiTree.GuiTreeSelecti
 import team.creative.creativecore.common.gui.control.tree.GuiTreeItem;
 import team.creative.creativecore.common.gui.dialog.DialogGuiLayer.DialogButton;
 import team.creative.creativecore.common.gui.dialog.GuiDialogHandler;
+import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRules;
@@ -42,8 +45,10 @@ import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittleTool;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.gui.control.GuiGridConfig;
 import team.creative.littletiles.common.gui.control.animation.GuiAnimationPanel;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.recipe.test.GuiRecipeTest;
@@ -51,6 +56,8 @@ import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
 import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestResults;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
+import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGui;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiControl;
 import team.creative.littletiles.common.structure.registry.gui.LittleStructureGuiRegistry;
@@ -110,6 +117,15 @@ public class GuiRecipe extends GuiConfigure {
                         if (!control.is("add"))
                             control.setEnabled(selectedBefore);
                 }
+            if (x.control.is("mode")) {
+                GuiComboBox<PlacementMode> modeBox = (GuiComboBox<PlacementMode>) x.control;
+                TextBuilder builder = new TextBuilder();
+                if (modeBox.selected().canPlaceStructures())
+                    builder.text("" + ChatFormatting.BOLD).translate("placement.mode.placestructure").text("" + ChatFormatting.WHITE).newLine();
+                builder.translate(modeBox.selected().translatableKey() + ".tooltip");
+                ((GuiLabel) get("text")).setTitle(builder.build());
+                LittleTilesClient.placementMode(modeBox.selected());
+            }
         });
     }
     
@@ -224,6 +240,15 @@ public class GuiRecipe extends GuiConfigure {
         GuiParent sidebar = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         top.add(sidebar.setDim(new GuiSizeRatioRules().widthRatio(0.2F).maxWidth(100)));
         sidebar.add(tree.setExpandableY());
+        GuiParent placementConfigs = (GuiParent) new GuiParent(GuiFlow.STACK_Y).setDim(0, 120).setFixedY();
+        GuiComboBox<PlacementMode> modeBox = new GuiComboBox<>("mode", PlacementMode.map());
+        modeBox.select(PlacementPlayerSetting.placementMode(getPlayer()));
+        sidebar.add(placementConfigs);
+        placementConfigs.add(new GuiGridConfig("grid", getPlayer(), PlacementPlayerSetting.grid(getPlayer()), LittleTilesClient::grid));
+        
+        placementConfigs.add(modeBox);
+        placementConfigs.add(new GuiLabel("text"));
+        raiseEvent(new GuiControlChangedEvent(modeBox));
         
         sidebarButtons = new GuiParent(GuiFlow.FIT_X);
         sidebar.add(sidebarButtons.setAlign(Align.CENTER));
