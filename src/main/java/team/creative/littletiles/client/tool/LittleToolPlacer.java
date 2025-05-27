@@ -96,15 +96,15 @@ public class LittleToolPlacer extends LittleTool {
             return marked == null;
         if (placer.snapToGridByDefault(stack))
             return LittleActionHandlerClient.isUsingSecondMode() && marked == null;
-        return LittleTiles.CONFIG.building.invertStickToGrid == LittleActionHandlerClient.isUsingSecondMode() || marked != null;
+        return LittleTiles.CONFIG.building.invertStickToGrid == LittleActionHandlerClient.isUsingSecondMode() && marked == null;
     }
     
     public boolean isFixed() {
         if (!placer.canSnapToGrid(stack))
             return marked != null;
         if (placer.snapToGridByDefault(stack))
-            return !LittleActionHandlerClient.isUsingSecondMode() && marked == null;
-        return LittleTiles.CONFIG.building.invertStickToGrid != LittleActionHandlerClient.isUsingSecondMode() && marked == null;
+            return LittleActionHandlerClient.isUsingSecondMode() && marked != null;
+        return LittleTiles.CONFIG.building.invertStickToGrid != LittleActionHandlerClient.isUsingSecondMode() || marked != null;
     }
     
     public PlacementPreview getPlacement(Level level) {
