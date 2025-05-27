@@ -39,6 +39,13 @@ public class BlockBufferCache implements IBlockBufferCache {
         return queued;
     }
     
+    private BufferCache getAndRemoveOriginal(RenderType layer) {
+        BufferCache queued = queue.remove(layer);
+        if (queued == null)
+            return getUploaded(layer);
+        return queued;
+    }
+    
     @Override
     public BufferCache getIncludingAdditional(RenderType layer) {
         var original = getOriginal(layer);
@@ -56,8 +63,7 @@ public class BlockBufferCache implements IBlockBufferCache {
             var uploader = builderSupplier.apply(layer);
             var collection = bufferSupplier.apply(layer);
             
-            var uploadable = getOriginal(layer);
-            queue.remove(layer);
+            var uploadable = getAndRemoveOriginal(layer);
             if (uploadable == null)
                 uploaded.remove(layer);
             else
@@ -76,7 +82,7 @@ public class BlockBufferCache implements IBlockBufferCache {
             
             var collection = bufferSupplier.apply(layer);
             
-            var uploadable = queue.remove(layer);
+            var uploadable = getAndRemoveOriginal(layer);
             if (uploadable == null)
                 uploaded.remove(layer);
             else
