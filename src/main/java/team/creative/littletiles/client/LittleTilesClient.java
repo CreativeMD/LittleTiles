@@ -190,8 +190,8 @@ public class LittleTilesClient {
         KEY_RIGHT = new LittleKeyMapping("key.rotateright", LITTLE_KEY_CONTEXT, InputConstants.KEY_RIGHT, "key.categories.littletiles").ignoreModifier();
         KEY_LEFT = new LittleKeyMapping("key.rotateleft", LITTLE_KEY_CONTEXT, InputConstants.KEY_LEFT, "key.categories.littletiles").ignoreModifier();
         
-        KEY_MIRROR = new LittleKeyMapping("key.little.mirror", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles");
-        KEY_MARK = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles");
+        KEY_MIRROR = new LittleKeyMapping("key.little.mirror", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles").ignoreModifier();
+        KEY_MARK = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles").ignoreModifier();
         KEY_CONFIGURE = new LittleKeyMapping("key.little.config.item", LITTLE_KEY_CONTEXT, InputConstants.KEY_C, "key.categories.littletiles");
         
         KEY_UNDO = new LittleKeyMapping("key.little.undo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Z, "key.categories.littletiles");
@@ -331,10 +331,8 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
             LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
         
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"),
-        new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
-                .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT),
-                x -> {
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
+                .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT), x -> {
                     CompoundTag contentData = ItemLittleBlueprint.getContent(x);
                     if (!LittleGroup.shouldRenderInHand(contentData))
                         return ItemStack.EMPTY;
