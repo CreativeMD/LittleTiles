@@ -1,6 +1,5 @@
 package team.creative.littletiles.client.tool;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -57,7 +56,6 @@ import team.creative.littletiles.common.placement.mark.IMarkMode;
 import team.creative.littletiles.common.placement.mark.MarkMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.second.InsideFixedHandler;
-import team.creative.littletiles.common.placement.second.SecondModeHandler;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class LittleToolPlacer extends LittleTool {
@@ -67,6 +65,8 @@ public class LittleToolPlacer extends LittleTool {
     private final ILittlePlacer placer;
     
     private IMarkMode marked;
+    
+    private boolean markedFixed;
     
     private PlacementPosition placedPosition;
     
@@ -205,12 +205,18 @@ public class LittleToolPlacer extends LittleTool {
     public boolean keyPressed(Level level, Player player, KeyMapping key) {
         if (key == LittleTilesClient.KEY_MARK) {
             if (marked == null) {
-                marked = onMark(player, placedPosition.copy());
+                markedFixed = LittleActionHandlerClient.isUsingSecondMode();
+                PlacementPosition pos = aimedPosition.copy();
+                if (markedFixed)
+                    pos.setVecContext(new LittleVecGrid(new LittleVec(0, 0, 0), lastGrid));
+                
+                marked = onMark(player, pos);
                 //if (Screen.hasControlDown())
                 //    GuiCreator.openClientSide(marked.getConfigurationGui());
             } // else if (Screen.hasControlDown())
               //    GuiCreator.openClientSide(marked.getConfigurationGui());
             else {
+                markedFixed = false;
                 marked.done();
                 marked = null;
             }
@@ -366,8 +372,9 @@ public class LittleToolPlacer extends LittleTool {
         
         boolean centered = isCentered();
         boolean fixed = isFixed();
+        boolean isMarked = marked != null;
         LittleVecGrid size = builtSize.copy();
-        PlacementPosition pos = aimedPosition.copy();
+        PlacementPosition pos = isMarked ? marked.getPosition() : aimedPosition.copy();
         
         if (group != null)
             group.forceSameGrid(pos, size);
@@ -379,16 +386,21 @@ public class LittleToolPlacer extends LittleTool {
         
         LittleBox box = PlacementHelper.getTilesBox(pos, size.getVec(), centered || singleMode, builtMode.placeInside);
         
-        if (fixed) {
-            if (!singleMode && LittleAction.canPlaceInside(level, pos.getPos(), builtMode.placeInside))
-                return new PlacementPosition(pos.getPos(), grid, new LittleVec(0, 0, 0), pos.facing); // Return
+        //this works for both single and group
+        if (fixed || (isMarked && markedFixed))
+            if (LittleAction.canPlaceInside(level, pos.getPos(), builtMode.placeInside))
+                return new PlacementPosition(pos.getPos(), grid, isMarked ? pos.getVec() : new LittleVec(0, 0, 0), pos.facing); // Return
                 
-            List<SecondModeHandler> shifthandlers = new ArrayList<SecondModeHandler>();
-            if (singleMode)
-                shifthandlers.add(new InsideFixedHandler());
-            for (int i = 0; i < shifthandlers.size(); i++)
-                box = shifthandlers.get(i).getBox(level, pos.getPos(), grid, box);
-        }
+        PlacementPosition offset = new PlacementPosition(pos.getPos(), grid, box.getMinVec(), pos.facing);
+        LittleVecGrid internalOffset = this.builtInternalOffset.copy();
+        internalOffset.invert();
+        offset.add(internalOffset);
+        return offset;
+    }
+    
+    protected PlacementPosition singleModePosition(Level level, LittleBox box, PlacementPosition pos, LittleGrid grid) {
+        var fixedHandler = new InsideFixedHandler();
+        box = fixedHandler.getBox(level, pos.getPos(), grid, box);
         
         PlacementPosition offset = new PlacementPosition(pos.getPos(), grid, box.getMinVec(), pos.facing);
         LittleVecGrid internalOffset = this.builtInternalOffset.copy();
@@ -396,8 +408,18 @@ public class LittleToolPlacer extends LittleTool {
         offset.add(internalOffset);
         
         offset.convertTo(grid);
-        
         return offset;
+    }
+    
+    protected PlacementPosition groupModePosition(Level level, LittleBox box, PlacementPosition pos, LittleGrid grid) {
+        PlacementPosition offset = new PlacementPosition(pos.getPos(), grid, box.getMinVec(), pos.facing);
+        LittleVecGrid internalOffset = this.builtInternalOffset.copy();
+        internalOffset.invert();
+        offset.add(internalOffset);
+        
+        offset.convertTo(grid);
+        return offset;
+        
     }
     
     public IMarkMode onMark(Player player, PlacementPosition position) {
@@ -406,6 +428,7 @@ public class LittleToolPlacer extends LittleTool {
     
     @Override
     public boolean onRightClick(Level level, Player player, BlockHitResult result) {
+        markedFixed = false;
         if (!built)
             return false;
         if (!checkForWorker()) {
