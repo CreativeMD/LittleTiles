@@ -45,6 +45,7 @@ import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
+import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
@@ -65,6 +66,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     protected MeshData.SortState transparencyState;
     protected boolean needsUpdate = false;
     
+    private SectionAdditional additional;
     public ChunkLayerMap<BufferCollection> lastUploaded;
     private volatile int queued;
     
@@ -80,6 +82,16 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
     @Override
     public RenderChunkExtender getRenderChunk(long pos) {
         return this;
+    }
+    
+    @Override
+    public SectionAdditional getAdditional() {
+        return additional;
+    }
+    
+    @Override
+    public void setAdditional(SectionAdditional uploader) {
+        this.additional = uploader;
     }
     
     @Override

@@ -26,6 +26,7 @@ import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloader.SimpleChunkBufferDownloader;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
+import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
 
 public interface RenderChunkExtender {
     
@@ -51,26 +52,38 @@ public interface RenderChunkExtender {
     
     public void setQueued(int queued);
     
+    public default boolean isBuilding() {
+        return getQueued() > 0;
+    }
+    
     public ChunkLayerMap<BufferCollection> getLastUploaded();
     
     public void setLastUploaded(ChunkLayerMap<BufferCollection> uploaded);
+    
+    public SectionAdditional getAdditional();
+    
+    public void setAdditional(SectionAdditional uploader);
     
     public default void prepareUpload() {
         setLastUploaded(null);
     }
     
     public default void uploaded(RenderType layer, BufferCollection buffers) {
-        if (buffers == null)
-            return;
-        ChunkLayerMap<BufferCollection> uploaded = getLastUploaded();
-        if (getLastUploaded() == null)
-            setLastUploaded(uploaded = new ChunkLayerMap<>());
-        
-        uploaded.put(layer, buffers);
-        synchronized (this) {
-            if (getQueued() == 0) // if the queue is empty the buffers can be removed from RAM (they are only available in VRAM from this point on, until they are downloaded again)
-                buffers.eraseBuffers();
+        if (buffers != null) {
+            ChunkLayerMap<BufferCollection> uploaded = getLastUploaded();
+            if (getLastUploaded() == null)
+                setLastUploaded(uploaded = new ChunkLayerMap<>());
+            
+            uploaded.put(layer, buffers);
+            synchronized (this) {
+                if (getQueued() == 0) // if the queue is empty the buffers can be removed from RAM (they are only available in VRAM from this point on, until they are downloaded again)
+                    buffers.eraseBuffers();
+            }
         }
+        
+        var additional = getAdditional();
+        if (additional != null) // If the chunk initiates an update before all additional blocks have received their buffer this ensure they are added either way
+            additional.onSectionUploads();
     }
     
     public default void backToRAM() {
@@ -178,6 +191,7 @@ public interface RenderChunkExtender {
     public default void startBuilding() {
         synchronized (this) {
             setQueued(getQueued() + 1);
+            
         }
         backToRAM();
     }

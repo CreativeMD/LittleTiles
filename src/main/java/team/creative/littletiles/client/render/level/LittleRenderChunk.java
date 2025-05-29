@@ -49,6 +49,7 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
+import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.SectionCompilerResultsExtender;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
@@ -73,6 +74,7 @@ public class LittleRenderChunk implements RenderChunkExtender {
     private final SectionPos[] neighbors;
     private boolean playerChanged;
     
+    private SectionAdditional additional;
     public ChunkLayerMap<BufferCollection> lastUploaded;
     private volatile int queued;
     
@@ -101,6 +103,16 @@ public class LittleRenderChunk implements RenderChunkExtender {
             return true;
         return doesChunkExistAt(neighbors[Direction.WEST.ordinal()]) && doesChunkExistAt(neighbors[Direction.NORTH.ordinal()]) && doesChunkExistAt(neighbors[Direction.EAST
                 .ordinal()]) && doesChunkExistAt(neighbors[Direction.SOUTH.ordinal()]);
+    }
+    
+    @Override
+    public SectionAdditional getAdditional() {
+        return additional;
+    }
+    
+    @Override
+    public void setAdditional(SectionAdditional uploader) {
+        this.additional = uploader;
     }
     
     @Override

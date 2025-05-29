@@ -14,13 +14,18 @@ import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
+import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 @Mixin(RenderSection.class)
 public abstract class RenderChunkMixin implements RenderChunkExtender {
     
+    @Unique
+    private SectionAdditional additional;
+    @Unique
     public ChunkLayerMap<BufferCollection> lastUploaded;
     
+    @Unique
     private volatile int queued;
     
     @Override
@@ -46,6 +51,16 @@ public abstract class RenderChunkMixin implements RenderChunkExtender {
     @Override
     public void setQueued(int queued) {
         this.queued = queued;
+    }
+    
+    @Override
+    public SectionAdditional getAdditional() {
+        return additional;
+    }
+    
+    @Override
+    public void setAdditional(SectionAdditional uploader) {
+        this.additional = uploader;
     }
     
     @Override

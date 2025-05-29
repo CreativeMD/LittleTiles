@@ -15,10 +15,23 @@ import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeli
 public class AdditionalBuffers implements AdditionalBufferReceiver {
     
     private final List<AdditionalBuffer> content = new ArrayList<>();
+    /** Will be called once when the buffer is used in some way **/
+    private Runnable hook = null;
     
     public AdditionalBuffers() {}
     
+    public void removed() {
+        if (hook != null) {
+            hook.run();
+            hook = null;
+        }
+    }
+    
     public void uploadAdditional(RenderType layer, ChunkBufferUploader uploader, BufferCollection collection) {
+        if (hook != null) {
+            hook.run();
+            hook = null;
+        }
         for (AdditionalBuffer a : content) {
             var buffer = a.buffers.get(layer);
             if (buffer != null)
@@ -27,6 +40,10 @@ public class AdditionalBuffers implements AdditionalBufferReceiver {
     }
     
     public void markUploadedAdditional(RenderType layer, BufferCollection collection) {
+        if (hook != null) {
+            hook.run();
+            hook = null;
+        }
         for (AdditionalBuffer a : content) {
             var buffer = a.buffers.get(layer);
             if (buffer != null)
@@ -35,6 +52,10 @@ public class AdditionalBuffers implements AdditionalBufferReceiver {
     }
     
     public BufferCache getAdditional(BufferCache original, RenderType layer) {
+        if (hook != null) {
+            hook.run();
+            hook = null;
+        }
         return BufferCache.combineOrCopy(original, new FunctionNonNullIterator<BufferCache>(content, x -> x.buffers.get(layer)));
     }
     
@@ -56,14 +77,15 @@ public class AdditionalBuffers implements AdditionalBufferReceiver {
     public synchronized void additional(UUID uuid, LayeredBufferCache cache) {
         int index = indexOf(uuid);
         if (index == -1)
-            content.add(new AdditionalBuffer(uuid, cache));
+            content.add(new AdditionalBuffer(uuid, cache.copy()));
         else
             content.get(index).add(cache);
     }
     
     @Override
-    public void additional(AdditionalBuffers buffers) {
+    public void additional(AdditionalBuffers buffers, Runnable hook) {
         content.addAll(buffers.content);
+        this.hook = hook;
     }
     
     public Iterable<LayeredBufferCache> additionals() {

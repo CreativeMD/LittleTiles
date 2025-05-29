@@ -168,6 +168,8 @@ public class BlockBufferCache implements IBlockBufferCache {
     }
     
     public void clearAdditional() {
+        if (additional != null)
+            additional.removed();
         additional = null;
     }
     

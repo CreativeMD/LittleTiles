@@ -48,6 +48,7 @@ import team.creative.littletiles.client.mod.sodium.buffer.SodiumChunkBufferDownl
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
+import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
@@ -85,7 +86,10 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     private volatile int queued;
     
     @Unique
-    public volatile ChunkLayerMap<BufferCollection> lastUploaded;
+    public ChunkLayerMap<BufferCollection> lastUploaded;
+    
+    @Unique
+    private volatile SectionAdditional additional;
     
     @Override
     public int getQueued() {
@@ -95,6 +99,16 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     @Override
     public void setQueued(int queued) {
         this.queued = queued;
+    }
+    
+    @Override
+    public SectionAdditional getAdditional() {
+        return additional;
+    }
+    
+    @Override
+    public void setAdditional(SectionAdditional uploader) {
+        this.additional = uploader;
     }
     
     @Override
@@ -348,6 +362,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         
         built = true;
         flags |= 1 << RenderSectionFlags.HAS_BLOCK_GEOMETRY;
+        ((RenderSection) (Object) this).setPendingUpdate(null);
         return true;
     }
     
