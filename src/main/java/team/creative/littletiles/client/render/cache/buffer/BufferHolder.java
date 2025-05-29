@@ -310,17 +310,17 @@ public class BufferHolder implements BufferCache {
         for (int i = 0; i < indexes.length; i += 2) {
             int start = i == 0 ? 0 : indexes[i - 1];
             int length = indexes[i + 1] - start;
-            if (indexes[i] == extractedIndexes[otherIndex]) {
+            if (otherIndex < extractedIndexes.length && indexes[i] == extractedIndexes[otherIndex]) {
                 extractedBuffer.put(extractedBuffer.position(), buffer, start, length);
                 extractedBuffer.position(extractedBuffer.position() + length);
                 extractedIndexes[otherIndex + 1] = extractedBuffer.position();
-                otherIndex++;
+                otherIndex += 2;
             } else {
                 newBuffer.put(newBuffer.position(), buffer, start, length);
                 newBuffer.position(newBuffer.position() + length);
                 newIndexes[newIndex] = indexes[i];
                 newIndexes[newIndex + 1] = newBuffer.position();
-                newIndex++;
+                newIndex += 2;
             }
         }
         
@@ -386,17 +386,17 @@ public class BufferHolder implements BufferCache {
         for (int i = 0; i < indexes.length; i += 2) {
             int start = i == 0 ? 0 : indexes[i - 1];
             int length = indexes[i + 1] - start;
-            if (indexes[i] == extractedIndexes[otherIndex]) {
+            if (otherIndex < extractedIndexes.length && indexes[i] == extractedIndexes[otherIndex]) {
                 extractedBuffer.put(extractedBuffer.position(), buffer, start, length);
                 extractedBuffer.position(extractedBuffer.position() + length);
                 extractedIndexes[otherIndex + 1] = extractedBuffer.position();
-                otherIndex++;
+                otherIndex += 2;
             } else {
                 newBuffer.put(newBuffer.position(), buffer, start, length);
                 newBuffer.position(newBuffer.position() + length);
                 newIndexes[newIndex] = indexes[i];
                 newIndexes[newIndex + 1] = newBuffer.position();
-                newIndex++;
+                newIndex += 2;
             }
         }
         
