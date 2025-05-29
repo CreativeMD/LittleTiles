@@ -105,7 +105,7 @@ public class SodiumBufferCache implements BufferCache {
         return new SodiumBufferCache(buffers, sprites);
     }
     
-    private void applySodiumOffset(ByteBuffer buffer, Vec3 vec) {
+    private void applySodiumOffset(ByteBuffer buffer, Vec3 vec, int sectionIndex) {
         if (buffer == null)
             return;
         
@@ -124,16 +124,19 @@ public class SodiumBufferCache implements BufferCache {
             
             MemoryUtil.memPutInt(ptr + 0L, SodiumInteractor.packPositionHi(quantX, quantY, quantZ));
             MemoryUtil.memPutInt(ptr + 4L, SodiumInteractor.packPositionLo(quantX, quantY, quantZ));
+            
+            MemoryUtil.memPutInt(ptr + 16L, (MemoryUtil.memGetInt(ptr + 16) & 0xFFFFFF) | ((sectionIndex & 0xFF) << 24));
+            
             ptr += CompactChunkVertex.STRIDE;
             i += CompactChunkVertex.STRIDE;
         }
     }
     
     @Override
-    public void applyOffset(Vec3 vec) {
+    public void applyOffset(Vec3 vec, int sectionIndex) {
         for (int i = 0; i < buffers.length; i++)
             if (buffers[i] != null)
-                applySodiumOffset(buffers[i].byteBuffer(), vec);
+                applySodiumOffset(buffers[i].byteBuffer(), vec, sectionIndex);
     }
     
     @Override

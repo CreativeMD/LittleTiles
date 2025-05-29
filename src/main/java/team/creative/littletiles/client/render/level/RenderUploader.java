@@ -150,14 +150,14 @@ public class RenderUploader {
             public void queueNew(UUID uuid, RenderingLevelHandler origin, Level originLevel, BETiles be, SectionPos pos) {
                 IBlockBufferCache cache = be.render.buffers();
                 Vec3 vec = RenderingLevelHandler.offsetCorrection(target, targetLevel, origin, originLevel, pos);
-                
+                int sectionIndex = target.sectionIndex(targetLevel, pos.asLong());
                 LayeredBufferCache layers = new LayeredBufferCache();
                 for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
                     BufferCache holder = cache.getIncludingAdditional(layer);
                     if (holder == null)
                         continue;
                     if (vec != null)
-                        holder.applyOffset(vec);
+                        holder.applyOffset(vec, sectionIndex);
                     layers.put(layer, holder);
                 }
                 additional(uuid, layers);

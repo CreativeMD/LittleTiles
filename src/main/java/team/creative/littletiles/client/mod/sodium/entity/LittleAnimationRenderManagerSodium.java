@@ -12,6 +12,9 @@ import org.lwjgl.opengl.GL30C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.MeshData.SortState;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -21,6 +24,8 @@ import com.mojang.blaze3d.vertex.VertexSorting;
 
 import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexAttributeBinding;
 import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexFormat;
+import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
+import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.minecraft.client.Camera;
@@ -36,12 +41,17 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.mod.sodium.buffer.RenderedBufferSodium;
 import team.creative.littletiles.client.mod.sodium.renderer.DefaultChunkRendererExtender;
+import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
+import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
+import team.creative.littletiles.mixin.sodium.ChunkBuildBuffersAccessor;
+import team.creative.littletiles.mixin.sodium.ChunkBuilderAccessor;
+import team.creative.littletiles.mixin.sodium.SodiumWorldRendererAccessor;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleAnimationRenderManagerSodium extends LittleAnimationRenderManager {
@@ -156,6 +166,66 @@ public class LittleAnimationRenderManagerSodium extends LittleAnimationRenderMan
     @Override
     public void resortTransparency(RenderType layer, double x, double y, double z) {
         throw new UnsupportedOperationException();
+    }
+    
+    @Override
+    public boolean appendRenderData(Iterable<? extends LayeredBufferCache> blocks) {
+        RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+        ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
+        GlVertexFormat format = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType().getVertexFormat();
+        
+        for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
+            
+            int size = 0;
+            for (LayeredBufferCache data : blocks)
+                size += data.length(layer);
+            
+            if (size == 0)
+                continue;
+            
+            VertexBuffer uploadBuffer = getVertexBuffer(layer);
+            
+            if (uploadBuffer == null)
+                return false;
+            
+            ByteBuffer vanillaBuffer = null;
+            if (!isEmpty(layer))
+                vanillaBuffer = downloadUploadedData((VertexBufferExtender) uploadBuffer, 0, ((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
+            ByteBufferBuilder buffer = new ByteBufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risky and could potentially cause issues
+            
+            BufferBuilder builder = new BufferBuilder(buffer, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
+            if (vanillaBuffer != null)
+                ((ChunkBufferUploader) builder).upload(vanillaBuffer);
+            
+            for (LayeredBufferCache data : blocks) {
+                var layerData = data.get(layer);
+                if (layerData != null)
+                    layerData.upload((ChunkBufferUploader) builder);
+            }
+            
+            var mesh = builder.build();
+            
+            if (!uploadBuffer.isInvalid() && uploadBuffer instanceof VertexBufferExtender ex && mesh != null) {
+                uploadBuffer.bind();
+                
+                ex.setFormat(null);
+                
+                var byteBuffer = mesh.vertexBuffer();
+                int length = byteBuffer.limit();
+                
+                uploadVertexBuffer(ex, byteBuffer);
+                ex.setMode(VertexFormat.Mode.QUADS);
+                ex.setIndexCount(ex.getMode().indexCount(length / format.getStride()));
+                ex.setSequentialIndices(this.uploadIndexBuffer(ex));
+                ex.setIndexType(IndexType.INT);
+                ex.setLastUploadedLength(length);
+                
+                setHasBlock(layer);
+            } else
+                LittleTiles.LOGGER.error("Could not upload chunk render data due to invalid buffer");
+        }
+        VertexBuffer.unbind();
+        return true;
     }
     
     static final class CompileResults {

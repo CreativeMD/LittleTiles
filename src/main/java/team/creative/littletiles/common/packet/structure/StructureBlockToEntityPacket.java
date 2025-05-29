@@ -50,6 +50,7 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             }
             
             Vec3 offset = RenderingLevelHandler.offsetCorrection(target, targetLevel, origin, originLevel, section);
+            int sectionIndex = target.sectionIndex(targetLevel, pos);
             
             synchronized (targetBE.render) {
                 if (!targetBE.render.isInQueueOrBeforeBuilding())
@@ -62,7 +63,7 @@ public class StructureBlockToEntityPacket extends StructurePacket {
                             continue;
                         
                         if (offset != null)
-                            holder.applyOffset(offset);
+                            holder.applyOffset(offset, sectionIndex);
                         layers.put(layer, holder);
                     }
                     

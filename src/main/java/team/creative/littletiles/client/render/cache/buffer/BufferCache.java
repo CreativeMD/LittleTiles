@@ -31,7 +31,7 @@ public interface BufferCache {
     
     public BufferCache combine(Iterator<BufferCache> holder);
     
-    public void applyOffset(Vec3 vec);
+    public void applyOffset(Vec3 vec, int sectionIndex);
     
     public boolean isEmpty();
     

@@ -14,7 +14,6 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.mod.sodium.entity.LittleAnimationRenderManagerSodium;
 import team.creative.littletiles.client.mod.sodium.pipeline.LittleRenderPipelineSodium;
 import team.creative.littletiles.client.mod.sodium.pipeline.LittleRenderPipelineTypeSodium;
-import team.creative.littletiles.client.mod.sodium.renderer.DefaultChunkRendererExtender;
 import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
@@ -48,9 +47,9 @@ public class SodiumInteractor {
             
             @Override
             public int sectionIndex(Level level, long pos) {
-                int rX = SectionPos.x(pos) & (RenderRegion.REGION_WIDTH - 1);
-                int rY = SectionPos.y(pos) & (RenderRegion.REGION_HEIGHT - 1);
-                int rZ = SectionPos.z(pos) & (RenderRegion.REGION_LENGTH - 1);
+                int rX = SectionPos.x(pos) & RenderRegion.REGION_WIDTH_M;
+                int rY = SectionPos.y(pos) & RenderRegion.REGION_HEIGHT_M;
+                int rZ = SectionPos.z(pos) & RenderRegion.REGION_LENGTH_M;
                 
                 return LocalSectionIndex.pack(rX, rY, rZ);
             }
@@ -80,9 +79,10 @@ public class SodiumInteractor {
             
             @Override
             public int sectionIndex(Level level, long pos) {
-                int rX = SectionPos.x(pos) & DefaultChunkRendererExtender.REGION_WIDTH_M;
-                int rY = SectionPos.y(pos) & DefaultChunkRendererExtender.REGION_HEIGHT_M;
-                int rZ = SectionPos.z(pos) & DefaultChunkRendererExtender.REGION_LENGTH_M;
+                SectionPos s = ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOffset;
+                int rX = s.getX() & RenderRegion.REGION_WIDTH_M;
+                int rY = s.getY() & RenderRegion.REGION_HEIGHT_M;
+                int rZ = s.getZ() & RenderRegion.REGION_LENGTH_M;
                 
                 return LocalSectionIndex.pack(rX, rY, rZ);
             }

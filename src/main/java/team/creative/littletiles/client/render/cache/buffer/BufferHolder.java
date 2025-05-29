@@ -414,7 +414,7 @@ public class BufferHolder implements BufferCache {
     }
     
     @Override
-    public void applyOffset(Vec3 vec) {
+    public void applyOffset(Vec3 vec, int sectionIndex) {
         // Move render data by offset, easy but a bit hacky method to do it
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
