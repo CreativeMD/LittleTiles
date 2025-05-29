@@ -1,3 +1,12 @@
+1.6.0-pre164
+Added new system which makes sure that door transition is smooth even though a chunk update is done in the middle of it (was especially a problem for larger doors)
+Fixed extracting structure buffers causing incorrect indexes (causing exception and rendering issues)
+Fixed section index not getting updated properly during door transition (fixes flicker when door goes over chunk borders)
+Fixed appending data to chunk causing issues when not all blocks have added layer
+Fixed children doors sometimes not being visible even though they are part of the screen
+Fixed not rendering blocks in entity when they have been added to render data once
+Fixed crash when using tools and interacting with opened doors
+
 1.6.0-pre163
 Potential fix for crash with immersive portals
 Fixed crash on server side of stuff is placed in survival
