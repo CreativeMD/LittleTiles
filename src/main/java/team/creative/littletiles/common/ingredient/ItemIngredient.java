@@ -136,7 +136,7 @@ public class ItemIngredient extends LittleIngredient<ItemIngredient> implements 
     public void print(TextBuilder text) {
         if (content.size() <= 4)
             for (ItemIngredientEntry entry : content)
-                text.stack(entry.ingredient.getExample()).text(" " + entry.count + " " + entry.toString()).newLine();
+                text.stack(entry.ingredient.getExample()).text(" " + entry.count + " ").add(entry.ingredient.description()).newLine();
         else
             for (ItemIngredientEntry entry : content)
                 text.stack(entry.ingredient.getExample()).text(" " + entry.count + " ");
