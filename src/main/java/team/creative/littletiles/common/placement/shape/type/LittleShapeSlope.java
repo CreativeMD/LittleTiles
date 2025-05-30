@@ -21,16 +21,14 @@ public class LittleShapeSlope extends LittleShape<MatrixShapeConfig> {
         LittleTransformableBox box = new LittleTransformableBox(selection.getOverallBox(), new int[1]);
         CornerCache cache = box.new CornerCache(false);
         
-        Axis axis = Axis.X.transform(config.matrix);
         Facing facing = Facing.DOWN.transform(config.matrix);
         Facing facing2 = Facing.NORTH.transform(config.matrix);
         
+        Axis axis = Axis.third(facing.axis, facing2.axis);
         BoxCorner corner = BoxCorner.getCornerUnsorted(axis.facing(false), facing, facing2);
         
         cache.setAbsolute(corner, facing.axis, box.get(facing.opposite()));
         cache.setAbsolute(corner.mirror(axis), facing.axis, box.get(facing.opposite()));
-        
-        cache.transform(config.matrix);
         
         box.setData(cache.getData());
         
