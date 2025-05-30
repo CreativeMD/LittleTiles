@@ -255,16 +255,19 @@ public class BERenderManager {
         
         if (tile != null && tile.isTranslucent() && state.partially()) {
             LittleFace face = cube.box.generateFace(be.getGrid(), facing);
-            BETiles toCheck = be;
-            if (state.outside()) {
-                toCheck = context.getNeighbour(facing);
-                face.move(facing);
-            }
-            if (toCheck.shouldFaceBeRendered(face, tile))
-                cube.setFace(facing, new RenderBoxFaceSpecial(face.generateFans(), (float) face.grid.pixelLength));
-            else
+            if (face == null)
                 cube.setFace(facing, RenderBoxFace.NOT_RENDER);
-            
+            else {
+                BETiles toCheck = be;
+                if (state.outside()) {
+                    toCheck = context.getNeighbour(facing);
+                    face.move(facing);
+                }
+                if (toCheck.shouldFaceBeRendered(face, tile))
+                    cube.setFace(facing, new RenderBoxFaceSpecial(face.generateFans(), (float) face.grid.pixelLength));
+                else
+                    cube.setFace(facing, RenderBoxFace.NOT_RENDER);
+            }
             cube.customData = tile;
         } else
             cube.setFace(facing, RenderBoxFace.RENDER);
