@@ -57,8 +57,8 @@ public class LittleInventory implements Iterable<ItemStack> {
         
         for (int i = 0; i < size(); i++) {
             ItemStack stack = get(i);
-            if (stack.getItem() instanceof ILittleIngredientInventory) {
-                LittleIngredients ingredient = ((ILittleIngredientInventory) stack.getItem()).getInventory(stack);
+            if (stack.getItem() instanceof ILittleIngredientInventory inv) {
+                LittleIngredients ingredient = inv.getInventory(stack);
                 if (ingredient != null) {
                     inventories.add(ingredient);
                     inventoriesId.add(i);
@@ -76,9 +76,10 @@ public class LittleInventory implements Iterable<ItemStack> {
     }
     
     public void startSimulation() {
+        simulate = false;
         cachedInventory = new ArrayList<ItemStack>();
-        for (int i = 0; i < inventory.getSlots(); i++)
-            cachedInventory.add(inventory.getStackInSlot(i).copy());
+        for (int i = 0; i < size(); i++)
+            cachedInventory.add(get(i).copy());
         
         simulate = true;
         reloadInventories(false);
