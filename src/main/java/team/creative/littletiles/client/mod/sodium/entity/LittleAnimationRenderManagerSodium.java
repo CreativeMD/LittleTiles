@@ -1,60 +1,56 @@
 package team.creative.littletiles.client.mod.sodium.entity;
 
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
-import javax.annotation.Nullable;
-
+import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
-import org.lwjgl.opengl.GL20C;
-import org.lwjgl.opengl.GL30C;
 
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.MeshData.SortState;
+import com.mojang.blaze3d.shaders.Uniform;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexBuffer;
-import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexFormat.IndexType;
-import com.mojang.blaze3d.vertex.VertexSorting;
 
+import it.unimi.dsi.fastutil.longs.Long2ObjectArrayMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
+import it.unimi.dsi.fastutil.longs.Long2ObjectMap.Entry;
+import it.unimi.dsi.fastutil.longs.LongArraySet;
+import it.unimi.dsi.fastutil.longs.LongIterator;
+import it.unimi.dsi.fastutil.longs.LongSet;
+import it.unimi.dsi.fastutil.objects.ObjectArraySet;
 import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexAttributeBinding;
 import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexFormat;
-import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
-import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
+import net.minecraft.client.renderer.culling.Frustum;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.util.type.list.Tuple;
-import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
-import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.client.mod.sodium.buffer.RenderedBufferSodium;
-import team.creative.littletiles.client.mod.sodium.renderer.DefaultChunkRendererExtender;
-import team.creative.littletiles.client.render.cache.LayeredBufferCache;
-import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
-import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
-import team.creative.littletiles.client.render.entity.LittleAnimationRenderManager;
-import team.creative.littletiles.client.render.mc.VertexBufferExtender;
+import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
-import team.creative.littletiles.mixin.sodium.ChunkBuildBuffersAccessor;
-import team.creative.littletiles.mixin.sodium.ChunkBuilderAccessor;
-import team.creative.littletiles.mixin.sodium.SodiumWorldRendererAccessor;
+import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 
 @OnlyIn(Dist.CLIENT)
-public class LittleAnimationRenderManagerSodium extends LittleAnimationRenderManager {
+public class LittleAnimationRenderManagerSodium extends LittleEntityRenderManager<LittleAnimationEntity> {
+    
+    private Long2ObjectMap<LittleSodiumSection> sections = new Long2ObjectArrayMap<>();
+    
+    protected List<BlockEntity> renderableBlockEntities = new ArrayList<>();
+    
+    protected final Set<RenderType> hasBlocks = new ObjectArraySet<>(RenderType.CHUNK_BUFFER_LAYERS.size());
+    protected boolean needsUpdate = false;
     
     private GlVertexAttributeBinding[] vertexAttributeBindings;
     private GlVertexFormat format;
@@ -68,6 +64,26 @@ public class LittleAnimationRenderManagerSodium extends LittleAnimationRenderMan
         this.format = format;
     }
     
+    public GlVertexAttributeBinding[] getBindings() {
+        return vertexAttributeBindings;
+    }
+    
+    public GlVertexFormat getFormat() {
+        return format;
+    }
+    
+    @Override
+    public RenderChunkExtender getRenderChunk(long pos) {
+        return getOrCreateSection(pos);
+    }
+    
+    private LittleSodiumSection getOrCreateSection(long pos) {
+        var section = sections.get(pos);
+        if (section == null)
+            sections.put(pos, section = new LittleSodiumSection(this, pos));
+        return section;
+    }
+    
     @Override
     public void compileSections(Camera camera) {
         if (!needsUpdate || vertexAttributeBindings == null)
@@ -78,62 +94,28 @@ public class LittleAnimationRenderManagerSodium extends LittleAnimationRenderMan
         renderableBlockEntities.clear();
         RebuildTask rebuild = new RebuildTask();
         Vec3 cam = camera.getPosition();
-        CompileResults results = rebuild.compile((float) cam.x, (float) cam.y, (float) cam.z);
+        rebuild.compile((float) cam.x, (float) cam.y, (float) cam.z);
         globalBlockEntities.clear();
-        globalBlockEntities.addAll(results.globalBlockEntities);
-        renderableBlockEntities = results.blockEntities;
-        prepareUpload();
-        for (Tuple<RenderType, RenderedBufferSodium> entry : results.buffers.tuples()) {
-            VertexBuffer buffer = getVertexBuffer(entry.key);
-            if (!buffer.isInvalid() && buffer instanceof VertexBufferExtender ex) {
-                buffer.bind();
-                
-                ex.setFormat(null);
-                int length = entry.value.byteBuffer().limit();
-                uploadVertexBuffer(ex, entry.value.byteBuffer());
-                ex.setMode(VertexFormat.Mode.QUADS);
-                ex.setIndexCount(ex.getMode().indexCount(length / format.getStride()));
-                ex.setSequentialIndices(this.uploadIndexBuffer(ex));
-                ex.setIndexType(IndexType.INT);
-                ex.setLastUploadedLength(length);
-                
-                BufferCollection buffers = rebuild.getBuffers(entry.key);
-                if (buffers != null)
-                    uploaded(entry.key, buffers);
-                
-                try {
-                    entry.value.close();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-                
-                hasBlocks.add(entry.key);
-            } else
-                LittleTiles.LOGGER.error("Could not upload chunk render data due to invalid buffer");
+        globalBlockEntities.addAll(rebuild.globalBlockEntities);
+        renderableBlockEntities = rebuild.blockEntities;
+        
+        LongSet original = new LongArraySet(sections.keySet());
+        if (!rebuild.isEmpty()) {
+            for (Entry<CompiledSodiumSection> entry : rebuild.compiledSections.long2ObjectEntrySet()) {
+                original.remove(entry.getLongKey());
+                entry.getValue().upload(hasBlocks);
+            }
+            VertexBuffer.unbind();
         }
         
-        VertexBuffer.unbind();
-    }
-    
-    @Nullable
-    private RenderSystem.AutoStorageIndexBuffer uploadIndexBuffer(VertexBufferExtender ex) {
-        RenderSystem.AutoStorageIndexBuffer buffer = RenderSystem.getSequentialBuffer(ex.getMode());
-        if (buffer != ex.getSequentialIndices() || !buffer.hasStorage(ex.getIndexCount()))
-            buffer.bind(ex.getIndexCount());
+        if (!original.isEmpty())
+            for (LongIterator iterator = original.longIterator(); iterator.hasNext();) {
+                long pos = iterator.nextLong();
+                var s = sections.remove(pos);
+                if (s != null)
+                    s.unload();
+            }
         
-        return buffer;
-    }
-    
-    private void uploadVertexBuffer(VertexBufferExtender buffer, ByteBuffer byteBuffer) {
-        GlStateManager._glBindBuffer(GL20C.GL_ARRAY_BUFFER, buffer.getVertexBufferId());
-        for (GlVertexAttributeBinding attrib : vertexAttributeBindings) {
-            if (attrib.isIntType())
-                GL30C.glVertexAttribIPointer(attrib.getIndex(), attrib.getCount(), attrib.getFormat(), attrib.getStride(), attrib.getPointer());
-            else
-                GL20C.glVertexAttribPointer(attrib.getIndex(), attrib.getCount(), attrib.getFormat(), attrib.isNormalized(), attrib.getStride(), attrib.getPointer());
-            GL20C.glEnableVertexAttribArray(attrib.getIndex());
-        }
-        RenderSystem.glBufferData(GL20C.GL_ARRAY_BUFFER, byteBuffer, /*this.usage.id*/ 35044);
     }
     
     @Override
@@ -141,26 +123,23 @@ public class LittleAnimationRenderManagerSodium extends LittleAnimationRenderMan
         return true;
     }
     
+    @Override
+    protected void renderAllBlockEntities(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
+        if (renderableBlockEntities != null)
+            for (BlockEntity blockEntity : renderableBlockEntities)
+                renderBlockEntity(blockEntity, pose, frustum, cam, frameTime, bufferSource);
+    }
+    
+    @Override
+    public void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, Uniform offset) {
+        throw new UnsupportedOperationException();
+    }
+    
     public void renderChunkLayerSodium(RenderType layer, PoseStack pose, double camx, double camy, double camz, Matrix4fc projectionMatrix, ChunkShaderInterface shader,
             CameraTransform camera) {
-        if (hasBlocks.contains(layer)) {
-            VertexBuffer vertexbuffer = buffers.get(layer);
-            if (vertexbuffer == null)
-                return;
-            DefaultChunkRendererExtender.setRenderRegionOffset(shader, entity.getCenter().chunkOrigin, camera);
-            vertexbuffer.bind();
-            vertexbuffer.draw();
-        }
-    }
-    
-    @Override
-    public SortState getTransparencyState() {
-        throw new UnsupportedOperationException();
-    }
-    
-    @Override
-    public VertexSorting createVertexSorting(double x, double y, double z) {
-        throw new UnsupportedOperationException();
+        if (hasBlocks.contains(layer))
+            for (LittleSodiumSection s : sections.values())
+                s.renderChunkLayerSodium(layer, shader, camera);
     }
     
     @Override
@@ -169,119 +148,86 @@ public class LittleAnimationRenderManagerSodium extends LittleAnimationRenderMan
     }
     
     @Override
-    public boolean appendRenderData(Iterable<? extends LayeredBufferCache> blocks) {
-        RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
-        ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
-        GlVertexFormat format = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType().getVertexFormat();
-        
-        for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
-            
-            int size = 0;
-            for (LayeredBufferCache data : blocks)
-                size += data.length(layer);
-            
-            if (size == 0)
-                continue;
-            
-            VertexBuffer uploadBuffer = getVertexBuffer(layer);
-            
-            if (uploadBuffer == null)
-                return false;
-            
-            ByteBuffer vanillaBuffer = null;
-            if (!isEmpty(layer))
-                vanillaBuffer = downloadUploadedData((VertexBufferExtender) uploadBuffer, 0, ((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
-            ByteBufferBuilder buffer = new ByteBufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risky and could potentially cause issues
-            
-            BufferBuilder builder = new BufferBuilder(buffer, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
-            if (vanillaBuffer != null)
-                ((ChunkBufferUploader) builder).upload(vanillaBuffer);
-            
-            for (LayeredBufferCache data : blocks) {
-                var layerData = data.get(layer);
-                if (layerData != null)
-                    layerData.upload((ChunkBufferUploader) builder);
-            }
-            
-            var mesh = builder.build();
-            
-            if (!uploadBuffer.isInvalid() && uploadBuffer instanceof VertexBufferExtender ex && mesh != null) {
-                uploadBuffer.bind();
-                
-                ex.setFormat(null);
-                
-                var byteBuffer = mesh.vertexBuffer();
-                int length = byteBuffer.limit();
-                
-                uploadVertexBuffer(ex, byteBuffer);
-                ex.setMode(VertexFormat.Mode.QUADS);
-                ex.setIndexCount(ex.getMode().indexCount(length / format.getStride()));
-                ex.setSequentialIndices(this.uploadIndexBuffer(ex));
-                ex.setIndexType(IndexType.INT);
-                ex.setLastUploadedLength(length);
-                
-                setHasBlock(layer);
-            } else
-                LittleTiles.LOGGER.error("Could not upload chunk render data due to invalid buffer");
-        }
-        VertexBuffer.unbind();
-        return true;
+    public LittleAnimationLevel getLevel() {
+        return (LittleAnimationLevel) super.getLevel();
     }
     
-    static final class CompileResults {
+    public void setHasBlock(RenderType layer) {
+        hasBlocks.add(layer);
+    }
+    
+    @Override
+    protected void setBlockDirty(BlockPos pos, boolean playerChanged) {
+        needsUpdate = true;
+    }
+    
+    @Override
+    public void setBlocksDirty(int minX, int minY, int minZ, int maxX, int maxY, int maxZ) {
+        needsUpdate = true;
         
-        public final List<BlockEntity> globalBlockEntities = new ArrayList<>();
-        public final List<BlockEntity> blockEntities = new ArrayList<>();
-        
-        public final ChunkLayerMap<RenderedBufferSodium> buffers = new ChunkLayerMap<>();
-        
-        public boolean isEmpty() {
-            return buffers.isEmpty() && globalBlockEntities.isEmpty() && blockEntities.isEmpty();
-        }
+    }
+    
+    @Override
+    public void setBlockDirty(BlockPos pos, BlockState actualState, BlockState setState) {
+        needsUpdate = true;
+    }
+    
+    @Override
+    protected void setSectionDirty(int x, int y, int z, boolean playerChanged) {
+        needsUpdate = true;
+    }
+    
+    @Override
+    public void unload() {
+        super.unload();
+        for (LittleSodiumSection s : sections.values())
+            s.unload();
+    }
+    
+    @Override
+    public void allChanged() {
+        super.allChanged();
+        needsUpdate = true;
     }
     
     private class RebuildTask {
         
-        private ChunkLayerMap<BufferCollection> caches;
+        public final List<BlockEntity> globalBlockEntities = new ArrayList<>();
+        public final List<BlockEntity> blockEntities = new ArrayList<>();
+        public final Long2ObjectMap<CompiledSodiumSection> compiledSections = new Long2ObjectArrayMap<>();
+        private boolean hasRenderData = false;
         
-        private CompileResults compile(float x, float y, float z) {
-            CompileResults results = new CompileResults();
-            LittleRenderPipelineType.startCompile(LittleAnimationRenderManagerSodium.this);
+        private void compile(float x, float y, float z) {
             
             for (BETiles block : getLevel())
-                handleBlockEntity(results, block);
+                handleBlockEntity(block);
             
-            if (caches != null)
-                for (Tuple<RenderType, BufferCollection> layer : caches.tuples())
-                    results.buffers.put(layer.key, new RenderedBufferSodium(layer.value));
-                
-            LittleRenderPipelineType.endCompile(LittleAnimationRenderManagerSodium.this);
-            return results;
+            for (CompiledSodiumSection s : compiledSections.values())
+                if (s.finish())
+                    hasRenderData = true;
         }
         
-        private void handleBlockEntity(CompileResults results, BETiles entity) {
-            LittleRenderPipelineType.compileUploaded(LittleAnimationRenderManagerSodium.this.entity.getCenter().chunkOffset.asLong(), entity, x -> getOrCreateBuffers(x));
+        private void handleBlockEntity(BETiles entity) {
+            long pos = SectionPos.asLong(entity.getBlockPos());
+            var c = getCompiled(pos);
+            LittleRenderPipelineType.compileUploaded(pos, entity, x -> c.getOrCreateBuffers(x));
             BlockEntityRenderer blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))
-                    results.globalBlockEntities.add(entity);
+                    globalBlockEntities.add(entity);
                 else
-                    results.blockEntities.add(entity); //FORGE: Fix MC-112730
+                    blockEntities.add(entity); //FORGE: Fix MC-112730
         }
         
-        public BufferCollection getBuffers(RenderType layer) {
-            if (caches == null)
-                return null;
-            return caches.get(layer);
+        public boolean isEmpty() {
+            return !hasRenderData && globalBlockEntities.isEmpty() && blockEntities.isEmpty();
         }
         
-        public BufferCollection getOrCreateBuffers(RenderType layer) {
-            if (caches == null)
-                caches = new ChunkLayerMap<>();
-            BufferCollection cache = caches.get(layer);
-            if (cache == null)
-                caches.put(layer, cache = new BufferCollection());
-            return cache;
+        private CompiledSodiumSection getCompiled(long pos) {
+            var c = compiledSections.get(pos);
+            if (c == null)
+                compiledSections.put(pos, c = new CompiledSodiumSection(getOrCreateSection(pos)));
+            return c;
         }
         
     }

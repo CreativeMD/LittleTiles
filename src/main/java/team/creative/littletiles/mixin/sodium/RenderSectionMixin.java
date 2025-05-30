@@ -362,7 +362,6 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         
         built = true;
         flags |= 1 << RenderSectionFlags.HAS_BLOCK_GEOMETRY;
-        ((RenderSection) (Object) this).setPendingUpdate(null);
         return true;
     }
     

@@ -6,7 +6,6 @@ import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.LocalSectionIndex;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.Level;
@@ -18,7 +17,6 @@ import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
-import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.level.little.LittleLevel;
 
@@ -67,39 +65,22 @@ public class SodiumInteractor {
             }
             
             @Override
-            public void prepareModelOffset(Level level, MutableBlockPos modelOffset, BlockPos pos) {
-                BlockPos chunkOffset = ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOrigin;
-                modelOffset.set(pos.getX() - chunkOffset.getX(), pos.getY() - chunkOffset.getY(), pos.getZ() - chunkOffset.getZ());
-            }
-            
-            @Override
             public RenderChunkExtender getRenderChunk(Level level, long pos) {
                 return ((LittleLevel) level).getRenderManager().getRenderChunk(pos);
             }
             
             @Override
             public int sectionIndex(Level level, long pos) {
-                SectionPos s = ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOffset;
-                int rX = s.getX() & RenderRegion.REGION_WIDTH_M;
-                int rY = s.getY() & RenderRegion.REGION_HEIGHT_M;
-                int rZ = s.getZ() & RenderRegion.REGION_LENGTH_M;
+                int rX = SectionPos.x(pos) & RenderRegion.REGION_WIDTH_M;
+                int rY = SectionPos.y(pos) & RenderRegion.REGION_HEIGHT_M;
+                int rZ = SectionPos.z(pos) & RenderRegion.REGION_LENGTH_M;
                 
                 return LocalSectionIndex.pack(rX, rY, rZ);
             }
             
             @Override
-            public long sectionPos(BETiles be) {
-                return ((LittleAnimationEntity) ((LittleLevel) be.getLevel()).getHolder()).getCenter().chunkOffset.asLong();
-            }
-            
-            @Override
             public BlockPos standardOffset(Level level, SectionPos pos) {
-                return ((LittleAnimationEntity) ((LittleLevel) level).getHolder()).getCenter().chunkOrigin;
-            }
-            
-            @Override
-            public long prepareQueue(long pos) {
-                return 0;
+                return pos.origin();
             }
         };
     }
