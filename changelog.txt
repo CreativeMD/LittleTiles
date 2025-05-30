@@ -1,3 +1,12 @@
+1.6.0-pre165
+Fixed not being able to open doors outside the vanilla height limits
+Fixed item ingredient error description
+Fixed item ingredient not working correctly caused random loss of items in hotbar when placing a bed for example
+Fixed noClip not working for doors
+Fixed issue with rendering transformable boxes causing exceptions
+Fixed slope shape
+Reworked Sodium door rendering to allow for doors across chunk borders
+
 1.6.0-pre164
 Added new system which makes sure that door transition is smooth even though a chunk update is done in the middle of it (was especially a problem for larger doors)
 Fixed extracting structure buffers causing incorrect indexes (causing exception and rendering issues)
