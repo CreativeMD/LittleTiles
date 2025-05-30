@@ -79,7 +79,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
             return null;
         List<VoxelShape> shapes = null;
         for (LittleEntity entity : find(box)) {
-            if (!entity.physic.shouldPush())
+            if (!entity.physic.shouldPush() || entity.noClip())
                 continue;
             
             List<ABB> boxes = null;

@@ -250,4 +250,12 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         getSubLevel().clearTrackingChanges();
     }
     
+    @Override
+    public boolean noClip() {
+        try {
+            return getStructure() instanceof LittleStructure s && s.entityNoClip();
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {
+            return false;
+        }
+    }
 }

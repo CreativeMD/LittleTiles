@@ -33,7 +33,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
     
     private static final Predicate<Entity> NO_ANIMATION = x -> !(x instanceof INoPushEntity);
     private static final TagKey<EntityType<?>> NO_COLLISION = TagKey.create(Registries.ENTITY_TYPE, ResourceLocation.fromNamespaceAndPath(LittleTiles.MODID, "no_collision"));
-
+    
     protected double minX;
     protected double minY;
     protected double minZ;
@@ -185,7 +185,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
     }
     
     public void transform(CollisionCoordinator coordinator) {
-        if (preventPush)
+        if (preventPush || parent.noClip())
             return;
         
         noCollision = true;
@@ -194,7 +194,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         if (!entities.isEmpty()) {
             for (int i = 0; i < entities.size(); i++) {
                 Entity entity = entities.get(i);
-
+                
                 if (entity.getType().is(NO_COLLISION)) {
                     continue;
                 }

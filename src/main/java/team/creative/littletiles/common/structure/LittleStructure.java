@@ -677,6 +677,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         }
     }
     
+    public boolean entityNoClip() {
+        return false;
+    }
+    
     // ================Signal================
     
     public Iterable<ISignalStructureComponent> inputs() {

@@ -144,6 +144,11 @@ public abstract class LittleDoor extends LittleUndirectedStateStructure {
             startTransitionIfNecessary(output.getState().number());
     }
     
+    @Override
+    public boolean entityNoClip() {
+        return noClip;
+    }
+    
     public static class LittleDoorType extends LittleStateStructureType {
         
         public <T extends LittleDoor> LittleDoorType(String id, Class<T> structureClass, BiFunction<? extends LittleStateStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute) {
