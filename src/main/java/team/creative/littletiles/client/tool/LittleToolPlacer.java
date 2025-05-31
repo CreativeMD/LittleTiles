@@ -318,6 +318,9 @@ public class LittleToolPlacer extends LittleTool {
         matrix.pushMatrix();
         
         matrix.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
+        RenderSystem.applyModelViewMatrix();
+        if (marked != null)
+            marked.render(placer.getPositionGrid(player, stack), pose);
         matrix.translate(placedPosition.getPos().getX(), placedPosition.getPos().getY(), placedPosition.getPos().getZ());
         
         setupPreviewRenderer(lines);
@@ -341,9 +344,6 @@ public class LittleToolPlacer extends LittleTool {
                         buildBox(pose, cube, builder, colorAlpha, lines);
             }
         }
-        
-        if (marked != null)
-            marked.render(placer.getPositionGrid(player, stack), pose);
         
         matrix.popMatrix();
         RenderSystem.applyModelViewMatrix();
