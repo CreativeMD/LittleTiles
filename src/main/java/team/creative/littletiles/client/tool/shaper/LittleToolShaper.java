@@ -310,27 +310,30 @@ public class LittleToolShaper extends LittleTool {
         if (key == LittleTilesClient.KEY_MARK) {
             toggleMark();
             return true;
-        } else if (key == LittleTilesClient.KEY_UP) {
-            if (marked)
-                positions.get(markedPosition).move(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.UP : Facing.EAST);
-            
-            return true;
-        } else if (key == LittleTilesClient.KEY_DOWN) {
-            if (marked)
-                positions.get(markedPosition).move(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.DOWN : Facing.WEST);
-            
-            return true;
-        } else if (key == LittleTilesClient.KEY_RIGHT) {
-            if (marked)
-                positions.get(markedPosition).move(lastGrid, Facing.SOUTH);
-            
-            return true;
-        } else if (key == LittleTilesClient.KEY_LEFT) {
-            if (marked)
-                positions.get(markedPosition).move(lastGrid, Facing.NORTH);
-            
-            return true;
         }
+        
+        if (positions.size() > 1)
+            if (key == LittleTilesClient.KEY_UP) {
+                if (marked)
+                    positions.get(markedPosition).move(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.UP : Facing.EAST);
+                
+                return true;
+            } else if (key == LittleTilesClient.KEY_DOWN) {
+                if (marked)
+                    positions.get(markedPosition).move(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.DOWN : Facing.WEST);
+                
+                return true;
+            } else if (key == LittleTilesClient.KEY_RIGHT) {
+                if (marked)
+                    positions.get(markedPosition).move(lastGrid, Facing.SOUTH);
+                
+                return true;
+            } else if (key == LittleTilesClient.KEY_LEFT) {
+                if (marked)
+                    positions.get(markedPosition).move(lastGrid, Facing.NORTH);
+                
+                return true;
+            }
         if (built && builtShapeConfig.react(player, key)) {
             var in = player.getMainHandItem().get(LittleTilesRegistry.SHAPE).configure(player.registryAccess(), builtShapeConfig, Side.CLIENT);
             LittleTiles.NETWORK.sendToServer(new ShapeConfigPacket(in));
