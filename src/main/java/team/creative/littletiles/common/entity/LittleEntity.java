@@ -365,11 +365,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     @Override
     public boolean shouldRender(double x, double y, double z) {
-        Vec3 center = getRealCenter();
-        double d0 = center.x - x;
-        double d1 = center.y - y;
-        double d2 = center.z - z;
-        return this.shouldRenderAtSqrDistance(d0 * d0 + d1 * d1 + d2 * d2);
+        return true;
     }
     
     @Override
