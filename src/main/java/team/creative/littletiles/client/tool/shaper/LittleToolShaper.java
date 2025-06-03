@@ -26,6 +26,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.Side;
+import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.LittleTiles;
@@ -264,10 +265,10 @@ public class LittleToolShaper extends LittleTool {
     
     @Override
     public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {
-        if (marked && lines)
+        
+        if (marked)
             for (int i = 0; i < positions.size(); i++)
                 positions.get(i).render(pose, markedPosition == i);
-            
         if (builtLines != lines || !built)
             return;
         
@@ -289,8 +290,9 @@ public class LittleToolShaper extends LittleTool {
         if (mesh != null) {
             var matrix = RenderSystem.getModelViewStack();
             matrix.pushMatrix();
-            matrix.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
             matrix.translate(pos.getX(), pos.getY(), pos.getZ());
+            matrix.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
+            
             RenderSystem.applyModelViewMatrix();
             setupPreviewRenderer(lines);
             
@@ -310,6 +312,28 @@ public class LittleToolShaper extends LittleTool {
             return true;
         }
         
+        if (positions.size() > 1)
+            if (key == LittleTilesClient.KEY_UP) {
+                if (marked)
+                    positions.get(markedPosition).move(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.UP : Facing.EAST);
+                
+                return true;
+            } else if (key == LittleTilesClient.KEY_DOWN) {
+                if (marked)
+                    positions.get(markedPosition).move(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.DOWN : Facing.WEST);
+                
+                return true;
+            } else if (key == LittleTilesClient.KEY_RIGHT) {
+                if (marked)
+                    positions.get(markedPosition).move(lastGrid, Facing.SOUTH);
+                
+                return true;
+            } else if (key == LittleTilesClient.KEY_LEFT) {
+                if (marked)
+                    positions.get(markedPosition).move(lastGrid, Facing.NORTH);
+                
+                return true;
+            }
         if (built && builtShapeConfig.react(player, key)) {
             var in = player.getMainHandItem().get(LittleTilesRegistry.SHAPE).configure(player.registryAccess(), builtShapeConfig, Side.CLIENT);
             LittleTiles.NETWORK.sendToServer(new ShapeConfigPacket(in));
