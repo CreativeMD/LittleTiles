@@ -122,7 +122,6 @@ public class EntityMixin {
             floatset.add((float) maxStepUp);
         float[] afloat = floatset.toFloatArray();
         FloatArrays.unstableSort(afloat);
-        FloatArrays.reverse(afloat);
         return afloat;
     }
     
