@@ -1,3 +1,11 @@
+1.6.0-pre166
+Fixed mark mode not working properly (Thanks to Doc-1)
+Fixed not rendering block entities on animations (causing littleframes to have no picture displayed)
+Fixed clunky step up behavior
+Fixed pillar shape crash and weird shape when aiming at air
+Fixed wall shape crash when not aiming at a block
+Fixed not resetting break properly when area is protected
+
 1.6.0-pre165
 Fixed not being able to open doors outside the vanilla height limits
 Fixed item ingredient error description
