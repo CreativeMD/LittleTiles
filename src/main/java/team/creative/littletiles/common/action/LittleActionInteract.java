@@ -20,6 +20,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.entity.LittleEntity;
 
 public abstract class LittleActionInteract<T> extends LittleAction<T> {
@@ -99,8 +100,8 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             }
         }
         
-        if (requiresBreakEvent())
-            fireBlockBreakEvent(level, blockPos, player);
+        if (requiresBreakEvent() && !fireBlockBreakEvent(level, blockPos, player))
+            throw new AreaProtected();
         
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof BETiles be) {

@@ -45,6 +45,7 @@ import team.creative.littletiles.common.block.little.tile.parent.StructureParent
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittleBuildingConfig;
 import team.creative.littletiles.common.config.LittleTilesConfig;
+import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceException;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -201,7 +202,7 @@ public class Placement {
             if (event.isCanceled()) {
                 for (BlockPos snapPos : blocks.keySet())
                     LittleAction.sendBlockResetToClient(level, player, snapPos);
-                return null;
+                throw new AreaProtected();
             }
         }
         try {

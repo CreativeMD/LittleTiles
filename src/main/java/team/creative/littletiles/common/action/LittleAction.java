@@ -62,7 +62,6 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittleBuildingConfig;
-import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.config.LittleTilesConfig.GridTooHighException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceColorException;
@@ -198,15 +197,16 @@ public abstract class LittleAction<T> extends CreativePacket {
         return null;
     }
     
-    public static void fireBlockBreakEvent(Level level, BlockPos pos, Player player) throws AreaProtected {
+    public static boolean fireBlockBreakEvent(Level level, BlockPos pos, Player player) {
         if (level.isClientSide)
-            return;
+            return true;
         BreakEvent event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player);
         NeoForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             sendBlockResetToClient(level, player, pos);
-            throw new AreaProtected();
+            return false;
         }
+        return true;
     }
     
     private static Method loadWorldEditEvent() {
