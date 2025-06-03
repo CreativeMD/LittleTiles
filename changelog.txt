@@ -1,3 +1,6 @@
+1.6.0-pre161
+Prevent create's contraption entities from pushing (Thanks to paring-chan)
+
 1.6.0-pre160
 Fixed not importing parent and children connections when loading old worlds from 1.12
 
