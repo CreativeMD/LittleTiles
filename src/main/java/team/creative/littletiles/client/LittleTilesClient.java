@@ -159,6 +159,18 @@ public class LittleTilesClient {
         OVERLAY_RENDERER.displayActionMessage(message);
     }
     
+    public static Facing facingFromKeybind(Player player, KeyMapping key) {
+        if (key == LittleTilesClient.KEY_UP)
+            return LittleActionHandlerClient.isUsingSecondMode() ? Facing.UP : Facing.EAST;
+        if (key == LittleTilesClient.KEY_DOWN)
+            return LittleActionHandlerClient.isUsingSecondMode() ? Facing.DOWN : Facing.WEST;
+        if (key == LittleTilesClient.KEY_RIGHT)
+            return Facing.SOUTH;
+        if (key == LittleTilesClient.KEY_LEFT)
+            return Facing.NORTH;
+        return null;
+    }
+    
     public static IntMatrix3c fromKeybind(Player player, KeyMapping key) {
         if (key == LittleTilesClient.KEY_UP)
             return Rotation.Z_CLOCKWISE.getMatrix();
@@ -331,10 +343,8 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
             LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
         
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"),
-        new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
-                .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT),
-                x -> {
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
+                .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT), x -> {
                     CompoundTag contentData = ItemLittleBlueprint.getContent(x);
                     if (!LittleGroup.shouldRenderInHand(contentData))
                         return ItemStack.EMPTY;
