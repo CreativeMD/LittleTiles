@@ -79,16 +79,32 @@ public class LittleShapePillar extends LittleShape<PillarShapeConfig> {
         
         Axis axis = box.getSize().getLongestAxis();
         
-        Facing minFacing = originalMin.facing;
-        Facing maxFacing = originalMax.facing;
-        
         LittleVec originalMinVec = originalMin.getRelative(boxes.pos);
         LittleVec originalMaxVec = originalMax.getRelative(boxes.pos);
+        boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
+        
+        boolean simple = config.simple;
+        
+        Facing startFacing = originalMin.facing;
+        Facing endFacing = originalMax.facing;
+        if (startFacing == null || endFacing == null) {
+            simple = true;
+            
+            if (originalMax.facing != null)
+                startFacing = originalMax.facing.opposite();
+            else
+                startFacing = axis.facing(facingPositive);
+            if (endFacing == null)
+                endFacing = startFacing.opposite();
+        }
+        
+        Facing minFacing = startFacing;
+        Facing maxFacing = endFacing;
         
         LittleBox minBox = new LittleBox(originalMinVec);
         LittleBox maxBox = new LittleBox(originalMaxVec);
         
-        if (config.simple) {
+        if (simple) {
             minFacing = null;
             maxFacing = null;
         } else {
@@ -108,15 +124,13 @@ public class LittleShapePillar extends LittleShape<PillarShapeConfig> {
         
         CornerCache cache = box.new CornerCache(false);
         
-        boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
-        
         if (minFacing != null && minFacing == maxFacing) {
             minFacing = Facing.get(axis, originalMinVec.get(axis) > originalMaxVec.get(axis));
             maxFacing = minFacing.opposite();
         }
         
-        minBox.growAway(thickness, originalMin.facing);
-        maxBox.growAway(thickness, originalMax.facing);
+        minBox.growAway(thickness, startFacing);
+        maxBox.growAway(thickness, endFacing);
         
         box.growToInclude(minBox);
         box.growToInclude(maxBox);
