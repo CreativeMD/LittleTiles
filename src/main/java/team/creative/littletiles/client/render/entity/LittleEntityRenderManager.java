@@ -23,6 +23,7 @@ import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
 import net.minecraft.client.renderer.culling.Frustum;
 import net.minecraft.client.resources.model.ModelBakery;
 import net.minecraft.core.BlockPos;
@@ -34,7 +35,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.ClientHooks;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelDataManager;
 import net.neoforged.neoforge.common.extensions.ILevelExtension;
@@ -163,12 +163,14 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     protected abstract void renderAllBlockEntities(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource);
     
     protected void renderBlockEntity(BlockEntity blockentity, PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
-        if (ClientHooks.isBlockEntityRendererVisible(mc.getBlockEntityRenderDispatcher(), blockentity, frustum))
+        var dispatcher = mc.getBlockEntityRenderDispatcher();
+        BlockEntityRenderer renderer = dispatcher.getRenderer(blockentity);
+        if (renderer == null || !frustum.isVisible(entity.getOrigin().getAABB(renderer.getRenderBoundingBox(blockentity)).toVanilla()))
             return;
         BlockPos blockpos4 = blockentity.getBlockPos();
         pose.pushPose();
         pose.translate(blockpos4.getX() - cam.x, blockpos4.getY() - cam.y, blockpos4.getZ() - cam.z);
-        mc.getBlockEntityRenderDispatcher().render(blockentity, frameTime, pose, prepareBlockEntity(pose, getLevel(), blockpos4, bufferSource));
+        dispatcher.render(blockentity, frameTime, pose, prepareBlockEntity(pose, getLevel(), blockpos4, bufferSource));
         pose.popPose();
     }
     
