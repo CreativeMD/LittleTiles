@@ -1,3 +1,9 @@
+1.6.0-pre167
+Fixed falling through door during transition (solved by setting the block update immediately)
+Fixed buttons in recipe gui not having same size
+Changed from EntityMultiPlaceEvent to EntityPlaceEvent because apparently protection mods do not support it properly
+Removed vanilla optimization for when to render an entity (no distance limit anymore)
+
 1.6.0-pre166
 Fixed mark mode not working properly (Thanks to Doc-1)
 Fixed not rendering block entities on animations (causing littleframes to have no picture displayed)
