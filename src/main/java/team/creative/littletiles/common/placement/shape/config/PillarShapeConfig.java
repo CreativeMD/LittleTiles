@@ -32,7 +32,7 @@ public class PillarShapeConfig extends LittleShapeConfig {
         TextBuilder text = new TextBuilder();
         text.color(ColorUtils.WHITE).translate("shape.config.simple").text(": ").bool(simple);
         text.newLine().color(ColorUtils.WHITE).translate("shape.config.thickness").text(": ").color(ColorUtils.GRAY).text("" + thickness);
-        return null;
+        return text.build();
     }
     
     @Override
