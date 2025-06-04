@@ -22,6 +22,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
@@ -648,6 +649,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos)));
         LittleUpdateCollector collector = new LittleUpdateCollector();
         PlacementResult result = placement.place();
+        
+        if (level instanceof ServerLevel s)
+            result.broadcastChangesImmediately(s);
         
         if (result == null)
             throw new NotEnoughSpaceForStructureException();

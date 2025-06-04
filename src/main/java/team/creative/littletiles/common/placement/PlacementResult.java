@@ -1,9 +1,14 @@
 package team.creative.littletiles.common.placement;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map.Entry;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ChunkHolder;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.chunk.LevelChunk;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -35,6 +40,18 @@ public class PlacementResult {
         }
         placedPreviews.add(parent.getGrid(), tile, tile.copy());
         placedBoxes.addBoxes(parent, tile);
+    }
+    
+    public void broadcastChangesImmediately(ServerLevel level) {
+        HashMap<LevelChunk, ChunkHolder> map = new HashMap<>();
+        for (BETiles beTiles : blocks) {
+            var chunk = level.getChunk(beTiles.getBlockPos());
+            if (chunk instanceof LevelChunk l && !map.containsKey(l))
+                map.put(l, level.getChunkSource().chunkMap.getVisibleChunkIfPresent(l.getPos().toLong()));
+        }
+        
+        for (Entry<LevelChunk, ChunkHolder> entry : map.entrySet())
+            entry.getValue().broadcastChanges(entry.getKey());
     }
     
 }
