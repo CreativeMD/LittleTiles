@@ -432,7 +432,7 @@ public class LittleToolPlacer extends LittleTool {
         if (!built)
             return false;
         if (!checkForWorker()) {
-            if (builtEmpty)
+            if (builtEmpty || worker == null)
                 return false;
             builtResult = worker.join();
         }
