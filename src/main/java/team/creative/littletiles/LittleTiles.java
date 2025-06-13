@@ -62,14 +62,12 @@ import team.creative.littletiles.common.entity.EntitySizeHandler;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
-import team.creative.littletiles.common.entity.level.LittleLevelEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.LittleItemHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
-import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.level.tick.LittleTickers;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.mod.theoneprobe.TheOneProbeManager;
@@ -103,7 +101,6 @@ import team.creative.littletiles.common.packet.update.NeighborUpdate;
 import team.creative.littletiles.common.packet.update.OutputUpdate;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
-import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -275,7 +272,7 @@ public class LittleTiles {
             return 0;
         }));
         
-        event.getServer().getCommands().getDispatcher().register(Commands.literal("level").executes((x) -> {
+        /*event.getServer().getCommands().getDispatcher().register(Commands.literal("level").executes((x) -> {
             try {
                 ServerLevel level = x.getSource().getLevel();
                 BlockPos pos = BlockPos.containing(x.getSource().getPosition()).above();
@@ -308,7 +305,7 @@ public class LittleTiles {
             }
             
             return 0;
-        }));
+        }));*/
         
         event.getServer().getCommands().getDispatcher().register(Commands.literal("animation").executes((x) -> {
             try {
