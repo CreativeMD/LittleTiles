@@ -87,7 +87,7 @@ public class LittleSignalOutput extends LittleSignalCableBase implements ISignal
             List<LittleRenderBox> cubes) {
         super.renderFace(facing, grid, renderBox.copy(), distance, axis, one, two, positive, oneSidedRenderer, cubes);
         
-        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.OUTPUT_ARROW.value().defaultBlockState().setValue(BlockStateProperties.FACING, facing
+        LittleRenderBox cube = renderBox.getRenderingBox(grid, LittleTilesRegistry.OUTPUT_ARROW.value().defaultBlockState().setValue(BlockStateProperties.FACING, facing.opposite()
                 .toVanilla()));
         cube.keepVU = true;
         cube.allowOverlap = true;
