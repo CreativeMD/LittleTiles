@@ -1,3 +1,10 @@
+1.6.0-pre169
+Added length to description for signal modes (pulse and extender)
+Fixed example structures not loading due to being part of the datapack. Therefore they are moved back to resourcepack
+Fixed signal output arrow showing inwards and not outwards
+Fixed rare crash when there is no shape to be placed
+Fixed crash when hovering over chisel, hammer or paint brush with pillar shape configured
+
 1.6.0-pre167
 Fixed falling through door during transition (solved by setting the block update immediately)
 Fixed buttons in recipe gui not having same size
