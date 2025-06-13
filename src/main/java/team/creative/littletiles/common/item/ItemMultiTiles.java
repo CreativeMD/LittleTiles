@@ -78,6 +78,7 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
                 if (OldLittleTilesDataParser.isOld(nbt))
                     nbt = OldLittleTilesDataParser.convert(nbt);
                 ILittleTool.setData(stack, nbt);
+                EXAMPLES.add(stack);
                 in.close();
             } catch (LittleMissingGridException e) {
                 
