@@ -37,12 +37,13 @@ public class LevelHandlersClient {
         for (int i = 0; i < handlers.size(); i++)
             handlers.get(i).load((Level) event.getLevel());
         
-        awareHandlers.forEach(x -> x.unload());
     }
     
     public void unload(ClientPlayerNetworkEvent.LoggingOut event) {
         for (int i = 0; i < handlers.size(); i++)
             handlers.get(i).unload();
+        
+        awareHandlers.forEach(x -> x.unload());
     }
     
     private static record LevelHandlerClient<T extends LevelHandler>(Function<Level, T> factory, Consumer<T> consumer) {

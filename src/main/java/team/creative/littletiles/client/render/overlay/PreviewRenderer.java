@@ -79,6 +79,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         if (tools != null)
             for (LittleTool p : tools)
                 p.removed();
+        tools = null;
     }
     
     @Override
