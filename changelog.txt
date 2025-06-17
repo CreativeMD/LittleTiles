@@ -1,3 +1,10 @@
+1.6.0-pre170
+Fixed door not getting removed during transition to entity form due to outdated connection to child
+Fixed selecting animation even behind blocks
+Fixed still holding tool in hand when switching singleplayer worlds
+Added marker for start and end position in timeline for advanced door which has different transitions
+Disabled level command
+
 1.6.0-pre169
 Added length to description for signal modes (pulse and extender)
 Fixed example structures not loading due to being part of the datapack. Therefore they are moved back to resourcepack
