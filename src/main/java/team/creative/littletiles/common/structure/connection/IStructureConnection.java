@@ -9,10 +9,12 @@ public interface IStructureConnection {
     
     public BlockPos getStructurePosition();
     
+    public LittleStructure getStructureUncached() throws CorruptedConnectionException, NotYetConnectedException;
+    
     public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException;
     
     public default void checkConnection() throws CorruptedConnectionException, NotYetConnectedException {
-        getStructure();
+        getStructureUncached();
     }
     
     public int getIndex();

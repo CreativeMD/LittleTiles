@@ -51,7 +51,8 @@ public class StructureBlockConnector {
             throw new NotYetConnectedException();
     }
     
-    public void connect() throws CorruptedConnectionException, NotYetConnectedException {
+    public void checkConnection() throws CorruptedConnectionException, NotYetConnectedException {
+        cachedBE = null;
         BETiles be = getBlockEntity();
         if (!be.hasLoaded())
             throw new NotYetConnectedException();

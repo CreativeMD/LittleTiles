@@ -174,7 +174,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             throw new RemovedStructureException();
         
         for (StructureBlockConnector block : blocks)
-            block.connect();
+            block.checkConnection();
         
         try {
             if (hasParent())
@@ -185,7 +185,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         for (StructureChildConnection child : children.all())
             try {
-                child.getStructure().checkConnections();
+                child.getStructureUncached().checkConnections();
             } catch (CorruptedConnectionException e) {
                 throw new MissingChildException(child, e);
             }
@@ -540,8 +540,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         mainBlock.getBE().updateTilesSecretly((x) -> x.removeStructure(getIndex()));
     }
     
-    public void removeStructureSameLevel(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
-        checkConnections();
+    public void removeStructureSameLevelWithoutCheck(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
+        //checkConnections();
         structureDestroyed();
         
         for (StructureChildConnection child : children.all())
@@ -617,7 +617,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         transferOverFormChange(entity.getStructure());
         
-        removeStructureSameLevel(collector);
+        removeStructureSameLevelWithoutCheck(collector);
         entity.getStructure().transferChildrenToAnimation(entity);
         
         collector.process();
@@ -663,7 +663,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         transferOverFormChange(result.parentStructure);
         
-        removeStructureSameLevel(collector);
+        removeStructureSameLevelWithoutCheck(collector);
         collector.process();
         
         entity.setRemoved(RemovalReason.KILLED);
