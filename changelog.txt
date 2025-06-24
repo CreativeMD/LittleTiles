@@ -1,3 +1,9 @@
+1.6.0-pre171
+Added missing translation for gui.signal.out
+Fixed sending door timeline to client in the wrong way causing ticks to be skipped
+Fixed play place sound setting for door not doing anything
+Fixed signal output arrow direction (this time for real)
+
 1.6.0-pre170
 Fixed door not getting removed during transition to entity form due to outdated connection to child
 Fixed selecting animation even behind blocks
