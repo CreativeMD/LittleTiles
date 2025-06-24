@@ -103,8 +103,8 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
             structure.timeline.start(states.get(start), states.get(end), this::createEmptyCurve);
             structure.physical = new PhysicalState();
             
-            LittleTiles.NETWORK.sendToClient(new StructureStartAnimationPacket(structure.getStructureLocation(), structure.timeline), structure.getStructureLevel(), structure
-                    .getStructurePos());
+            LittleTiles.NETWORK.sendToClient(new StructureStartAnimationPacket(structure.getStructureLocation(), structure.timeline.copy()), structure.getStructureLevel(),
+                structure.getStructurePos()); // Needs to send a copy, because before the packet is send the timeline might have ticked already, causing skipped ticks on client side
             
             structure.queueForNextTick();
             return true;
