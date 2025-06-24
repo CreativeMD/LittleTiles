@@ -588,6 +588,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return null;
     }
     
+    public boolean playSoundWhenChangingState() {
+        return true;
+    }
+    
     /** Called before structure is removed. New structure already exists. Can be used to transfer information, that are not saved or loaded.
      *
      * @param newStructure
@@ -606,7 +610,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
         
         BlockPos pos = getStructurePos();
-        Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos)));
+        Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos))).setPlaySounds(
+            playSoundWhenChangingState());;
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
         LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(mainBlock.getPos(), mainBlock.getGrid()), placement);
@@ -646,7 +651,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         Level level = entity.level();
         
         BlockPos pos = getStructurePos();
-        Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos)));
+        Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos))).setPlaySounds(
+            playSoundWhenChangingState());;
         LittleUpdateCollector collector = new LittleUpdateCollector();
         PlacementResult result = placement.place();
         
