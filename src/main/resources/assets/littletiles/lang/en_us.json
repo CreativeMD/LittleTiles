@@ -366,6 +366,7 @@
     "structure.clock_sensor16": "Precise Clock Sensor (16 bit)",
     "structure.description.clock_sensor16": "Outputs the time of the day from 0 to 24000.\nHas a 16 bit output.",
     "gui.signal.components": "Components",
+    "gui.signal.out": "out",
     "gui.signal.configuration.result": "result:",
     "gui.signal.configuration.addop": "+",
     "gui.signal.configuration.add": "+",
