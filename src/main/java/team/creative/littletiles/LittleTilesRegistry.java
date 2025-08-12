@@ -198,12 +198,12 @@ public class LittleTilesRegistry {
     
     public static final DeferredRegister<BlockEntityType<?>> BLOCK_ENTITIES = DeferredRegister.create(BuiltInRegistries.BLOCK_ENTITY_TYPE, LittleTiles.MODID);
     
-    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BETiles>> BE_TILES_TYPE = registerBlockEntity("tiles", () -> BlockEntityType.Builder.of(BETiles::new,
-        BLOCK_TILES.value(), BLOCK_TILES_TICKING.value()));
+    public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BETiles>> BE_TILES_TYPE = registerBlockEntity("tiles", () -> BlockEntityType.Builder.<BETiles>of(
+        BETiles::new, BLOCK_TILES.value(), BLOCK_TILES_TICKING.value()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BETilesRendered>> BE_TILES_TYPE_RENDERED = registerBlockEntity("tiles_rendered",
-        () -> BlockEntityType.Builder.of(BETilesRendered::new, BLOCK_TILES_RENDERED.value(), BLOCK_TILES_TICKING_RENDERED.value()));
+        () -> BlockEntityType.Builder.<BETilesRendered>of(BETilesRendered::new, BLOCK_TILES_RENDERED.value(), BLOCK_TILES_TICKING_RENDERED.value()));
     public static final DeferredHolder<BlockEntityType<?>, BlockEntityType<BESignalConverter>> BE_SIGNALCONVERTER_TYPE = registerBlockEntity("converter",
-        () -> BlockEntityType.Builder.of(BESignalConverter::new, SIGNAL_CONVERTER.value()));
+        () -> BlockEntityType.Builder.<BESignalConverter>of(BESignalConverter::new, SIGNAL_CONVERTER.value()));
     
     public static <T extends BlockEntity> DeferredHolder<BlockEntityType<?>, BlockEntityType<T>> registerBlockEntity(String name, Supplier<BlockEntityType.Builder<T>> sup) {
         return BLOCK_ENTITIES.register(name, () -> sup.get().build(Util.fetchChoiceType(References.BLOCK_ENTITY, name)));
