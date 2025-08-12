@@ -145,7 +145,7 @@ public class GuiSignalController extends GuiParent {
             if (com.hasUnderline()) {
                 Font font = GuiRenderHelper.getFont();
                 String underline = com.getUnderline();
-                graphics.drawString(font, underline, rect.getContentWidth() / 2 - font.width(underline) / 2, rect.getContentHeight() + 4, ColorUtils.WHITE);
+                graphics.drawString(font, underline, control.rect.getWidth() / 2 - font.width(underline) / 2, control.rect.getHeight() + 4, ColorUtils.WHITE);
             }
             
             renderConnections(graphics.pose().last().pose(), com, scale, realRect.inside(mouseX, mouseY), mouseX, mouseY);
