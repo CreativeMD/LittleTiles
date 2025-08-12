@@ -1,3 +1,14 @@
+1.6.0-pre172
+Fixed not being able to break structure with invalid signal components
+Fixed subtitles not being displayed correctly in signal equation gui
+Fixed crash when using tool when no shape has been selected due to a faulty block for example
+Fixed crash when using keys of tools when a certain shape is configured
+Added fall back component when target does not exist in gui
+Fixed not properly logging parse exception when working with signals in gui
+Fixed cell in 0,4 not rendering properly (when it is not an output)
+Fixed error in new eclipse compiler
+Added chinese translation zh_cn.json (Thanks to EdgewalkerBlue)
+
 1.6.0-pre171
 Added missing translation for gui.signal.out
 Fixed sending door timeline to client in the wrong way causing ticks to be skipped
