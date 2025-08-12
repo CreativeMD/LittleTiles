@@ -318,7 +318,7 @@ public class LittleToolShaper extends LittleTool {
                 return true;
             }
         }
-        if (built && builtShapeConfig.react(player, key)) {
+        if (built && builtShapeConfig != null && builtShapeConfig.react(player, key)) {
             var in = player.getMainHandItem().get(LittleTilesRegistry.SHAPE).configure(player.registryAccess(), builtShapeConfig, Side.CLIENT);
             LittleTiles.NETWORK.sendToServer(new ShapeConfigPacket(in));
             player.getMainHandItem().set(LittleTilesRegistry.SHAPE, in);
