@@ -37,6 +37,7 @@ import team.creative.creativecore.common.util.type.itr.ConsecutiveListIterator;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.creativecore.common.util.type.itr.FilterListIterator;
 import team.creative.creativecore.common.util.type.itr.NestedIterator;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNode;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeInput;
@@ -290,7 +291,7 @@ public class GuiSignalController extends GuiParent {
     
     public void setOutput(int cell, GuiSignalComponent output) {
         if (this.output != null)
-            removeNode(this.output);
+            this.output.remove(); //removeNode(this.output);
         this.output = new GuiSignalNodeOutput(output);
         setToFreeCell(cell, this.output);
         raiseEvent(new GuiControlChangedEvent(this));
@@ -313,6 +314,7 @@ public class GuiSignalController extends GuiParent {
             output.connect(connection);
             return;
         } catch (ParseException e) {
+            LittleTiles.LOGGER.catching(e);
             reset();
         }
         setOutput(4, output.component);
@@ -482,6 +484,7 @@ public class GuiSignalController extends GuiParent {
     public void reset() {
         controls.clear();
         grid.clear();
+        output.remove();
         dragged = null;
         selected = null;;
     }
