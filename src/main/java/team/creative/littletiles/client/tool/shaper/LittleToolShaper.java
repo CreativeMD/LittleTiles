@@ -214,6 +214,9 @@ public class LittleToolShaper extends LittleTool {
                 return true;
             }
             
+            if (builtShape == null)
+                return false;
+            
             boolean addPoint = (builtShape.pointsBeforePlacing > positions.size() + 1 || Screen.hasControlDown()) && (builtShape.maxAllowed() == -1 || builtShape
                     .maxAllowed() > positions.size() + 1);
             if (marked || !addPoint) {
