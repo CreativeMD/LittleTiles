@@ -2,7 +2,6 @@ package team.creative.littletiles.client.render.item;
 
 import java.util.function.Function;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -39,8 +38,8 @@ public class LittleModelItemBackground extends CreativeItemModel {
             if (toFake.isEmpty())
                 return;
             
-            if (cameraTransformType == ItemDisplayContext.GUI)
-                RenderSystem.disableDepthTest();
+            //if (cameraTransformType == ItemDisplayContext.GUI)
+            //    RenderSystem.disableDepthTest();
             
             pose.pushPose();
             
@@ -53,16 +52,16 @@ public class LittleModelItemBackground extends CreativeItemModel {
             mc.getItemRenderer().render(toFake, cameraTransformType, false, pose, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, model);
             multibuffersource$buffersource.endBatch();
             
-            if (cameraTransformType == ItemDisplayContext.GUI)
-                RenderSystem.enableDepthTest();
+            //if (cameraTransformType == ItemDisplayContext.GUI)
+            //    RenderSystem.enableDepthTest();
             
             pose.popPose();
         }
     }
     
     public void prepareRenderer(ItemDisplayContext context, PoseStack pose) {
-        if (context == ItemDisplayContext.GUI)
-            pose.translate(0, 0, 100);
+        //if (context == ItemDisplayContext.GUI)
+        //    pose.translate(0, 0, 100);
     }
     
 }
