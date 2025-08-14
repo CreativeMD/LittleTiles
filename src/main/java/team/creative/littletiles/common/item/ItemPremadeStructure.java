@@ -28,7 +28,6 @@ import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.structure.LittleStructureType;
-import team.creative.littletiles.common.structure.registry.premade.LittlePremadePreview;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
@@ -53,10 +52,6 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     
     public static LittlePremadeType get(ItemStack stack) {
         return LittlePremadeRegistry.get(ILittleTool.getData(stack).getCompound(LittleGroup.STRUCTURE_KEY).getString("id"));
-    }
-    
-    public static LittlePremadePreview getPremade(ItemStack stack) {
-        return LittlePremadeRegistry.getPreview(ILittleTool.getData(stack).getCompound(LittleGroup.STRUCTURE_KEY).getString("id"));
     }
     
     public ItemPremadeStructure() {
@@ -89,16 +84,6 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     @Override
     public boolean hasTiles(ItemStack stack) {
         return LittlePremadeRegistry.getPreview(getPremadeId(stack)) != null;
-    }
-    
-    public void removeUnnecessaryData(ItemStack stack) {
-        var data = ILittleTool.getData(stack);
-        if (!data.isEmpty()) {
-            data.remove("tiles");
-            data.remove("size");
-            data.remove("min");
-        }
-        ILittleTool.setData(stack, data);
     }
     
     private LittleGroup getPreviews(String id) {
