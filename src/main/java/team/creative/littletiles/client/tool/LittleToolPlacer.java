@@ -370,6 +370,9 @@ public class LittleToolPlacer extends LittleTool {
         if (group != null && group.isEmptyIncludeChildren())
             return null;
         
+        if (group != null)
+            group.convertToSmallest();
+        
         boolean centered = isCentered();
         boolean fixed = isFixed();
         boolean isMarked = marked != null;
