@@ -1,3 +1,10 @@
+1.6.0-pre173
+Fixed placer not resetting grid properly causing structure to shift when going back to lower grid
+Fixed LittleGroup copy function not copying structure data (probably caused numerous issues)
+Cleaned up ItemPremade Structure
+Fixed rendering blueprint previews over tooltips
+Added missing structure exception
+
 1.6.0-pre172
 Fixed not being able to break structure with invalid signal components
 Fixed subtitles not being displayed correctly in signal equation gui
