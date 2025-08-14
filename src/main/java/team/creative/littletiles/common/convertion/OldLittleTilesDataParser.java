@@ -395,7 +395,7 @@ public class OldLittleTilesDataParser {
                 converted.putString("id", "door");
                 yield converted;
             }
-            default -> throw new LittleConvertException("Cannot convert " + nbt.getString("id") + " yet");
+            default -> throw new LittleMissingStructureException("Cannot convert " + nbt.getString("id") + " yet");
         };
     }
     
@@ -411,6 +411,14 @@ public class OldLittleTilesDataParser {
         
         public Component translatable() {
             return Component.translatable("gui.error.convert.structure", getMessage());
+        }
+        
+    }
+    
+    public static class LittleMissingStructureException extends LittleConvertException {
+        
+        public LittleMissingStructureException(String name) {
+            super(name);
         }
         
     }
