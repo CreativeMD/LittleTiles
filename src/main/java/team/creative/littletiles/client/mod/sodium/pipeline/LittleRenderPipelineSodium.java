@@ -47,6 +47,7 @@ import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
 import net.fabricmc.fabric.api.renderer.v1.material.ShadeMode;
 import net.fabricmc.fabric.api.util.TriState;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -221,7 +222,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                                         .shadeMode() == ShadeMode.ENHANCED);
                                 if (mat.emissive())
                                     for (int i = 0; i < 4; ++i)
-                                        editorQuad.lightmap(i, 15728880);
+                                        editorQuad.lightmap(i, LightTexture.FULL_BRIGHT);
                                 else
                                     for (int i = 0; i < 4; ++i)
                                         editorQuad.lightmap(i, ColorHelper.maxBrightness(editorQuad.lightmap(i), cachedQuadLightData.lm[i]));
