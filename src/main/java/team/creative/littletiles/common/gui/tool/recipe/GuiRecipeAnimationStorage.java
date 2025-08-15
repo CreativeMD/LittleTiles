@@ -204,6 +204,8 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
             RenderSystem.setShaderColor(1, 0, 0, 1);
             BufferUploader.drawWithShader(bufferBuilder.buildOrThrow());
             
+            RenderSystem.setShaderColor(1, 1, 1, 1);
+            
             RenderSystem.disableDepthTest();
         }
         selected = null;
