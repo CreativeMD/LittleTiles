@@ -24,7 +24,7 @@ public class GuiRecipeTest extends GuiLayer {
     
     public void init(GuiRecipe recipe) {
         this.recipe = recipe;
-        this.results = RecipeTest.STANDARD.test(recipe);
+        this.results = recipe.runTest();
         clear();
         init();
     }

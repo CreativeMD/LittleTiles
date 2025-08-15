@@ -167,7 +167,7 @@ public class GuiRecipe extends GuiConfigure {
     }
     
     private void closeWithDialog() {
-        if (runTest()) {
+        if (runTest().success()) {
             CompoundTag nbt = LittleGroup.save(reconstructBlueprint());
             
             if (ItemLittleBlueprint.getContent(tool.get()).equals(nbt)) { // No need to save anything
@@ -289,7 +289,7 @@ public class GuiRecipe extends GuiConfigure {
         bottom.addRight(testReport = new GuiLabel("report").setTitle(Component.empty()));
         bottom.addRight(new GuiButton("check", x -> OPEN_TEST.open(new CompoundTag()).init(this)).setTranslate("gui.recipe.test"));
         bottom.addRight(new GuiButton("save", x -> {
-            if (runTest())
+            if (runTest().success())
                 SAVE.send(LittleGroup.save(reconstructBlueprint()));
         }).setTranslate("gui.save"));
         
@@ -327,7 +327,7 @@ public class GuiRecipe extends GuiConfigure {
                 con.accept(s);
     }
     
-    public boolean runTest() {
+    public RecipeTestResults runTest() {
         if (tree.selected() != null)
             ((GuiTreeItemStructure) tree.selected()).save();
         RecipeTestResults results = RecipeTest.STANDARD.test(this);
@@ -357,7 +357,7 @@ public class GuiRecipe extends GuiConfigure {
         
         reflow();
         
-        return results.success();
+        return results;
     }
     
     protected LittleGroup reconstructBlueprint(GuiTreeItemStructure item) {
