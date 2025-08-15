@@ -1,4 +1,14 @@
-1.6.0-pre173
+1.6.0-pre174
+Fixed signal networks not resetting properly (big one)
+Fixed check recipe not properly displaying error recipe gui
+Fixed test errors resulting in some parts of the gui getting tinted red
+Changed size of gui for signal equation editor and virtual input
+Fixed gui of signal input
+Fixed crash in recipe gui when moving external outputs around
+Fixed rendering blueprint previews over tooltips #2
+Fixed missing gui.signal.bandwidth in en_us.json (Thanks to hellyet)
+
+1.6.0-pre174
 Fixed placer not resetting grid properly causing structure to shift when going back to lower grid
 Fixed LittleGroup copy function not copying structure data (probably caused numerous issues)
 Cleaned up ItemPremade Structure
