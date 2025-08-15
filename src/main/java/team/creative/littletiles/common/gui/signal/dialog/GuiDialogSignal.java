@@ -36,7 +36,7 @@ public class GuiDialogSignal extends GuiLayer {
     public List<GuiSignalComponent> inputs;
     
     public GuiDialogSignal() {
-        super("gui.dialog.signal", 320, 200);
+        super("gui.dialog.signal", 420, 300);
         flow = GuiFlow.STACK_Y;
         registerEventChanged(this::changed);
     }
