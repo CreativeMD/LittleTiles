@@ -38,9 +38,6 @@ public class LittleModelItemBackground extends CreativeItemModel {
             if (toFake.isEmpty())
                 return;
             
-            //if (cameraTransformType == ItemDisplayContext.GUI)
-            //    RenderSystem.disableDepthTest();
-            
             pose.pushPose();
             
             Minecraft mc = Minecraft.getInstance();
@@ -52,16 +49,13 @@ public class LittleModelItemBackground extends CreativeItemModel {
             mc.getItemRenderer().render(toFake, cameraTransformType, false, pose, multibuffersource$buffersource, 15728880, OverlayTexture.NO_OVERLAY, model);
             multibuffersource$buffersource.endBatch();
             
-            //if (cameraTransformType == ItemDisplayContext.GUI)
-            //    RenderSystem.enableDepthTest();
-            
             pose.popPose();
         }
     }
     
     public void prepareRenderer(ItemDisplayContext context, PoseStack pose) {
-        //if (context == ItemDisplayContext.GUI)
-        //    pose.translate(0, 0, 100);
+        if (context == ItemDisplayContext.GUI)
+            pose.translate(0, 0, 1);
     }
     
 }
