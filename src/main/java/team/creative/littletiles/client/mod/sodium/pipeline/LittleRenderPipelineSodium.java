@@ -17,6 +17,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.objects.ObjectOpenHashSet;
+import net.caffeinemc.mods.sodium.api.texture.SpriteUtil;
 import net.caffeinemc.mods.sodium.api.util.ColorARGB;
 import net.caffeinemc.mods.sodium.api.util.ColorMixer;
 import net.caffeinemc.mods.sodium.client.model.color.ColorProvider;
@@ -40,7 +41,6 @@ import net.caffeinemc.mods.sodium.client.render.frapi.SodiumRenderer;
 import net.caffeinemc.mods.sodium.client.render.frapi.helper.ColorHelper;
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableQuadViewImpl;
 import net.caffeinemc.mods.sodium.client.render.frapi.render.AmbientOcclusionMode;
-import net.caffeinemc.mods.sodium.client.render.texture.SpriteUtil;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
@@ -229,7 +229,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                                     
                                 ((BlockRendererExtender) renderer).callBufferQuad(editorQuad, cachedQuadLightData.br, material);
                                 TextureAtlasSprite sprite = editorQuad.cachedSprite();
-                                if (sprite != null && SpriteUtil.hasAnimation(sprite))
+                                if (sprite != null && SpriteUtil.INSTANCE.hasAnimation(sprite))
                                     sprites.add(sprite);
                                 
                                 editorQuad.clear();
