@@ -1,7 +1,13 @@
 {
-  "replace": false,
-  "values": [
-    "create:carriage_contraption",
-    "create:stationary_contraption"
-  ]
+    "replace": false,
+    "values": [
+        {
+            "id": "create:carriage_contraption",
+            "required": false
+        },
+        {
+            "id": "create:stationary_contraption",
+            "required": false
+        }
+    ]
 }
