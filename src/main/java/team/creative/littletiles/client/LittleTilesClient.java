@@ -269,12 +269,19 @@ public class LittleTilesClient {
         BLOCK_TILES_RENDERER = new BETilesRenderer();
         BlockEntityRenderers.register(LittleTilesRegistry.BE_TILES_TYPE_RENDERED.get(), x -> BLOCK_TILES_RENDERER);
         
-        ResourceLocation filled = ResourceLocation.tryBuild(LittleTiles.MODID, "filled");
-        ClampedItemPropertyFunction function = (stack, level, entity, x) -> ((ItemColorIngredient) stack.getItem()).getColor(stack) / (float) ColorIngredient.BOTTLE_SIZE;
-        ItemProperties.register(LittleTilesRegistry.BLACK_COLOR.value(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.value(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.value(), filled, function);
-        ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.value(), filled, function);
+        event.enqueueWork(() -> {
+            ResourceLocation filled = ResourceLocation.tryBuild(LittleTiles.MODID, "filled");
+            ClampedItemPropertyFunction function = (stack, level, entity, x) -> ((ItemColorIngredient) stack.getItem()).getColor(stack) / (float) ColorIngredient.BOTTLE_SIZE;
+            ItemProperties.register(LittleTilesRegistry.BLACK_COLOR.value(), filled, function);
+            ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.value(), filled, function);
+            ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.value(), filled, function);
+            ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.value(), filled, function);
+        });
+        
+        MC.getItemColors().register((stack, layer) -> {
+            var entry = ItemBlockIngredient.loadIngredient(stack);
+            return MC.getItemColors().getColor(entry.getBlockStack(), layer);
+        }, LittleTilesRegistry.BLOCK_INGREDIENT.value());
         
         SodiumManager.init();
         IrisManager.init();
@@ -354,7 +361,7 @@ public class LittleTilesClient {
                 }));
         
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blockingredient"), new CreativeItemBoxModel(new ModelResourceLocation(ResourceLocation
-                .tryBuild("minecraft", "stone"), ModelResourceLocation.STANDALONE_VARIANT)) {
+                .tryBuild("minecraft", "stone"), ModelResourceLocation.INVENTORY_VARIANT)) {
             
             @Override
             public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
