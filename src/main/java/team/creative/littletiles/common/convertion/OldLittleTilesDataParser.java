@@ -127,7 +127,9 @@ public class OldLittleTilesDataParser {
     private static void convertDoorBaseData(CompoundTag oldData, CompoundTag newData) {
         convertStructureDataBase(oldData, newData);
         
-        newData.put("state", oldData.get("state"));
+        var state = oldData.get("state");
+        if (state != null)
+            newData.put("state", state);
         
         newData.putBoolean("actP", oldData.getBoolean("activateParent"));
         newData.putBoolean("hand", !oldData.getBoolean("disableRightClick"));
