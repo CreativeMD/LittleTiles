@@ -1,3 +1,12 @@
+1.6.0-pre175
+Fixed block ingredients not rendering correctly
+Fixed color of block ingredients
+Fixed bottles texture not changing based on filled state
+Fixed not being able to convert old structures with no state data provided
+Fixed issue with no_collision take causing error without create installed
+Fixed use of deprecated SpriteUtil of sodium
+Update zh_cn.json (Thanks to EdgewalkerBlue)
+
 1.6.0-pre174
 Fixed signal networks not resetting properly (big one)
 Fixed check recipe not properly displaying error recipe gui
