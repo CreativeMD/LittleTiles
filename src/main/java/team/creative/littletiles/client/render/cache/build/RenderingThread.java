@@ -54,6 +54,8 @@ public class RenderingThread extends Thread {
                 
             while (!QUEUE.isEmpty())
                 QUEUE.poll().be.render.resetRenderingState();
+            
+            QUEUE.clear(); // Make sure all levels and sections are reset
         }
         THREADS = new ArrayList<>();
         for (int i = 0; i < count; i++)
