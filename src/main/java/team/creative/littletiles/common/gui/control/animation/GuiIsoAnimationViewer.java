@@ -260,7 +260,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
         int height = (int) (realRect.getHeight() * guiScale);
         RenderSystem.viewport((int) (realRect.minX * guiScale), (int) (window.getHeight() - realRect.minY * guiScale - height), (int) (realRect.getWidth() * guiScale), height);
         RenderSystem.clear(GL11.GL_DEPTH_BUFFER_BIT, Minecraft.ON_OSX);
-        Matrix4f projection = new Matrix4f().ortho(0.0F, rect.getWidth(), 0, rect.getHeight(), -1000.0F, ClientHooks.getGuiFarPlane());
+        Matrix4f projection = new Matrix4f().ortho(0.0F, (float) realRect.getWidth(), 0, (float) realRect.getHeight(), -1000.0F, ClientHooks.getGuiFarPlane());
         RenderSystem.setProjectionMatrix(projection, VertexSorting.DISTANCE_TO_ORIGIN);
         
         Vec3d center = storage.center();
