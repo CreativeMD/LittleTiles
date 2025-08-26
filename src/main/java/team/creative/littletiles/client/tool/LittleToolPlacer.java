@@ -311,7 +311,7 @@ public class LittleToolPlacer extends LittleTool {
             return;
         
         var mesh = getMeshData(lines);
-        if (mesh == null)
+        if (mesh == null || placedPosition == null)
             return;
         
         var matrix = RenderSystem.getModelViewStack();
