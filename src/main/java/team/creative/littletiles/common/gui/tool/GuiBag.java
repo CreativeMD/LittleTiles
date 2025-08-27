@@ -3,9 +3,13 @@ package team.creative.littletiles.common.gui.tool;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.serialization.DataResult;
+
 import net.minecraft.core.component.PatchedDataComponentMap;
-import net.minecraft.nbt.EndTag;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.Container;
 import net.minecraft.world.SimpleContainer;
@@ -23,6 +27,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.common.gui.control.GuiColorProgressBar;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
@@ -46,9 +51,10 @@ public class GuiBag extends GuiConfigure {
     private List<IGuiInventory> inventories = new ArrayList<>();
     private List<IGuiInventory> inventoriesInv = new ArrayList<>();
     
-    public final GuiSyncLocal<EndTag> RELOAD = getSyncHolder().register("reload", v -> {
-        tool.changed();
-        reinit();
+    public final GuiSyncLocal<CompoundTag> RELOAD = getSyncHolder().register("reload", nbt -> {
+        DataResult<ItemStack> result = ItemStack.CODEC.parse(NbtOps.INSTANCE, nbt);
+        tool.set(result.getOrThrow());
+        load();
     });
     
     public final GuiSyncLocal<StringTag> DROP_COLOR = getSyncHolder().register("drop_color", nbt -> {
@@ -66,7 +72,7 @@ public class GuiBag extends GuiConfigure {
                     LevelUtils.dropItem(player, colorStack);
                 
                 saveBagInventory();
-                RELOAD.send(EndTag.INSTANCE);
+                sendUpdateToClient();
                 tick();
             }
         }
@@ -78,6 +84,15 @@ public class GuiBag extends GuiConfigure {
             if (x.control instanceof GuiColorProgressBar)
                 DROP_COLOR.send(StringTag.valueOf(x.control.name));
         });
+        
+    }
+    
+    public void sendUpdateToClient() {
+        if (isClient())
+            return;
+        
+        DataResult<Tag> dataresult = ItemStack.CODEC.encode(tool.get(), NbtOps.INSTANCE, new CompoundTag());
+        RELOAD.send((CompoundTag) dataresult.getOrThrow());
     }
     
     protected GuiInventoryGrid addInventory(GuiInventoryGrid inventory) {
@@ -88,8 +103,7 @@ public class GuiBag extends GuiConfigure {
     
     @Override
     public void create() {
-        RELOAD.send(EndTag.INSTANCE);
-        
+        sendUpdateToClient();
         flow = GuiFlow.STACK_Y;
         
         bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
@@ -129,7 +143,7 @@ public class GuiBag extends GuiConfigure {
                     
                     if (containsColor) {
                         player.playSound(SoundEvents.BREWING_STAND_BREW, 1.0F, 1.0F);
-                        RELOAD.send(EndTag.INSTANCE);
+                        sendUpdateToClient();
                     }
                 }
                 
@@ -162,7 +176,7 @@ public class GuiBag extends GuiConfigure {
                         
                         if (containsColor) {
                             player.playSound(SoundEvents.BREWING_STAND_BREW, 1.0F, 1.0F);
-                            RELOAD.send(EndTag.INSTANCE);
+                            sendUpdateToClient();
                         }
                         
                     } else
@@ -190,6 +204,16 @@ public class GuiBag extends GuiConfigure {
         
         addInventory(inputInventory);
         addInventory(bagInventoryGui);
+    }
+    
+    public void load() {
+        bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
+        ColorIngredient unit = bag.get(ColorIngredient.class);
+        get("black", GuiColorProgressBar.class).pos = unit.black;
+        get("cyan", GuiColorProgressBar.class).pos = unit.cyan;
+        get("magenta", GuiColorProgressBar.class).pos = unit.magenta;
+        get("yellow", GuiColorProgressBar.class).pos = unit.yellow;
+        clearItemCache();
     }
     
     public void clearItemCache() {
@@ -269,7 +293,7 @@ public class GuiBag extends GuiConfigure {
                 } else {
                     cache = ItemBlockIngredient.of(entry);
                     cache.setCount(Math.max(1, (int) entry.value));
-                    full = entry.value > 1;
+                    full = entry.value >= 1;
                 }
             }
             return cache;
@@ -277,19 +301,25 @@ public class GuiBag extends GuiConfigure {
         
         @Override
         public ItemStack remove(int count) {
-            ItemStack taken = cache;
             BlockIngredientEntry entry = getEntry();
-            if (entry != null) {
-                if (full) {
-                    taken = entry.getBlockStack();
-                    taken.setCount((int) entry.value);
-                    entry.value -= taken.getCount();
-                } else
-                    entry.value = 0;
-                
-                if (entry.isEmpty())
-                    bag.get(BlockIngredient.class).getContent().remove(getSlotIndex());
+            if (entry == null)
+                return ItemStack.EMPTY;
+            
+            ItemStack taken;
+            
+            if (full) {
+                taken = entry.getBlockStack();
+                taken.setCount(Math.min(count, (int) entry.value));
+                entry.value -= taken.getCount();
+            } else {
+                taken = cache.copy();
+                taken.set(LittleTilesRegistry.BLOCK_INGREDIENT_ENTRY, entry.copy());
+                entry.value = 0;
             }
+            
+            if (entry.isEmpty())
+                bag.get(BlockIngredient.class).getContent().remove(getSlotIndex());
+            
             cache = null;
             saveBagInventory();
             return taken;
