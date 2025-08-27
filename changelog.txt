@@ -1,3 +1,11 @@
+1.6.0-pre176
+Fixed gui bag gui not updating correctly
+Fixed pickup of ingredients ignoring pickup delay
+Fixed rare crash when there is no placement position for tools
+Fixed iso viewer in recipe gui behaving weirdly when it is only partially visible
+Fixed block with no surface causing chunk update counter to loose track (caused invisible chunks after initial load)
+Fixed not updating chunks properly after rendering thread count changed while level is loaded
+
 1.6.0-pre175
 Fixed block ingredients not rendering correctly
 Fixed color of block ingredients
