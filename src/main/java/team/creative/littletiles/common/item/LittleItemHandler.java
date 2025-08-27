@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.item;
 
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -38,7 +40,7 @@ public class LittleItemHandler {
         ItemEntity entityItem = event.getItemEntity();
         ItemStack stack = entityItem.getItem();
         
-        if (stack.getItem() instanceof ILittleIngredientInventory inv && inv.shouldBeMerged()) {
+        if (!entityItem.hasPickUpDelay() && stack.getItem() instanceof ILittleIngredientInventory inv && inv.shouldBeMerged()) {
             LittleIngredients ingredients = inv.getInventory(stack);
             LittleInventory inventory = new LittleInventory(player);
             inventory.allowDrop = false;
@@ -57,6 +59,8 @@ public class LittleItemHandler {
                     entityItem.kill();
                     
                     event.setCanPickup(TriState.FALSE);
+                    player.level().playSound(null, player.getX(), player.getY() + 0.5, player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, ((player.level().random
+                            .nextFloat() - player.level().random.nextFloat()) * 0.7F + 1.0F) * 2.0F);
                 }
             } catch (NotEnoughIngredientsException e1) {}
         }
