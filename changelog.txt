@@ -1,3 +1,12 @@
+1.6.0-pre177
+Fixed visual artifacts when switching to shaders (also causing heavy lag) old data is deleted immediately
+Fixed blocks not adapting to new rendering format
+Fixed multiple cache issues related to format changes
+Fixed crashes when reloading resources
+Fixed blocks entering a state where they do not render because they seem to be in queue already
+Made rotation of animation in recipe gui instead
+Decreased rotation speed to 180 degree over one length
+
 1.6.0-pre176
 Fixed gui bag gui not updating correctly
 Fixed pickup of ingredients ignoring pickup delay
