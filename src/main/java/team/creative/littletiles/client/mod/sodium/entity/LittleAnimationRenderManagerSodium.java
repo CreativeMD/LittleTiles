@@ -187,7 +187,17 @@ public class LittleAnimationRenderManagerSodium extends LittleEntityRenderManage
     @Override
     public void allChanged() {
         super.allChanged();
+        
+        for (LittleSodiumSection s : sections.values())
+            s.unload();
+        sections.clear();
+        
+        for (BETiles block : getLevel())
+            block.render.sectionUpdate(SectionPos.asLong(block.getBlockPos()));
+        
         needsUpdate = true;
+        vertexAttributeBindings = null;
+        format = null;
     }
     
     private class RebuildTask {

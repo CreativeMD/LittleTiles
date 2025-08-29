@@ -24,9 +24,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ReloadableResourceManager;
-import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -68,8 +65,6 @@ import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.player.LittleClientPlayerConnection;
 import team.creative.littletiles.client.render.block.BETilesRenderer;
 import team.creative.littletiles.client.render.block.BlockTileRenderProperties;
-import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
-import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderer;
 import team.creative.littletiles.client.render.entity.LittleSitRenderer;
 import team.creative.littletiles.client.render.entity.RenderSizedTNTPrimed;
@@ -245,19 +240,6 @@ public class LittleTilesClient {
         // Init overlays
         NeoForge.EVENT_BUS.register(LittleTilesProfilerOverlay.class);
         LEVEL_HANDLERS.register(OVERLAY_RENDERER = new OverlayRenderer());
-        
-        ReloadableResourceManager reloadableResourceManager = (ReloadableResourceManager) MC.getResourceManager();
-        reloadableResourceManager.registerReloadListener(new ResourceManagerReloadListener() {
-            
-            @Override
-            public void onResourceManagerReload(ResourceManager manager) {
-                RenderingThread.CURRENT_RENDERING_INDEX++;
-                if (LittleTilesClient.ANIMATION_HANDLER != null)
-                    LittleTilesClient.ANIMATION_HANDLER.reload();
-                LittleBlockClientRegistry.clearCache();
-                ITEM_RENDER_CACHE.clearCache();
-            }
-        });
         
         CreativeCoreClient.registerClientConfig(LittleTiles.MODID);
         

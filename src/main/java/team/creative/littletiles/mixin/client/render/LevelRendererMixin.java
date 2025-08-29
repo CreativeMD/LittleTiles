@@ -18,7 +18,10 @@ import net.minecraft.client.renderer.LightTexture;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.culling.Frustum;
 import team.creative.creativecore.client.render.VertexFormatUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.mod.sodium.SodiumManager;
+import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
 
 @Mixin(value = LevelRenderer.class, priority = 1500)
@@ -26,12 +29,29 @@ public class LevelRendererMixin {
     
     @Inject(at = @At("HEAD"), method = "allChanged()V")
     public void allChanged(CallbackInfo info) {
-        if (Minecraft.getInstance().levelRenderer == (LevelRenderer) (Object) this)
+        if (Minecraft.getInstance().levelRenderer != (LevelRenderer) (Object) this)
+            return;
+        
+        synchronized (RenderingThread.class) {
+            // Stop blocks from rendering
+            RenderingThread.reload();
+            
+            // Count up index
             RenderingThread.CURRENT_RENDERING_INDEX++;
-        if (LittleTilesClient.ANIMATION_HANDLER != null)
-            LittleTilesClient.ANIMATION_HANDLER.allChanged();
-        RenderingThread.reload();
-        VertexFormatUtils.update();
+            
+            // Update cached values first
+            VertexFormatUtils.update();
+            SodiumManager.reload();
+            
+            // Notify thread and blocks about change
+            
+            if (LittleTilesClient.ANIMATION_HANDLER != null)
+                LittleTilesClient.ANIMATION_HANDLER.allChanged();
+            LittleBlockClientRegistry.clearCache();
+            LittleTilesClient.ITEM_RENDER_CACHE.clearCache();
+            
+            RenderingThread.initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
+        }
     }
     
     @Inject(at = @At(value = "INVOKE_STRING", target = "Lnet/minecraft/util/profiling/ProfilerFiller;popPush(Ljava/lang/String;)V", args = "ldc=blockentities"),

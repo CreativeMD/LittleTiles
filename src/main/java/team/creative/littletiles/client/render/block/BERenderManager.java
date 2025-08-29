@@ -79,6 +79,7 @@ public class BERenderManager {
             if (renderState != RenderingThread.CURRENT_RENDERING_INDEX) {
                 eraseBoxCache = true;
                 doesNeedUpdate = true;
+                setBuffersEmpty();
             }
             
             hasLightChanged = false;

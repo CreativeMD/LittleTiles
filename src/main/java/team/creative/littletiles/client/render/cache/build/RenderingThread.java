@@ -40,7 +40,7 @@ public class RenderingThread extends Thread {
     
     public static volatile int CURRENT_RENDERING_INDEX = Integer.MIN_VALUE;
     private static final ChunkLayerMap<BufferCache> EMPTY_HOLDERS = new ChunkLayerMap<>();
-    public static List<RenderingThread> THREADS;
+    public static volatile List<RenderingThread> THREADS;
     public static final Minecraft MC = Minecraft.getInstance();
     public static final RenderingBlockQueue QUEUE = new RenderingBlockQueue();
     
@@ -50,26 +50,29 @@ public class RenderingThread extends Thread {
         if (THREADS != null) {
             for (RenderingThread thread : THREADS)
                 if (thread != null)
-                    thread.interrupt();
+                    thread.stopImmediately();
                 
-            while (!QUEUE.isEmpty())
-                QUEUE.poll().be.render.resetRenderingState();
-            
-            QUEUE.clear(); // Make sure all levels and sections are reset
+            emptyQueue();
         }
         THREADS = new ArrayList<>();
         for (int i = 0; i < count; i++)
             THREADS.add(new RenderingThread());
     }
     
+    private static void emptyQueue() {
+        while (!QUEUE.isEmpty())
+            QUEUE.poll().be.render.resetRenderingState();
+        QUEUE.clear();
+    }
+    
     public static synchronized void unload() {
         if (THREADS != null)
             for (RenderingThread thread : THREADS)
                 if (thread != null)
-                    thread.interrupt();
+                    thread.stopImmediately();
                 
         THREADS = null;
-        QUEUE.clear();
+        emptyQueue();
     }
     
     public static synchronized boolean queue(BETiles be, boolean hasPos, long pos) {
@@ -99,13 +102,6 @@ public class RenderingThread extends Thread {
         if (THREADS == null)
             return;
         unload();
-    }
-    
-    public static <T extends LittleRenderPipeline> T getOrCreate(LittleRenderPipelineType<T> type) {
-        for (RenderingThread thread : THREADS)
-            if (thread.pipelines[type.id] != null)
-                return (T) thread.pipelines[type.id];
-        return THREADS.get(0).get(type);
     }
     
     static {
@@ -167,7 +163,6 @@ public class RenderingThread extends Thread {
                         BlockPos pos = data.be.getBlockPos();
                         
                         data.beforeBuilding();
-                        
                         Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> cubes = data.be.render.getRenderingBoxes(data);
                         
                         if (cubes == null || cubes.isEmpty()) {
@@ -230,15 +225,19 @@ public class RenderingThread extends Thread {
                         finishWithError(data);
                     } catch (RenderingBlockedException e) {
                         QUEUE.requeue(data);
+                        data.proccessed = true;
                     } catch (OutOfMemoryError error) {
                         QUEUE.requeue(data);
+                        data.proccessed = true;
                         LittleTiles.LOGGER.error(error);
                     } catch (Throwable e) {
                         if (!(e instanceof RenderingException))
-                            LittleTiles.LOGGER.error(e);
+                            LittleTiles.LOGGER.catching(e);
                         finishWithError(data);
                     } finally {
                         buffers.clear();
+                        if (!data.proccessed)
+                            finishWithError(data);
                         data.unsetBlocked();
                     }
                     data = null;
@@ -249,17 +248,30 @@ public class RenderingThread extends Thread {
             }
         } catch (InterruptedException e) {} finally {
             for (int i = 0; i < pipelines.length; i++)
-                if (pipelines[i] != null)
+                if (pipelines[i] != null) {
                     pipelines[i].release();
+                    pipelines[i] = null;
+                }
         }
     }
     
-    public static void finishWithError(RenderingBlockContext data) {
+    public void stopImmediately() {
+        synchronized (RenderingThread.class) {
+            interrupt();
+            for (int i = 0; i < pipelines.length; i++)
+                if (pipelines[i] != null) {
+                    pipelines[i].release();
+                    pipelines[i] = null;
+                }
+        }
+    }
+    
+    public void finishWithError(RenderingBlockContext data) {
         if (!finish(data, EMPTY_HOLDERS, -1, true))
             unqueue(data);
     }
     
-    public static void unqueue(RenderingBlockContext data) {
+    public void unqueue(RenderingBlockContext data) {
         RenderChunkExtender chunk = QUEUE.unqeue(data);
         if (chunk != null) {
             LittleTilesProfilerOverlay.chunkUpdates++;
@@ -267,8 +279,10 @@ public class RenderingThread extends Thread {
         }
     }
     
-    public static boolean finish(RenderingBlockContext data, ChunkLayerMap<BufferCache> buffers, int renderState, boolean force) {
-        if (!data.be.render.finishBuildingCache(data.index, buffers, renderState, force))
+    public boolean finish(RenderingBlockContext data, ChunkLayerMap<BufferCache> buffers, int renderState, boolean force) {
+        boolean result = !data.be.render.finishBuildingCache(data.index, buffers, renderState, force);
+        data.proccessed = true;
+        if (result)
             return false;
         
         unqueue(data);

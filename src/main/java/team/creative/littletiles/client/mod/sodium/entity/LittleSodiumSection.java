@@ -21,8 +21,6 @@ import com.mojang.blaze3d.vertex.VertexSorting;
 
 import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexAttributeBinding;
 import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexFormat;
-import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
-import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.minecraft.client.renderer.RenderType;
@@ -31,6 +29,7 @@ import net.minecraft.core.SectionPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.mod.sodium.SodiumInteractor;
 import team.creative.littletiles.client.mod.sodium.buffer.RenderedBufferSodium;
 import team.creative.littletiles.client.mod.sodium.renderer.DefaultChunkRendererExtender;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
@@ -39,9 +38,6 @@ import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
-import team.creative.littletiles.mixin.sodium.ChunkBuildBuffersAccessor;
-import team.creative.littletiles.mixin.sodium.ChunkBuilderAccessor;
-import team.creative.littletiles.mixin.sodium.SodiumWorldRendererAccessor;
 
 public class LittleSodiumSection implements RenderChunkExtender {
     
@@ -160,9 +156,7 @@ public class LittleSodiumSection implements RenderChunkExtender {
     
     @Override
     public boolean appendRenderData(Iterable<? extends LayeredBufferCache> blocks) {
-        RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
-        ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
-        GlVertexFormat format = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType().getVertexFormat();
+        GlVertexFormat format = SodiumInteractor.getVertexType().getVertexFormat();
         
         for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
             

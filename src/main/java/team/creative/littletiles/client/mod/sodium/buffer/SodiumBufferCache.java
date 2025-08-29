@@ -16,7 +16,6 @@ import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.type.itr.FunctionNonNullIterator;
 import team.creative.littletiles.client.mod.sodium.SodiumInteractor;
 import team.creative.littletiles.client.mod.sodium.data.LittleQuadView;
-import team.creative.littletiles.client.mod.sodium.pipeline.LittleRenderPipelineSodium;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloader;
@@ -195,7 +194,7 @@ public class SodiumBufferCache implements BufferCache {
         
         if (uploader.hasFacingSupport()) {
             if (uploader instanceof SodiumBufferUploader u && u.isSorted()) {
-                ChunkVertexType type = LittleRenderPipelineSodium.getType();
+                ChunkVertexType type = SodiumInteractor.getVertexType();
                 int stride = type.getVertexFormat().getStride();
                 LittleQuadView quad = new LittleQuadView();
                 

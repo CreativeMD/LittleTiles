@@ -22,6 +22,7 @@ public class RenderingBlockContext {
     private final long pos;
     private final RenderingLevelHandler handler;
     public int index;
+    public boolean proccessed = false;
     
     public HashMap<Facing, BETiles> neighboursBEs;
     

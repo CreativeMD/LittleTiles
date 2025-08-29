@@ -33,4 +33,9 @@ public class SodiumManager {
         return SodiumInteractor.createRenderManager(entity);
     }
     
+    public static void reload() {
+        if (installed())
+            SodiumInteractor.reload();
+    }
+    
 }

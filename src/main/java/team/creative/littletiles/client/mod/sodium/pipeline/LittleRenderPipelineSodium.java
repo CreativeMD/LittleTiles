@@ -28,7 +28,6 @@ import net.caffeinemc.mods.sodium.client.model.light.LightPipelineProvider;
 import net.caffeinemc.mods.sodium.client.model.light.data.QuadLightData;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
-import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderContext;
 import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
@@ -36,7 +35,6 @@ import net.caffeinemc.mods.sodium.client.render.chunk.terrain.DefaultTerrainRend
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.Material;
-import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.caffeinemc.mods.sodium.client.render.frapi.SodiumRenderer;
 import net.caffeinemc.mods.sodium.client.render.frapi.helper.ColorHelper;
 import net.caffeinemc.mods.sodium.client.render.frapi.mesh.MutableQuadViewImpl;
@@ -75,14 +73,12 @@ import team.creative.littletiles.client.mod.sodium.renderer.BlockRendererExtende
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
-import team.creative.littletiles.client.render.cache.build.RenderingThread;
+import team.creative.littletiles.client.render.cache.build.RenderingThread.RenderingException;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.sodium.BlockRenderContextAccessor;
-import team.creative.littletiles.mixin.sodium.ChunkBuildBuffersAccessor;
-import team.creative.littletiles.mixin.sodium.ChunkBuilderAccessor;
 import team.creative.littletiles.mixin.sodium.ChunkMeshBufferBuilderAccessor;
 import team.creative.littletiles.mixin.sodium.RenderSectionManagerAccessor;
 import team.creative.littletiles.mixin.sodium.SodiumWorldRendererAccessor;
@@ -91,18 +87,15 @@ import team.creative.littletiles.mixin.sodium.TerrainRenderPassAccessor;
 public class LittleRenderPipelineSodium extends LittleRenderPipeline {
     
     public static RenderChunkExtender getChunk(long pos) {
-        return (RenderChunkExtender) ((RenderSectionManagerAccessor) ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager()).callGetRenderSection(
-            SectionPos.x(pos), SectionPos.y(pos), SectionPos.z(pos));
-    }
-    
-    public static ChunkVertexType getType() {
-        return RenderingThread.getOrCreate(SodiumInteractor.PIPELINE).getVertexType();
+        var manager = (RenderSectionManagerAccessor) ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+        if (manager == null)
+            return null;
+        return (RenderChunkExtender) manager.callGetRenderSection(SectionPos.x(pos), SectionPos.y(pos), SectionPos.z(pos));
     }
     
     private static final RenderMaterial[] STANDARD_MATERIALS;
     private static final RenderMaterial TRANSLUCENT_MATERIAL;
     private ChunkBuildBuffers buildBuffers;
-    private ChunkVertexType type;
     private final LevelSlice slice = LittleLevelSliceExtender.create();
     private BlockRenderer renderer;
     private LittleLightDataAccess lightAccess;
@@ -124,8 +117,10 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
     public LittleRenderPipelineSodium() {}
     
     @Override
-    public void buildCache(PoseStack pose, ChunkLayerMap<BufferCache> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
-        if (buildBuffers == null || renderer == null)
+    public synchronized void buildCache(PoseStack pose, ChunkLayerMap<BufferCache> buffers, RenderingBlockContext data, VertexFormat format,
+            SingletonList<BakedQuad> bakedQuadWrapper) throws RenderingException {
+        
+        if (buildBuffers == null || renderer == null || lightAccess == null)
             reload();
         
         Level renderLevel = data.be.getLevel();
@@ -367,15 +362,13 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
     }
     
     @Override
-    public void reload() {
-        RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
-        if (manager == null) {
+    public synchronized void reload() {
+        var type = SodiumInteractor.getVertexType();
+        if (type == null) {
             buildBuffers = null;
             renderer = null;
             return;
         }
-        ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
-        type = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType();
         buildBuffers = new ChunkBuildBuffers(type);
         buildBuffers.init(null, 0);
         renderer = new BlockRenderer(new ColorProviderRegistry(Minecraft.getInstance()
@@ -383,15 +376,10 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
         ((BlockRendererExtender) renderer).markAsTakenOver();
     }
     
-    public ChunkVertexType getVertexType() {
-        if (type == null || type.getVertexFormat() == null)
-            reload();
-        return type;
-    }
-    
     @Override
-    public void release() {
-        buildBuffers.destroy();
+    public synchronized void release() {
+        if (buildBuffers != null)
+            buildBuffers.destroy();
     }
     
     static {

@@ -3,8 +3,11 @@ package team.creative.littletiles.client.mod.sodium;
 import javax.annotation.Nullable;
 
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
+import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
 import net.caffeinemc.mods.sodium.client.render.chunk.LocalSectionIndex;
+import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
+import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.SectionPos;
@@ -19,6 +22,9 @@ import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.mixin.sodium.ChunkBuildBuffersAccessor;
+import team.creative.littletiles.mixin.sodium.ChunkBuilderAccessor;
+import team.creative.littletiles.mixin.sodium.SodiumWorldRendererAccessor;
 
 public class SodiumInteractor {
     
@@ -28,6 +34,19 @@ public class SodiumInteractor {
     
     private static final float MODEL_ORIGIN = 8.0f;
     private static final float MODEL_RANGE = 32.0f;
+    
+    private static ChunkVertexType TYPE;
+    
+    public static ChunkVertexType getVertexType() {
+        if (TYPE == null || TYPE.getVertexFormat() == null) {
+            RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
+            if (manager == null)
+                return null;
+            ChunkBuilderAccessor chunkBuilder = (ChunkBuilderAccessor) manager.getBuilder();
+            TYPE = ((ChunkBuildBuffersAccessor) chunkBuilder.getLocalContext().buffers).getVertexType();
+        }
+        return TYPE;
+    }
     
     public static void init() {
         LittleTiles.LOGGER.info("Loaded Sodium extension");
@@ -136,6 +155,10 @@ public class SodiumInteractor {
             case POS_Z -> Direction.SOUTH;
             case UNASSIGNED -> null;
         };
+    }
+    
+    public static void reload() {
+        TYPE = null;
     }
     
 }

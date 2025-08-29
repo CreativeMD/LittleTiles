@@ -120,10 +120,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         this.executor = Util.backgroundExecutor();
         this.mailbox = ProcessorMailbox.create(executor, "Chunk Renderer");
         this.mailbox.tell(this::runTask);
-        reload();
-    }
-    
-    public void reload() {
         this.sectionCompiler = new SectionCompiler(mc.getBlockRenderer(), mc.getBlockEntityRenderDispatcher());
     }
     
@@ -288,6 +284,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     }
     
     public void allChanged() {
+        this.sectionCompiler = new SectionCompiler(mc.getBlockRenderer(), mc.getBlockEntityRenderDispatcher());
         for (LittleEntity animation : entities)
             if (animation.hasLoaded())
                 animation.getRenderManager().allChanged();

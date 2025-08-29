@@ -14,8 +14,8 @@ import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.Transl
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.caffeinemc.mods.sodium.client.util.NativeBuffer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import team.creative.littletiles.client.mod.sodium.SodiumInteractor;
 import team.creative.littletiles.client.mod.sodium.data.LittleQuadView;
-import team.creative.littletiles.client.mod.sodium.pipeline.LittleRenderPipelineSodium;
 
 public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
     
@@ -115,7 +115,7 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
         long ptr = MemoryUtil.memAddress(buffer);
         long end = ptr + buffer.remaining();
         LittleQuadView quad = new LittleQuadView();
-        ChunkVertexType type = LittleRenderPipelineSodium.getType();
+        ChunkVertexType type = SodiumInteractor.getVertexType();
         int stride = type.getVertexFormat().getStride();
         ModelQuadFacing facing = ModelQuadFacing.UNASSIGNED;
         

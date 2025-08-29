@@ -169,7 +169,7 @@ public class RenderAdditional {
             LayeredBufferCache layers = new LayeredBufferCache();
             for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
                 BufferCache holder = cache.getIncludingAdditional(layer);
-                if (holder == null)
+                if (holder == null || !holder.isAvailable())
                     continue;
                 if (vec != null)
                     holder.applyOffset(vec, sectionIndex);
