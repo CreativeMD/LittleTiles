@@ -123,7 +123,7 @@ public class AreaSelectionMode extends SelectionMode {
         
         AABB bb = new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1);
         for (LittleEntity animation : LittleTiles.ANIMATION_HANDLERS.get(selection.level()).find(bb))
-            search.scanLevel(animation.getSubLevel(), animation.getOrigin().getOBB(bb));
+            search.scanLevel(animation.getSubLevel(), minX, minY, minZ, maxX, maxY, maxZ);
         
         return search.build();
     }
