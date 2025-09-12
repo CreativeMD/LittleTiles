@@ -541,6 +541,7 @@ public class Placement {
                                             if (preview.mode.placeTile(context, structure.getStructure(), tile) && playSounds && !soundsToBePlayed.contains(tile.getSound()))
                                                 soundsToBePlayed.add(tile.getSound());
                                         } catch (LittleActionException e) {
+                                            LittleTiles.LOGGER.catching(e);
                                             throw new RuntimeException(e);
                                         }
                                     }
@@ -548,9 +549,10 @@ public class Placement {
                             });
                         });
                     } catch (RuntimeException e) {
-                        if (e.getCause() instanceof LittleActionException)
+                        if (e.getCause() instanceof LittleActionException) {
+                            LittleTiles.LOGGER.catching(e);
                             throw (LittleActionException) e.getCause();
-                        else
+                        } else
                             throw e;
                     }
                 }
