@@ -102,15 +102,14 @@ public class GuiScrewdriver extends GuiConfigure {
     }
     
     public LittleAction getDesiredAction() {
-        var data = ILittleTool.getData(tool.get());
-        int[] array = data.getIntArray("pos1");
-        if (array.length != 3)
+        BlockPos pos = this.tool.get().get(LittleTilesRegistry.FIRST_POS);
+        if(pos == null) {
             return null;
-        BlockPos pos = new BlockPos(array[0], array[1], array[2]);
-        array = data.getIntArray("pos2");
-        if (array.length != 3)
+        }
+        BlockPos pos2 = this.tool.get().get(LittleTilesRegistry.SECOND_POS);
+        if(pos2 == null) {
             return null;
-        BlockPos pos2 = new BlockPos(array[0], array[1], array[2]);
+        }
         
         BiFilter<IParentCollection, LittleTile> filter = this.filter.get();
         
