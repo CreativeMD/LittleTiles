@@ -1,3 +1,6 @@
+1.6.0-pre179
+Fixed Little Screwdriver (Thanks to whyvo1)
+
 1.6.0-pre178
 Fixed not properly logging error during placement
 Fixed not saving door in its original position when selecting it with blueprint
