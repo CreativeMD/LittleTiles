@@ -25,7 +25,7 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.api.common.tool.ILittleTool;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
@@ -103,13 +103,12 @@ public class GuiScrewdriver extends GuiConfigure {
     
     public LittleAction getDesiredAction() {
         BlockPos pos = this.tool.get().get(LittleTilesRegistry.FIRST_POS);
-        if(pos == null) {
+        if (pos == null)
             return null;
-        }
+        
         BlockPos pos2 = this.tool.get().get(LittleTilesRegistry.SECOND_POS);
-        if(pos2 == null) {
+        if (pos2 == null)
             return null;
-        }
         
         BiFilter<IParentCollection, LittleTile> filter = this.filter.get();
         
