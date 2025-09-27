@@ -162,8 +162,12 @@ public class RenderingThread extends Thread {
                         data.index = data.be.render.startBuildingCache();
                         BlockPos pos = data.be.getBlockPos();
                         
-                        data.beforeBuilding();
-                        Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> cubes = data.be.render.getRenderingBoxes(data);
+                        Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> cubes;
+                        
+                        synchronized (data.be) { // Synchronized to make sure the box creation and grid converation do not happen at the same time
+                            data.beforeBuilding();
+                            cubes = data.be.render.getRenderingBoxes(data);
+                        }
                         
                         if (cubes == null || cubes.isEmpty()) {
                             if (!finish(data, EMPTY_HOLDERS, CURRENT_RENDERING_INDEX, false))
