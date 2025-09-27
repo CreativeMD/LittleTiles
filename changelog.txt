@@ -1,3 +1,6 @@
+1.6.0-pre180
+Potential fix for random rendering artifacts and crashes when destroying blocks
+
 1.6.0-pre179
 Fixed Little Screwdriver (Thanks to whyvo1)
 
