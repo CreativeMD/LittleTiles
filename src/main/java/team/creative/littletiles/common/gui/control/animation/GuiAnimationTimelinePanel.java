@@ -252,10 +252,11 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
     public AnimationTimeline generateTimeline(int duration, ValueInterpolation interpolation) {
         List<AnimationEventEntry> events = new ArrayList<>();
         for (GuiChildTimelineChannel channel : childChannels)
-            for (GuiTimelineKey<ChildDoorEvent> key : channel.keys())
-                if (key.tick <= duration)
-                    events.add(new AnimationEventEntry(key.tick, key.value));
-                
+            if (channel != null)
+                for (GuiTimelineKey<ChildDoorEvent> key : channel.keys())
+                    if (key.tick <= duration)
+                        events.add(new AnimationEventEntry(key.tick, key.value));
+                    
         for (GuiSoundTimelineChannel channel : soundChannels)
             for (GuiTimelineKey<PlaySoundEvent> key : channel.keys())
                 if (key.tick <= duration)
