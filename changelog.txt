@@ -1,3 +1,7 @@
+1.6.0-pre181
+Fixed crash in recipe gui when selecting child door to open
+Fixed crash when using tile shape and clicking in air
+
 1.6.0-pre180
 Potential fix for random rendering artifacts and crashes when destroying blocks
 
