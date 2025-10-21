@@ -91,7 +91,7 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
     }
     
     public int getColor(ItemStack stack) {
-        return stack.get(LittleTilesRegistry.COLOR_AMOUNT);
+        return stack.getOrDefault(LittleTilesRegistry.COLOR_AMOUNT, 0);
     }
     
     public void saveIngredient(ItemStack stack, ColorIngredient color) {
