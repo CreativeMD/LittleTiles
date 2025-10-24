@@ -32,6 +32,10 @@ public abstract class GuiConfigure extends GuiLayer {
         this.tool = tool;
     }
     
+    protected boolean save(PatchedDataComponentMap data) {
+        return saveConfiguration(data);
+    }
+    
     /** @param data
      *            all changes to save to
      * @return if true the data will be send to the server and changes will be applied */
@@ -52,7 +56,7 @@ public abstract class GuiConfigure extends GuiLayer {
     public void closed() {
         if (isClient()) {
             PatchedDataComponentMap map = new PatchedDataComponentMap(DataComponentMap.EMPTY);
-            if (saveConfiguration(map)) {
+            if (save(map)) {
                 DataResult<Tag> dataresult = DataComponentPatch.CODEC.encode(map.asPatch(), NbtOps.INSTANCE, new CompoundTag());
                 SAVE_CONFIG.send((CompoundTag) dataresult.getOrThrow());
             }
