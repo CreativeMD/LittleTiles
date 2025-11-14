@@ -33,6 +33,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickB
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
+import team.creative.creativecore.common.gui.IGuiParent;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesGuiRegistry;
@@ -91,7 +92,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     public void tick(RenderLevelStageEvent event) {
         if (event.getStage() != Stage.AFTER_WEATHER)
             return;
-        if (mc.player == null)
+        if (mc.player == null || mc.screen instanceof IGuiParent)
             return;
         
         Level level = mc.level;
