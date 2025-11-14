@@ -70,7 +70,7 @@ modProperties = [
 ]
 modImplemented = [
     [ name: "maven.modrinth:sodium:Pb3OXVqC", disabled: false ],
-    [ name: "maven.modrinth:iris:QS9F364b", disabled: true ],
+    [ name: "maven.modrinth:iris:t3ruzodq", disabled: true ],
     [ name: "curse.maven:theoneprobe-245211:5502323", disabled: true ],
     [ name: "net.fabricmc:fabric-loader:${project.fabric_version}", disabled: true ],
     [ name: "org.sinytra.forgified-fabric-api:fabric-api-base:0.4.42+d1308ded19" , disabled: true ],
