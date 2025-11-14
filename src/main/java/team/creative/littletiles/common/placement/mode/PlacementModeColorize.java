@@ -55,7 +55,7 @@ public class PlacementModeColorize extends PlacementMode {
             for (LittleTile lt : LittleActionDestroyBoxes.removeBox(context.getBE(), context.block.getGrid(), box, false, volume)) {
                 context.addRemoved(lt);
                 lt.color = tile.color;
-                context.placeTile(lt);
+                context.placeTile(structure, lt);
                 changed = true;
             }
             if (volume.has())

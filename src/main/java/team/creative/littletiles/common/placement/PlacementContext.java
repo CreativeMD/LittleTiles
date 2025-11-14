@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.placement;
 
+import javax.annotation.Nullable;
+
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -8,6 +10,7 @@ import team.creative.littletiles.common.block.little.tile.parent.ParentCollectio
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.placement.Placement.PlacementBlock;
+import team.creative.littletiles.common.structure.LittleStructure;
 
 public class PlacementContext {
     
@@ -65,9 +68,9 @@ public class PlacementContext {
         placement.unplaceableTiles.add(parent.getGrid(), element, box);
     }
     
-    public void placeTile(LittleTile tile) {
+    public void placeTile(@Nullable LittleStructure structure, LittleTile tile) {
         parent.add(tile.copy());
-        result.addPlacedTile(parent, tile);
+        result.addPlacedTile(structure == null ? null : structure.type, parent, tile);
     }
     
 }

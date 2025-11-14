@@ -36,7 +36,7 @@ public class PlacementModeNormal extends PlacementMode {
     @Override
     public boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException {
         if (!context.collisionTest) {
-            context.placeTile(tile);
+            context.placeTile(structure, tile);
             return true;
         }
         
@@ -52,12 +52,12 @@ public class PlacementModeNormal extends PlacementMode {
         }
         
         if (isSpace) {
-            context.placeTile(tile);
+            context.placeTile(structure, tile);
             return true;
         } else if (this instanceof PlacementModeAll)
             throw new LittleActionException("Could not place all tiles");
         else if (!boxes.isEmpty()) {
-            context.placeTile(tile.copy(boxes));
+            context.placeTile(structure, tile.copy(boxes));
             return true;
         }
         

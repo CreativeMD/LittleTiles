@@ -328,6 +328,10 @@ public abstract class LittleAction<T> extends CreativePacket {
         return LittleIngredient.extract(element, box.getPercentVolume(parent.getGrid()));
     }
     
+    public static LittleIngredients getIngredients(IParentCollection parent, LittleTile tile) {
+        return LittleIngredient.extract(tile, tile.getPercentVolume(parent.getGrid()));
+    }
+    
     public static LittleIngredients getIngredients(IParentCollection parent, List<LittleTile> tiles) {
         LittleIngredients ingredients = new LittleIngredients();
         for (LittleTile tile : tiles)

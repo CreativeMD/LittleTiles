@@ -46,7 +46,7 @@ public class PlacementModeOverwriteAll extends PlacementModeAll {
     
     @Override
     public boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException {
-        context.placeTile(tile);
+        context.placeTile(structure, tile);
         return true;
     }
     

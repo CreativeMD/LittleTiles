@@ -40,7 +40,7 @@ public class PlacementModeOverwrite extends PlacementMode {
     @Override
     public boolean placeTile(PlacementContext context, LittleStructure structure, LittleTile tile) throws LittleActionException {
         context.removeTile(tile);
-        context.placeTile(tile);
+        context.placeTile(structure, tile);
         return true;
     }
     

@@ -101,7 +101,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         }
         
         @Override
-        public boolean tileCountAsIngredient(LittleGroup group) {
+        public boolean tilesCountAsIngredient() {
             return false;
         }
         
