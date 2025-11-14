@@ -35,9 +35,9 @@ public class SodiumInteractor {
     private static final float MODEL_ORIGIN = 8.0f;
     private static final float MODEL_RANGE = 32.0f;
     
-    private static ChunkVertexType TYPE;
+    private static volatile ChunkVertexType TYPE;
     
-    public static ChunkVertexType getVertexType() {
+    public static synchronized ChunkVertexType getVertexType() {
         if (TYPE == null || TYPE.getVertexFormat() == null) {
             RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
             if (manager == null)

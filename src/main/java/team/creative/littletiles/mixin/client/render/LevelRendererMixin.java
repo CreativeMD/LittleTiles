@@ -3,6 +3,7 @@ package team.creative.littletiles.mixin.client.render;
 import org.joml.Matrix4f;
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
@@ -12,6 +13,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Camera;
 import net.minecraft.client.DeltaTracker;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.client.renderer.LightTexture;
@@ -27,24 +29,26 @@ import team.creative.littletiles.client.render.cache.build.RenderingThread;
 @Mixin(value = LevelRenderer.class, priority = 1500)
 public class LevelRendererMixin {
     
-    @Inject(at = @At("HEAD"), method = "allChanged()V")
+    @Shadow
+    private ClientLevel level;
+    
+    @Inject(at = @At("TAIL"), method = "allChanged()V")
     public void allChanged(CallbackInfo info) {
-        if (Minecraft.getInstance().levelRenderer != (LevelRenderer) (Object) this)
+        if (Minecraft.getInstance().levelRenderer != (LevelRenderer) (Object) this && level != null)
             return;
         
         synchronized (RenderingThread.class) {
             // Stop blocks from rendering
             RenderingThread.reload();
             
-            // Count up index
-            RenderingThread.CURRENT_RENDERING_INDEX++;
-            
             // Update cached values first
             VertexFormatUtils.update();
             SodiumManager.reload();
             
-            // Notify thread and blocks about change
+            // Count up index
+            RenderingThread.CURRENT_RENDERING_INDEX++;
             
+            // Notify thread and blocks about change
             if (LittleTilesClient.ANIMATION_HANDLER != null)
                 LittleTilesClient.ANIMATION_HANDLER.allChanged();
             LittleBlockClientRegistry.clearCache();
