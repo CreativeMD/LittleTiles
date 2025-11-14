@@ -1,3 +1,11 @@
+1.6.0-pre182
+Fixed updating to rendering changes too early causing lots of artifacts
+Fixed swapping axis door direction in gui every time it is loaded
+Fixed rendering recipe preview when being inside gui
+Fixed ingredients for blocks of structures like cables, etc. is considered even though it should not
+Fixed crash when saving tool configuration when tool has been dropped
+Fixed crash with JEI when stack is retrieving amount of color
+
 1.6.0-pre181
 Fixed crash in recipe gui when selecting child door to open
 Fixed crash when using tile shape and clicking in air
