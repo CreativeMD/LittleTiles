@@ -13,7 +13,8 @@ import team.creative.littletiles.client.LittleTilesClient;
 @Mixin(ClientPacketListener.class)
 public class ClientPacketListenerMixin {
     
-    @Inject(at = @At("HEAD"), method = "createEntityFromPacket(Lnet/minecraft/network/protocol/game/ClientboundAddEntityPacket;)V", cancellable = true)
+    @Inject(at = @At("HEAD"), method = "createEntityFromPacket(Lnet/minecraft/network/protocol/game/ClientboundAddEntityPacket;)Lnet/minecraft/world/entity/Entity;",
+            cancellable = true, require = 1)
     public void createEntityFromPacket(ClientboundAddEntityPacket packet, CallbackInfoReturnable<Entity> info) {
         Entity entity = LittleTilesClient.ANIMATION_HANDLER.pollEntityInTransition(packet);
         if (entity != null)
