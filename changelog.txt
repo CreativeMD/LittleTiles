@@ -1,3 +1,8 @@
+1.6.0-pre183
+Fixed hook for adding an entity to the level not working therefore transition not being 100% smooth
+Fixed doors returning to its original state at the end not playing back animation at all
+Fixed crash when playing sound during animation when it is not an entity
+
 1.6.0-pre182
 Fixed updating to rendering changes too early causing lots of artifacts
 Fixed swapping axis door direction in gui every time it is loaded
