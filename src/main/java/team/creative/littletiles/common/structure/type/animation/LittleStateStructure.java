@@ -310,7 +310,11 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     @OnlyIn(Dist.CLIENT)
     private void playClient(SoundEvent event, float volume, float pitch) {
-        GuiControl.playSound(new EntitySound(event, getAnimationEntity(), volume, pitch, SoundSource.BLOCKS));
+        var entity = getAnimationEntity();
+        if (entity != null)
+            GuiControl.playSound(new EntitySound(event, getAnimationEntity(), volume, pitch, SoundSource.BLOCKS));
+        else
+            getStructureLevel().playLocalSound(getStructurePos(), event, SoundSource.BLOCKS, volume, pitch, false);
     }
     
     @Override
