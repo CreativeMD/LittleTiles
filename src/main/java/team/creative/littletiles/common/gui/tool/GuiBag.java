@@ -322,6 +322,7 @@ public class GuiBag extends GuiConfigure {
             
             cache = null;
             saveBagInventory();
+            clearItemCache();
             return taken;
         }
     }
