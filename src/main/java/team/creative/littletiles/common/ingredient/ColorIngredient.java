@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.ingredient;
 
 import net.minecraft.ChatFormatting;
+import net.minecraft.util.Mth;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
@@ -147,28 +148,28 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
             if (remaining == null)
                 remaining = new ColorIngredient();
             remaining.black = -this.black;
-            this.black = limitBlack;
+            this.black = 0;
         }
         this.cyan -= ingredient.cyan;
         if (this.cyan < 0) {
             if (remaining == null)
                 remaining = new ColorIngredient();
             remaining.cyan = -this.cyan;
-            this.cyan = limitCyan;
+            this.cyan = 0;
         }
         this.magenta -= ingredient.magenta;
         if (this.magenta < 0) {
             if (remaining == null)
                 remaining = new ColorIngredient();
             remaining.magenta = -this.magenta;
-            this.magenta = limitMagenta;
+            this.magenta = 0;
         }
         this.yellow -= ingredient.yellow;
         if (this.yellow < 0) {
             if (remaining == null)
                 remaining = new ColorIngredient();
             remaining.yellow = -this.yellow;
-            this.yellow = limitYellow;
+            this.yellow = 0;
         }
         return remaining;
     }
@@ -246,8 +247,8 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
         text.text(message);
     }
     
-    public static float dyeToBlockPercentage = 4096;
-    public static final int BOTTLE_SIZE = (int) (dyeToBlockPercentage * 64);
+    public static final double DYE_TO_BLOCK_PERCENTAGE = 4096;
+    public static final int BOTTLE_SIZE = (int) (DYE_TO_BLOCK_PERCENTAGE * 64);
     
     public static ColorIngredient getColors(LittleElement tile, double volume) {
         if (tile.hasColor()) {
@@ -272,7 +273,7 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     }
     
     public static ColorIngredient getColors(int color) {
-        float cmyk_scale = dyeToBlockPercentage;
+        double cmyk_scale = DYE_TO_BLOCK_PERCENTAGE;
         
         int r = color >> 16 & 255;
         int g = color >> 8 & 255;
@@ -290,7 +291,7 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
         m = (m - min_cmy) / (1 - min_cmy);
         y = (y - min_cmy) / (1 - min_cmy);
         float k = min_cmy;
-        return new ColorIngredient((int) (k * cmyk_scale), (int) (c * cmyk_scale), (int) (m * cmyk_scale), (int) (y * cmyk_scale));
+        return new ColorIngredient(Mth.ceil(k * cmyk_scale), Mth.ceil(c * cmyk_scale), Mth.ceil(m * cmyk_scale), Mth.ceil(y * cmyk_scale));
     }
     
 }
