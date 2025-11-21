@@ -1,3 +1,9 @@
+1.6.0-pre184
+Potentially fixed neighbor not updating their faces properly when block is removed
+Fixed decreasing color ingredient below zero causing weird error
+Made color part calculations round up
+Fixed not updating all slots when there is a change in the bag
+
 1.6.0-pre183
 Fixed hook for adding an entity to the level not working therefore transition not being 100% smooth
 Fixed doors returning to its original state at the end not playing back animation at all
