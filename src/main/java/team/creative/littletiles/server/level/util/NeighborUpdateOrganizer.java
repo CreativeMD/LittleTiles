@@ -37,7 +37,7 @@ public class NeighborUpdateOrganizer {
     }
     
     @SubscribeEvent
-    public void tick(ServerTickEvent.Post event) {
+    public void tick(ServerTickEvent.Pre event) {
         for (Entry<Level, ArrayList<BlockPos>> entry : positions.entrySet()) {
             Level level = entry.getKey();
             if (level instanceof ServerLevel) {
