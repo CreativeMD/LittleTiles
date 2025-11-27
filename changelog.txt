@@ -1,3 +1,7 @@
+1.6.0-pre185
+Fixed signals being processed on client side
+Fixed crash when there is not enough space for door to be placed
+
 1.6.0-pre184
 Potentially fixed neighbor not updating their faces properly when block is removed
 Fixed decreasing color ingredient below zero causing weird error
