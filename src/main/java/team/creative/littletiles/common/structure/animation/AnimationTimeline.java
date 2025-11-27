@@ -237,6 +237,10 @@ public class AnimationTimeline {
         return events.allIgnoreMark();
     }
     
+    public int getTick() {
+        return tick;
+    }
+    
     public static class AnimationEventEntry implements Comparable<AnimationEventEntry> {
         
         private AnimationEvent event;

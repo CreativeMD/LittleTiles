@@ -80,4 +80,9 @@ public class StructureLocation {
         } else
             throw new LittleActionException.BlockEntityNotFoundException();
     }
+    
+    @Override
+    public String toString() {
+        return levelUUID + ":" + pos.getX() + "," + pos.getY() + "," + pos.getZ() + "," + index;
+    }
 }
