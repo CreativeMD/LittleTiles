@@ -656,11 +656,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleUpdateCollector collector = new LittleUpdateCollector();
         PlacementResult result = placement.place();
         
-        if (level instanceof ServerLevel s)
-            result.broadcastChangesImmediately(s);
-        
         if (result == null)
             throw new NotEnoughSpaceForStructureException();
+        
+        if (level instanceof ServerLevel s)
+            result.broadcastChangesImmediately(s);
         
         result.parentStructure.transferChildrenFromAnimation(level);
         if (getParent() != null)
