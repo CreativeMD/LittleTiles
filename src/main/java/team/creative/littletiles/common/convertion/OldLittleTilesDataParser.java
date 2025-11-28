@@ -126,8 +126,10 @@ public class OldLittleTilesDataParser {
     
     private static void convertDoorBaseData(CompoundTag oldData, CompoundTag newData) {
         convertStructureDataBase(oldData, newData);
-        
-        newData.put("state", oldData.get("state"));
+
+        var state = oldData.get("state");
+        if (state != null)
+            newData.put("state", state);
         
         newData.putBoolean("actP", oldData.getBoolean("activateParent"));
         newData.putBoolean("hand", !oldData.getBoolean("disableRightClick"));
@@ -393,10 +395,18 @@ public class OldLittleTilesDataParser {
                 converted.putString("id", "door");
                 yield converted;
             }
-            default -> throw new LittleConvertException("Cannot convert " + nbt.getString("id") + " yet");
+            default -> throw new LittleMissingStructureException("Cannot convert " + nbt.getString("id") + " yet");
         };
     }
-    
+
+    public static class LittleMissingStructureException extends LittleConvertException {
+
+        public LittleMissingStructureException(String name) {
+            super(name);
+        }
+
+    }
+
     public static CompoundTag convert(CompoundTag nbt) throws LittleConvertException {
         return LittleGroup.save(load(nbt));
     }
