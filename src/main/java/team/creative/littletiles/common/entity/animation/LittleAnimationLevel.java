@@ -512,4 +512,14 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
         }
         return false;
     }
+
+    @Override
+    public int getMinBuildHeight() {
+        return parentLevel.getMinBuildHeight();
+    }
+
+    @Override
+    public int getHeight() {
+        return parentLevel.getHeight();
+    }
 }
