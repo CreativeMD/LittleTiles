@@ -185,16 +185,17 @@ public abstract class LittleAction<T> extends CreativePacket {
             return b;
         return null;
     }
-    
-    public static void fireBlockBreakEvent(Level level, BlockPos pos, Player player) throws AreaProtected {
+
+    public static boolean fireBlockBreakEvent(Level level, BlockPos pos, Player player) {
         if (level.isClientSide)
-            return;
+            return true;
         BreakEvent event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             sendBlockResetToClient(level, player, pos);
-            throw new AreaProtected();
+            return false;
         }
+        return true;
     }
     
     private static Method loadWorldEditEvent() {

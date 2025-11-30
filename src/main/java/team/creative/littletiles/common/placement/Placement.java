@@ -200,7 +200,7 @@ public class Placement {
             if (event.isCanceled()) {
                 for (BlockPos snapPos : blocks.keySet())
                     LittleAction.sendBlockResetToClient(level, player, snapPos);
-                return null;
+                throw new LittleTilesConfig.AreaProtected();
             }
         }
         try {

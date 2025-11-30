@@ -23,6 +23,7 @@ import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.config.LittleBuildingConfig;
+import team.creative.littletiles.common.config.LittleTilesConfig;
 import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToEditException;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -95,6 +96,7 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
                 sendBlockResetToClient(level, player, pos);
             throw e;
         }
+        boolean areaProtected = false;
         
         for (Iterator<Entry<BlockPos, ArrayList<LittleBox>>> iterator = boxesMap.entrySet().iterator(); iterator.hasNext();) {
             Entry<BlockPos, ArrayList<LittleBox>> entry = iterator.next();
@@ -105,6 +107,10 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
                     sendBlockResetToClient(level, player, pos);
                 continue;
             }
+            if (requiresBreak() && !fireBlockBreakEvent(level, pos, player)) {
+                areaProtected = true;
+                continue;
+            }
             
             action(level, player, pos, state, entry.getValue(), boxes.grid);
         }
@@ -112,6 +118,8 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
         actionDone(level, player);
         
         level.playSound(null, player, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1, 1);
+        if (areaProtected)
+            throw new LittleTilesConfig.AreaProtected();
         return true;
     }
     
@@ -132,5 +140,8 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
     public Boolean failed() {
         return false;
     }
-    
+
+    public boolean requiresBreak() {
+        return true;
+    }
 }
