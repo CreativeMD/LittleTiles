@@ -372,7 +372,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     }
     
     public LittleGroup copyExceptChildren() {
-        LittleGroup group = new LittleGroup(structure, Collections.EMPTY_LIST);
+        LittleGroup group = new LittleGroup(structure != null ? structure.copy() : null, Collections.EMPTY_LIST);
         for (Entry<String, LittleGroup> extension : children.extensionEntries())
             group.children.addExtension(extension.getKey(), extension.getValue().copy());
         group.addAll(grid, new FunctionIterator<>(this, x -> x.copy()));
@@ -383,7 +383,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         List<LittleGroup> newChildren = new ArrayList<>();
         for (LittleGroup group : children.children())
             newChildren.add(group.copy());
-        LittleGroup group = new LittleGroup(structure, newChildren);
+        LittleGroup group = new LittleGroup(structure != null ? structure.copy() : null, newChildren);
         for (Entry<String, LittleGroup> extension : children.extensionEntries())
             group.children.addExtension(extension.getKey(), extension.getValue().copy());
         group.addAll(grid, new FunctionIterator<>(this, x -> x.copy()));
