@@ -65,7 +65,12 @@ public class AnimationTimeline {
         Collections.sort(tempList);
         this.events = new MarkList<>(tempList);
     }
-    
+
+    public boolean isAligned() {
+        return offX == ValueCurve.ONE_EMPTY && offY == ValueCurve.ONE_EMPTY && offZ == ValueCurve.ONE_EMPTY && rotX == ValueCurve.ONE_EMPTY && rotY == ValueCurve.ONE_EMPTY && rotZ == ValueCurve.ONE_EMPTY;
+    }
+
+
     public ValueCurve<Vec1d> get(PhysicalPart part) {
         return switch (part) {
             case OFFX -> offX;
