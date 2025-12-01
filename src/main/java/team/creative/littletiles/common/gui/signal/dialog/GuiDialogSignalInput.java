@@ -34,8 +34,9 @@ public class GuiDialogSignalInput extends GuiLayer {
     public int bandwidth;
     
     public GuiDialogSignalInput() {
-        super("gui.dialog.signal.input", 100, 100);
+        super("gui.dialog.signal.input", 200, 100);
         flow = GuiFlow.STACK_Y;
+        registerEventChanged(this::changed);
     }
     
     public void init(GuiSignalNodeInput input) {
@@ -126,7 +127,7 @@ public class GuiDialogSignalInput extends GuiLayer {
             }
             
         });
-        upper.add(new GuiTabButtonMapped<GuiSignalInputOperator>("type", input.operator, new TextMapBuilder<GuiSignalInputOperator>().addComponent(modes, x -> x.translatable())));
+        add(new GuiTabButtonMapped<GuiSignalInputOperator>("type", input.operator, new TextMapBuilder<GuiSignalInputOperator>().addComponent(modes, x -> x.translatable())));
         add(new GuiScrollY("config").setExpandable());
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
