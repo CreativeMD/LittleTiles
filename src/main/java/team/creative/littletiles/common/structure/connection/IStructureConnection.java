@@ -8,6 +8,8 @@ import team.creative.littletiles.common.structure.exception.NotYetConnectedExcep
 public interface IStructureConnection {
     
     public BlockPos getStructurePosition();
+
+    public LittleStructure getStructureUncached() throws CorruptedConnectionException, NotYetConnectedException;
     
     public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException;
     
