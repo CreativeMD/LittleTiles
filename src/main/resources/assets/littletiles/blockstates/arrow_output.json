@@ -5,7 +5,8 @@
         },
         "facing=south": {
             "model": "littletiles:block/output_arrow_up",
-            "x": 90
+            "x": 90,
+            "y": 180
         },
         "facing=east": {
             "model": "littletiles:block/output_arrow_up",
@@ -17,7 +18,8 @@
         },
         "facing=north": {
             "model": "littletiles:block/output_arrow_down",
-            "x": 90
+            "x": 90,
+            "y": 180
         },
         "facing=west": {
             "model": "littletiles:block/output_arrow_down",
