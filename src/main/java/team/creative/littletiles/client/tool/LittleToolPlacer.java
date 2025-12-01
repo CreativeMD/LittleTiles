@@ -172,7 +172,7 @@ public class LittleToolPlacer extends LittleTool {
         if (blockHit == null)
             return;
         var grid = placer.getPositionGrid(player, stack);
-        var pos = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, grid, placer, stack);
+        var pos = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, grid, stack);
         var mode = placer.getPlacementMode(stack);
         var matrix = placer.getMatrix(stack);
         var hasTiles = placer.hasTiles(stack);
@@ -314,6 +314,9 @@ public class LittleToolPlacer extends LittleTool {
         if (mesh == null || placedPosition == null)
             return;
         
+        pose.pushPose();
+        pose.translate(-cam.x, -cam.y, -cam.z);
+        
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
         
@@ -331,7 +334,7 @@ public class LittleToolPlacer extends LittleTool {
         matrix.translate(internalX, internalY, internalZ);
         RenderSystem.applyModelViewMatrix();
         BufferUploader.drawWithShader(mesh);
-        matrix.translate(-internalX, -internalY, -internalZ);
+        matrix.popMatrix();
         RenderSystem.applyModelViewMatrix();
         
         if (builtResult != null) {
@@ -342,11 +345,13 @@ public class LittleToolPlacer extends LittleTool {
                 if (cubes != null)
                     for (RenderBox cube : cubes)
                         buildBox(pose, cube, builder, colorAlpha, lines);
+                var data = builder.build();
+                if (data != null)
+                    BufferUploader.drawWithShader(data);
             }
         }
         
-        matrix.popMatrix();
-        RenderSystem.applyModelViewMatrix();
+        pose.popPose();
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         

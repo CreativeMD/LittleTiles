@@ -220,7 +220,7 @@
     "item.littletiles.bottle_yellow": "Yellow Bottle",
     "gui.tooltip.arrow_keys": "Arrow Keys",
     "littletiles.chisel.tooltip": "%s\n'%s' to pick block\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to rotate shape\n%s' to configure tool",
-    "littletiles.glove.tooltip": "%s\n'%s' to configure tool\n",
+    "littletiles.glove.tooltip": "'%s' to pick block\n'%s' to select overall shape, move corners and place\n'%s' to select a corner\n'%s' to configure tool\n",
     "littletiles.hammer.tooltip": "%s\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to rotate shape\n'%s' to configure tool\n",
     "littletiles.paint_brush.tooltip": "%s\n'%s' to pick color\nHold 'CTRL' to place more points\n'%s' to mark the position\n'%s' to configure tool\n",
     "littletiles.blueprint.selection.tooltip": "'%s' first position\n'%s' second position\n'%s' pick shape/ structure\n'%s' confirm/ configure selection\n",

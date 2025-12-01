@@ -311,24 +311,10 @@ public class LittleTilesClient {
                 return cubes;
             }
         });
-        /*CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
-            LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT), null) {
-            
-            @Override
-            protected ItemStack getFakeStack(ItemStack current) {
-                GloveMode mode = ItemLittleGlove.getMode(current);
-                if (mode.hasPreviewElement(current))
-                    return new ItemStack(mode.getPreviewElement(current).getState().getBlock());
-                TODO READD GLOVE
-                if (!mode.hasTiles(current))
-                    return ItemStack.EMPTY;
-                
-                ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
-                ILittleTool.setData(stack, LittleGroup.save(mode.getTiles(current)));
-                return stack;
-                
-            }
-        });*/
+        
+        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
+            LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
+        
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
             LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
         

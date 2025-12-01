@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.placement;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -53,14 +52,6 @@ public class PlacementPosition extends LittleVecAbsolute {
     @Override
     public PlacementPosition copy() {
         return new PlacementPosition(pos, gridVec.copy(), facing);
-    }
-    
-    public AABB getBox() {
-        var grid = getGrid();
-        double x = getPosX();
-        double y = getPosY();
-        double z = getPosZ();
-        return new AABB(x, y, z, x + grid.pixelLength, y + grid.pixelLength, z + grid.pixelLength);
     }
     
     public void mirror(Axis axis, LittleBoxAbsolute box) {

@@ -2,11 +2,24 @@ package team.creative.littletiles.common.math.vec;
 
 import java.security.InvalidParameterException;
 
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.VertexFormat;
+
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -213,6 +226,55 @@ public class LittleVecAbsolute implements IGridBased {
     @Deprecated
     public void overwriteGrid(LittleGrid grid) {
         gridVec.overwriteGrid(grid);
+    }
+    
+    public ABB getBB() {
+        var grid = getGrid();
+        double x = getPosX();
+        double y = getPosY();
+        double z = getPosZ();
+        return new ABB(x, y, z, x + grid.pixelLength, y + grid.pixelLength, z + grid.pixelLength);
+    }
+    
+    public AABB getBox() {
+        var grid = getGrid();
+        double x = getPosX();
+        double y = getPosY();
+        double z = getPosZ();
+        return new AABB(x, y, z, x + grid.pixelLength, y + grid.pixelLength, z + grid.pixelLength);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public void render(PoseStack pose, boolean selected) {
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        
+        RenderSystem.depthMask(true);
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        
+        ABB box = this.getBB();
+        box.inflate(0.002);
+        
+        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+        
+        RenderSystem.lineWidth(4.0F);
+        box.renderLines(pose, bufferbuilder, 0, 0, 0, 1F);
+        
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        
+        RenderSystem.disableDepthTest();
+        if (selected) {
+            bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+            RenderSystem.lineWidth(1.0F);
+            box.renderLines(pose, bufferbuilder, 1F, 0.3F, 0.0F, 1F);
+            BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        }
+        
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableCull();
     }
     
     @Override

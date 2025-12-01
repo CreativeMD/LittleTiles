@@ -1,11 +1,14 @@
 package team.creative.littletiles.common.math.box;
 
 import net.minecraft.core.BlockPos;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.type.map.HashMapList;
+import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -201,5 +204,10 @@ public class LittleBoxAbsolute implements IGridBased {
     
     public LittleBoxAbsolute copy() {
         return new LittleBoxAbsolute(pos, box.copy(), grid);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderingBox() {
+        return box.getRenderingBox(grid);
     }
 }

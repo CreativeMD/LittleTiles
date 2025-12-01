@@ -9,7 +9,6 @@ import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.Maths;
 import team.creative.creativecore.common.util.math.base.Facing;
-import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -21,7 +20,7 @@ import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager
  * preview and placing **/
 public class PlacementHelper {
     
-    public static PlacementPosition getPosition(Level level, BlockHitResult moving, LittleGrid context, ILittleTool tile, ItemStack stack) {
+    public static PlacementPosition getPosition(Level level, BlockHitResult moving, LittleGrid context, ItemStack stack) {
         int x = moving.getBlockPos().getX();
         int y = moving.getBlockPos().getY();
         int z = moving.getBlockPos().getZ();

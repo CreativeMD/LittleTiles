@@ -1,21 +1,8 @@
 package team.creative.littletiles.client.tool.shaper;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
-
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -65,35 +52,6 @@ public class ShapePosition extends PlacementPosition {
             return true;
         }
         return false;
-    }
-    
-    @OnlyIn(Dist.CLIENT)
-    public void render(PoseStack pose, boolean selected) {
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        
-        RenderSystem.depthMask(true);
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-        
-        AABB box = this.getBox().inflate(0.002);
-        
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        
-        RenderSystem.lineWidth(4.0F);
-        LevelRenderer.renderLineBox(pose, bufferbuilder, box, 0, 0, 0, 1F);
-        
-        RenderSystem.disableDepthTest();
-        if (selected) {
-            RenderSystem.lineWidth(1.0F);
-            LevelRenderer.renderLineBox(pose, bufferbuilder, box, 1F, 0.3F, 0.0F, 1F);
-        }
-        
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-        
-        RenderSystem.enableDepthTest();
     }
     
     @Override

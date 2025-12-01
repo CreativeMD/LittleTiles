@@ -1,17 +1,33 @@
 package team.creative.littletiles.common.item;
 
+import java.util.Arrays;
+
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
-import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.littletiles.api.common.tool.ILittleTransformer;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.tool.LittleTool;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.client.tool.LittleToolTransformer;
+import team.creative.littletiles.common.action.LittleActionPlace;
+import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
+import team.creative.littletiles.common.block.little.element.LittleElement;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
+import team.creative.littletiles.common.gui.tool.GuiConfigure;
+import team.creative.littletiles.common.gui.tool.GuiGlove;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
+import team.creative.littletiles.common.placement.PlacementPreview;
 
-public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip {
+public class ItemLittleGlove extends Item implements ILittleTransformer, IItemTooltip {
     
     public ItemLittleGlove() {
         super(new Item.Properties().stacksTo(1));
@@ -28,39 +44,30 @@ public class ItemLittleGlove extends Item implements ILittlePlacer, IItemTooltip
     }
     
     @Override
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        // TODO Auto-generated method stub
-        return null;
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+        return new GuiGlove(view);
     }
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
-        // TODO Auto-generated method stub
-        return null;
+        return new Object[] { Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(), Minecraft
+                .getInstance().options.keyAttack.getTranslatedKeyMessage(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage() };
     }
     
     @Override
-    public boolean hasTiles(ItemStack stack) {
-        // TODO Auto-generated method stub
-        return false;
+    public void boxFinished(Level level, Player player, ItemStack stack, LittleBoxAbsolute box) {
+        if (LittleTilesClient.INTERACTION.start(true)) {
+            LittleGroupAbsolute previews = new LittleGroupAbsolute(box.pos);
+            previews.add(box.grid, LittleElement.getOrDefault(stack), LittleBoxes.of(box));
+            LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.ABSOLUTE, PlacementPreview.absolute(level, LittleTilesClient.ACTION_HANDLER.setting
+                    .placementMode(), previews)));
+        }
     }
     
     @Override
-    public LittleGroup getTiles(ItemStack stack) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    @Override
-    public LittleGroup getLow(ItemStack stack) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-    
-    @Override
-    public boolean containsIngredients(ItemStack stack) {
-        // TODO Auto-generated method stub
-        return false;
+    @OnlyIn(Dist.CLIENT)
+    public Iterable<LittleTool> tools(ItemStack stack) {
+        return Arrays.asList(new LittleToolTransformer(stack));
     }
     
 }

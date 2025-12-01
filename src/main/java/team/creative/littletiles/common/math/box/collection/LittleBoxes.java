@@ -13,6 +13,12 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 
 public abstract class LittleBoxes implements IGridBased {
     
+    public static LittleBoxes of(LittleBoxAbsolute box) {
+        LittleBoxes boxes = new LittleBoxesSimple(box.pos, box.grid);
+        boxes.add(box.box);
+        return boxes;
+    }
+    
     public BlockPos pos;
     public LittleGrid grid;
     

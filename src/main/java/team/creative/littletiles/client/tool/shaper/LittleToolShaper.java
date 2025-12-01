@@ -147,7 +147,7 @@ public class LittleToolShaper extends LittleTool {
         var shape = in.shape;
         
         if (blockHit != null)
-            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, grid, shaper, stack), blockHit, false, shaper.previewInside(player, stack));
+            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, grid, stack), blockHit, false, shaper.previewInside(player, stack));
         
         if (built && (builtShape != shape || !ShapeRegistry.SHAPE_CONFIG_REGISTRY.equals(builtShapeConfig, shapeConfig,
             Side.CLIENT) || builtLines != lines || lastGrid != grid || hasPositionChanged()))
@@ -267,10 +267,14 @@ public class LittleToolShaper extends LittleTool {
     
     @Override
     public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {
-        
-        if (marked)
+        if (marked) {
+            pose.pushPose();
+            pose.translate(-cam.x, -cam.y, -cam.z);
             for (int i = 0; i < positions.size(); i++)
                 positions.get(i).render(pose, markedPosition == i);
+            pose.popPose();
+        }
+        
         if (builtLines != lines || !built)
             return;
         
