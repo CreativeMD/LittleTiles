@@ -76,6 +76,8 @@
     "gui.structure_builder.craft": "craft",
     "gui.structure_builder.failed": "\u00A7cfailed",
     "gui.signal.events": "Signal Outputs",
+    "gui.signal.equation": "Equation",
+    "gui.signal.bandwidth": "Bandwidth",
     "gui.distance.blocks": "block distance",
     "gui.distance.pixels": "pixel distance",
     "gui.recipe.dialog.clear": "Do you really want to clear all content?",
