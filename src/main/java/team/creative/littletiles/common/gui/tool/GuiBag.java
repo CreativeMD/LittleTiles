@@ -45,7 +45,7 @@ public class GuiBag extends GuiConfigure {
     public SimpleContainer input = new SimpleContainer(1);
     private List<IGuiInventory> inventories = new ArrayList<>();
     private List<IGuiInventory> inventoriesInv = new ArrayList<>();
-    
+
     public final GuiSyncLocal<EndTag> RELOAD = getSyncHolder().register("reload", v -> {
         tool.changed();
         reinit();
@@ -193,7 +193,7 @@ public class GuiBag extends GuiConfigure {
         addInventory(inputInventory);
         addInventory(bagInventoryGui);
     }
-    
+
     public void clearItemCache() {
         for (int i = 0; i < bagInventoryGui.inventorySize(); i++)
             ((BagSlot) bagInventoryGui.getSlot(i).slot).resetCache();
@@ -293,12 +293,13 @@ public class GuiBag extends GuiConfigure {
                     entry.value -= taken.getCount();
                 } else
                     entry.value = 0;
-                
+
                 if (entry.isEmpty())
                     bag.get(BlockIngredient.class).getContent().remove(getSlotIndex());
             }
             cache = null;
             saveBagInventory();
+            clearItemCache();
             return taken;
         }
     }
