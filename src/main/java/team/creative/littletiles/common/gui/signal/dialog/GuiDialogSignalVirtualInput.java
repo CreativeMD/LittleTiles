@@ -33,7 +33,7 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
     public GuiVirtualInputIndexConfiguration[] config;
     
     public GuiDialogSignalVirtualInput() {
-        super("gui.dialog.signal.virtual_input", 130, 100);
+        super("gui.dialog.signal.virtual_input", 230, 200);
         flow = GuiFlow.STACK_Y;
         registerEventChanged(this::changed);
     }
