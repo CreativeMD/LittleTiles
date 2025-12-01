@@ -495,7 +495,8 @@ public abstract class LittleSignalCableBase extends LittleStructurePremade imple
                     if (faces[i] != null) {
                         ISignalStructureBase connection = faces[i].connection;
                         faces[i].disconnect(getFacing(i));
-                        connection.findNetwork();
+                        if (connection != null)
+                            connection.findNetwork();
                     }
                 }
             }
