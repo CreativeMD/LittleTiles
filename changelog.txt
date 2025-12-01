@@ -1,3 +1,8 @@
+1.6.0-pre186
+Fixed sending neighbor updates to early when opening a door causing faces to not render
+Readded glove with new functionality
+Fixed mark mode not showing positions
+
 1.6.0-pre185
 Fixed signals being processed on client side
 Fixed crash when there is not enough space for door to be placed
