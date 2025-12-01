@@ -119,7 +119,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
             if (tempResult == null || !(tempResult.hit instanceof BlockHitResult))
                 continue;
             double tempDistance = pos.distanceTo(entity.getOrigin().transformPointToWorld(tempResult.hit.getLocation()));
-            if (newHit == null || tempDistance < distance) {
+            if (tempDistance < distance) {
                 newHit = tempResult;
                 distance = tempDistance;
             }
