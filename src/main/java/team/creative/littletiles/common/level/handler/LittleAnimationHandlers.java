@@ -49,7 +49,7 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
         return null;
     }
     
-    public void tick(LevelTickEvent.Post event) {
+    public void tick(LevelTickEvent.Pre event) {
         get(event.getLevel()).tick();
     }
     
