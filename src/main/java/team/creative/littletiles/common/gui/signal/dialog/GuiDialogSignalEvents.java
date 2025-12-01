@@ -162,7 +162,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
             int delay = modeConfig.delay;
             if (condition != null)
                 delay = Math.max(delay, (int) Math.ceil(condition.calculateDelay()));
-            mode.setTitle(Component.translatable(modeConfig.getMode().translateKey).append(" ").append(Component.translatable("gui.delay")).append(": " + delay));
+            mode.setTitle(modeConfig.description(delay));
         }
         
         public SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure) {
