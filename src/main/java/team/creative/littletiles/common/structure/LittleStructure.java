@@ -823,6 +823,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public SignalExternalOutputHandler getExternalOutput(int index) {
+        if (externalHandler == null)
+            return null;
         return externalHandler.get(index);
     }
     
