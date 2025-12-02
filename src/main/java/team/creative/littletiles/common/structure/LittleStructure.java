@@ -1028,6 +1028,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return null;
     }
     
+    public boolean wrenchInteract(Player player) {
+        return false;
+    }
+    
     // ====================Active====================
     
     public boolean hasStructureColor() {

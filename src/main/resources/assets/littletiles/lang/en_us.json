@@ -188,6 +188,7 @@
     "gui.particle.preset.confetti": "confetti",
     "gui.blancomatic.craft": "Craft",
     "gui.blancomatic.cost": "Cost",
+    "gui.structure.locked": "Locked",
     "dialog.screwdriver.no_task": "No task selected",
     "dialog.screwdriver.invalid_replacement": "Invalid replacement block",
     "markmode.gui.allowlowresolution": "Allow Low Resolution",

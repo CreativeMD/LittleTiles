@@ -47,6 +47,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     public int delay = 10;
     public int count = 1;
     protected int ticker = 0;
+    public boolean locked;
     
     public LittleParticleEmitter(LittleStructureTypeParticleEmitter type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
@@ -72,8 +73,14 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     }
     
     @Override
+    public boolean wrenchInteract(Player player) {
+        LittleTilesGuiRegistry.PARTICLE.open(player, this);
+        return true;
+    }
+    
+    @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
-        if (!level.isClientSide)
+        if (!level.isClientSide && !locked)
             LittleTilesGuiRegistry.PARTICLE.open(player, this);
         return InteractionResult.SUCCESS;
     }
@@ -152,6 +159,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             settings = new ParticleSettings(nbt.getCompound("settings"));
         else
             settings = LittleParticlePresets.SMOKE.settings.copy();
+        locked = nbt.getBoolean("locked");
     }
     
     @Override
@@ -168,6 +176,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
         CompoundTag settingsData = new CompoundTag();
         settings.write(settingsData);
         nbt.put("settings", settingsData);
+        nbt.putBoolean("locked", locked);
     }
     
     public static class ParticleSettings {

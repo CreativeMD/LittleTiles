@@ -9,6 +9,7 @@ import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.control.parent.GuiColumn;
 import team.creative.creativecore.common.gui.control.parent.GuiLabeledControl;
+import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.control.parent.GuiPanel;
 import team.creative.creativecore.common.gui.control.parent.GuiRow;
 import team.creative.creativecore.common.gui.control.parent.GuiTable;
@@ -144,6 +145,7 @@ public class GuiParticle extends GuiLayer {
     public GuiCounter delay;
     public GuiTabButton<ParticleSpreadGuiHandler> spread;
     public GuiPanel spreadPanel;
+    public GuiCheckBox locked;
     
     public GuiSyncLocal<CompoundTag> SAVE = getSyncHolder().register("save", x -> {
         particle.loadSettings(x);
@@ -212,9 +214,10 @@ public class GuiParticle extends GuiLayer {
         add(spreadPanel = new GuiPanel());
         spread.select(REGISTRY.get(particle.spread.getClass()));
         
-        GuiParent bottom = new GuiParent().setAlign(Align.RIGHT);
+        GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom);
-        bottom.add(new GuiButton("save", x -> {
+        bottom.addLeft(locked = new GuiCheckBox("locked", particle.locked).setTranslate("gui.structure.locked"));
+        bottom.addRight(new GuiButton("save", x -> {
             CompoundTag nbt = new CompoundTag();
             
             nbt.putInt("tickCount", count.getValue());
@@ -237,6 +240,9 @@ public class GuiParticle extends GuiLayer {
             CompoundTag data = new CompoundTag();
             newSettings.write(data);
             nbt.put("settings", data);
+            
+            nbt.putBoolean("locked", locked.value);
+            
             SAVE.send(nbt);
             closeThisLayer();
         }).setTranslate("gui.save"));
