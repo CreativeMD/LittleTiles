@@ -1,3 +1,9 @@
+1.6.0-pre187
+Added locked feature for item holder (can be configured via wrench right click)
+Added filter for item holder (can be configured via wrench right click)
+Added lock feature to particle emitter
+Added support for inventory interactions for storage structures
+
 1.6.0-pre186
 Fixed sending neighbor updates to early when opening a door causing faces to not render
 Readded glove with new functionality
