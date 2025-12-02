@@ -289,6 +289,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         if (level != null) {
             markDirty();
+            invalidateCapabilities();
             if (updateNeighbour)
                 updateNeighbour();
             updateLighting();

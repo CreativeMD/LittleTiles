@@ -23,6 +23,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
@@ -1021,6 +1022,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public float getExplosionResistance() {
         return 0;
+    }
+    
+    public Container getInventory() {
+        return null;
     }
     
     // ====================Active====================

@@ -22,6 +22,7 @@ import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.profiling.ProfilerFiller;
+import net.minecraft.world.Container;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
@@ -33,10 +34,15 @@ import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.neoforged.fml.loading.FMLLoader;
+import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeConfig;
 import net.neoforged.neoforge.event.AddReloadListenerEvent;
 import net.neoforged.neoforge.event.server.ServerStartingEvent;
+import net.neoforged.neoforge.items.IItemHandlerModifiable;
+import net.neoforged.neoforge.items.wrapper.CombinedInvWrapper;
+import net.neoforged.neoforge.items.wrapper.InvWrapper;
 import team.creative.creativecore.common.config.holder.CreativeConfigRegistry;
 import team.creative.creativecore.common.network.CreativeNetwork;
 import team.creative.creativecore.common.util.argument.StringArrayArgumentType;
@@ -127,6 +133,7 @@ public class LittleTiles {
     
     public LittleTiles(IEventBus bus) {
         bus.addListener(this::init);
+        bus.addListener(this::registerCapabilities);
         if (FMLLoader.getDist() == Dist.CLIENT)
             LittleTilesClient.load(bus);
         
@@ -228,6 +235,23 @@ public class LittleTiles {
             }
         });
         
+    }
+    
+    private void registerCapabilities(final RegisterCapabilitiesEvent event) {
+        event.registerBlockEntity(Capabilities.ItemHandler.BLOCK, LittleTilesRegistry.BE_TILES_TYPE.value(), (be, side) -> {
+            List<Container> inventories = new ArrayList<>();
+            for (LittleStructure s : be.loadedStructures()) {
+                var i = s.getInventory();
+                if (i != null)
+                    inventories.add(i);
+            }
+            
+            if (inventories.isEmpty())
+                return null;
+            if (inventories.size() == 1)
+                return new InvWrapper(inventories.getFirst());
+            return new CombinedInvWrapper(inventories.toArray(new IItemHandlerModifiable[inventories.size()]));
+        });
     }
     
     private void serverStarting(final ServerStartingEvent event) {

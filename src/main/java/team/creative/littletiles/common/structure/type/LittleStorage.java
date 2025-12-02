@@ -148,6 +148,7 @@ public class LittleStorage extends LittleStructure {
             used = inventorySize;
         int filled = (int) (Math.ceil((double) used / inventorySize * 65535));
         getInput(1).updateState(SignalState.of(filled));
+        markDirty();
     }
     
     public void openContainer(GuiStorage container) {
@@ -177,6 +178,11 @@ public class LittleStorage extends LittleStructure {
             stackSizeLimit = maxSlotStackSize;
             updateNumberOfSlots();
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+    }
+    
+    @Override
+    public Container getInventory() {
+        return inventory;
     }
     
     public static class LittleStorageType extends LittleStructureType {
