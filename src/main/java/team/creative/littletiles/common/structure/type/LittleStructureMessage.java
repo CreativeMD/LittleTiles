@@ -1,5 +1,9 @@
 package team.creative.littletiles.common.structure.type;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 import org.apache.commons.lang3.StringUtils;
 
 import com.mojang.brigadier.StringReader;
@@ -8,6 +12,9 @@ import net.minecraft.commands.ParserUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.StringTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.server.level.ServerChunkCache;
@@ -25,7 +32,7 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 
 public class LittleStructureMessage extends LittleStructure {
     
-    public String text;
+    public List<String> text;
     public boolean allowRightClick = true;
     public boolean status = false;
     
@@ -41,8 +48,10 @@ public class LittleStructureMessage extends LittleStructure {
     @Override
     public InteractionResult use(Level level, LittleTileContext context, BlockPos pos, Player player, BlockHitResult result) {
         if (allowRightClick) {
-            if (!level.isClientSide)
-                player.displayClientMessage(message(), status);
+            if (!level.isClientSide) {
+                for (int i = 0; i < text.size(); i++)
+                    player.displayClientMessage(message(i), status);
+            }
             return InteractionResult.SUCCESS;
         }
         return super.use(level, context, pos, player, result);
@@ -50,23 +59,34 @@ public class LittleStructureMessage extends LittleStructure {
     
     @Override
     protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
-        text = StringUtils.truncate(nbt.getString("text"), LittleTiles.CONFIG.general.messageStructureLength);
+        if (nbt.contains("text"))
+            text = Arrays.asList(StringUtils.truncate(nbt.getString("text"), LittleTiles.CONFIG.general.messageStructureLength));
+        else {
+            text = new ArrayList<>();
+            ListTag list = nbt.getList("lines", Tag.TAG_STRING);
+            for (int i = 0; i < list.size(); i++)
+                text.add(StringUtils.truncate(list.getString(i), LittleTiles.CONFIG.general.messageStructureLength));
+        }
         allowRightClick = nbt.getBoolean("right");
         status = nbt.getBoolean("status");
     }
     
     @Override
     protected void saveExtra(CompoundTag nbt, HolderLookup.Provider provider) {
-        nbt.putString("text", text);
+        ListTag list = new ListTag();
+        for (int i = 0; i < text.size(); i++) {
+            list.add(StringTag.valueOf(text.get(i)));
+        }
+        nbt.put("lines", list);
         nbt.putBoolean("right", allowRightClick);
         nbt.putBoolean("status", status);
     }
     
-    public Component message() {
+    public Component message(int i) {
         try {
-            return ParserUtils.parseJson(getStructureLevel().registryAccess(), new StringReader(text), ComponentSerialization.CODEC);
+            return ParserUtils.parseJson(getStructureLevel().registryAccess(), new StringReader(text.get(i)), ComponentSerialization.CODEC);
         } catch (Exception exception) {
-            return Component.literal(text);
+            return Component.literal(text.get(i));
         }
     }
     
@@ -79,7 +99,10 @@ public class LittleStructureMessage extends LittleStructure {
             
             final LevelChunk chunk = level.getChunkAt(getStructurePos());
             if (chunk != null)
-                ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(x -> x.sendSystemMessage(message(), status));
+                ((ServerChunkCache) chunk.getLevel().getChunkSource()).chunkMap.getPlayers(chunk.getPos(), false).forEach(x -> {
+                    for (int i = 0; i < text.size(); i++)
+                        x.sendSystemMessage(message(i), status);
+                });
         }
     }
     
