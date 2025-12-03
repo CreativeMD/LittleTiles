@@ -23,6 +23,7 @@ import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.control.GuiDistanceControl;
 import team.creative.littletiles.common.gui.control.animation.GuiChildEventPanel.GuiChildTimelineChannel;
@@ -167,7 +168,7 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
                 edited.value = distance.getVanillaDistance();
                 time.raiseEvent(new GuiControlChangedEvent(time));
             } else if (x.control instanceof GuiTextfield text) {
-                edited.value = text.parseDouble();
+                edited.value = Math.clamp(text.parseDouble(), -LittleTiles.CONFIG.general.maxDoorRotation, LittleTiles.CONFIG.general.maxDoorRotation);
                 time.raiseEvent(new GuiControlChangedEvent(time));
             }
             

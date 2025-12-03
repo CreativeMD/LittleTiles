@@ -262,6 +262,9 @@ public class LittleTilesConfig {
         public int maxDoorDistance = 512;
         
         @CreativeConfig
+        public double maxDoorRotation = 1440;
+        
+        @CreativeConfig
         public LittleBagConfig bag = new LittleBagConfig();
         
         @CreativeConfig

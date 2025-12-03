@@ -7,6 +7,7 @@ import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -115,7 +116,7 @@ public class LittleAxisDoor extends LittleDoor {
         
         public LittleAxisDoorRotationFixed(Axis axis, double degree) {
             super(axis);
-            this.degree = degree;
+            this.degree = Math.clamp(degree, -LittleTiles.CONFIG.general.maxDoorRotation, LittleTiles.CONFIG.general.maxDoorRotation);
         }
         
         @Override
