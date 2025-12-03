@@ -65,7 +65,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.config.LittleBuildingConfig;
+import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
@@ -118,7 +118,7 @@ public abstract class LittleAction<T> extends CreativePacket {
     public abstract LittleAction mirror(Axis axis, LittleBoxAbsolute box);
     
     public static boolean canConvertBlock(Player player, Level level, BlockPos pos, BlockState state, int affected) throws LittleActionException {
-        LittleBuildingConfig config = LittleTiles.CONFIG.build.get(player);
+        LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
         if (config.affectedBlockLimit.isEnabled() && config.affectedBlockLimit.value < affected)
             throw new NotAllowedToConvertBlockException(player, config);
         if (!config.editUnbreakable && state.getBlock().defaultDestroyTime() < 0)
@@ -315,7 +315,7 @@ public abstract class LittleAction<T> extends CreativePacket {
     }
     
     public static boolean isAllowedToUse(Player player, IGridBased grid) throws LittleActionException {
-        LittleBuildingConfig build = LittleTiles.CONFIG.build.get(player);
+        LittlePermissionBuild build = LittleTiles.CONFIG.build.get(player);
         if (build.gridLimit.isEnabled() && build.gridLimit.value < grid.getSmallest())
             throw new GridTooHighException(player, build, grid.getSmallest());
         return true;

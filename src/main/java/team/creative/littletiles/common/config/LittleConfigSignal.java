@@ -2,7 +2,7 @@ package team.creative.littletiles.common.config;
 
 import team.creative.creativecore.common.config.api.CreativeConfig;
 
-public class LittleSignalConfig {
+public class LittleConfigSignal {
     
     @CreativeConfig
     public double overallDurationScale = 1;

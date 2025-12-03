@@ -8,6 +8,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -26,8 +27,9 @@ public class LittleActionActivated extends LittleActionInteract<InteractionResul
     public LittleActionActivated() {}
     
     @Override
-    protected InteractionResult action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos, boolean secondMode) throws LittleActionException {
-        if (context.parent.isStructure())
+    protected InteractionResult action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos,
+            boolean secondMode) throws LittleActionException {
+        if (context.parent.isStructure() && LittleTiles.CONFIG.interact.get(player).interactWithStructure)
             return context.parent.getStructure().use(level, context, pos, player, hit);
         
         InteractionResult result = context.tile.use(context.parent, context.box, pos, player, hit);

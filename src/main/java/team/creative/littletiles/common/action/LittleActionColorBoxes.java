@@ -25,7 +25,7 @@ import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.config.LittleBuildingConfig;
+import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
@@ -191,7 +191,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     
     @Override
     public void action(Level level, Player player, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException {
-        LittleBuildingConfig config = LittleTiles.CONFIG.build.get(player);
+        LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
         
         if (ColorUtils.alpha(color) < LittleTiles.CONFIG.getMinimumTransparency(player))
             throw new NotAllowedToPlaceColorException(player, config);

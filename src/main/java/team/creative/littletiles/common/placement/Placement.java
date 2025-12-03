@@ -45,7 +45,7 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.config.LittleBuildingConfig;
+import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
@@ -169,7 +169,7 @@ public class Placement {
         
         if (player != null && !level.isClientSide) {
             if (player != null) {
-                LittleBuildingConfig config = LittleTiles.CONFIG.build.get(player);
+                LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
                 
                 if (LittleTiles.CONFIG.isPlaceLimited(player) && preview.previews.getVolumeIncludingChildren() > config.placeBlockLimit.value) {
                     for (BlockPos pos : blocks.keySet())

@@ -25,7 +25,7 @@ import team.creative.littletiles.common.action.exception.AreaProtected;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.exception.NotAllowedToEditException;
 import team.creative.littletiles.common.block.entity.BETiles;
-import team.creative.littletiles.common.config.LittleBuildingConfig;
+import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -71,7 +71,7 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
         }
         
         if (LittleTiles.CONFIG.isEditLimited(player)) {
-            LittleBuildingConfig config = LittleTiles.CONFIG.build.get(player);
+            LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
             if (boxes.getSurroundingBox().getPercentVolume(boxes.grid) > config.editBlockLimit.value)
                 throw new NotAllowedToEditException(player, config);
         }

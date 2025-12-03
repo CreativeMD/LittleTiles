@@ -112,7 +112,7 @@ public class BlockFlowingLava extends Block implements ILittleMCBlock, IFakeRend
     
     @Override
     public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
-        if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingLava) {
+        if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.interact.get(player).allowFlowingLava) {
             BlockState newState;
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;

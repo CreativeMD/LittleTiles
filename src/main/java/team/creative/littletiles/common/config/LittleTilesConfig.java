@@ -12,12 +12,17 @@ import team.creative.creativecore.common.config.api.ICreativeConfig;
 import team.creative.creativecore.common.config.premade.Permission;
 import team.creative.creativecore.common.config.sync.ConfigSynchronization;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.render.cache.build.RenderingThread;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 
 public class LittleTilesConfig {
+    
+    @CreativeConfig(type = ConfigSynchronization.CLIENT)
+    public LittleConfigBuilding building = new LittleConfigBuilding();
+    
+    @CreativeConfig(type = ConfigSynchronization.CLIENT)
+    public LittleConfigRendering rendering = new LittleConfigRendering();
     
     @CreativeConfig(requiresRestart = true)
     public Core core = new Core();
@@ -25,22 +30,15 @@ public class LittleTilesConfig {
     @CreativeConfig
     public General general = new General();
     
-    @CreativeConfig(type = ConfigSynchronization.CLIENT)
-    public Building building = new Building();
+    @CreativeConfig
+    public Permission<LittlePermissionBuild> build = new Permission<LittlePermissionBuild>(new LittlePermissionBuild()).add("survival", new LittlePermissionBuild(true)).add(
+        "creative", new LittlePermissionBuild(false));
     
     @CreativeConfig
-    public Permission<LittleBuildingConfig> build = new Permission<LittleBuildingConfig>(new LittleBuildingConfig()).add("survival", new LittleBuildingConfig(true)).add("creative",
-        new LittleBuildingConfig(false));
+    public Permission<LittlePermissionInteract> interact = new Permission<LittlePermissionInteract>(new LittlePermissionInteract());
     
     @CreativeConfig
-    public Permission<LittleBuildingConfig> interact = new Permission<LittleBuildingConfig>(new LittleBuildingConfig()).add("survival", new LittleBuildingConfig(true)).add(
-        "creative", new LittleBuildingConfig(false));
-    
-    @CreativeConfig(type = ConfigSynchronization.CLIENT)
-    public Rendering rendering = new Rendering();
-    
-    @CreativeConfig
-    public LittleSignalConfig signal = new LittleSignalConfig();
+    public LittleConfigSignal signal = new LittleConfigSignal();
     
     public boolean isEditLimited(Player player) {
         return build.get(player).editBlockLimit.isEnabled();
@@ -66,69 +64,10 @@ public class LittleTilesConfig {
         return build.get(player).minimumTransparency;
     }
     
-    public static class Rendering implements ICreativeConfig {
-        
-        @CreativeConfig
-        public boolean useQuadCache = false;
-        
-        @CreativeConfig
-        public boolean useCubeCache = true;
-        
-        @CreativeConfig
-        @CreativeConfig.IntRange(slider = false, min = 1, max = 1024)
-        public int renderingThreadCount = 2;
-        
-        @CreativeConfig
-        public boolean highlightStructureBox = true;
-        
-        @CreativeConfig
-        public boolean previewLines = false;
-        
-        @CreativeConfig
-        public double previewLineThickness = 2;
-        
-        public boolean darkerPreviewBoxShading = false;
-        
-        @CreativeConfig
-        public boolean enableRandomDisplayTick = false;
-        
-        @CreativeConfig
-        public boolean uploadToVBODirectly = true;
-        
-        @CreativeConfig
-        public boolean showTooltip = true;
-        
-        @CreativeConfig
-        public int itemCacheDuration = 5000;
-        
-        @CreativeConfig
-        public int itemLowResolutionBoxCount = 1000;
-        
-        @CreativeConfig
-        public int entityCacheBuildThreads = 1;
-        
-        @CreativeConfig
-        public int connectedShapeBlocksLimit = 128;
-        
-        @Override
-        public void configured(Side side) {
-            if (side.isClient())
-                RenderingThread.initThreads(renderingThreadCount);
-        }
-    }
-    
     public static class General {
         
         @CreativeConfig
-        public boolean allowFlowingWater = true;
-        @CreativeConfig
-        public boolean allowFlowingLava = true;
-        
-        @CreativeConfig
-        public float storagePerPixel = 1;
-        
-        @CreativeConfig
-        public boolean enableBed = true;
+        public double storagePerPixel = 1;
         
         @CreativeConfig
         public boolean enableAnimationCollision = true;
@@ -148,29 +87,11 @@ public class LittleTilesConfig {
         public double maxDoorRotation = 1440;
         
         @CreativeConfig
-        public LittleBagConfig bag = new LittleBagConfig();
+        public LittleConfigBag bag = new LittleConfigBag();
         
         @CreativeConfig
         public int messageStructureLength = 4098;
         
-    }
-    
-    public static class Building {
-        
-        @CreativeConfig
-        public boolean invertStickToGrid = false;
-        
-        @CreativeConfig
-        public int maxSavedActions = 32;
-        
-        @CreativeConfig
-        public boolean useALTForEverything = false;
-        
-        @CreativeConfig
-        public boolean useAltWhenFlying = true;
-        
-        @CreativeConfig
-        public int lowResolutionBoxCount = 2000;
     }
     
     public static class Core implements ICreativeConfig {

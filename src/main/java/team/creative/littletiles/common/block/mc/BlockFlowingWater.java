@@ -101,7 +101,7 @@ public class BlockFlowingWater extends Block implements ILittleMCBlock, IFakeRen
     
     @Override
     public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
-        if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
+        if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.interact.get(player).allowFlowingWater) {
             BlockState newState;
             Direction facing = tile.getState().getValue(BlockStateProperties.FACING);
             int index = facing.ordinal() + 1;

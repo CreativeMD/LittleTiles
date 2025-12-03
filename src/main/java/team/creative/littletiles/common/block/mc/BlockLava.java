@@ -46,7 +46,7 @@ public class BlockLava extends Block implements ILittleMCBlock, IFakeRenderingBl
     
     @Override
     public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
-        if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.general.allowFlowingWater) {
+        if (player.getMainHandItem().getItem() instanceof BucketItem && LittleTiles.CONFIG.interact.get(player).allowFlowingWater) {
             if (this == LittleTilesRegistry.LAVA.value())
                 tile.setState(LittleTilesRegistry.FLOWING_LAVA.value().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]));
             else

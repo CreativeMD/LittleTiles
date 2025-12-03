@@ -9,15 +9,15 @@ import team.creative.creativecore.common.config.premade.ToggleableConfig;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.grid.LittleGrid;
 
-public class LittleBuildingConfig {
+public class LittlePermissionBuild {
     
     static {
-        ConfigTypeConveration.registerTypeCreator(LittleBuildingConfig.class, () -> new LittleBuildingConfig());
+        ConfigTypeConveration.registerTypeCreator(LittlePermissionBuild.class, () -> new LittlePermissionBuild());
     }
     
-    public LittleBuildingConfig() {}
+    public LittlePermissionBuild() {}
     
-    public LittleBuildingConfig(boolean survival) {
+    public LittlePermissionBuild(boolean survival) {
         affectedBlockLimit.setEnabled(survival);
         editBlockLimit.setEnabled(survival);
         placeBlockLimit.setEnabled(survival);

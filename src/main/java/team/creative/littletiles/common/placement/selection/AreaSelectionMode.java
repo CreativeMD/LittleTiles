@@ -24,7 +24,7 @@ import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.config.LittleBuildingConfig;
+import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -113,7 +113,7 @@ public class AreaSelectionMode extends SelectionMode {
         int maxY = Math.max(pos.getY(), pos2.getY());
         int maxZ = Math.max(pos.getZ(), pos2.getZ());
         
-        LittleBuildingConfig config = LittleTiles.CONFIG.build.get(selection.player());
+        LittlePermissionBuild config = LittleTiles.CONFIG.build.get(selection.player());
         
         if (config.blueprintSizeLimit.isEnabled() && (maxX - minX) * (maxY - minY) * (maxZ - minZ) > config.blueprintSizeLimit.value)
             throw new AreaTooLarge(selection.player(), config);

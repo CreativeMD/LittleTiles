@@ -50,7 +50,7 @@ public class BlockWater extends Block implements ILittleMCBlock, IFakeRenderingB
     
     @Override
     public InteractionResult use(IParentCollection parent, LittleTile tile, LittleBox box, Player player, BlockHitResult result) {
-        if (player.getMainHandItem().getItem() instanceof BucketItem && !parent.isStructure() && LittleTiles.CONFIG.general.allowFlowingWater) {
+        if (player.getMainHandItem().getItem() instanceof BucketItem && !parent.isStructure() && LittleTiles.CONFIG.interact.get(player).allowFlowingWater) {
             BlockState newState = LittleTilesRegistry.FLOWING_WATER.value().defaultBlockState().setValue(BlockFlowingWater.FACING, Direction.values()[0]);
             parent.getBE().updateTiles(x -> {
                 LittleTile newFlowing = new LittleTile(newState, ColorUtils.WHITE, box.copy());

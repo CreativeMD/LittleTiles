@@ -49,21 +49,22 @@ public class LittleTilesGuiRegistry {
     }));
     
     public static final LittleStructureGuiCreator STORAGE = GuiCreator.register("storage", new LittleStructureGuiCreator((nbt, player,
-            structure) -> new GuiStorage((LittleStorage) structure, player)));
+            structure) -> new GuiStorage((LittleStorage) structure, player), x -> x.storageGui));
     public static final LittleStructureGuiCreator BLANKOMATIC = GuiCreator.register("blankomatic", new LittleStructureGuiCreator((nbt, player,
-            structure) -> new GuiBlankOMatic((LittleBlankOMatic) structure)));
+            structure) -> new GuiBlankOMatic((LittleBlankOMatic) structure), x -> x.blankomaticGui));
     
     public static final GuiCreatorBasic EXPORTER = GuiCreator.register("exporter", new GuiCreatorBasic((nbt, player) -> new GuiExport()));
     public static final GuiCreatorBasic IMPORTER = GuiCreator.register("importer", new GuiCreatorBasic((nbt, player) -> new GuiImport()));
     
     public static final LittleStructureGuiCreator PARTICLE = GuiCreator.register("particle", new LittleStructureGuiCreator((nbt, player,
-            structure) -> new GuiParticle((LittleParticleEmitter) structure)));
+            structure) -> new GuiParticle((LittleParticleEmitter) structure), x -> x.particleGui));
     public static final LittleStructureGuiCreator ITEM_HOLDER = GuiCreator.register("item_holder", new LittleStructureGuiCreator((nbt, player,
-            structure) -> new GuiItemHolder((LittleItemHolder) structure)));
+            structure) -> new GuiItemHolder((LittleItemHolder) structure), x -> x.itemHolderGui));
     
     public static final LittleStructureGuiCreator STRUCTURE_BUILDER = GuiCreator.register("structure_builder", new LittleStructureGuiCreator((nbt, player,
-            structure) -> new GuiBuilder((LittleStructureBuilder) structure)));
-    public static final LittleStructureGuiCreator WORKBENCH = GuiCreator.register("workbench", new LittleStructureGuiCreator((nbt, player, structure) -> new GuiWorkbench()));
+            structure) -> new GuiBuilder((LittleStructureBuilder) structure), x -> x.structureBuilderGui));
+    public static final LittleStructureGuiCreator WORKBENCH = GuiCreator.register("workbench", new LittleStructureGuiCreator((nbt, player,
+            structure) -> new GuiWorkbench(), x -> x.workbenchGui));
     
     public static void init() {}
     

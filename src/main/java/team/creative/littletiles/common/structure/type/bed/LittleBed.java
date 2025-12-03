@@ -176,7 +176,7 @@ public class LittleBed extends LittleStructure {
         try {
             checkConnections();
             
-            if (!LittleTiles.CONFIG.general.enableBed)
+            if (!LittleTiles.CONFIG.interact.get(player).useBed)
                 return InteractionResult.PASS;
             
             if (level.isClientSide)
