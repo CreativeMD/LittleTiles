@@ -29,7 +29,7 @@ import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
-import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.common.gui.signal.GuiComponentSearch;

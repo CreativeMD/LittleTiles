@@ -40,7 +40,7 @@ import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.client.level.little.FakeClientLevel;
-import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.common.gui.control.animation.GuiAnimationPanel;

@@ -18,9 +18,10 @@ import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
+import team.creative.littletiles.common.action.exception.AreaProtected;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
 import team.creative.littletiles.common.entity.LittleEntity;
 
 public abstract class LittleActionInteract<T> extends LittleAction<T> {

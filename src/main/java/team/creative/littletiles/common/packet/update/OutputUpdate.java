@@ -3,7 +3,7 @@ package team.creative.littletiles.common.packet.update;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.network.CreativePacket;
-import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;

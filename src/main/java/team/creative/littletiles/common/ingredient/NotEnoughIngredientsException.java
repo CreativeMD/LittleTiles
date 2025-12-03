@@ -5,7 +5,7 @@ import java.util.List;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.text.TextBuilder;
-import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 
 public class NotEnoughIngredientsException extends LittleActionException {
     

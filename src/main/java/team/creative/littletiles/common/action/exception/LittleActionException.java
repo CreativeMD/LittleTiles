@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.action;
+package team.creative.littletiles.common.action.exception;
 
 import java.util.List;
 

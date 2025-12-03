@@ -29,7 +29,10 @@ import net.neoforged.neoforge.event.level.BlockEvent;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.exception.AreaProtected;
+import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.exception.NotAllowedToPlaceException;
+import team.creative.littletiles.common.action.exception.TooDenseException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -43,9 +46,6 @@ import team.creative.littletiles.common.block.little.tile.parent.ParentCollectio
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittleBuildingConfig;
-import team.creative.littletiles.common.config.LittleTilesConfig;
-import team.creative.littletiles.common.config.LittleTilesConfig.AreaProtected;
-import team.creative.littletiles.common.config.LittleTilesConfig.NotAllowedToPlaceException;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredient;
@@ -418,7 +418,7 @@ public class Placement {
                         size += tiles[i].size();
                     
                 if (size > LittleTiles.CONFIG.general.maxAllowedDensity)
-                    throw new LittleTilesConfig.TooDenseException();
+                    throw new TooDenseException();
                 
                 if (!te.sameGrid(this, () -> {
                     for (int i = 0; i < tiles.length; i++)
@@ -446,7 +446,7 @@ public class Placement {
                     size += tiles[i].size();
                 
             if (size > LittleTiles.CONFIG.general.maxAllowedDensity)
-                throw new LittleTilesConfig.TooDenseException();
+                throw new TooDenseException();
             
             BlockState state = level.getBlockState(pos);
             if (state.is(BlockTags.REPLACEABLE))
@@ -511,7 +511,7 @@ public class Placement {
                             size += tiles[i].size();
                         
                     if (size > LittleTiles.CONFIG.general.maxAllowedDensity)
-                        throw new LittleTilesConfig.TooDenseException();
+                        throw new TooDenseException();
                     
                     if (cached.isEmpty())
                         requiresCollisionTest = false;

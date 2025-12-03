@@ -43,7 +43,7 @@ import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.level.LevelAwareHandler;
 import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.math.vec.LittleHitResult;

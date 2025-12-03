@@ -6,7 +6,7 @@ import java.util.Set;
 
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import team.creative.littletiles.common.action.LittleActionException;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.placement.PlacementContext;
