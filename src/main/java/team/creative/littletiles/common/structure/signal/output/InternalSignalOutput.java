@@ -13,7 +13,7 @@ import team.creative.littletiles.common.structure.signal.component.InternalSigna
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
-import team.creative.littletiles.common.structure.signal.logic.SignalMode.SignalOutputHandlerToggle;
+import team.creative.littletiles.common.structure.signal.output.mode.SignalOutputHandlerToggle;
 
 public class InternalSignalOutput extends InternalSignal<InternalComponentOutput> {
     

@@ -22,9 +22,9 @@ import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeVirtualInput;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
+import team.creative.littletiles.common.structure.signal.gui.mode.GuiSignalModeConfiguration;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualNumber;
-import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 
 public class GuiDialogSignalVirtualInput extends GuiLayer {
     

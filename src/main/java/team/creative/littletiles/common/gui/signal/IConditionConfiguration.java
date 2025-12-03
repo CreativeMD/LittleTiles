@@ -1,7 +1,7 @@
 package team.creative.littletiles.common.gui.signal;
 
+import team.creative.littletiles.common.structure.signal.gui.mode.GuiSignalModeConfiguration;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
-import team.creative.littletiles.common.structure.signal.logic.SignalMode.GuiSignalModeConfiguration;
 
 public interface IConditionConfiguration {
     
