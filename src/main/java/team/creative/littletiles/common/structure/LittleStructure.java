@@ -983,6 +983,21 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     // ====================Extra====================
     
+    public boolean shouldForceDrop() {
+        if (forceDrop())
+            return true;
+        for (StructureChildConnection c : children.all())
+            try {
+                if (c.getStructure().shouldForceDrop())
+                    return true;
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        return false;
+    }
+    
+    protected boolean forceDrop() {
+        return false;
+    }
+    
     public ItemStack getStructureDrop() throws CorruptedConnectionException, NotYetConnectedException {
         if (hasParent())
             return findTopStructure().getStructureDrop();

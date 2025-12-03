@@ -35,9 +35,18 @@ import team.creative.littletiles.common.structure.signal.SignalState;
 
 public class LittleStorage extends LittleStructure {
     
-    private List<GuiStorage> openContainers = new ArrayList<GuiStorage>();
+    public static final int MAX_SLOT_STACK_SIZE = 64;
     
-    public static int maxSlotStackSize = 64;
+    public static int getSizeOfInventory(LittleGroup previews) {
+        double size = 0;
+        String name = LittleTilesRegistry.STORAGE_BLOCK.value().builtInRegistryHolder().getRegisteredName();
+        for (LittleTile tile : previews)
+            if (tile.getBlock().blockName().equals(name))
+                size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.OVERALL_DEFAULT_COUNT3D * LittleTiles.CONFIG.general.storagePerPixel;
+        return (int) size;
+    }
+    
+    private List<GuiStorage> openContainers = new ArrayList<GuiStorage>();
     
     public int inventorySize = 0;
     public int stackSizeLimit = 0;
@@ -97,20 +106,16 @@ public class LittleStorage extends LittleStructure {
         }
     }
     
-    public static int getSizeOfInventory(LittleGroup previews) {
-        double size = 0;
-        String name = LittleTilesRegistry.STORAGE_BLOCK.value().builtInRegistryHolder().getRegisteredName();
-        for (LittleTile tile : previews)
-            if (tile.getBlock().blockName().equals(name))
-                size += tile.getPercentVolume(previews.getGrid()) * LittleGrid.OVERALL_DEFAULT_COUNT3D * LittleTiles.CONFIG.general.storagePerPixel;
-        return (int) size;
-    }
-    
     public boolean hasPlayerOpened(Player player) {
         for (GuiStorage container : openContainers)
             if (container.getPlayer() == player)
                 return true;
         return false;
+    }
+    
+    @Override
+    protected boolean forceDrop() {
+        return !inventory.isEmpty();
     }
     
     @Override
@@ -175,7 +180,7 @@ public class LittleStorage extends LittleStructure {
             volume *= LittleGrid.OVERALL_DEFAULT_COUNT3D * LittleTiles.CONFIG.general.storagePerPixel;
             
             inventorySize = (int) volume;
-            stackSizeLimit = maxSlotStackSize;
+            stackSizeLimit = MAX_SLOT_STACK_SIZE;
             updateNumberOfSlots();
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
