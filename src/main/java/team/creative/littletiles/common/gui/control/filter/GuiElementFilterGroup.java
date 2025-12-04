@@ -35,6 +35,8 @@ public class GuiElementFilterGroup extends GuiElementFilter {
         map.addComponent(x -> list.addItem(GuiElementFilter.of(getPlayer(), TileFilters.tag(BlockTags.LOGS))), Component.translatable("gui.filter.block_tag"));
         map.addComponent(x -> list.addItem(GuiElementFilter.of(getPlayer(), TileFilters.color(ColorUtils.WHITE))), Component.translatable("gui.filter.color"));
         map.addComponent(x -> list.addItem(GuiElementFilter.of(getPlayer(), TileFilters.or())), Component.translatable("gui.filter.group"));
+        map.addComponent(x -> list.addItem(GuiElementFilter.of(getPlayer(), TileFilters.name("stone"))), Component.translatable("gui.filter.name"));
+        map.addComponent(x -> list.addItem(GuiElementFilter.of(getPlayer(), TileFilters.missing())), Component.translatable("gui.filter.missing"));
         GuiParent lower = new GuiParent();
         add(lower);
         lower.add(this.operator = new GuiStateButton<>("operator", new TextMapBuilder<GuiElementFilterOperator>().addComponent(GuiElementFilterOperator.values(), x -> Component

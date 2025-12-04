@@ -387,6 +387,8 @@
     "gui.filter.block_tag": "by Tag",
     "gui.filter.color": "by Color",
     "gui.filter.group": "Group",
+    "gui.filter.missing": "Missing",
+    "gui.filter.name": "by Name",
     "gui.filter.or": "At least one",
     "gui.filter.and": "All",
     "gui.filter.not_or": "None",
