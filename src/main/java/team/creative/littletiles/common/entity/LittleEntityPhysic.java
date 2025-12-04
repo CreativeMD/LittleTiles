@@ -7,7 +7,6 @@ import java.util.function.Predicate;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -25,7 +24,6 @@ import team.creative.creativecore.common.util.math.collision.PlaneCache;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.level.handler.LittleAnimationHandlers;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 
@@ -333,11 +331,8 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
                 
                 entity.move(MoverType.SELF, new Vec3(moveX, moveY, moveZ));
                 
-                if (entity instanceof ServerPlayer)
-                    LittleAnimationHandlers.setPushedByDoor((ServerPlayer) entity);
-                
                 if (LittleTiles.CONFIG.general.enableCollisionMotion)
-                    entity.getDeltaMovement().add(moveX, moveY, moveZ);
+                    entity.setDeltaMovement(entity.getDeltaMovement().add(moveX, moveY, moveZ));
                 
                 if (moveX != 0 || moveZ != 0)
                     collidedHorizontally = true;

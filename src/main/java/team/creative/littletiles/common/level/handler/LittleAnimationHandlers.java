@@ -23,10 +23,6 @@ public class LittleAnimationHandlers extends LevelHandlers<LittleAnimationHandle
         return LittleTilesClient.ANIMATION_HANDLER = new LittleAnimationHandlerClient(level);
     }
     
-    public static void setPushedByDoor(ServerPlayer entity) {
-        // TODO Readd implement pushed by door
-    }
-    
     public LittleAnimationHandlers() {
         super(level -> {
             if (level.isClientSide)
