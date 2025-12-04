@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.signal.gui.mode;
+package team.creative.littletiles.common.gui.signal.mode;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;

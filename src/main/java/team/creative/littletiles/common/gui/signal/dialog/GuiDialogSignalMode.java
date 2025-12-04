@@ -12,7 +12,7 @@ import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
-import team.creative.littletiles.common.structure.signal.gui.mode.GuiSignalModeConfiguration;
+import team.creative.littletiles.common.gui.signal.mode.GuiSignalModeConfiguration;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
 public class GuiDialogSignalMode extends GuiLayer {

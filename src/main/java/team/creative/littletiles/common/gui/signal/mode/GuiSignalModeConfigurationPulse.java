@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.signal.gui.mode;
+package team.creative.littletiles.common.gui.signal.mode;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -7,30 +7,30 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
-import team.creative.littletiles.common.structure.signal.output.mode.SignalOutputHandlerExtender;
+import team.creative.littletiles.common.structure.signal.output.mode.SignalOutputHandlerPulse;
 
-public class GuiSignalModeConfigurationExtender extends GuiSignalModeConfiguration {
+public class GuiSignalModeConfigurationPulse extends GuiSignalModeConfiguration {
     
     public int length;
     
-    public GuiSignalModeConfigurationExtender(int delay, int length) {
+    public GuiSignalModeConfigurationPulse(int delay, int length) {
         super(delay);
         this.length = length;
     }
     
-    public GuiSignalModeConfigurationExtender(SignalOutputHandler handler) {
+    public GuiSignalModeConfigurationPulse(SignalOutputHandler handler) {
         super(handler);
-        this.length = handler instanceof SignalOutputHandlerExtender extender ? extender.pulseLength : 10;
+        this.length = handler instanceof SignalOutputHandlerPulse pulse ? pulse.pulseLength : 10;
     }
     
     @Override
     public SignalMode getMode() {
-        return SignalMode.EXTENDER;
+        return SignalMode.PULSE;
     }
     
     @Override
     public GuiSignalModeConfiguration copy() {
-        return new GuiSignalModeConfigurationExtender(delay, length);
+        return new GuiSignalModeConfigurationPulse(delay, length);
     }
     
     @Override
@@ -45,5 +45,4 @@ public class GuiSignalModeConfigurationExtender extends GuiSignalModeConfigurati
     public MutableComponent description(int configuredDelay) {
         return super.description(configuredDelay).append(" ").append(Component.translatable("gui.signal.length").append(": " + length));
     }
-    
 }

@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.signal.gui.mode;
+package team.creative.littletiles.common.gui.signal.mode;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -6,24 +6,24 @@ import team.creative.littletiles.common.structure.signal.component.ISignalCompon
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
-public class GuiSignalModeConfigurationToggle extends GuiSignalModeConfiguration {
+public class GuiSignalModeConfigurationStabilizer extends GuiSignalModeConfiguration {
     
-    public GuiSignalModeConfigurationToggle(int delay) {
+    public GuiSignalModeConfigurationStabilizer(int delay) {
         super(delay);
     }
     
-    public GuiSignalModeConfigurationToggle(SignalOutputHandler handler) {
+    public GuiSignalModeConfigurationStabilizer(SignalOutputHandler handler) {
         super(handler);
     }
     
     @Override
     public SignalMode getMode() {
-        return SignalMode.TOGGLE;
+        return SignalMode.STABILIZER;
     }
     
     @Override
     public GuiSignalModeConfiguration copy() {
-        return new GuiSignalModeConfigurationToggle(delay);
+        return new GuiSignalModeConfigurationStabilizer(delay);
     }
     
     @Override

@@ -20,9 +20,9 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
+import team.creative.littletiles.common.gui.signal.mode.GuiSignalModeConfiguration;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeVirtualInput;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
-import team.creative.littletiles.common.structure.signal.gui.mode.GuiSignalModeConfiguration;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualNumber;
 

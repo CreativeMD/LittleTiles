@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.structure.signal.gui.mode;
+package team.creative.littletiles.common.gui.signal.mode;
 
 import net.minecraft.nbt.CompoundTag;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -6,24 +6,24 @@ import team.creative.littletiles.common.structure.signal.component.ISignalCompon
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.SignalOutputHandler;
 
-public class GuiSignalModeConfigurationThreshold extends GuiSignalModeConfiguration {
+public class GuiSignalModeConfigurationEqual extends GuiSignalModeConfiguration {
     
-    public GuiSignalModeConfigurationThreshold(int delay) {
+    public GuiSignalModeConfigurationEqual(int delay) {
         super(delay);
     }
     
-    public GuiSignalModeConfigurationThreshold(SignalOutputHandler handler) {
-        super(handler);
+    public GuiSignalModeConfigurationEqual(SignalOutputHandler handler) {
+        this(handler != null ? handler.delay : 1);
     }
     
     @Override
     public SignalMode getMode() {
-        return SignalMode.THRESHOLD;
+        return SignalMode.EQUAL;
     }
     
     @Override
     public GuiSignalModeConfiguration copy() {
-        return new GuiSignalModeConfigurationThreshold(delay);
+        return new GuiSignalModeConfigurationEqual(delay);
     }
     
     @Override
