@@ -76,6 +76,10 @@ public class PreviewRenderer implements LevelAwareHandler {
         NeoForge.EVENT_BUS.register(this);
     }
     
+    public Iterable<LittleTool> tools() {
+        return tools;
+    }
+    
     public void clearToolPreviews() {
         lastHeld = ItemStack.EMPTY;
         if (tools != null)

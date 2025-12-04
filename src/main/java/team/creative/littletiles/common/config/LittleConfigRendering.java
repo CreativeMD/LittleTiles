@@ -49,6 +49,12 @@ public class LittleConfigRendering implements ICreativeConfig {
     @CreativeConfig
     public int connectedShapeBlocksLimit = 128;
     
+    @CreativeConfig
+    public int wrenchInfoRange = 5;
+    
+    @CreativeConfig
+    public double wrenchInfoRefresh = 1;
+    
     @Override
     public void configured(Side side) {
         if (side.isClient())

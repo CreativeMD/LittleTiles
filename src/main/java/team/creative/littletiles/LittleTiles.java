@@ -54,10 +54,10 @@ import team.creative.littletiles.common.action.LittleActionColorBoxes.LittleActi
 import team.creative.littletiles.common.action.LittleActionDestroy;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes.LittleActionDestroyBoxesFiltered;
-import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionRegistry;
 import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlocks;
@@ -96,6 +96,8 @@ import team.creative.littletiles.common.packet.entity.level.LittleLevelInitPacke
 import team.creative.littletiles.common.packet.item.PlacerMatrixPacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.packet.item.ShapeConfigPacket;
+import team.creative.littletiles.common.packet.item.WrenchReceiveInfoPacket;
+import team.creative.littletiles.common.packet.item.WrenchRequestInfoPacket;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.packet.structure.StructureBlockToEntityPacket;
 import team.creative.littletiles.common.packet.structure.StructureEntityToBlockPacket;
@@ -166,6 +168,8 @@ public class LittleTiles {
         NETWORK.registerType(PlacerMatrixPacket.class, PlacerMatrixPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
         NETWORK.registerType(ShapeConfigPacket.class, ShapeConfigPacket::new);
+        NETWORK.registerType(WrenchReceiveInfoPacket.class, WrenchReceiveInfoPacket::new);
+        NETWORK.registerType(WrenchRequestInfoPacket.class, WrenchRequestInfoPacket::new);
         
         NETWORK.registerType(BedUpdate.class, BedUpdate::new);
         NETWORK.registerType(StructureBlockToEntityPacket.class, StructureBlockToEntityPacket::new);

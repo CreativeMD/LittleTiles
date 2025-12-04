@@ -1,11 +1,13 @@
 package team.creative.littletiles.common.structure.type.premade.signal;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.function.BiFunction;
 
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.neoforged.api.distmarker.Dist;
@@ -276,6 +278,16 @@ public class LittleSignalInput extends LittleSignalCableBase implements ISignalS
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
             throw new RuntimeException(e);
         }
+    }
+    
+    @Override
+    public boolean hasWrenchInfo() {
+        return true;
+    }
+    
+    @Override
+    public List<Component> wrenchInfo() {
+        return Arrays.asList(Component.literal(info()));
     }
     
     @Override

@@ -94,7 +94,6 @@ import team.creative.littletiles.common.block.little.tile.parent.ParentCollectio
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleSaw;
-import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.level.little.LittleLevel;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -467,7 +466,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     @OnlyIn(Dist.CLIENT)
     public InteractionResult useClient(BlockState state, Level level, BlockPos pos, Player player, BlockHitResult result) {
         LittleTileContext context = LittleTileContext.selectFocused(level, pos, player);
-        if (context.isComplete() && !(player.getMainHandItem().getItem() instanceof ItemLittleWrench) && LittleTilesClient.INTERACTION.can()) {
+        if (context.isComplete() && LittleTilesClient.INTERACTION.can()) {
             InteractionResult inter = LittleTilesClient.ACTION_HANDLER.execute(new LittleActionActivated(level, pos, player));
             if (inter != InteractionResult.PASS && LittleTilesClient.INTERACTION.start(true))
                 return inter;
@@ -614,7 +613,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
             
             if (heighestTile != null)
                 level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, heighestTile.getState()).setPos(pos), entity.getX(), entity.getY(), entity.getZ(),
-                    numberOfParticles, 0.0D, 0.0D, 0.0D, (double) 0.15F);
+                    numberOfParticles, 0.0D, 0.0D, 0.0D, 0.15F);
         }
         return true;
     }

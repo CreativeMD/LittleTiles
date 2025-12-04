@@ -1127,6 +1127,27 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             relative.set(this, relative.transform(relative.get(this), context, rotation.getMatrix(), context.rotationCenter));
     }
     
+    public boolean hasWrenchInfo() {
+        if (inputs != null && inputs.length > 0)
+            return true;
+        if (outputs != null && outputs.length > 0)
+            return true;
+        return false;
+    }
+    
+    public List<Component> wrenchInfo() {
+        List<Component> infos = new ArrayList<>();
+        if (name != null && !name.isBlank())
+            infos.add(Component.literal(name));
+        if (inputs != null)
+            for (int i = 0; i < inputs.length; i++)
+                infos.add(Component.literal("a" + i + ":" + inputs[i].getState().print(inputs[i].getBandwidth())));
+        if (outputs != null)
+            for (int i = 0; i < outputs.length; i++)
+                infos.add(Component.literal("b" + i + ":" + outputs[i].getState().print(outputs[i].getBandwidth())));
+        return infos;
+    }
+    
     public String info() {
         List<String> infos = new ArrayList<>();
         if (inputs != null)
