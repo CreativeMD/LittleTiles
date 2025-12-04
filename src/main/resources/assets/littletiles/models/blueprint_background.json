@@ -1,6 +1,7 @@
 {
     "parent": "item/handheld",
     "textures": {
-        "layer0": "littletiles:item/blueprint"
+        "layer0": "littletiles:item/blueprint",
+        "layer1": "littletiles:item/blueprint_border"
     }
 }

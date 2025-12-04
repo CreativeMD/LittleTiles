@@ -44,7 +44,7 @@ public class ItemLittleGlove extends Item implements ILittleTransformer, IItemTo
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view, boolean secondary) {
         return new GuiGlove(view);
     }
     

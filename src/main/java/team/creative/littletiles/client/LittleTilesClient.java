@@ -119,6 +119,7 @@ public class LittleTilesClient {
     public static KeyMapping KEY_MIRROR;
     public static KeyMapping KEY_MARK;
     public static KeyMapping KEY_CONFIGURE;
+    public static KeyMapping KEY_CONFIGURE_SECONDARY;
     public static KeyMapping KEY_UP;
     public static KeyMapping KEY_DOWN;
     public static KeyMapping KEY_RIGHT;
@@ -200,6 +201,7 @@ public class LittleTilesClient {
         KEY_MIRROR = new LittleKeyMapping("key.little.mirror", LITTLE_KEY_CONTEXT, InputConstants.KEY_G, "key.categories.littletiles");
         KEY_MARK = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles");
         KEY_CONFIGURE = new LittleKeyMapping("key.little.config.item", LITTLE_KEY_CONTEXT, InputConstants.KEY_C, "key.categories.littletiles");
+        KEY_CONFIGURE_SECONDARY = new LittleKeyMapping("key.little.config_secondary.item", LITTLE_KEY_CONTEXT, KeyModifier.SHIFT, InputConstants.KEY_C, "key.categories.littletiles");
         
         KEY_UNDO = new LittleKeyMapping("key.little.undo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Z, "key.categories.littletiles");
         KEY_REDO = new LittleKeyMapping("key.little.redo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Y, "key.categories.littletiles");
@@ -212,8 +214,9 @@ public class LittleTilesClient {
         event.register(KEY_MIRROR);
         event.register(KEY_MARK);
         event.register(KEY_CONFIGURE);
+        event.register(KEY_CONFIGURE_SECONDARY);
         
-        TOOL_KEYS = new KeyMapping[] { KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_MIRROR, KEY_MARK, KEY_CONFIGURE };
+        TOOL_KEYS = new KeyMapping[] { KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_MIRROR, KEY_MARK, KEY_CONFIGURE, KEY_CONFIGURE_SECONDARY };
         
         event.register(KEY_UNDO);
         event.register(KEY_REDO);
@@ -225,6 +228,12 @@ public class LittleTilesClient {
                 return ColorUtils.WHITE;
             return stack.getOrDefault(LittleTilesRegistry.COLOR, ColorUtils.WHITE);
         }, LittleTilesRegistry.PAINT_BRUSH.value());
+        
+        MC.getItemColors().register((stack, layer) -> {
+            if (layer == 0)
+                return stack.getOrDefault(LittleTilesRegistry.COLOR, ItemLittleBlueprint.DEFAULT_COLOR);
+            return stack.getOrDefault(LittleTilesRegistry.COLOR_SECONDARY, ItemLittleBlueprint.DEFAULT_COLOR_SECONDARY);
+        }, LittleTilesRegistry.BLUEPRINT.value());
         
         // overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
         NeoForge.EVENT_BUS.register(new LittleClientEventHandler());

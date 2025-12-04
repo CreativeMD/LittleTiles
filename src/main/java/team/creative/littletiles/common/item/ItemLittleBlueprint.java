@@ -17,6 +17,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.api.common.tool.ILittleTool;
@@ -28,6 +29,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
 import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprint;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintSecondary;
 import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintSelection;
 import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -38,6 +40,8 @@ import team.creative.littletiles.common.packet.item.SelectionModePacket;
 public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemTooltip {
     
     public static final String CONTENT_KEY = "c";
+    public static final int DEFAULT_COLOR = ColorUtils.rgb(242, 231, 198);
+    public static final int DEFAULT_COLOR_SECONDARY = ColorUtils.rgb(185, 169, 123);
     
     public static CompoundTag getContent(ItemStack stack) {
         var nbt = ILittleTool.getData(stack);
@@ -80,10 +84,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view, boolean secondary) {
+        if (secondary)
+            return new GuiBlueprintSecondary(view);
         if (!((ItemLittleBlueprint) view.get().getItem()).hasTiles(view.get()))
-            return new GuiRecipeSelection(view);
-        return new GuiRecipe(view);
+            return new GuiBlueprintSelection(view);
+        return new GuiBlueprint(view);
     }
     
     @Override
@@ -119,15 +125,15 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     @Override
     public String tooltipTranslateKey(ItemStack stack, String defaultKey) {
         if (hasTiles(stack))
-            return "littletiles.tiles.tooltip";
+            return "littletiles.blueprint.placement.tooltip";
         return "littletiles.blueprint.selection.tooltip";
     }
     
     @Override
     public Object[] tooltipData(ItemStack stack) {
         if (hasTiles(stack))
-            return new Object[] { LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.KEY_MIRROR
-                    .getTranslatedKeyMessage() };
+            return new Object[] { LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.KEY_CONFIGURE_SECONDARY.getTranslatedKeyMessage(), LittleTilesClient
+                    .arrowKeysTooltip(), LittleTilesClient.KEY_MIRROR.getTranslatedKeyMessage() };
         return new Object[] { Minecraft.getInstance().options.keyAttack.getTranslatedKeyMessage(), Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(), Minecraft
                 .getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage() };
     }

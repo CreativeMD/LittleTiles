@@ -141,7 +141,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleShaper, IItemTo
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view, boolean secondary) {
         return new GuiPaintBrush(view);
     }
     

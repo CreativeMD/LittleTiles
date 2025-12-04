@@ -40,7 +40,7 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     }
     
     @Override
-    public GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+    public GuiConfigure getConfigure(Player player, ContainerSlotView view, boolean secondary) {
         return new GuiScrewdriver(view);
     }
     

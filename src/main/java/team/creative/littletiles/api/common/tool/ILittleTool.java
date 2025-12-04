@@ -46,7 +46,7 @@ public interface ILittleTool {
         return PlacementPlayerSetting.grid(player);
     }
     
-    public default GuiConfigure getConfigure(Player player, ContainerSlotView view) {
+    public default GuiConfigure getConfigure(Player player, ContainerSlotView view, boolean secondary) {
         return null;
     }
     

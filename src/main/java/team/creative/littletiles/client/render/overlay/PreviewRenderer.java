@@ -8,6 +8,7 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
@@ -158,9 +159,19 @@ public class PreviewRenderer implements LevelAwareHandler {
         
         while (LittleTilesClient.KEY_CONFIGURE.consumeClick())
             if (stack.getItem() instanceof ILittleTool t) {
-                GuiConfigure gui = t.getConfigure(mc.player, ContainerSlotView.mainHand(mc.player));
+                GuiConfigure gui = t.getConfigure(mc.player, ContainerSlotView.mainHand(mc.player), false);
                 if (gui != null)
                     LittleTilesGuiRegistry.OPEN_CONFIG.open(mc.player);
+            }
+        
+        while (LittleTilesClient.KEY_CONFIGURE_SECONDARY.consumeClick())
+            if (stack.getItem() instanceof ILittleTool t) {
+                GuiConfigure gui = t.getConfigure(mc.player, ContainerSlotView.mainHand(mc.player), true);
+                if (gui != null) {
+                    CompoundTag nbt = new CompoundTag();
+                    nbt.putBoolean("second", true);
+                    LittleTilesGuiRegistry.OPEN_CONFIG.open(nbt, mc.player);
+                }
             }
         
         for (KeyMapping key : LittleTilesClient.TOOL_KEYS)

@@ -115,6 +115,8 @@ public class LittleTilesRegistry {
             .<Integer>builder().persistent(ExtraCodecs.NON_NEGATIVE_INT).networkSynchronized(ByteBufCodecs.INT).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COLOR = DATA_COMPONENTS.register("color", x -> DataComponentType.<Integer>builder()
             .persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<Integer>> COLOR_SECONDARY = DATA_COMPONENTS.register("color_secondary", x -> DataComponentType
+            .<Integer>builder().persistent(Codec.INT).networkSynchronized(ByteBufCodecs.INT).build());
     
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockIngredientEntry>> BLOCK_INGREDIENT_ENTRY = DATA_COMPONENTS.register("block_ingredient",
         x -> DataComponentType.<BlockIngredientEntry>builder().persistent(BlockIngredientEntry.CODEC).networkSynchronized(BlockIngredientEntry.STREAM_CODEC).build());
