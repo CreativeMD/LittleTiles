@@ -15,7 +15,7 @@ import team.creative.creativecore.common.gui.control.simple.GuiTextfield;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.type.LittleStructureMessage;
 

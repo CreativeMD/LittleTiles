@@ -10,7 +10,7 @@ import team.creative.creativecore.common.gui.control.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.control.timeline.GuiTimelineChannel;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRules;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintAnimationHandler;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline.AnimationEventEntry;
 import team.creative.littletiles.common.structure.animation.event.AnimationEvent;
@@ -45,9 +45,9 @@ public class GuiTimelinePanel extends GuiParent {
     }
     
     public final GuiTimeline time;
-    public final GuiRecipeAnimationHandler handler;
+    public final GuiBlueprintAnimationHandler handler;
     
-    public GuiTimelinePanel(GuiRecipeAnimationHandler handler, int duration) {
+    public GuiTimelinePanel(GuiBlueprintAnimationHandler handler, int duration) {
         setDim(200, -1);
         flow = GuiFlow.STACK_Y;
         this.handler = handler;

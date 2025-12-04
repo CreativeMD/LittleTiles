@@ -8,16 +8,16 @@ import team.creative.creativecore.common.gui.control.tree.GuiTree;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.util.text.TextBuilder;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintAnimationHandler;
 
 public class GuiAnimationPanel extends GuiParent {
     
     public final GuiTree tree;
     public final GuiAnimationViewerStorage storage;
     public final boolean options;
-    public final GuiRecipeAnimationHandler animation;
+    public final GuiBlueprintAnimationHandler animation;
     
-    public GuiAnimationPanel(GuiTree tree, GuiAnimationViewerStorage storage, boolean options, GuiRecipeAnimationHandler animation) {
+    public GuiAnimationPanel(GuiTree tree, GuiAnimationViewerStorage storage, boolean options, GuiBlueprintAnimationHandler animation) {
         super("animation", GuiFlow.STACK_Y);
         setExpandable();
         
@@ -32,24 +32,26 @@ public class GuiAnimationPanel extends GuiParent {
         GuiParent animationButtons = new GuiParent(GuiFlow.STACK_X).setAlign(Align.CENTER);
         add(animationButtons.setExpandableX());
         
-        animationButtons.add(new GuiButtonIcon("perspective", Icon.CAMERA, x -> viewer.nextProjection()).setTooltip(new TextBuilder().translate("gui.recipe.perspective").build()));
-        animationButtons.add(new GuiButtonIcon("home", Icon.HOUSE, x -> viewer.resetView()).setTooltip(new TextBuilder().translate("gui.recipe.home").build()));
+        animationButtons.add(new GuiButtonIcon("perspective", Icon.CAMERA, x -> viewer.nextProjection()).setTooltip(new TextBuilder().translate("gui.blueprint.perspective")
+                .build()));
+        animationButtons.add(new GuiButtonIcon("home", Icon.HOUSE, x -> viewer.resetView()).setTooltip(new TextBuilder().translate("gui.blueprint.home").build()));
         if (animation != null) {
-            animationButtons.add(new GuiButtonIcon("play", Icon.PLAY, x -> animation.play()).setTooltip(new TextBuilder().translate("gui.recipe.play").build()));
-            animationButtons.add(new GuiButtonIcon("pause", Icon.PAUSE, x -> animation.pause()).setTooltip(new TextBuilder().translate("gui.recipe.pause").build()));
-            animationButtons.add(new GuiButtonIcon("stop", Icon.STOP, x -> animation.stop()).setTooltip(new TextBuilder().translate("gui.recipe.stop").build()));
+            animationButtons.add(new GuiButtonIcon("play", Icon.PLAY, x -> animation.play()).setTooltip(new TextBuilder().translate("gui.blueprint.play").build()));
+            animationButtons.add(new GuiButtonIcon("pause", Icon.PAUSE, x -> animation.pause()).setTooltip(new TextBuilder().translate("gui.blueprint.pause").build()));
+            animationButtons.add(new GuiButtonIcon("stop", Icon.STOP, x -> animation.stop()).setTooltip(new TextBuilder().translate("gui.blueprint.stop").build()));
         }
         
         GuiParent checkboxes = new GuiParent(GuiFlow.FIT_X).setAlign(Align.CENTER);
         add(checkboxes.setExpandableX());
         
         if (options) {
-            checkboxes.add(new GuiCheckBox("filter", tree.hasCheckboxes()).setTranslate("gui.recipe.view.filter").consumeChanged(x -> {
+            checkboxes.add(new GuiCheckBox("filter", tree.hasCheckboxes()).setTranslate("gui.blueprint.view.filter").consumeChanged(x -> {
                 tree.setCheckboxes(x, false);
                 tree.updateTree();
             }));
             
-            checkboxes.add(new GuiCheckBox("highlight", storage.highlightSelected()).setTranslate("gui.recipe.view.highlight").consumeChanged(x -> storage.highlightSelected(x)));
+            checkboxes.add(new GuiCheckBox("highlight", storage.highlightSelected()).setTranslate("gui.blueprint.view.highlight").consumeChanged(x -> storage.highlightSelected(
+                x)));
         }
     }
     

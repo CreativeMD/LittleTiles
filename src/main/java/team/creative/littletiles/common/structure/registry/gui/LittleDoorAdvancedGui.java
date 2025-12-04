@@ -34,8 +34,8 @@ import team.creative.littletiles.common.gui.control.animation.GuiAnimationTimeli
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationPanel;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintAnimationHandler;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationState;
@@ -170,10 +170,10 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         add(tabs.setExpandableX());
         
         tabs.createTab(Component.translatable("gui.door.same_transition")).add(
-            (GuiControl) (same = new GuiTimelineConfigSame(item, item.recipe.animation, closed, opened, duration, opening)));
+            (GuiControl) (same = new GuiTimelineConfigSame(item, item.blueprint.animation, closed, opened, duration, opening)));
         
         tabs.createTab(Component.translatable("gui.door.different_transition")).add(
-            (GuiControl) (this.different = new GuiTimelineConfigDifferent(item, item.recipe.animation, closed, opened, duration, opening, closing)));
+            (GuiControl) (this.different = new GuiTimelineConfigDifferent(item, item.blueprint.animation, closed, opened, duration, opening, closing)));
         
         tabs.select(sameTransition ? 0 : 1);
         
@@ -209,7 +209,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
             timeline.start(closed, opened, inter.selected()::create1d);
         else
             timeline.start(opened, closed, inter.selected()::create1d);
-        item.recipe.animation.setTimeline(item, timeline);
+        item.blueprint.animation.setTimeline(item, timeline);
     }
     
     @Override
@@ -272,7 +272,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
             return timeline;
         }
         
-        public GuiTimelineConfigSame(GuiTreeItemStructure item, GuiRecipeAnimationHandler handler, PhysicalState closed, PhysicalState opened, int duration, AnimationTimeline timeline) {
+        public GuiTimelineConfigSame(GuiTreeItemStructure item, GuiBlueprintAnimationHandler handler, PhysicalState closed, PhysicalState opened, int duration, AnimationTimeline timeline) {
             super(item, handler, duration, setup(closed, opened, duration, timeline), false);
         }
         
@@ -320,7 +320,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         public GuiAnimationTimelinePanel opening;
         public GuiAnimationTimelinePanel closing;
         
-        public GuiTimelineConfigDifferent(GuiTreeItemStructure item, GuiRecipeAnimationHandler handler, PhysicalState closedState, PhysicalState openedState, int duration, AnimationTimeline opening, AnimationTimeline closing) {
+        public GuiTimelineConfigDifferent(GuiTreeItemStructure item, GuiBlueprintAnimationHandler handler, PhysicalState closedState, PhysicalState openedState, int duration, AnimationTimeline opening, AnimationTimeline closing) {
             flow = GuiFlow.STACK_Y;
             
             GuiParent stateConfig = new GuiParent();

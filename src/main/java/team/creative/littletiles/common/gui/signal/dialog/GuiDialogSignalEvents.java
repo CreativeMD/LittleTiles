@@ -17,7 +17,7 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiFixedDimension;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.gui.mode.GuiSignalModeConfiguration;

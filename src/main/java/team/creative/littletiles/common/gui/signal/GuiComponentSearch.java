@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import team.creative.creativecore.common.gui.control.tree.GuiTreeItem;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;

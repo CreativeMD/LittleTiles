@@ -6,7 +6,7 @@ import team.creative.creativecore.common.gui.control.simple.GuiButtonIcon;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 
 public class GuiIsoAnimationPanel extends GuiParent {

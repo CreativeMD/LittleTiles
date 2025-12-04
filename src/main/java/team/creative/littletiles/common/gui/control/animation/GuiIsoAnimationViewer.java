@@ -36,8 +36,8 @@ import team.creative.creativecore.common.util.math.vec.SmoothValue;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationStorage;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintAnimationStorage;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 
 public class GuiIsoAnimationViewer extends GuiControl {
@@ -163,7 +163,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
     }
     
     public void clickToSetAxis(double x, double y) {
-        GuiRecipeAnimationStorage storage = item.recipe.storage;
+        GuiBlueprintAnimationStorage storage = item.blueprint.storage;
         if (!storage.isReady() || !storage.isReady(item))
             return;
         
@@ -196,7 +196,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
         offX.set(0);
         offY.set(0);
         
-        scale.set(Math.sqrt(0.9 / item.recipe.storage.longestSide()));
+        scale.set(Math.sqrt(0.9 / item.blueprint.storage.longestSide()));
     }
     
     public void nextAxis() {
@@ -227,7 +227,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
     @Override
     @OnlyIn(Dist.CLIENT)
     protected void renderContent(GuiGraphics graphics, Rect controlRect, Rect realRect, double controlScale, int mouseX, int mouseY) {
-        GuiRecipeAnimationStorage storage = item.recipe.storage;
+        GuiBlueprintAnimationStorage storage = item.blueprint.storage;
         
         if (!storage.isReady() || !storage.isReady(item))
             return;

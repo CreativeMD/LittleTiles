@@ -11,7 +11,7 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.type.LittleStorage;
 
@@ -28,7 +28,7 @@ public class LittleStorageGui extends LittleStructureGuiControl {
         boolean invisible = false;
         if (structure instanceof LittleStorage)
             invisible = ((LittleStorage) structure).invisibleStorageTiles;
-        add(new GuiCheckBox("invisible", invisible).setTranslate("gui.recipe.storage.invisible"));
+        add(new GuiCheckBox("invisible", invisible).setTranslate("gui.blueprint.storage.invisible"));
     }
     
     @Override

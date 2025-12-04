@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool.recipe;
+package team.creative.littletiles.common.gui.tool.blueprint;
 
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiLayer;
@@ -14,20 +14,20 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiFixedDimension;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
 
-public class GuiRecipeMerge extends GuiLayer {
+public class GuiBlueprintMerge extends GuiLayer {
     
-    public GuiRecipe recipe;
+    public GuiBlueprint blueprint;
     public GuiTreeItemStructure structure;
     
-    public GuiRecipeMerge() {
-        super("gui.recipe.merge");
+    public GuiBlueprintMerge() {
+        super("gui.blueprint.merge");
         setDim(new GuiFixedDimension(150));
         flow = GuiFlow.STACK_Y;
     }
     
-    public void init(GuiRecipe recipe) {
-        this.recipe = recipe;
-        this.structure = (GuiTreeItemStructure) recipe.tree.selected();
+    public void init(GuiBlueprint blueprint) {
+        this.blueprint = blueprint;
+        this.structure = (GuiTreeItemStructure) blueprint.tree.selected();
         clear();
         init();
     }
@@ -47,10 +47,10 @@ public class GuiRecipeMerge extends GuiLayer {
         if (structure == null)
             return;
         
-        add(new GuiLabel("title").setTranslate("gui.recipe.merge.title", structure.getTitle()));
+        add(new GuiLabel("title").setTranslate("gui.blueprint.merge.title", structure.getTitle()));
         
         TextMapBuilder<GuiTreeItemStructure> map = new TextMapBuilder<GuiTreeItemStructure>();
-        recipe.actionOnAllItems(x -> {
+        blueprint.actionOnAllItems(x -> {
             if (structure == x || isParent(structure, x))
                 return;
             String prefix = "";
@@ -60,7 +60,7 @@ public class GuiRecipeMerge extends GuiLayer {
         });
         boolean isEmpty = map.size() == 0;
         if (isEmpty)
-            map.addComponent(null, Component.translatable("gui.recipe.merge.not_found"));
+            map.addComponent(null, Component.translatable("gui.blueprint.merge.not_found"));
         GuiComboBox<GuiTreeItemStructure> box = new GuiComboBox<>("box", map);
         add(box.setExpandableX().setEnabled(!isEmpty));
         
@@ -73,10 +73,10 @@ public class GuiRecipeMerge extends GuiLayer {
             if (selected == null)
                 return;
             if (isParent(structure, selected))
-                GuiDialogHandler.openDialog(getIntegratedParent(), "merge_failed", Component.translatable("gui.recipe.dialog.merge.failed", selected.getTitle(), structure
+                GuiDialogHandler.openDialog(getIntegratedParent(), "merge_failed", Component.translatable("gui.blueprint.dialog.merge.failed", selected.getTitle(), structure
                         .getTitle()), (g, b) -> {}, DialogButton.OK);
             
-            recipe.removeItem(selected);
+            blueprint.removeItem(selected);
             structure.group.add(selected.group);
             int size = structure.externalOutputCount();
             for (GuiSignalEvent event : selected.externalOutputs())
@@ -84,7 +84,7 @@ public class GuiRecipeMerge extends GuiLayer {
             for (GuiTreeItem child : selected.items())
                 structure.addItem(child);
             structure.refreshAnimation();
-            recipe.tree.updateTree();
+            blueprint.tree.updateTree();
             closeThisLayer();
         }).setTranslate("gui.save").setEnabled(!isEmpty));
     }

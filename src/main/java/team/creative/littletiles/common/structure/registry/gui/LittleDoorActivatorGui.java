@@ -16,7 +16,7 @@ import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.littletiles.common.gui.control.animation.GuiChildEventPanel;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationState;
@@ -65,7 +65,7 @@ public class LittleDoorActivatorGui extends LittleStructureGuiControl {
     
     public void updateTimeline() {
         AnimationTimeline timeline = generateTimeline(generateActivated());
-        item.recipe.animation.setTimeline(item, timeline);
+        item.blueprint.animation.setTimeline(item, timeline);
     }
     
     public int[] generateActivated() {

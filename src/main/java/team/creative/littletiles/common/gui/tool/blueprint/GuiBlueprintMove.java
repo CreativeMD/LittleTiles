@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool.recipe;
+package team.creative.littletiles.common.gui.tool.blueprint;
 
 import java.util.Collections;
 
@@ -20,26 +20,26 @@ import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.control.GuiDistanceControl;
 import team.creative.littletiles.common.gui.control.animation.GuiAnimationPanel;
-import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTest;
+import team.creative.littletiles.common.gui.tool.blueprint.test.BlueprintTest;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 
-public class GuiRecipeMove extends GuiLayer {
+public class GuiBlueprintMove extends GuiLayer {
     
-    public GuiRecipe recipe;
+    public GuiBlueprint blueprint;
     public GuiTree tree;
     
-    public GuiRecipeMove() {
-        super("gui.recipe.move", 400, 200);
+    public GuiBlueprintMove() {
+        super("gui.blueprint.move", 400, 200);
         flow = GuiFlow.STACK_Y;
         registerEventChanged(x -> {
             if (x.control.is("modes"))
-                ((GuiStateButton<GuiRecipeMoveMode>) x.control).selected().select(tree);
+                ((GuiStateButton<GuiBlueprintMoveMode>) x.control).selected().select(tree);
         });
     }
     
-    public void init(GuiRecipe recipe) {
-        this.recipe = recipe;
+    public void init(GuiBlueprint blueprint) {
+        this.blueprint = blueprint;
         clear();
         init();
     }
@@ -49,13 +49,13 @@ public class GuiRecipeMove extends GuiLayer {
         if (tree == null)
             return;
         for (GuiTreeItem item : tree.allItems())
-            if (item instanceof GuiRecipeMoveItem move)
+            if (item instanceof GuiBlueprintMoveItem move)
                 move.structure.resetOffset();
     }
     
     @Override
     public void create() {
-        if (recipe == null)
+        if (blueprint == null)
             return;
         
         GuiParent upper = new GuiParent(GuiFlow.STACK_X);
@@ -67,13 +67,14 @@ public class GuiRecipeMove extends GuiLayer {
         tree = new GuiTree("tree").setRootVisibility(false);
         sidebar.add(tree.setExpandable());
         
-        for (GuiTreeItem item : recipe.tree.root().items()) {
-            GuiRecipeMoveItem child = new GuiRecipeMoveItem(tree, (GuiTreeItemStructure) item);
+        for (GuiTreeItem item : blueprint.tree.root().items()) {
+            GuiBlueprintMoveItem child = new GuiBlueprintMoveItem(tree, (GuiTreeItemStructure) item);
             tree.root().addItem(child);
             child.addChildren();
         }
         
-        GuiStateButton<GuiRecipeMoveMode> modes = new GuiStateButton<>("modes", new TextMapBuilder<GuiRecipeMoveMode>().addComponent(GuiRecipeMoveMode.values(), x -> x.title()));
+        GuiStateButton<GuiBlueprintMoveMode> modes = new GuiStateButton<>("modes", new TextMapBuilder<GuiBlueprintMoveMode>().addComponent(GuiBlueprintMoveMode.values(), x -> x
+                .title()));
         sidebar.add(modes.setExpandableX());
         
         GuiParent config = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.CENTER);
@@ -83,28 +84,28 @@ public class GuiRecipeMove extends GuiLayer {
         
         GuiParent row1 = new GuiParent();
         config.add(row1);
-        row1.add(new GuiRecipeMoveButton(Facing.EAST));
-        row1.add(new GuiRecipeMoveButton(Facing.UP));
-        row1.add(new GuiRecipeMoveButton(Facing.SOUTH));
+        row1.add(new GuiBlueprintMoveButton(Facing.EAST));
+        row1.add(new GuiBlueprintMoveButton(Facing.UP));
+        row1.add(new GuiBlueprintMoveButton(Facing.SOUTH));
         
         GuiParent row2 = new GuiParent();
         config.add(row2);
-        row2.add(new GuiRecipeMoveButton(Facing.WEST));
-        row2.add(new GuiRecipeMoveButton(Facing.DOWN));
-        row2.add(new GuiRecipeMoveButton(Facing.NORTH));
+        row2.add(new GuiBlueprintMoveButton(Facing.WEST));
+        row2.add(new GuiBlueprintMoveButton(Facing.DOWN));
+        row2.add(new GuiBlueprintMoveButton(Facing.NORTH));
         
-        upper.add(new GuiAnimationPanel(recipe.tree, recipe.storage, true, null));
+        upper.add(new GuiAnimationPanel(blueprint.tree, blueprint.storage, true, null));
         
         GuiLeftRightBox bottom = new GuiLeftRightBox();
         add(bottom);
         bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
         bottom.addRight(new GuiButton("test", x -> {
-            recipe.storage.resetOverlap();
-            RecipeTest.testModule(recipe, RecipeTest.OVERLAP_TEST);
-        }).setTranslate("gui.recipe.test.overlap"));
+            blueprint.storage.resetOverlap();
+            BlueprintTest.testModule(blueprint, BlueprintTest.OVERLAP_TEST);
+        }).setTranslate("gui.blueprint.test.overlap"));
         bottom.addRight(new GuiButton("save", x -> {
             for (GuiTreeItem item : tree.allItems())
-                if (item instanceof GuiRecipeMoveItem move)
+                if (item instanceof GuiBlueprintMoveItem move)
                     move.structure.applyOffset();
             closeThisLayer();
         }).setTranslate("gui.save"));
@@ -114,49 +115,49 @@ public class GuiRecipeMove extends GuiLayer {
     
     public void move(Facing facing) {
         GuiDistanceControl distance = get("distance");
-        GuiStateButton<GuiRecipeMoveMode> modes = get("modes");
+        GuiStateButton<GuiBlueprintMoveMode> modes = get("modes");
         LittleVec direction = new LittleVec(facing);
         direction.scale(distance.getDistance());
         LittleVecGrid vec = new LittleVecGrid(direction, distance.getDistanceGrid());
-        for (GuiRecipeMoveItem item : modes.selected().iterator(tree))
+        for (GuiBlueprintMoveItem item : modes.selected().iterator(tree))
             item.addOffset(vec);
     }
     
-    public class GuiRecipeMoveButton extends GuiButton {
+    public class GuiBlueprintMoveButton extends GuiButton {
         
-        public GuiRecipeMoveButton(Facing facing) {
+        public GuiBlueprintMoveButton(Facing facing) {
             super(facing.name, x -> move(facing));
             setTitle(facing.translate());
         }
         
     }
     
-    public enum GuiRecipeMoveMode {
+    public enum GuiBlueprintMoveMode {
         
         DEFAULT(false) {
             
             @Override
-            public Iterable<GuiRecipeMoveItem> iterator(GuiTree tree) {
+            public Iterable<GuiBlueprintMoveItem> iterator(GuiTree tree) {
                 if (tree.selected() == null)
                     return Collections.EMPTY_LIST;
-                return new SingleIterator<>((GuiRecipeMoveItem) tree.selected());
+                return new SingleIterator<>((GuiBlueprintMoveItem) tree.selected());
             }
         },
         CHECKBOX(true) {
             @Override
-            public Iterable<GuiRecipeMoveItem> iterator(GuiTree tree) {
-                return new FunctionIterator<>(tree.itemsChecked(), x -> (GuiRecipeMoveItem) x);
+            public Iterable<GuiBlueprintMoveItem> iterator(GuiTree tree) {
+                return new FunctionIterator<>(tree.itemsChecked(), x -> (GuiBlueprintMoveItem) x);
             }
         };
         
         public final boolean checkboxes;
         
-        private GuiRecipeMoveMode(boolean checkboxes) {
+        private GuiBlueprintMoveMode(boolean checkboxes) {
             this.checkboxes = checkboxes;
         }
         
         public Component title() {
-            return Component.translatable("gui.recipe.move.mode." + name().toLowerCase());
+            return Component.translatable("gui.blueprint.move.mode." + name().toLowerCase());
         }
         
         public void select(GuiTree tree) {
@@ -164,14 +165,14 @@ public class GuiRecipeMove extends GuiLayer {
             tree.updateTree();
         }
         
-        public abstract Iterable<GuiRecipeMoveItem> iterator(GuiTree tree);
+        public abstract Iterable<GuiBlueprintMoveItem> iterator(GuiTree tree);
     }
     
-    public class GuiRecipeMoveItem extends GuiTreeItem {
+    public class GuiBlueprintMoveItem extends GuiTreeItem {
         
         public final GuiTreeItemStructure structure;
         
-        public GuiRecipeMoveItem(GuiTree tree, GuiTreeItemStructure structure) {
+        public GuiBlueprintMoveItem(GuiTree tree, GuiTreeItemStructure structure) {
             super("item", tree);
             this.structure = structure;
             setTitle(Component.literal(structure.getTitle()));
@@ -187,7 +188,7 @@ public class GuiRecipeMove extends GuiLayer {
         
         public void addChildren() {
             for (GuiTreeItem item : structure.items()) {
-                GuiRecipeMoveItem child = new GuiRecipeMoveItem(tree, (GuiTreeItemStructure) item);
+                GuiBlueprintMoveItem child = new GuiBlueprintMoveItem(tree, (GuiTreeItemStructure) item);
                 addItem(child);
                 child.addChildren();
             }

@@ -11,7 +11,7 @@ import team.creative.littletiles.common.gui.control.GuiDirectionIndicator;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationPanel;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.structure.LittleStructure;

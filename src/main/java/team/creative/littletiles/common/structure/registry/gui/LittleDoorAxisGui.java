@@ -18,7 +18,7 @@ import team.creative.littletiles.common.gui.control.GuiGridConfig;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationAxisChangedEvent;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.PhysicalState;

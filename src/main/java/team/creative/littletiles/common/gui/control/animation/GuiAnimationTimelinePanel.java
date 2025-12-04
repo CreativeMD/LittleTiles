@@ -28,8 +28,8 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.control.GuiDistanceControl;
 import team.creative.littletiles.common.gui.control.animation.GuiChildEventPanel.GuiChildTimelineChannel;
 import team.creative.littletiles.common.gui.control.animation.GuiSoundEventPanel.GuiSoundTimelineChannel;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintAnimationHandler;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline.AnimationEventEntry;
 import team.creative.littletiles.common.structure.animation.PhysicalPart;
@@ -56,7 +56,7 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
     public final GuiTreeItemStructure item;
     public GuiTimelineKey edited;
     
-    public GuiAnimationTimelinePanel(GuiTreeItemStructure item, GuiRecipeAnimationHandler handler, int duration, AnimationTimeline timeline, boolean limited) {
+    public GuiAnimationTimelinePanel(GuiTreeItemStructure item, GuiBlueprintAnimationHandler handler, int duration, AnimationTimeline timeline, boolean limited) {
         super(handler, duration);
         this.item = item;
         

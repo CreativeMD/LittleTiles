@@ -23,7 +23,7 @@ import team.creative.littletiles.common.gui.control.animation.GuiChildEventPanel
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationPanel;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.control.animation.GuiSoundEventPanel;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.AnimationState;
@@ -108,10 +108,10 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         add(extraSettings);
         extraSettings.spacing = 4;
         
-        soundPanel = new GuiSoundEventPanel(item.recipe.animation, opening, closing, duration);
+        soundPanel = new GuiSoundEventPanel(item.blueprint.animation, opening, closing, duration);
         extraSettings.add(soundPanel);
         
-        childPanel = new GuiChildEventPanel(item, item.recipe.animation, opening, duration);
+        childPanel = new GuiChildEventPanel(item, item.blueprint.animation, opening, duration);
         extraSettings.add(childPanel);
         created = true;
         
@@ -189,7 +189,7 @@ public abstract class LittleDoorBaseGui extends LittleStructureGuiControl {
         PhysicalState end = new PhysicalState();
         save(end);
         timeline.start(new PhysicalState(), end, inter.selected()::create1d);
-        item.recipe.animation.setTimeline(item, timeline);
+        item.blueprint.animation.setTimeline(item, timeline);
     }
     
 }

@@ -17,7 +17,7 @@ import team.creative.littletiles.common.gui.control.GuiDirectionIndicator;
 import team.creative.littletiles.common.gui.control.GuiDistanceControl;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer;
 import team.creative.littletiles.common.gui.control.animation.GuiIsoAnimationViewer.GuiAnimationViewChangedEvent;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
 import team.creative.littletiles.common.structure.type.animation.LittleDoor;

@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool.recipe;
+package team.creative.littletiles.common.gui.tool.blueprint;
 
 import org.apache.commons.lang3.ArrayUtils;
 
@@ -33,7 +33,7 @@ import team.creative.littletiles.common.placement.selection.SelectionMode;
 import team.creative.littletiles.common.placement.selection.SelectionParameters;
 import team.creative.littletiles.common.placement.selection.SelectionResult;
 
-public class GuiRecipeSelection extends GuiConfigure {
+public class GuiBlueprintSelection extends GuiConfigure {
     
     public SelectionResult result;
     
@@ -75,8 +75,8 @@ public class GuiRecipeSelection extends GuiConfigure {
         LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
     });
     
-    public GuiRecipeSelection(ContainerSlotView view) {
-        super("recipe_selection", 200, 200, view);
+    public GuiBlueprintSelection(ContainerSlotView view) {
+        super("blueprint_selection", 200, 200, view);
         flow = GuiFlow.STACK_Y;
         
         registerEventChanged(x -> {

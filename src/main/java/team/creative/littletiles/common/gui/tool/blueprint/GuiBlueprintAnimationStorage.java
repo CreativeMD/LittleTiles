@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool.recipe;
+package team.creative.littletiles.common.gui.tool.blueprint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -40,7 +40,7 @@ import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesNoOverlap;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 
-public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStructure, AnimationPreview>>, GuiAnimationViewerStorage {
+public class GuiBlueprintAnimationStorage implements Iterable<Entry<GuiTreeItemStructure, AnimationPreview>>, GuiAnimationViewerStorage {
     
     private boolean highlightSelected = false;
     
@@ -56,7 +56,7 @@ public class GuiRecipeAnimationStorage implements Iterable<Entry<GuiTreeItemStru
     
     private boolean unloaded = false;
     
-    public GuiRecipeAnimationStorage(GuiTree tree) {
+    public GuiBlueprintAnimationStorage(GuiTree tree) {
         this.tree = tree;
     }
     

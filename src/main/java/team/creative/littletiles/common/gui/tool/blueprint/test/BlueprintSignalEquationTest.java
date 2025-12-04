@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool.recipe.test;
+package team.creative.littletiles.common.gui.tool.blueprint.test;
 
 import java.util.HashSet;
 import java.util.Iterator;
@@ -14,8 +14,8 @@ import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipe;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprint;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -24,13 +24,13 @@ import team.creative.littletiles.common.structure.signal.logic.SignalTarget.Sign
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetNested;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget.SignalTargetParent;
 
-public class RecipeSignalEquationTest extends RecipeTestModule {
+public class BlueprintSignalEquationTest extends BlueprintTestModule {
     
     @Override
-    public void startTest(GuiRecipe recipe, RecipeTestResults results) {}
+    public void startTest(GuiBlueprint blueprint, BlueprintTestResults results) {}
     
     @Override
-    public void test(GuiTreeItemStructure item, RecipeTestResults results) {
+    public void test(GuiTreeItemStructure item, BlueprintTestResults results) {
         if (item.structure == null)
             return;
         
@@ -51,7 +51,8 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         }
     }
     
-    private SignalTargetNotFound checkCondition(GuiTreeItemStructure item, boolean external, int index, SignalInputCondition condition, SignalTargetNotFound error, GuiSignalEvent event) {
+    private SignalTargetNotFound checkCondition(GuiTreeItemStructure item, boolean external, int index, SignalInputCondition condition, SignalTargetNotFound error,
+            GuiSignalEvent event) {
         if (condition == null)
             return error;
         
@@ -95,9 +96,9 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
     }
     
     @Override
-    public void endTest(GuiRecipe recipe, RecipeTestResults results) {}
+    public void endTest(GuiBlueprint blueprint, BlueprintTestResults results) {}
     
-    public static class SignalTargetNotFound extends RecipeTestError {
+    public static class SignalTargetNotFound extends BlueprintTestError {
         
         private final GuiSignalEvent event;
         
@@ -115,12 +116,12 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         
         @Override
         public Component header() {
-            return GuiControl.translatable("gui.recipe.test.signal.title", event.component.name());
+            return GuiControl.translatable("gui.blueprint.test.signal.title", event.component.name());
         }
         
         @Override
         public Component description() {
-            return GuiControl.translatable("gui.recipe.test.signal.desc", String.join(",", targets));
+            return GuiControl.translatable("gui.blueprint.test.signal.desc", String.join(",", targets));
         }
         
         @Override
@@ -134,7 +135,7 @@ public class RecipeSignalEquationTest extends RecipeTestModule {
         }
         
         @Override
-        public void create(GuiRecipe recipe, GuiParent parent, Runnable refresh) {
+        public void create(GuiBlueprint blueprint, GuiParent parent, Runnable refresh) {
             List<GuiSignalComponent> inputs = structure.signalSearch.search(true, true, true);
             
             parent.add(new GuiButton("edit", x -> LittleTilesGuiRegistry.SIGNAL_DIALOG.open(parent.getIntegratedParent(), new CompoundTag()).init(inputs, event)).setTranslate(

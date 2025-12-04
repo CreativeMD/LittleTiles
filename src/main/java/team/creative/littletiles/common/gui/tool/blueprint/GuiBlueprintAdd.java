@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool.recipe;
+package team.creative.littletiles.common.gui.tool.blueprint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -48,7 +48,7 @@ import team.creative.littletiles.common.gui.control.animation.GuiAnimationViewer
 import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.server.level.little.FakeServerLevel;
 
-public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage {
+public class GuiBlueprintAdd extends GuiLayer implements GuiAnimationViewerStorage {
     
     public static String generateGroupName(LittleGroup group) {
         String name = group.getStructureName();
@@ -61,27 +61,27 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
         return "none";
     }
     
-    public GuiRecipe recipe;
+    public GuiBlueprint blueprint;
     private ItemStack selected;
     
     private volatile int requestedPreview = 0;
     private volatile AnimationPreview current;
     private volatile int executedPreview = 0;
-    private AtomicReference<GuiRecipeAddAnimationRequest> scheduled = new AtomicReference<>();
+    private AtomicReference<GuiBlueprintAddAnimationRequest> scheduled = new AtomicReference<>();
     
-    public GuiRecipeAdd() {
-        super("recipe.add", 400, 200);
+    public GuiBlueprintAdd() {
+        super("blueprint.add", 400, 200);
         flow = GuiFlow.STACK_Y;
     }
     
-    public void init(GuiRecipe recipe) {
-        this.recipe = recipe;
+    public void init(GuiBlueprint blueprint) {
+        this.blueprint = blueprint;
         clear();
         init();
     }
     
     private List<ItemStack> collectTiles() {
-        List<ItemStack> recipes = new ArrayList<>();
+        List<ItemStack> blueprints = new ArrayList<>();
         Inventory inv = getPlayer().getInventory();
         for (int i = 0; i < inv.getContainerSize(); i++) {
             ItemStack stack = inv.getItem(i);
@@ -89,14 +89,14 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
                 LittleGroup group = placer.getTiles(stack);
                 if (group == null || group.isEmptyIncludeChildren())
                     continue;
-                recipes.add(stack);
+                blueprints.add(stack);
             }
         }
-        return recipes;
+        return blueprints;
     }
     
     private void addGroup(GuiTreeItem parent, LittleGroup group) {
-        GuiRecipeAddTreeItem item = new GuiRecipeAddTreeItem(parent.tree, group);
+        GuiBlueprintAddTreeItem item = new GuiBlueprintAddTreeItem(parent.tree, group);
         parent.addItem(item);
         
         for (LittleGroup child : group.children.children())
@@ -109,7 +109,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
                 if (preview != null)
                     preview.unload();
             } else
-                scheduled.set(new GuiRecipeAddAnimationRequest(preview, index));
+                scheduled.set(new GuiBlueprintAddAnimationRequest(preview, index));
         }
     }
     
@@ -168,7 +168,7 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
         
         List<ItemStack> stacks = collectTiles();
         for (ItemStack stack : stacks)
-            items.add(new GuiRecipeAddEntry(stack, getPlayer()));
+            items.add(new GuiBlueprintAddEntry(stack, getPlayer()));
         
         GuiTree tree = new GuiTree("tree").setRootVisibility(false).setCheckboxes(true, true);
         upper.add(tree.setDim(new GuiSizeRatioRules().widthRatio(0.3F).maxWidth(100)).setExpandableY());
@@ -188,25 +188,25 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
             if (selected == null)
                 return;
             
-            GuiTreeItem parent = recipe.tree.selected();
+            GuiTreeItem parent = blueprint.tree.selected();
             if (parent == null)
-                parent = recipe.tree.root();
+                parent = blueprint.tree.root();
             
             LittleGroup group = reconstructBlueprint();
             if (group == null || group.isEmptyIncludeChildren())
                 return;
-            recipe.buildStructureTree(recipe.tree, parent, group, parent.itemsCount());
+            blueprint.buildStructureTree(blueprint.tree, parent, group, parent.itemsCount());
             
             closeThisLayer();
             
-            recipe.tree.updateTree();
+            blueprint.tree.updateTree();
         }).setTranslate("gui.import").setEnabled(false));
     }
     
     @Override
     public void render(GuiGraphics graphics, Rect controlRect, Rect realRect, double scale, int mouseX, int mouseY) {
         synchronized (scheduled) {
-            GuiRecipeAddAnimationRequest request = scheduled.getAndSet(null);
+            GuiBlueprintAddAnimationRequest request = scheduled.getAndSet(null);
             if (request != null && executedPreview < request.index) {
                 if (current != null)
                     current.unload();
@@ -217,20 +217,20 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
         super.render(graphics, controlRect, realRect, scale, mouseX, mouseY);
     }
     
-    protected LittleGroup reconstructBlueprint(GuiRecipeAddTreeItem item) {
+    protected LittleGroup reconstructBlueprint(GuiBlueprintAddTreeItem item) {
         List<LittleGroup> children = new ArrayList<>();
         for (GuiTreeItem child : item.itemsChecked())
-            children.add(reconstructBlueprint((GuiRecipeAddTreeItem) child));
+            children.add(reconstructBlueprint((GuiBlueprintAddTreeItem) child));
         return new LittleGroup(item.group.getStructureTag(), item.group.copyExceptChildren(), children);
     }
     
     protected LittleGroup reconstructBlueprint() {
         GuiTree tree = get("tree");
         if (tree.root().itemsCount() == 1)
-            return reconstructBlueprint((GuiRecipeAddTreeItem) tree.root().items().iterator().next());
+            return reconstructBlueprint((GuiBlueprintAddTreeItem) tree.root().items().iterator().next());
         List<LittleGroup> children = new ArrayList<>();
         for (GuiTreeItem child : tree.root().itemsChecked())
-            children.add(reconstructBlueprint((GuiRecipeAddTreeItem) child));
+            children.add(reconstructBlueprint((GuiBlueprintAddTreeItem) child));
         if (children.isEmpty())
             return null;
         return new LittleGroup((CompoundTag) null, children);
@@ -244,11 +244,11 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
             current.unload();
     }
     
-    public class GuiRecipeAddEntry extends GuiPanel {
+    public class GuiBlueprintAddEntry extends GuiPanel {
         
         public final ItemStack stack;
         
-        public GuiRecipeAddEntry(ItemStack stack, Player player) {
+        public GuiBlueprintAddEntry(ItemStack stack, Player player) {
             this.stack = stack;
             flow = GuiFlow.STACK_X;
             
@@ -309,11 +309,11 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
         renderPreview(pose, projection, current, mc);
     }
     
-    public static class GuiRecipeAddTreeItem extends GuiTreeItem {
+    public static class GuiBlueprintAddTreeItem extends GuiTreeItem {
         
         public final LittleGroup group;
         
-        public GuiRecipeAddTreeItem(GuiTree tree, LittleGroup group) {
+        public GuiBlueprintAddTreeItem(GuiTree tree, LittleGroup group) {
             super("item", tree);
             this.group = group;
             this.setTitle(Component.literal(generateGroupName(group)));
@@ -321,6 +321,6 @@ public class GuiRecipeAdd extends GuiLayer implements GuiAnimationViewerStorage 
         
     }
     
-    private static record GuiRecipeAddAnimationRequest(AnimationPreview preview, int index) {}
+    private static record GuiBlueprintAddAnimationRequest(AnimationPreview preview, int index) {}
     
 }

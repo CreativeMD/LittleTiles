@@ -9,7 +9,7 @@ public class AreaTooLarge extends LittleActionException {
     public LittlePermissionBuild config;
     
     public AreaTooLarge(Player player, LittlePermissionBuild config) {
-        super("exception.permission.recipe.size");
+        super("exception.permission.blueprint.size");
         this.config = config;
     }
     

@@ -3,7 +3,7 @@ package team.creative.littletiles.common.structure.registry.gui;
 import java.util.function.BiFunction;
 
 import net.minecraft.network.chat.Component;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
 
 public record LittleStructureGui(String id, LittleStructureType type, BiFunction<LittleStructureGui, GuiTreeItemStructure, LittleStructureGuiControl> factory, boolean supportsName) {

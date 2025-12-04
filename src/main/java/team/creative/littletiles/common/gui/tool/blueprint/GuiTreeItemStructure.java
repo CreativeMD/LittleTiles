@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool.recipe;
+package team.creative.littletiles.common.gui.tool.blueprint;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -35,7 +35,7 @@ import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.common.gui.signal.GuiComponentSearch;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
-import team.creative.littletiles.common.gui.tool.recipe.test.RecipeTestError;
+import team.creative.littletiles.common.gui.tool.blueprint.test.BlueprintTestError;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -50,7 +50,7 @@ import team.creative.littletiles.server.level.little.FakeServerLevel;
 
 public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContext {
     
-    public final GuiRecipe recipe;
+    public final GuiBlueprint blueprint;
     public LittleGroup group;
     public LittleStructure structure;
     public LittleStructureGui gui;
@@ -61,18 +61,18 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     private LittleVecGrid offset;
     private int index;
     private String title;
-    private List<RecipeTestError> errors;
+    private List<BlueprintTestError> errors;
     
     public PhysicalState physicalState = new PhysicalState();
     private StructureAbsolute center;
     
-    public GuiTreeItemStructure(GuiRecipe recipe, GuiTree tree, LittleGroup group, int index) {
+    public GuiTreeItemStructure(GuiBlueprint blueprint, GuiTree tree, LittleGroup group, int index) {
         super("tree_item", tree);
-        this.recipe = recipe;
+        this.blueprint = blueprint;
         this.group = group;
         if (group.hasStructure()) {
             this.structure = group.getStructureType().createStructure(null);
-            this.structure.load(group.getStructureTag(), recipe.provider());
+            this.structure.load(group.getStructureTag(), blueprint.provider());
         }
         this.index = index;
         refreshAnimation();
@@ -177,7 +177,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     protected void select() {
         super.select();
         updateTitle();
-        recipe.types.forceSelect(LittleStructureGuiRegistry.get(structure != null ? structure.type : null, group));
+        blueprint.types.forceSelect(LittleStructureGuiRegistry.get(structure != null ? structure.type : null, group));
     }
     
     public void onNameChanged(GuiTextfield field) {
@@ -189,11 +189,11 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     }
     
     public void load() {
-        recipe.animation.reset();
-        gui = recipe.types.selected();
-        recipe.control = gui.create(this);
-        recipe.control.setExpandableY();
-        recipe.config.clear();
+        blueprint.animation.reset();
+        gui = blueprint.types.selected();
+        blueprint.control = gui.create(this);
+        blueprint.control.setExpandableY();
+        blueprint.config.clear();
         GuiScrollY scroll = new GuiScrollY("config") {
             
             @Override
@@ -202,22 +202,22 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
             }
             
         }.setHover(true);
-        scroll.add(recipe.control);
-        recipe.config.add(scroll);
-        recipe.control.create(structure);
-        recipe.config.init();
-        recipe.types.setEnabled(recipe.control.canChangeType());
+        scroll.add(blueprint.control);
+        blueprint.config.add(scroll);
+        blueprint.control.create(structure);
+        blueprint.config.init();
+        blueprint.types.setEnabled(blueprint.control.canChangeType());
         
         GuiParent info = new GuiParent("infoStructure", GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
-        recipe.config.add(info);
+        blueprint.config.add(info);
         
         info.add(new GuiLabel("info").setTitle(Component.literal(group.totalTiles() + " " + LanguageUtils.translate("gui.tile.count") + " " + group
                 .totalBoxes() + " " + LanguageUtils.translate("gui.box.count"))));
         
         GuiParent parent = new GuiParent("bottomStructure", GuiFlow.STACK_X).setVAlign(VAlign.CENTER);
-        recipe.config.add(parent);
+        blueprint.config.add(parent);
         
-        parent.add(new GuiLabel("name_label").setTranslate("gui.recipe.structure.name"));
+        parent.add(new GuiLabel("name_label").setTranslate("gui.blueprint.structure.name"));
         GuiTextfield text = new GuiTextfield("name");
         if (structure != null && structure.name != null)
             text.setText(structure.name);
@@ -229,14 +229,14 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         updateSignalOutputs();
         
         onNameChanged(text);
-        recipe.reflow();
+        blueprint.reflow();
     }
     
     public void save() {
-        LittleStructureType type = recipe.types.selected().type();
-        structure = recipe.control.save(type != null ? type.createStructure(null) : null);
+        LittleStructureType type = blueprint.types.selected().type();
+        structure = blueprint.control.save(type != null ? type.createStructure(null) : null);
         if (structure != null) {
-            GuiParent parent = recipe.config.get("bottomStructure");
+            GuiParent parent = blueprint.config.get("bottomStructure");
             GuiTextfield textfield = parent.get("name");
             structure.name = textfield.getText().isBlank() ? null : textfield.getText();
         }
@@ -288,11 +288,11 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         
         List<Component> tooltip = new ArrayList<>();
         if (errors.size() == 1)
-            tooltip.add(translatable("gui.recipe.test.error.single"));
+            tooltip.add(translatable("gui.blueprint.test.error.single"));
         else
-            tooltip.add(translatable("gui.recipe.test.error.multiple", errors.size()));
+            tooltip.add(translatable("gui.blueprint.test.error.multiple", errors.size()));
         
-        for (RecipeTestError error : errors)
+        for (BlueprintTestError error : errors)
             tooltip.add(error.tooltip(this));
         
         setTooltip(tooltip);
@@ -303,7 +303,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
             errors.clear();
     }
     
-    public void addError(RecipeTestError error) {
+    public void addError(BlueprintTestError error) {
         if (errors == null)
             errors = new ArrayList<>();
         errors.add(error);
@@ -323,7 +323,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
                 throw new RuntimeException(e);
             }
         }).whenComplete((preview, throwable) -> {
-            recipe.storage.completed(this, preview);
+            blueprint.storage.completed(this, preview);
             if (throwable != null)
                 throwable.printStackTrace();
         });
@@ -333,7 +333,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     public void removed() {
         super.removed();
         if (!moving)
-            recipe.storage.removed(this);
+            blueprint.storage.removed(this);
     }
     
     public GuiTreeItemStructure duplicate() {
@@ -342,9 +342,9 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
             nbt = null;
         else {
             nbt = new CompoundTag();
-            structure.save(nbt, recipe.provider());
+            structure.save(nbt, blueprint.provider());
         }
-        GuiTreeItemStructure item = new GuiTreeItemStructure(recipe, tree, new LittleGroup(nbt, group.copy(), Collections.EMPTY_LIST), getParentItem().itemsCount());
+        GuiTreeItemStructure item = new GuiTreeItemStructure(blueprint, tree, new LittleGroup(nbt, group.copy(), Collections.EMPTY_LIST), getParentItem().itemsCount());
         for (GuiTreeItem child : items())
             if (child instanceof GuiTreeItemStructure s)
                 item.addItem(s.duplicate());
@@ -425,6 +425,6 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     
     @Override
     public Provider provider() {
-        return recipe.provider();
+        return blueprint.provider();
     }
 }

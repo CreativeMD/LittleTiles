@@ -12,8 +12,8 @@ import team.creative.creativecore.common.gui.control.timeline.GuiTimeline;
 import team.creative.creativecore.common.gui.control.timeline.GuiTimelineChannel;
 import team.creative.creativecore.common.gui.control.timeline.GuiTimelineKey;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
-import team.creative.littletiles.common.gui.tool.recipe.GuiTreeItemStructure;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintAnimationHandler;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline.AnimationEventEntry;
 import team.creative.littletiles.common.structure.animation.event.ChildDoorEvent;
@@ -24,7 +24,7 @@ public class GuiChildEventPanel extends GuiTimelinePanel {
     public final GuiTreeItemStructure item;
     public final List<GuiChildTimelineChannel> children = new ArrayList<>();
     
-    public GuiChildEventPanel(GuiTreeItemStructure item, GuiRecipeAnimationHandler handler, AnimationTimeline timeline, int duration) {
+    public GuiChildEventPanel(GuiTreeItemStructure item, GuiBlueprintAnimationHandler handler, AnimationTimeline timeline, int duration) {
         super(handler, duration);
         this.item = item;
         List<AnimationEventEntry> events = extract(timeline, ChildDoorEvent.class);

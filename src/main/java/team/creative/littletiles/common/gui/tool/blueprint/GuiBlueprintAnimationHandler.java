@@ -1,4 +1,4 @@
-package team.creative.littletiles.common.gui.tool.recipe;
+package team.creative.littletiles.common.gui.tool.blueprint;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +16,7 @@ import team.creative.littletiles.common.structure.animation.context.AnimationCon
 import team.creative.littletiles.common.structure.animation.event.ChildDoorEvent;
 import team.creative.littletiles.common.structure.type.animation.LittleDoor;
 
-public class GuiRecipeAnimationHandler implements GuiAnimationHandler {
+public class GuiBlueprintAnimationHandler implements GuiAnimationHandler {
     
     private int duration = 0;
     private int lastTick = -1;

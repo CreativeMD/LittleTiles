@@ -25,7 +25,7 @@ import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.style.Icon;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
-import team.creative.littletiles.common.gui.tool.recipe.GuiRecipeAnimationHandler;
+import team.creative.littletiles.common.gui.tool.blueprint.GuiBlueprintAnimationHandler;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline.AnimationEventEntry;
 import team.creative.littletiles.common.structure.animation.event.PlaySoundEvent;
@@ -38,7 +38,7 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
     
     public GuiTimelineKey<PlaySoundEvent> edited;
     
-    public GuiSoundEventPanel(GuiRecipeAnimationHandler handler, AnimationTimeline opening, AnimationTimeline closing, int duration) {
+    public GuiSoundEventPanel(GuiBlueprintAnimationHandler handler, AnimationTimeline opening, AnimationTimeline closing, int duration) {
         super(handler, duration);
         List<AnimationEventEntry> openingEvents = extract(opening, PlaySoundEvent.class);
         List<AnimationEventEntry> closingEvents = extract(closing, PlaySoundEvent.class);
