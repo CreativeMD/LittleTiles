@@ -230,6 +230,7 @@
     "littletiles.tiles.tooltip": "'%s' configure options\n'%s' to rotate and '%s' to mirror",
     "littletiles.saw.tooltip": "'%s' extend tile\n'%s' shrink tile\nHold 'CTRL' to go further",
     "littletiles.screwdriver.tooltip": "'%s' first position\n'%s' second position\n'%s' modify selected area",
+    "littletiles.wrench.tooltip": "'%s' rebuilds blocks cache\n'SHIFT + %s' to edit signals of structures\nDisplays signals and disables particle emitters when in hand",
     "block.littletiles.colored_clean": "Dyeable Clean",
     "block.littletiles.colored_floor": "Dyeable Floor",
     "block.littletiles.colored_grainy_big": "Dyeable Grainy Big",

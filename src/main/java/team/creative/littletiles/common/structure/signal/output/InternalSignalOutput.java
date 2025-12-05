@@ -41,9 +41,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
         return SignalComponentType.OUTPUT;
     }
     
-    @Override
-    public void load(CompoundTag nbt) {
-        overwrite(getState().load(nbt.get("state")));
+    public void loadConfiguration(CompoundTag nbt) {
         try {
             if (nbt.contains("con"))
                 condition = SignalInputCondition.parseInput(nbt.getString("con"));
@@ -62,8 +60,12 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
     }
     
     @Override
-    public CompoundTag save(boolean preview, CompoundTag nbt) {
-        nbt.put("state", getState().save());
+    public void load(CompoundTag nbt) {
+        overwrite(getState().load(nbt.get("state")));
+        loadConfiguration(nbt);
+    }
+    
+    public CompoundTag saveConfiguration(boolean preview, CompoundTag nbt) {
         if (condition != null)
             nbt.putString("con", condition.write());
         nbt.putString("mode", handler == null ? defaultMode.name() : handler.getMode().name());
@@ -74,6 +76,13 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
                 nbt.remove("delay");
             handler.write(preview, nbt);
         }
+        return nbt;
+    }
+    
+    @Override
+    public CompoundTag save(boolean preview, CompoundTag nbt) {
+        nbt.put("state", getState().save());
+        saveConfiguration(preview, nbt);
         return nbt;
     }
     

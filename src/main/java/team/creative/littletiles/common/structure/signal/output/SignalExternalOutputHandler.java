@@ -61,9 +61,14 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     }
     
     public void update() {
-        if (condition == null)
-            return;
         try {
+            if (condition == null) {
+                int bandwidth = handler.getBandwidth();
+                if (bandwidth > 0)
+                    handler.schedule(SignalState.FALSE);
+                return;
+            }
+            
             int bandwidth = handler.getBandwidth();
             if (bandwidth > 0) {
                 SignalState outputState = SignalState.create(bandwidth);
@@ -81,10 +86,6 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     public CompoundTag write(boolean preview) {
         CompoundTag nbt = new CompoundTag();
         nbt.putInt("index", index);
-        if (structure != null)
-            try {
-                nbt.put("state", getState().save());
-            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         if (condition != null)
             nbt.putString("con", condition.write());
         nbt.putString("mode", handler == null ? SignalMode.EQUAL.name() : handler.getMode().name());

@@ -8,6 +8,8 @@ import java.util.concurrent.CompletableFuture;
 
 import javax.annotation.Nullable;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.nbt.CompoundTag;
@@ -34,6 +36,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.gui.AnimationPreview;
 import team.creative.littletiles.common.gui.signal.GuiComponentSearch;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
+import team.creative.littletiles.common.gui.signal.IGuiSignalStructure;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents.GuiSignalEvent;
 import team.creative.littletiles.common.gui.tool.blueprint.test.BlueprintTestError;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
@@ -48,7 +51,7 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.server.level.little.FakeServerLevel;
 
-public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContext {
+public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContext, IGuiSignalStructure {
     
     public final GuiBlueprint blueprint;
     public LittleGroup group;
@@ -101,6 +104,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
                 externalOutputs.put(output.index(), new GuiSignalEvent(output, structure.getExternalOutput(output.index())));
     }
     
+    @Override
     public LittleStructureType getStructureType() {
         if (gui != null)
             return gui.type();
@@ -109,6 +113,12 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         return null;
     }
     
+    @Override
+    public GuiComponentSearch getSignalSearch() {
+        return signalSearch;
+    }
+    
+    @Override
     public GuiSignalEvent[] internalOutputs() {
         return internalOutputs;
     }
@@ -117,6 +127,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         return externalOutputs.size();
     }
     
+    @Override
     public Iterable<GuiSignalEvent> externalOutputs() {
         return externalOutputs.values();
     }
@@ -147,6 +158,27 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         return getInternalOutput(index);
     }
     
+    @Override
+    public IGuiSignalStructure parent() {
+        return (IGuiSignalStructure) getParentItem();
+    }
+    
+    @Override
+    public LittleStructure getStructure() {
+        return structure;
+    }
+    
+    @Override
+    public Iterable<IGuiSignalStructure> children() {
+        return (Iterable<IGuiSignalStructure>) (Object) items();
+    }
+    
+    @Override
+    public void setSignalOutputs(List<GuiSignalEvent> events) {
+        for (GuiSignalEvent event : events)
+            setSignalOutput(event.component.external(), event.component.index(), event);
+    }
+    
     @Nullable
     public void setSignalOutput(boolean external, int index, GuiSignalEvent event) {
         if (external)
@@ -166,7 +198,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
             output.handler = event.getHandler(output, structure);
         }
         
-        HashMap<Integer, SignalExternalOutputHandler> map = new HashMap<>();
+        Int2ObjectMap<SignalExternalOutputHandler> map = new Int2ObjectArrayMap<>();
         for (GuiSignalEvent event : externalOutputs.values())
             if (event.condition != null)
                 map.put(event.component.index(), new SignalExternalOutputHandler(null, event.component.index(), event.condition, (x) -> event.getHandler(x, structure)));
@@ -309,6 +341,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         errors.add(error);
     }
     
+    @Override
     public String getTitle() {
         return title;
     }

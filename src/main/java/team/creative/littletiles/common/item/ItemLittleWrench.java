@@ -2,6 +2,7 @@ package team.creative.littletiles.common.item;
 
 import java.util.Arrays;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -16,10 +17,13 @@ import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.LittleToolWrench;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
-public class ItemLittleWrench extends Item implements ILittleTool {
+public class ItemLittleWrench extends Item implements ILittleTool, IItemTooltip {
     
     public ItemLittleWrench() {
         super(new Item.Properties().stacksTo(1));
@@ -33,7 +37,9 @@ public class ItemLittleWrench extends Item implements ILittleTool {
                 LittleTileContext result = LittleTileContext.selectFocused(context.getLevel(), context.getClickedPos(), context.getPlayer());
                 if (context.getPlayer().isCrouching()) {
                     if (result.isComplete() && result.parent.isStructure())
-                        LittleTilesGuiRegistry.STRUCTURE_OVERVIEW.open(context.getPlayer(), result);
+                        try {
+                            LittleTilesGuiRegistry.STRUCTURE_SIGNAL.open(context.getPlayer(), result.parent.getStructure());
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                     else
                         LittleTiles.NETWORK.sendToServer(new BlockPacket(context.getLevel(), context.getClickedPos(), context.getPlayer(), BlockPacketAction.WRENCH));
                     return InteractionResult.SUCCESS;
@@ -48,5 +54,10 @@ public class ItemLittleWrench extends Item implements ILittleTool {
     @OnlyIn(Dist.CLIENT)
     public Iterable<LittleTool> tools(ItemStack stack) {
         return Arrays.asList(new LittleToolWrench(stack));
+    }
+    
+    @Override
+    public Object[] tooltipData(ItemStack stack) {
+        return new Object[] { Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(), Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage() };
     }
 }

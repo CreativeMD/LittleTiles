@@ -2,7 +2,6 @@ package team.creative.littletiles.common.structure;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -12,6 +11,8 @@ import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
+import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
@@ -108,7 +109,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public final LevelChildrenList children = new LevelChildrenList(this);
     
-    private HashMap<Integer, SignalExternalOutputHandler> externalHandler;
+    private Int2ObjectMap<SignalExternalOutputHandler> externalHandler;
     private final InternalSignalInput[] inputs;
     private final InternalSignalOutput[] outputs;
     
@@ -415,7 +416,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         if (nbt.contains("ex")) {
             ListTag list = nbt.getList("ex", Tag.TAG_COMPOUND);
-            externalHandler = new HashMap<>();
+            externalHandler = new Int2ObjectArrayMap<>();
             for (int i = 0; i < list.size(); i++) {
                 try {
                     SignalExternalOutputHandler handler = new SignalExternalOutputHandler(this, list.getCompound(i));
@@ -859,7 +860,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return externalHandler.values();
     }
     
-    public void setExternalOutputs(HashMap<Integer, SignalExternalOutputHandler> handlers) {
+    public void setExternalOutputs(Int2ObjectMap<SignalExternalOutputHandler> handlers) {
         this.externalHandler = handlers;
     }
     

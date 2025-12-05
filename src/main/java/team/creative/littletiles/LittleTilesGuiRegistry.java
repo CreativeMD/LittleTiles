@@ -7,9 +7,9 @@ import team.creative.creativecore.common.gui.sync.GuiSyncHolder;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.gui.handler.LittleStructureGuiCreator;
-import team.creative.littletiles.common.gui.handler.LittleTileGuiCreator;
 import team.creative.littletiles.common.gui.premade.GuiExport;
 import team.creative.littletiles.common.gui.premade.GuiImport;
+import team.creative.littletiles.common.gui.signal.GuiSignalStructurePlaced;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalEvents;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalInput;
@@ -39,8 +39,15 @@ public class LittleTilesGuiRegistry {
     public static final GuiSyncGlobalLayer<GuiDialogSignalVirtualNumberInput> VIRTUAL_NUMBER_DIALOG = GuiSyncHolder.GLOBAL.layer("signal_virtual_number_dialog", (x,
             y) -> new GuiDialogSignalVirtualNumberInput());
     
-    public static final LittleTileGuiCreator STRUCTURE_OVERVIEW = GuiCreator.register("structureoverview", new LittleTileGuiCreator((nbt, player, context) -> null));
-    public static final LittleTileGuiCreator STRUCTURE_OVERVIEW2 = GuiCreator.register("structureoverview2", new LittleTileGuiCreator((nbt, player, context) -> null));
+    public static final LittleStructureGuiCreator STRUCTURE_SIGNAL = GuiCreator.register("structure_signal", new LittleStructureGuiCreator((nbt, player, structure) -> {
+        if (player.level().isClientSide) {
+            var events = new GuiDialogSignalEvents();
+            events.init(new GuiSignalStructurePlaced(structure, true, true));
+            events.clear();
+            return events;
+        }
+        return new GuiDialogSignalEvents();
+    }, x -> x.wrenchEditSignal));
     
     public static final GuiCreatorBasic OPEN_CONFIG = GuiCreator.register("configure", new GuiCreatorBasic((nbt, player) -> {
         if (player.getMainHandItem().getItem() instanceof ILittleTool tool)

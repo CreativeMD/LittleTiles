@@ -101,6 +101,7 @@ import team.creative.littletiles.common.packet.item.WrenchRequestInfoPacket;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
 import team.creative.littletiles.common.packet.structure.StructureBlockToEntityPacket;
 import team.creative.littletiles.common.packet.structure.StructureEntityToBlockPacket;
+import team.creative.littletiles.common.packet.structure.StructureOutputConfigurationChanged;
 import team.creative.littletiles.common.packet.structure.StructureStartAnimationPacket;
 import team.creative.littletiles.common.packet.structure.StructureUpdate;
 import team.creative.littletiles.common.packet.update.BlockUpdate;
@@ -174,6 +175,7 @@ public class LittleTiles {
         NETWORK.registerType(BedUpdate.class, BedUpdate::new);
         NETWORK.registerType(StructureBlockToEntityPacket.class, StructureBlockToEntityPacket::new);
         NETWORK.registerType(StructureEntityToBlockPacket.class, StructureEntityToBlockPacket::new);
+        NETWORK.registerType(StructureOutputConfigurationChanged.class, StructureOutputConfigurationChanged::new);
         NETWORK.registerType(StructureUpdate.class, StructureUpdate::new);
         NETWORK.registerType(StructureStartAnimationPacket.class, StructureStartAnimationPacket::new);
         

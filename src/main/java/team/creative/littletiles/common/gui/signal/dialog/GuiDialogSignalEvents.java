@@ -17,8 +17,8 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiFixedDimension;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
+import team.creative.littletiles.common.gui.signal.IGuiSignalStructure;
 import team.creative.littletiles.common.gui.signal.mode.GuiSignalModeConfiguration;
-import team.creative.littletiles.common.gui.tool.blueprint.GuiTreeItemStructure;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -29,7 +29,7 @@ import team.creative.littletiles.common.structure.signal.output.SignalOutputHand
 
 public class GuiDialogSignalEvents extends GuiLayer {
     
-    public GuiTreeItemStructure item;
+    public IGuiSignalStructure item;
     public List<GuiSignalComponent> inputs;
     public List<GuiSignalEvent> events;
     
@@ -38,9 +38,9 @@ public class GuiDialogSignalEvents extends GuiLayer {
         flow = GuiFlow.STACK_Y;
     }
     
-    public void init(GuiTreeItemStructure item) {
+    public void init(IGuiSignalStructure item) {
         this.item = item;
-        this.inputs = item.signalSearch.search(true, true, true);
+        this.inputs = item.getSignalSearch().search(true, true, true);
         this.events = new ArrayList<>();
         for (GuiSignalEvent event : item.internalOutputs())
             this.events.add(event.copy());
@@ -95,8 +95,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
         bottom.addLeft(new GuiButton("cancel", x -> closeThisLayer()).setTranslate("gui.cancel"));
         
         bottom.addRight(new GuiButton("save", x -> {
-            for (GuiSignalEvent event : events)
-                GuiDialogSignalEvents.this.item.setSignalOutput(event.component.external(), event.component.index(), event);
+            GuiDialogSignalEvents.this.item.setSignalOutputs(events);
             closeThisLayer();
         }).setTranslate("gui.save"));
         

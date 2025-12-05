@@ -29,6 +29,9 @@ public class LittlePermissionInteract {
     public boolean workbenchGui = true;
     
     @CreativeConfig
+    public boolean wrenchEditSignal = true;
+    
+    @CreativeConfig
     public boolean allowFlowingWater = true;
     @CreativeConfig
     public boolean allowFlowingLava = true;
