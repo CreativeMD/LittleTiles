@@ -1,3 +1,14 @@
+1.6.0-pre189
+Added placeTransformableBoxes config option
+Added saving positions of signal condition screen
+Added ability to modify signals of placed structures by using shift rightclick
+Added ability to display signal states when holding wrench in hand (suggested by alaginho)
+Added ability to change color of blueprint
+Added screwdriver filter for missing and name
+Readded secondary gui for blueprint to allow grid, placement mode options
+Fixed collision motion
+Renamed recipe to blueprint (also effects translations)
+
 1.6.0-pre188
 Added new interaction permission config
 Added storage structure dropping itself even in creative mode if there are items inside
