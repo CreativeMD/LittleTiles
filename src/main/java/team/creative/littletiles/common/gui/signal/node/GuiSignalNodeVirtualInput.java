@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
@@ -13,19 +15,20 @@ import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualVariable;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
 public class GuiSignalNodeVirtualInput extends GuiSignalNode {
     
     public List<GuiSignalConnection> tos = new ArrayList<>();
     public SignalInputCondition[] conditions;
     
-    public GuiSignalNodeVirtualInput() {
-        super("v[]");
+    public GuiSignalNodeVirtualInput(@Nullable SignalPosition position) {
+        super("v[]", null);
         this.conditions = new SignalInputCondition[0];
     }
     
-    public GuiSignalNodeVirtualInput(SignalInputVirtualVariable variable) throws ParseException {
-        super("v[]");
+    public GuiSignalNodeVirtualInput(SignalInputVirtualVariable variable, @Nullable SignalPosition position) throws ParseException {
+        super("v[]", null);
         this.conditions = variable.conditions;
         updateLabel();
     }
@@ -104,7 +107,7 @@ public class GuiSignalNodeVirtualInput extends GuiSignalNode {
     @Override
     public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
         reset();
-        return new SignalInputVirtualVariable(conditions);
+        return new SignalInputVirtualVariable(conditions, position());
     }
     
 }

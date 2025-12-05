@@ -119,11 +119,11 @@ public class GuiDialogSignal extends GuiLayer {
         bottom.addLeft(new GuiButton("add", x -> operators.selected().accept(controller)).setTranslate("gui.plus"));
         
         if (event.getCondition() != null)
-            controller.setCondition(event.getCondition(), this);
+            controller.setCondition(event.getOutputPosition(), event.getCondition(), this);
         
         bottom.addRight(new GuiButton("save", x -> {
             try {
-                event.setCondition(controller.generatePattern());
+                event.setCondition(controller.generatePattern(), controller.outputPosition());
                 event.update();
                 GuiDialogSignal.this.closeThisLayer();
             } catch (GeneratePatternException e) {}

@@ -25,6 +25,7 @@ import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeVirtualInpu
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualNumber;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
 public class GuiDialogSignalVirtualInput extends GuiLayer {
     
@@ -81,7 +82,7 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
         int bandwidth = counter.getValue();
         config = new GuiVirtualInputIndexConfiguration[bandwidth];
         for (int i = 0; i < bandwidth; i++) {
-            GuiVirtualInputIndexConfiguration index = new GuiVirtualInputIndexConfiguration(i < input.conditions.length ? input.conditions[i] : new SignalInputVirtualNumber(0), i);
+            GuiVirtualInputIndexConfiguration index = new GuiVirtualInputIndexConfiguration(i < input.conditions.length ? input.conditions[i] : new SignalInputVirtualNumber(0, null), i);
             index.create(box);
             config[i] = index;
         }
@@ -92,6 +93,7 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
         public final GuiSignalComponent output;
         public final int index;
         public SignalInputCondition condition;
+        public SignalPosition outputPosition;
         public GuiPanel panel;
         
         public GuiVirtualInputIndexConfiguration(SignalInputCondition condition, int index) {
@@ -136,12 +138,12 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
         public SignalInputCondition parse() {
             GuiStateButton<Integer> type = (GuiStateButton) panel.get("type");
             if (type.selected() == 0)
-                return new SignalInputVirtualNumber(0);
+                return new SignalInputVirtualNumber(0, null);
             else if (type.selected() == 1)
-                return new SignalInputVirtualNumber(1);
+                return new SignalInputVirtualNumber(1, null);
             if (condition != null)
                 return condition;
-            return new SignalInputVirtualNumber(0);
+            return new SignalInputVirtualNumber(0, null);
         }
         
         @Override
@@ -155,8 +157,14 @@ public class GuiDialogSignalVirtualInput extends GuiLayer {
         }
         
         @Override
-        public void setCondition(SignalInputCondition condition) {
+        public SignalPosition getOutputPosition() {
+            return outputPosition;
+        }
+        
+        @Override
+        public void setCondition(SignalInputCondition condition, SignalPosition outputPosition) {
             this.condition = condition;
+            this.outputPosition = outputPosition;
         }
         
         @Override

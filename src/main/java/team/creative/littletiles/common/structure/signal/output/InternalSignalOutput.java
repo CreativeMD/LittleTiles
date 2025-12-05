@@ -12,6 +12,7 @@ import team.creative.littletiles.common.structure.signal.SignalState.SignalState
 import team.creative.littletiles.common.structure.signal.component.InternalSignal;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.mode.SignalOutputHandlerToggle;
 
@@ -21,6 +22,7 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
     public final boolean syncToClient;
     public SignalInputCondition condition;
     public SignalOutputHandler handler;
+    public SignalPosition outputPosition;
     
     public InternalSignalOutput(LittleStructure parent, InternalComponentOutput component) {
         super(parent, component);
@@ -57,6 +59,10 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
         if (condition != null)
             delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInt("delay"));
         handler = SignalOutputHandler.create(this, mode, delay, nbt, parent);
+        if (nbt.contains("x"))
+            outputPosition = new SignalPosition(nbt.getInt("x"), nbt.getInt("y"));
+        else
+            outputPosition = null;
     }
     
     @Override
@@ -75,6 +81,10 @@ public class InternalSignalOutput extends InternalSignal<InternalComponentOutput
             else
                 nbt.remove("delay");
             handler.write(preview, nbt);
+        }
+        if (outputPosition != null) {
+            nbt.putInt("x", outputPosition.x());
+            nbt.putInt("y", outputPosition.y());
         }
         return nbt;
     }

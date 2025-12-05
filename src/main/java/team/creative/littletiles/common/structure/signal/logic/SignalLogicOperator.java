@@ -10,6 +10,7 @@ import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.SignalState.SignalStateSize;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionOperator;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
 public enum SignalLogicOperator {
     
@@ -35,8 +36,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackable(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackable(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -78,8 +79,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackable(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackable(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -122,8 +123,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackable(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackable(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -165,8 +166,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackableBitwise(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackableBitwise(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -204,8 +205,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackableBitwise(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackableBitwise(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -243,8 +244,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackableBitwise(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackableBitwise(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -281,8 +282,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackableMath(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackableMath(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -319,8 +320,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackableMath(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackableMath(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -356,8 +357,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackableMath(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackableMath(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -405,8 +406,8 @@ public enum SignalLogicOperator {
         }
         
         @Override
-        public SignalInputCondition create(SignalInputCondition[] conditions) {
-            return new SignalInputConditionOperatorStackableMath(conditions) {
+        public SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position) {
+            return new SignalInputConditionOperatorStackableMath(conditions, position) {
                 
                 @Override
                 public SignalLogicOperator operator() {
@@ -493,13 +494,14 @@ public enum SignalLogicOperator {
     
     public abstract long perform(long first, long second);
     
-    public abstract SignalInputCondition create(SignalInputCondition[] conditions);
+    public abstract SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position);
     
     public static abstract class SignalInputConditionOperatorStackable extends SignalInputConditionOperator {
         
         public SignalInputCondition[] conditions;
         
-        public SignalInputConditionOperatorStackable(SignalInputCondition[] conditions) {
+        public SignalInputConditionOperatorStackable(SignalInputCondition[] conditions, SignalPosition position) {
+            super(position);
             this.conditions = conditions;
         }
         
@@ -564,7 +566,7 @@ public enum SignalLogicOperator {
                     result += operator().seperator;
                 result += conditions[i].write();
             }
-            return result;
+            return result + writePosition();
         }
         
         @Override
@@ -590,8 +592,8 @@ public enum SignalLogicOperator {
     
     public static abstract class SignalInputConditionOperatorStackableBitwise extends SignalInputConditionOperatorStackable {
         
-        public SignalInputConditionOperatorStackableBitwise(SignalInputCondition[] conditions) {
-            super(conditions);
+        public SignalInputConditionOperatorStackableBitwise(SignalInputCondition[] conditions, SignalPosition position) {
+            super(conditions, position);
         }
         
         @Override
@@ -631,8 +633,8 @@ public enum SignalLogicOperator {
     
     public static abstract class SignalInputConditionOperatorStackableMath extends SignalInputConditionOperatorStackable {
         
-        public SignalInputConditionOperatorStackableMath(SignalInputCondition[] conditions) {
-            super(conditions);
+        public SignalInputConditionOperatorStackableMath(SignalInputCondition[] conditions, SignalPosition position) {
+            super(conditions, position);
         }
         
         @Override

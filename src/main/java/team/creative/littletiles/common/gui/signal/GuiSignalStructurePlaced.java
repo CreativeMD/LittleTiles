@@ -103,6 +103,7 @@ public class GuiSignalStructurePlaced implements IGuiSignalStructure {
             InternalSignalOutput output = structure.getOutput(i);
             output.condition = event.condition;
             output.handler = event.getHandler(output, structure);
+            output.outputPosition = event.outputPostion;
             
             list.add(output.saveConfiguration(true, new CompoundTag()));
         }
@@ -110,8 +111,8 @@ public class GuiSignalStructurePlaced implements IGuiSignalStructure {
         
         CompoundTag external = new CompoundTag();
         for (GuiSignalEvent event : externalOutputs.values())
-            external.put("" + event.component.index(), new SignalExternalOutputHandler(null, event.component.index(), event.condition, (x) -> event.getHandler(x, structure)).write(
-                true));
+            external.put("" + event.component.index(), new SignalExternalOutputHandler(null, event.component.index(), event.condition, (x) -> event.getHandler(x,
+                structure), event.outputPostion).write(true));
         nbt.put("external", external);
         
         LittleTiles.NETWORK.sendToServer(new StructureOutputConfigurationChanged(structure.getStructureLocation(), nbt));

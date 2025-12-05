@@ -4,11 +4,14 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNot;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
 public class GuiSignalNodeNotOperator extends GuiSignalNode {
     
@@ -16,8 +19,8 @@ public class GuiSignalNodeNotOperator extends GuiSignalNode {
     private GuiSignalConnection from;
     private List<GuiSignalConnection> to = new ArrayList<>();
     
-    public GuiSignalNodeNotOperator(boolean bitwise) {
-        super(bitwise ? "b-not" : "not");
+    public GuiSignalNodeNotOperator(boolean bitwise, @Nullable SignalPosition position) {
+        super(bitwise ? "b-not" : "not", position);
         this.bitwise = bitwise;
     }
     
@@ -120,7 +123,8 @@ public class GuiSignalNodeNotOperator extends GuiSignalNode {
         if (processed.contains(this))
             throw new GeneratePatternException(this, "circular");
         processed.add(this);
-        return bitwise ? new SignalInputConditionNotBitwise(from.from().generateCondition(processed)) : new SignalInputConditionNot(from.from().generateCondition(processed));
+        return bitwise ? new SignalInputConditionNotBitwise(from.from().generateCondition(processed), position()) : new SignalInputConditionNot(from.from().generateCondition(
+            processed), position());
     }
     
 }

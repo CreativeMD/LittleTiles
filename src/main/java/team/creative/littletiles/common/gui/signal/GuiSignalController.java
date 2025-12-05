@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import org.joml.Matrix4f;
 
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -51,6 +53,7 @@ import team.creative.littletiles.common.structure.signal.input.SignalInputCondit
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualNumber;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualVariable;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator.SignalInputConditionOperatorStackable;
@@ -82,7 +85,7 @@ public class GuiSignalController extends GuiParent {
     public GuiSignalController(String name, GuiSignalComponent output, List<GuiSignalComponent> inputs) {
         super(name);
         this.inputs = inputs;
-        setOutput(4, output);
+        setOutput(4, output, null);
     }
     
     @Override
@@ -289,25 +292,33 @@ public class GuiSignalController extends GuiParent {
         dragged = null;
     }
     
-    public void setOutput(int cell, GuiSignalComponent output) {
+    public void setOutput(int cell, GuiSignalComponent output, @Nullable SignalPosition position) {
         if (this.output != null)
-            this.output.remove(); //removeNode(this.output);
-        this.output = new GuiSignalNodeOutput(output);
-        setToFreeCell(cell, this.output);
+            this.output.remove();
+        this.output = new GuiSignalNodeOutput(output, position);
+        if (position == null)
+            setToFreeCell(cell, this.output);
+        else
+            set(this.output, position.x(), position.y());
         raiseEvent(new GuiControlChangedEvent(this));
     }
     
-    public void setCondition(SignalInputCondition condition, GuiDialogSignal signal) {
+    public void setCondition(@Nullable SignalPosition outputPosition, SignalInputCondition condition, GuiDialogSignal signal) {
         reset();
         try {
             List<List<GuiSignalNode>> parsed = new ArrayList<>();
             GuiSignalNode node = fill(condition, signal, parsed, 0);
             for (int i = parsed.size() - 1; i >= 0; i--) {
                 List<GuiSignalNode> rows = parsed.get(i);
-                for (int j = rows.size() - 1; j >= 0; j--)
-                    set(rows.get(j), parsed.size() - i - 1, rows.size() - j - 1);
+                for (int j = rows.size() - 1; j >= 0; j--) {
+                    var signalNode = rows.get(j);
+                    if (signalNode.x() == -1)
+                        set(signalNode, parsed.size() - i - 1, rows.size() - j - 1);
+                    else
+                        set(signalNode, signalNode.x(), signalNode.y());
+                }
             }
-            setOutput(parsed.size(), output.component);
+            setOutput(parsed.size(), output.component, outputPosition);
             
             GuiSignalConnection connection = new GuiSignalConnection(node, output);
             node.connect(connection);
@@ -317,34 +328,34 @@ public class GuiSignalController extends GuiParent {
             LittleTiles.LOGGER.catching(e);
             reset();
         }
-        setOutput(4, output.component);
+        setOutput(4, output.component, outputPosition);
     }
     
     private GuiSignalNode fill(SignalInputCondition condition, GuiDialogSignal signal, List<List<GuiSignalNode>> parsed, int level) throws ParseException {
         GuiSignalNode node;
         if (condition instanceof SignalInputConditionNot || condition instanceof SignalInputConditionNotBitwise) {
             boolean bitwise = condition instanceof SignalInputConditionNotBitwise;
-            node = new GuiSignalNodeNotOperator(bitwise);
+            node = new GuiSignalNodeNotOperator(bitwise, condition.position);
             GuiSignalNode child = fill(bitwise ? ((SignalInputConditionNotBitwise) condition).condition : ((SignalInputConditionNot) condition).condition, signal, parsed,
                 level + 1);
             GuiSignalConnection connection = new GuiSignalConnection(child, node);
             node.connect(connection);
             child.connect(connection);
             
-        } else if (condition instanceof SignalInputConditionOperatorStackable) {
-            node = new GuiSignalNodeOperator(((SignalInputConditionOperatorStackable) condition).operator());
-            for (SignalInputCondition subCondition : ((SignalInputConditionOperatorStackable) condition).conditions) {
+        } else if (condition instanceof SignalInputConditionOperatorStackable stack) {
+            node = new GuiSignalNodeOperator(stack.operator(), stack.position);
+            for (SignalInputCondition subCondition : stack.conditions) {
                 GuiSignalNode child = fill(subCondition, signal, parsed, level + 1);
                 GuiSignalConnection connection = new GuiSignalConnection(child, node);
                 node.connect(connection);
                 child.connect(connection);
             }
         } else if (condition instanceof SignalInputVariable in)
-            node = new GuiSignalNodeInput(in, signal.getInput(in.target));
+            node = new GuiSignalNodeInput(in, signal.getInput(in.target), in.position);
         else if (condition instanceof SignalInputVirtualVariable variable)
-            node = new GuiSignalNodeVirtualInput(variable);
+            node = new GuiSignalNodeVirtualInput(variable, variable.position);
         else if (condition instanceof SignalInputVirtualNumber number)
-            node = new GuiSignalNodeVirtualNumberInput(number);
+            node = new GuiSignalNodeVirtualNumberInput(number, number.position);
         else
             throw new ParseException("Invalid condition type", 0);
         while (parsed.size() <= level)
@@ -354,23 +365,23 @@ public class GuiSignalController extends GuiParent {
     }
     
     public GuiSignalNodeVirtualInput addVirtualInput() {
-        return setToFreeCell(0, new GuiSignalNodeVirtualInput());
+        return setToFreeCell(0, new GuiSignalNodeVirtualInput(null));
     }
     
     public GuiSignalNodeVirtualNumberInput addVirtualNumberInput() {
-        return setToFreeCell(0, new GuiSignalNodeVirtualNumberInput());
+        return setToFreeCell(0, new GuiSignalNodeVirtualNumberInput(null));
     }
     
     public GuiSignalNodeInput addInput(GuiSignalComponent input) {
-        return setToFreeCell(0, new GuiSignalNodeInput(input));
+        return setToFreeCell(0, new GuiSignalNodeInput(input, null));
     }
     
     public GuiSignalNodeNotOperator addNotOperator(boolean bitwise) {
-        return setToFreeCell(1, new GuiSignalNodeNotOperator(bitwise));
+        return setToFreeCell(1, new GuiSignalNodeNotOperator(bitwise, null));
     }
     
     public GuiSignalNodeOperator addOperator(SignalLogicOperator operator) {
-        return setToFreeCell(1, new GuiSignalNodeOperator(operator));
+        return setToFreeCell(1, new GuiSignalNodeOperator(operator, null));
     }
     
     public GuiSignalNode selected() {
@@ -407,6 +418,10 @@ public class GuiSignalController extends GuiParent {
     
     public SignalInputCondition generatePattern() throws GeneratePatternException {
         return output.generateCondition(new ArrayList<>());
+    }
+    
+    public SignalPosition outputPosition() {
+        return output.position();
     }
     
     public <T extends GuiSignalNode> T setToFreeCell(int startCol, T node) {

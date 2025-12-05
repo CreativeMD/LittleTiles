@@ -60,27 +60,28 @@ public class SignalInputVariable extends SignalInputCondition {
             if (Character.isDigit(next) || next == '*') {
                 int[] indexes = parseInputExact(parser);
                 if (indexes != null)
-                    return new SignalInputVariablePattern(target, indexes);
-                return forceBitwise ? new SignalInputVariableBitwise(target) : new SignalInputVariable(target);
+                    return new SignalInputVariablePattern(target, indexes, parsePosition(parser));
+                return forceBitwise ? new SignalInputVariableBitwise(target, parsePosition(parser)) : new SignalInputVariable(target, parsePosition(parser));
             }
             
             SignalLogicOperator operator = SignalLogicOperator.getOperator(next);
             if (operator != null) {
                 parser.next(true);
                 if (parser.next(true) == '}')
-                    return new SignalInputVariableOperator(target, operator);
+                    return new SignalInputVariableOperator(target, operator, parsePosition(parser));
                 else
                     throw parser.invalidChar(parser.current());
             }
             
-            return new SignalInputVariableEquation(target, SignalInputCondition.parseExpression(parser, new char[] { '}' }, false, true));
+            return new SignalInputVariableEquation(target, SignalInputCondition.parseExpression(parser, new char[] { '}' }, false, true), parsePosition(parser));
         } else
-            return forceBitwise ? new SignalInputVariableBitwise(target) : new SignalInputVariable(target);
+            return forceBitwise ? new SignalInputVariableBitwise(target, parsePosition(parser)) : new SignalInputVariable(target, parsePosition(parser));
     }
     
     public final SignalTarget target;
     
-    public SignalInputVariable(SignalTarget target) {
+    public SignalInputVariable(SignalTarget target, SignalPosition position) {
+        super(position);
         this.target = target;
     }
     
@@ -102,7 +103,7 @@ public class SignalInputVariable extends SignalInputCondition {
     
     @Override
     public String write() {
-        return target.write();
+        return target.write() + writePosition();
     }
     
     @Override
@@ -122,8 +123,8 @@ public class SignalInputVariable extends SignalInputCondition {
     
     public static class SignalInputVariableBitwise extends SignalInputVariable {
         
-        public SignalInputVariableBitwise(SignalTarget target) {
-            super(target);
+        public SignalInputVariableBitwise(SignalTarget target, SignalPosition position) {
+            super(target, position);
         }
         
         @Override
@@ -137,8 +138,8 @@ public class SignalInputVariable extends SignalInputCondition {
         
         public final SignalLogicOperator operator;
         
-        public SignalInputVariableOperator(SignalTarget target, SignalLogicOperator operator) {
-            super(target);
+        public SignalInputVariableOperator(SignalTarget target, SignalLogicOperator operator, SignalPosition position) {
+            super(target, position);
             this.operator = operator;
         }
         
@@ -157,7 +158,7 @@ public class SignalInputVariable extends SignalInputCondition {
         
         @Override
         public String write() {
-            return super.write() + "{" + (operator == SignalLogicOperator.AND ? "&" : operator.operator) + "}";
+            return target.write() + "{" + (operator == SignalLogicOperator.AND ? "&" : operator.operator) + "}" + writePosition();
         }
     }
     
@@ -165,8 +166,8 @@ public class SignalInputVariable extends SignalInputCondition {
         
         public final int[] indexes;
         
-        public SignalInputVariablePattern(SignalTarget target, int[] indexes) {
-            super(target);
+        public SignalInputVariablePattern(SignalTarget target, int[] indexes, SignalPosition position) {
+            super(target, position);
             this.indexes = indexes;
         }
         
@@ -177,12 +178,12 @@ public class SignalInputVariable extends SignalInputCondition {
         
         @Override
         public String write() {
-            String result = super.write() + "{";
+            String result = target.write() + "{";
             for (int i = 0; i < indexes.length; i++) {
                 int index = indexes[i];
                 result += "" + (index >= 2 ? "*" : index);
             }
-            return result + "}";
+            return result + "}" + writePosition();
         }
         
     }
@@ -191,8 +192,8 @@ public class SignalInputVariable extends SignalInputCondition {
         
         public final SignalInputCondition condition;
         
-        public SignalInputVariableEquation(SignalTarget target, SignalInputCondition condition) {
-            super(target);
+        public SignalInputVariableEquation(SignalTarget target, SignalInputCondition condition, SignalPosition position) {
+            super(target, position);
             this.condition = condition;
         }
         
@@ -203,7 +204,7 @@ public class SignalInputVariable extends SignalInputCondition {
         
         @Override
         public String write() {
-            return super.write() + "{" + condition.write() + "}";
+            return target.write() + "{" + condition.write() + "}" + writePosition();
         }
         
         @Override

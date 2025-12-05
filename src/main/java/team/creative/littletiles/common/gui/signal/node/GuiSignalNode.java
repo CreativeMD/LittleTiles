@@ -2,6 +2,8 @@ package team.creative.littletiles.common.gui.signal.node;
 
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.control.simple.GuiButton;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -9,15 +11,20 @@ import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalController;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
 public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSignalConnection> {
     
-    private int x;
-    private int y;
+    private int x = -1;
+    private int y = -1;
     private boolean added = false;
     
-    public GuiSignalNode(String caption) {
+    public GuiSignalNode(String caption, @Nullable SignalPosition position) {
         super(caption, null);
+        if (position != null) {
+            x = position.x();
+            y = position.y();
+        }
         pressed = x -> {
             GuiSignalController controller = controller();
             if (x == 1 && removable()) {
@@ -49,6 +56,10 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
     
     public int y() {
         return y;
+    }
+    
+    public SignalPosition position() {
+        return new SignalPosition(x, y);
     }
     
     public void updatePosition(int col, int row) {

@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
@@ -13,6 +15,7 @@ import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableEquation;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable.SignalInputVariableOperator;
@@ -36,12 +39,12 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     public int[] pattern;
     public SignalInputCondition equation;
     
-    public GuiSignalNodeInput(GuiSignalComponent component) {
-        super(component);
+    public GuiSignalNodeInput(GuiSignalComponent component, @Nullable SignalPosition position) {
+        super(component, position);
     }
     
-    public GuiSignalNodeInput(SignalInputVariable variable, GuiSignalComponent com) throws ParseException {
-        super(com);
+    public GuiSignalNodeInput(SignalInputVariable variable, GuiSignalComponent com, @Nullable SignalPosition position) throws ParseException {
+        super(com, position);
         SignalTarget target = variable.target.getNestedTarget();
         if (target instanceof SignalTargetChildCustomIndex)
             indexes = ((SignalTargetChildCustomIndex) target).indexes;
@@ -175,14 +178,14 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
             SignalTarget target = SignalTarget.parseTarget(new SignalPatternParser(component.name() + (indexes != null ? "[" + getRange() + "]" : "")), false, false);
             switch (operator) {
                 case 1:
-                    return new SignalInputVariableOperator(target, logic);
+                    return new SignalInputVariableOperator(target, logic, position());
                 case 2:
-                    return new SignalInputVariablePattern(target, pattern);
+                    return new SignalInputVariablePattern(target, pattern, position());
                 case 3:
                     if (equation != null)
-                        return new SignalInputVariableEquation(target, equation);
+                        return new SignalInputVariableEquation(target, equation, position());
                 default:
-                    return new SignalInputVariable(target);
+                    return new SignalInputVariable(target, position());
             }
             
         } catch (ParseException e) {

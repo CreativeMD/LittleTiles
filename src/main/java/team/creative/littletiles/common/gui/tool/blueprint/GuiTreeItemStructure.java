@@ -160,7 +160,9 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     
     @Override
     public IGuiSignalStructure parent() {
-        return (IGuiSignalStructure) getParentItem();
+        if (getParentItem() instanceof IGuiSignalStructure p)
+            return p;
+        return null;
     }
     
     @Override
@@ -196,12 +198,14 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
             InternalSignalOutput output = structure.getOutput(i);
             output.condition = event.condition;
             output.handler = event.getHandler(output, structure);
+            output.outputPosition = event.outputPostion;
         }
         
         Int2ObjectMap<SignalExternalOutputHandler> map = new Int2ObjectArrayMap<>();
         for (GuiSignalEvent event : externalOutputs.values())
             if (event.condition != null)
-                map.put(event.component.index(), new SignalExternalOutputHandler(null, event.component.index(), event.condition, (x) -> event.getHandler(x, structure)));
+                map.put(event.component.index(), new SignalExternalOutputHandler(null, event.component.index(), event.condition, (x) -> event.getHandler(x,
+                    structure), event.outputPostion));
         structure.setExternalOutputs(map);
     }
     

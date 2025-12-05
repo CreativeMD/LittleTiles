@@ -51,10 +51,12 @@ public abstract class SignalInputCondition {
                 return condition;
             } else if (next == '!') {
                 parser.next(true);
-                return new SignalInputConditionNot(parseNextCondition(parser, includeBitwise, insideVariable, forceBitwise));
+                SignalPosition position = parsePosition(parser);
+                return new SignalInputConditionNot(parseNextCondition(parser, includeBitwise, insideVariable, forceBitwise), position);
             } else if (next == '~') {
                 parser.next(true);
-                return new SignalInputConditionNotBitwise(parseNextCondition(parser, includeBitwise, insideVariable, forceBitwise));
+                SignalPosition position = parsePosition(parser);
+                return new SignalInputConditionNotBitwise(parseNextCondition(parser, includeBitwise, insideVariable, forceBitwise), position);
             } else if (next == 'v') {
                 parser.next(true);
                 next = parser.next(true);
@@ -72,10 +74,10 @@ public abstract class SignalInputCondition {
                     else
                         throw parser.exception("Invalid signal pattern");
                 }
-                return new SignalInputVirtualVariable(array.toArray(new SignalInputCondition[array.size()]));
+                return new SignalInputVirtualVariable(array.toArray(new SignalInputCondition[array.size()]), parsePosition(parser));
             } else if (next == 'n') {
                 parser.next(true);
-                return new SignalInputVirtualNumber(parser.parseNumber());
+                return new SignalInputVirtualNumber(parser.parseNumber(), parsePosition(parser));
             } else if (type == Character.LOWERCASE_LETTER)
                 return SignalInputVariable.parseInput(parser, insideVariable, forceBitwise);
             else if (type == Character.UPPERCASE_LETTER)
@@ -110,9 +112,29 @@ public abstract class SignalInputCondition {
             conditions.add(parseLowerExpression(parser, until, operator, includeBitwise, insideVariable));
             while (operator.goOn(parser))
                 conditions.add(parseLowerExpression(parser, until, operator, includeBitwise, insideVariable));
-            return operator.create(conditions.toArray(new SignalInputCondition[conditions.size()]));
+            return operator.create(conditions.toArray(new SignalInputCondition[conditions.size()]), parsePosition(parser));
         }
         return first;
+    }
+    
+    public static SignalPosition parsePosition(SignalPatternParser parser) throws ParseException {
+        if (parser.lookForNext(true) == ':') {
+            parser.next(true);
+            int x = parser.parseNumber();
+            if (parser.next(true) != ',')
+                throw parser.exception("Invalid coordinates");
+            int y = parser.parseNumber();
+            if (parser.next(true) != ';')
+                throw parser.exception("Invalid coordinates");
+            return new SignalPosition(x, y);
+        }
+        return null;
+    }
+    
+    public final SignalPosition position;
+    
+    public SignalInputCondition(SignalPosition position) {
+        this.position = position;
     }
     
     public abstract SignalState test(LittleStructure structure, boolean forceBitwise);
@@ -121,6 +143,12 @@ public abstract class SignalInputCondition {
     public abstract boolean testIndex(SignalState state);
     
     public abstract String write();
+    
+    protected String writePosition() {
+        if (position == null)
+            return "";
+        return ":" + position.x + "," + position.y + ";";
+    }
     
     protected abstract double internalDelay();
     
@@ -139,6 +167,10 @@ public abstract class SignalInputCondition {
     
     public static abstract class SignalInputConditionOperator extends SignalInputCondition {
         
+        public SignalInputConditionOperator(SignalPosition position) {
+            super(position);
+        }
+        
         @Override
         public SignalState test(LittleStructure structure, boolean forceBitwise) {
             return test(structure);
@@ -152,7 +184,8 @@ public abstract class SignalInputCondition {
         
         public SignalInputCondition condition;
         
-        public SignalInputConditionNotBitwise(SignalInputCondition condition) {
+        public SignalInputConditionNotBitwise(SignalInputCondition condition, SignalPosition position) {
+            super(position);
             this.condition = condition;
         }
         
@@ -168,7 +201,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public String write() {
-            return "~(" + condition.write() + ")";
+            return "~" + writePosition() + "(" + condition.write() + ")";
         }
         
         @Override
@@ -191,7 +224,8 @@ public abstract class SignalInputCondition {
         
         public SignalInputCondition condition;
         
-        public SignalInputConditionNot(SignalInputCondition condition) {
+        public SignalInputConditionNot(SignalInputCondition condition, SignalPosition position) {
+            super(position);
             this.condition = condition;
         }
         
@@ -207,7 +241,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public String write() {
-            return "!(" + condition.write() + ")";
+            return "!" + writePosition() + "(" + condition.write() + ")";
         }
         
         @Override
@@ -230,7 +264,8 @@ public abstract class SignalInputCondition {
         
         public int number;
         
-        public SignalInputVirtualNumber(int number) {
+        public SignalInputVirtualNumber(int number, SignalPosition position) {
+            super(position);
             this.number = number;
         }
         
@@ -246,7 +281,7 @@ public abstract class SignalInputCondition {
         
         @Override
         public String write() {
-            return "n" + number;
+            return "n" + number + writePosition();
         }
         
         @Override
@@ -270,7 +305,8 @@ public abstract class SignalInputCondition {
         
         public SignalInputCondition[] conditions;
         
-        public SignalInputVirtualVariable(SignalInputCondition[] conditions) {
+        public SignalInputVirtualVariable(SignalInputCondition[] conditions, SignalPosition position) {
+            super(position);
             this.conditions = conditions;
         }
         
@@ -295,7 +331,7 @@ public abstract class SignalInputCondition {
                     result += ",";
                 result += conditions[i].write();
             }
-            return result + "]";
+            return result + "]" + writePosition();
         }
         
         @Override
@@ -316,5 +352,7 @@ public abstract class SignalInputCondition {
             return null;
         }
     }
+    
+    public static record SignalPosition(int x, int y) {}
     
 }

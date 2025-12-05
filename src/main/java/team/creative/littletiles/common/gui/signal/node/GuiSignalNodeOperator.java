@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
+import javax.annotation.Nullable;
+
 import team.creative.creativecore.common.util.type.itr.ConsecutiveIterator;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 
 public class GuiSignalNodeOperator extends GuiSignalNode {
@@ -16,8 +19,8 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     private List<GuiSignalConnection> from = new ArrayList<>();
     private List<GuiSignalConnection> to = new ArrayList<>();
     
-    public GuiSignalNodeOperator(SignalLogicOperator operator) {
-        super(operator.display);
+    public GuiSignalNodeOperator(SignalLogicOperator operator, @Nullable SignalPosition position) {
+        super(operator.display, position);
         this.operator = operator;
     }
     
@@ -107,7 +110,7 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
             throw new GeneratePatternException(this, "novalidchildren");
         if (parsed.size() == 1)
             return parsed.get(0);
-        return operator.create(parsed.toArray(new SignalInputCondition[parsed.size()]));
+        return operator.create(parsed.toArray(new SignalInputCondition[parsed.size()]), position());
     }
     
 }

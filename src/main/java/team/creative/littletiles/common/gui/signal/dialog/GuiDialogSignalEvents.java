@@ -22,6 +22,7 @@ import team.creative.littletiles.common.gui.signal.mode.GuiSignalModeConfigurati
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
@@ -104,6 +105,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
     public static class GuiSignalEvent implements IConditionConfiguration {
         
         public final GuiSignalComponent component;
+        public SignalPosition outputPostion;
         public SignalInputCondition condition;
         public GuiSignalModeConfiguration modeConfig;
         public GuiPanel panel;
@@ -123,6 +125,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
                 this.condition = internal.condition;
                 SignalMode mode = internal.handler != null ? internal.handler.getMode() : component.defaultMode();
                 this.modeConfig = mode.createConfiguration(internal.handler);
+                this.outputPostion = internal.outputPosition;
             }
         }
         
@@ -135,13 +138,15 @@ public class GuiDialogSignalEvents extends GuiLayer {
                 this.condition = external.condition;
                 SignalMode mode = external.handler != null ? external.handler.getMode() : component.defaultMode();
                 this.modeConfig = mode.createConfiguration(external.handler);
+                this.outputPostion = external.outputPosition;
             }
         }
         
-        private GuiSignalEvent(GuiSignalComponent component, SignalInputCondition condition, GuiSignalModeConfiguration modeConfig) {
+        private GuiSignalEvent(GuiSignalComponent component, SignalInputCondition condition, GuiSignalModeConfiguration modeConfig, SignalPosition position) {
             this.component = component;
             this.condition = condition;
             this.modeConfig = modeConfig;
+            this.outputPostion = position;
         }
         
         public void reset() {
@@ -171,7 +176,12 @@ public class GuiDialogSignalEvents extends GuiLayer {
         }
         
         public GuiSignalEvent copy() {
-            return new GuiSignalEvent(component, condition, modeConfig.copy());
+            return new GuiSignalEvent(component, condition, modeConfig.copy(), outputPostion);
+        }
+        
+        @Override
+        public SignalPosition getOutputPosition() {
+            return outputPostion;
         }
         
         @Override
@@ -185,8 +195,9 @@ public class GuiDialogSignalEvents extends GuiLayer {
         }
         
         @Override
-        public void setCondition(SignalInputCondition condition) {
+        public void setCondition(SignalInputCondition condition, SignalPosition position) {
             this.condition = condition;
+            this.outputPostion = position;
         }
         
         @Override

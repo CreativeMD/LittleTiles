@@ -34,10 +34,11 @@ public abstract class SignalTarget {
                 
                 if (next == ']') {
                     parser.next(true);
-                    if (first instanceof SignalCustomIndexSingle)
-                        return new SignalTargetChildIndex(input, child, external, ((SignalCustomIndexSingle) first).index);
-                    else
-                        return new SignalTargetChildIndexRange(input, child, external, ((SignalCustomIndexRange) first).index, ((SignalCustomIndexRange) first).length);
+                    if (first instanceof SignalCustomIndexSingle s)
+                        return new SignalTargetChildIndex(input, child, external, s.index);
+                    else if (first instanceof SignalCustomIndexRange r)
+                        return new SignalTargetChildIndexRange(input, child, external, r.index, r.length);
+                    throw parser.exception("Invalid index");
                 } else if (next == ',') {
                     List<SignalCustomIndex> indexes = new ArrayList<>();
                     indexes.add(first);

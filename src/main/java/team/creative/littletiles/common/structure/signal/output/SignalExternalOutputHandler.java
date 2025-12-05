@@ -15,6 +15,7 @@ import team.creative.littletiles.common.structure.signal.component.ISignalCompon
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.type.premade.signal.LittleSignalOutput;
 
@@ -24,12 +25,14 @@ public class SignalExternalOutputHandler implements ISignalComponent {
     public final int index;
     public SignalInputCondition condition;
     public SignalOutputHandler handler;
+    public SignalPosition outputPosition;
     
-    public SignalExternalOutputHandler(LittleStructure structure, int index, SignalInputCondition condition, Function<ISignalComponent, SignalOutputHandler> function) {
+    public SignalExternalOutputHandler(LittleStructure structure, int index, SignalInputCondition condition, Function<ISignalComponent, SignalOutputHandler> function, SignalPosition position) {
         this.structure = structure;
         this.index = index;
         this.condition = condition;
         this.handler = function.apply(this);
+        this.outputPosition = position;
     }
     
     public SignalExternalOutputHandler(LittleStructure structure, CompoundTag nbt) throws ParseException {
@@ -50,6 +53,10 @@ public class SignalExternalOutputHandler implements ISignalComponent {
         if (condition != null)
             delay = Math.max((int) Math.ceil(condition.calculateDelay()), nbt.getInt("delay"));
         handler = SignalOutputHandler.create(this, mode, delay, nbt, structure);
+        if (nbt.contains("x"))
+            outputPosition = new SignalPosition(nbt.getInt("x"), nbt.getInt("y"));
+        else
+            outputPosition = null;
     }
     
     public ISignalStructureComponent getOutput() throws CorruptedConnectionException, NotYetConnectedException {
@@ -92,6 +99,10 @@ public class SignalExternalOutputHandler implements ISignalComponent {
         if (handler != null) {
             nbt.putInt("delay", handler.delay);
             handler.write(preview, nbt);
+        }
+        if (outputPosition != null) {
+            nbt.putInt("x", outputPosition.x());
+            nbt.putInt("y", outputPosition.y());
         }
         return nbt;
     }
