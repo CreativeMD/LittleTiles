@@ -56,6 +56,7 @@ import team.creative.littletiles.common.action.exception.GridTooHighException;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.exception.NotAllowedToConvertBlockException;
 import team.creative.littletiles.common.action.exception.NotAllowedToPlaceColorException;
+import team.creative.littletiles.common.action.exception.NotAllowedToPlaceTransformableException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.registry.LittleBlockRegistry;
@@ -75,6 +76,7 @@ import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleTransformableBox;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.packet.update.BlockUpdate;
 import team.creative.littletiles.common.packet.update.BlocksUpdate;
@@ -120,9 +122,9 @@ public abstract class LittleAction<T> extends CreativePacket {
     public static boolean canConvertBlock(Player player, Level level, BlockPos pos, BlockState state, int affected) throws LittleActionException {
         LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
         if (config.affectedBlockLimit.isEnabled() && config.affectedBlockLimit.value < affected)
-            throw new NotAllowedToConvertBlockException(player, config);
+            throw new NotAllowedToConvertBlockException(config);
         if (!config.editUnbreakable && state.getBlock().defaultDestroyTime() < 0)
-            throw new NotAllowedToConvertBlockException(player, config);
+            throw new NotAllowedToConvertBlockException(config);
         return LittleTiles.CONFIG.canEditBlock(player, state, pos);
     }
     
@@ -309,15 +311,20 @@ public abstract class LittleAction<T> extends CreativePacket {
             return true;
         
         if (tile.hasColor() && ColorUtils.alpha(tile.color) < LittleTiles.CONFIG.getMinimumTransparency(player))
-            throw new NotAllowedToPlaceColorException(player, LittleTiles.CONFIG.build.get(player));
+            throw new NotAllowedToPlaceColorException(LittleTiles.CONFIG.build.get(player));
         
+        if (!LittleTiles.CONFIG.build.get(player).placeTransformableBoxes)
+            for (LittleBox box : tile)
+                if (box instanceof LittleTransformableBox)
+                    throw new NotAllowedToPlaceTransformableException();
+                
         return true;
     }
     
     public static boolean isAllowedToUse(Player player, IGridBased grid) throws LittleActionException {
         LittlePermissionBuild build = LittleTiles.CONFIG.build.get(player);
         if (build.gridLimit.isEnabled() && build.gridLimit.value < grid.getSmallest())
-            throw new GridTooHighException(player, build, grid.getSmallest());
+            throw new GridTooHighException(build, grid.getSmallest());
         return true;
     }
     

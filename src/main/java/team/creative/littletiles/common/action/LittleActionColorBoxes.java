@@ -194,7 +194,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
         LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
         
         if (ColorUtils.alpha(color) < LittleTiles.CONFIG.getMinimumTransparency(player))
-            throw new NotAllowedToPlaceColorException(player, config);
+            throw new NotAllowedToPlaceColorException(config);
         
         fireBlockBreakEvent(level, pos, player);
         

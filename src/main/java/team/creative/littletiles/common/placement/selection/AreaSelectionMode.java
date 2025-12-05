@@ -116,7 +116,7 @@ public class AreaSelectionMode extends SelectionMode {
         LittlePermissionBuild config = LittleTiles.CONFIG.build.get(selection.player());
         
         if (config.blueprintSizeLimit.isEnabled() && (maxX - minX) * (maxY - minY) * (maxZ - minZ) > config.blueprintSizeLimit.value)
-            throw new AreaTooLarge(selection.player(), config);
+            throw new AreaTooLarge(config);
         
         AreaSelectionSearch search = new AreaSelectionSearch(selection);
         search.scanLevel(selection.level(), minX, minY, minZ, maxX, maxY, maxZ);

@@ -73,7 +73,7 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
         if (LittleTiles.CONFIG.isEditLimited(player)) {
             LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
             if (boxes.getSurroundingBox().getPercentVolume(boxes.grid) > config.editBlockLimit.value)
-                throw new NotAllowedToEditException(player, config);
+                throw new NotAllowedToEditException(config);
         }
         
         isAllowedToUse(player, boxes);

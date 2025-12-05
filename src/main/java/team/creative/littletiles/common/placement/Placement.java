@@ -174,7 +174,7 @@ public class Placement {
                 if (LittleTiles.CONFIG.isPlaceLimited(player) && preview.previews.getVolumeIncludingChildren() > config.placeBlockLimit.value) {
                     for (BlockPos pos : blocks.keySet())
                         LittleAction.sendBlockResetToClient(level, player, pos);
-                    throw new NotAllowedToPlaceException(player, config);
+                    throw new NotAllowedToPlaceException(config);
                 }
                 
                 if (LittleTiles.CONFIG.isTransparencyRestricted(player))

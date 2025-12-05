@@ -55,6 +55,9 @@ public class LittlePermissionBuild {
     @CreativeConfig
     public int defaultGrid = 16;
     
+    @CreativeConfig
+    public boolean placeTransformableBoxes = true;
+    
     public TextMapBuilder<LittleGrid> gridBuilder() {
         if (!gridLimit.isEnabled() || gridLimit.value >= LittleGrid.getMax().count)
             return LittleGrid.mapBuilder();
