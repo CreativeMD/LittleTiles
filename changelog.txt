@@ -1,3 +1,8 @@
+1.6.0-pre190
+Added gate and ngate to signals
+Added new logic comparator for signals
+Fixed same operators not saving their position in signal equation editor
+
 1.6.0-pre189
 Added placeTransformableBoxes config option
 Added saving positions of signal condition screen
