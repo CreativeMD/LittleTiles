@@ -26,6 +26,7 @@ import team.creative.littletiles.common.gui.signal.GuiSignalController;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicComparator;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
@@ -113,6 +114,10 @@ public class GuiDialogSignal extends GuiLayer {
         map.addComponent(x -> x.addOperator(SignalLogicOperator.SUB), Component.literal(SignalLogicOperator.SUB.display));
         map.addComponent(x -> x.addOperator(SignalLogicOperator.MUL), Component.literal(SignalLogicOperator.MUL.display));
         map.addComponent(x -> x.addOperator(SignalLogicOperator.DIV), Component.literal(SignalLogicOperator.DIV.display));
+        map.addComponent(x -> x.addComparator(SignalLogicComparator.GREATER), Component.literal(SignalLogicComparator.GREATER.operator));
+        map.addComponent(x -> x.addComparator(SignalLogicComparator.GREATER_EQUALS), Component.literal(SignalLogicComparator.GREATER_EQUALS.operator));
+        map.addComponent(x -> x.addComparator(SignalLogicComparator.SMALLER), Component.literal(SignalLogicComparator.SMALLER.operator));
+        map.addComponent(x -> x.addComparator(SignalLogicComparator.SMALLER_EQUALS), Component.literal(SignalLogicComparator.SMALLER_EQUALS.operator));
         
         GuiComboBox<Consumer<GuiSignalController>> operators = new GuiComboBox<>("operators", map);
         bottom.addLeft(operators);

@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.gui.signal.node;
 
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -30,25 +29,6 @@ public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
     @Override
     public boolean canConnectFrom(GuiSignalNode node) {
         return from == null;
-    }
-    
-    @Override
-    public Iterator<GuiSignalConnection> iterator() {
-        return new Iterator<GuiSignalConnection>() {
-            
-            public boolean has = from != null;
-            
-            @Override
-            public boolean hasNext() {
-                return has;
-            }
-            
-            @Override
-            public GuiSignalConnection next() {
-                has = false;
-                return from;
-            }
-        };
     }
     
     @Override
@@ -87,11 +67,6 @@ public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
     public void remove() {
         if (from != null)
             from.disconnect(controller());
-    }
-    
-    @Override
-    public int indexOf(GuiSignalConnection connection) {
-        return 0;
     }
     
     @Override

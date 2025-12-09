@@ -2,7 +2,6 @@ package team.creative.littletiles.common.gui.signal.node;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -76,11 +75,6 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     }
     
     @Override
-    public Iterator<GuiSignalConnection> iterator() {
-        return tos.iterator();
-    }
-    
-    @Override
     public Iterable<GuiSignalConnection> toConnections() {
         return tos;
     }
@@ -89,11 +83,6 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     public void remove() {
         for (GuiSignalConnection connection : new ArrayList<>(tos))
             connection.disconnect(controller());
-    }
-    
-    @Override
-    public int indexOf(GuiSignalConnection connection) {
-        return tos.indexOf(connection);
     }
     
     @Override

@@ -35,4 +35,13 @@ public class LittleConfigSignal {
     @CreativeConfig
     public double divDuration = 5;
     
+    @CreativeConfig
+    public double greater = 0.5;
+    @CreativeConfig
+    public double greaterEquals = 0.5;
+    @CreativeConfig
+    public double smaller = 0.5;
+    @CreativeConfig
+    public double smallerEquals = 0.5;
+    
 }

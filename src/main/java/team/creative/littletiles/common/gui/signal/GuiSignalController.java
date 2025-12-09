@@ -42,6 +42,7 @@ import team.creative.creativecore.common.util.type.itr.NestedIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNode;
+import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeComparator;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeInput;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeNotOperator;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeOperator;
@@ -55,6 +56,8 @@ import team.creative.littletiles.common.structure.signal.input.SignalInputCondit
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualVariable;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicComparator;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicComparator.SignalInputConditionComparator;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator.SignalInputConditionOperatorStackable;
 
@@ -165,27 +168,24 @@ public class GuiSignalController extends GuiParent {
         RenderSystem.disableCull();
         RenderSystem.lineWidth((float) (2 * scale));
         RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        double originX = node.rect.getX() - getContentOffset();
-        double originY = node.rect.getY() - getContentOffset();
-        for (GuiSignalConnection connection : node) {
-            GuiControl other = connection.from() == node ? connection.to() : connection.from();
+        float originX = node.rect.getX() - getContentOffset();
+        float originY = node.rect.getY() - getContentOffset();
+        for (GuiSignalConnection connection : node.toConnections()) {
+            GuiControl other = connection.from();
             if (!hover)
                 hover = other.toScreenRect(new Rect(0, 0, other.rect.getWidth(), other.rect.getHeight())).inside(mouseX, mouseY);
-            if (connection.from() == node)
-                renderConnection(matrix, node.rect, other.rect, hover, originX, originY);
-            else
-                renderConnection(matrix, other.rect, node.rect, hover, originX, originY);
+            renderConnection(matrix, connection, hover, originX, originY);
         }
     }
     
     @Environment(EnvType.CLIENT)
     @OnlyIn(Dist.CLIENT)
-    private void renderConnection(Matrix4f matrix, GuiControlRect from, GuiControlRect to, boolean hover, double originX, double originY) {
+    private void renderConnection(Matrix4f matrix, GuiSignalConnection connection, boolean hover, float originX, float originY) {
         int color = hover ? ColorUtils.WHITE : ColorUtils.BLACK;
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder builder = tesselator.begin(Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        builder.addVertex(matrix, (float) (from.getRight() - originX), (float) ((from.getY() + from.getBottom()) * 0.5 - originY), 0).setColor(color).setNormal(1, 0, 0);
-        builder.addVertex(matrix, (float) (to.getX() - originX), (float) ((to.getY() + to.getBottom()) * 0.5 - originY), 0).setColor(color).setNormal(1, 0, 0);
+        builder.addVertex(matrix, connection.fromX() - originX, connection.fromY() - originY, 0).setColor(color).setNormal(1, 0, 0);
+        builder.addVertex(matrix, connection.toX() - originX, connection.toY() - originY, 0).setColor(color).setNormal(1, 0, 0);
         BufferUploader.drawWithShader(builder.buildOrThrow());
     }
     
@@ -356,7 +356,13 @@ public class GuiSignalController extends GuiParent {
             node = new GuiSignalNodeVirtualInput(variable, variable.position);
         else if (condition instanceof SignalInputVirtualNumber number)
             node = new GuiSignalNodeVirtualNumberInput(number, number.position);
-        else
+        else if (condition instanceof SignalInputConditionComparator com) {
+            node = new GuiSignalNodeComparator(com.comparator, com.position);
+            for (SignalInputCondition subCondition : com.conditions) {
+                GuiSignalNode child = fill(subCondition, signal, parsed, level + 1);
+                GuiSignalConnection.connect(child, node);
+            }
+        } else
             throw new ParseException("Invalid condition type", 0);
         while (parsed.size() <= level)
             parsed.add(new ArrayList<>());
@@ -384,6 +390,10 @@ public class GuiSignalController extends GuiParent {
         return setToFreeCell(1, new GuiSignalNodeOperator(operator, null));
     }
     
+    public GuiSignalNodeComparator addComparator(SignalLogicComparator comparator) {
+        return setToFreeCell(1, new GuiSignalNodeComparator(comparator, null));
+    }
+    
     public GuiSignalNode selected() {
         return selected;
     }
@@ -407,9 +417,7 @@ public class GuiSignalController extends GuiParent {
                 connection.disconnect(this);
                 raiseEvent(new GuiControlChangedEvent(this));
             } else if (selected.canConnectTo(node) && node.canConnectFrom(selected)) {
-                connection = new GuiSignalConnection(selected, node);
-                selected.connect(connection);
-                node.connect(connection);
+                GuiSignalConnection.connect(selected, node);
                 raiseEvent(new GuiControlChangedEvent(this));
             }
         }

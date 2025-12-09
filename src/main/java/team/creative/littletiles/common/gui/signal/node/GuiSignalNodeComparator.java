@@ -3,23 +3,31 @@ package team.creative.littletiles.common.gui.signal.node;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
+import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
-import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicComparator;
 
-public class GuiSignalNodeOperator extends GuiSignalNode {
+public class GuiSignalNodeComparator extends GuiSignalNode {
     
-    public final SignalLogicOperator operator;
-    private List<GuiSignalConnection> from = new ArrayList<>();
-    private List<GuiSignalConnection> to = new ArrayList<>();
+    public SignalLogicComparator comparater;
     
-    public GuiSignalNodeOperator(SignalLogicOperator operator, @Nullable SignalPosition position) {
-        super(operator.display, position);
-        this.operator = operator;
+    public GuiSignalConnection first;
+    public GuiSignalConnection second;
+    public List<GuiSignalConnection> to = new ArrayList<>();
+    
+    public GuiSignalNodeComparator(SignalLogicComparator comparater, SignalPosition position) {
+        super(comparater.operator, position);
+        this.comparater = comparater;
+    }
+    
+    @Override
+    public GuiSignalNodeAnchor connectionAnchor(boolean from, GuiSignalNode other) {
+        if (!from)
+            return first == null ? GuiSignalNodeAnchor.TOP : GuiSignalNodeAnchor.BOTTOM;
+        return super.connectionAnchor(from, other);
     }
     
     @Override
@@ -32,10 +40,11 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     
     @Override
     public boolean canConnectFrom(GuiSignalNode node) {
-        for (GuiSignalConnection connectFrom : from)
-            if (connectFrom.from() == node)
-                return false;
-        return true;
+        if (first != null && first.from() == node)
+            return false;
+        if (second != null && second.from() == node)
+            return false;
+        return first == null || second == null;
     }
     
     @Override
@@ -48,9 +57,12 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     
     @Override
     public void disconnect(GuiSignalConnection connection) {
-        if (connection.to() == this)
-            from.remove(connection);
-        else
+        if (connection.to() == this) {
+            if (first == connection)
+                first = null;
+            else
+                second = null;
+        } else
             to.remove(connection);
     }
     
@@ -61,16 +73,21 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     
     @Override
     public void connect(GuiSignalConnection connection) {
-        if (connection.to() == this)
-            from.add(connection);
-        else
+        if (connection.to() == this) {
+            if (first == null)
+                first = connection;
+            else
+                second = connection;
+        } else
             to.add(connection);
     }
     
     @Override
     public void remove() {
-        for (GuiSignalConnection connection : new ArrayList<>(from))
-            connection.disconnect(controller());
+        if (first != null)
+            first.disconnect(controller());
+        if (second != null)
+            second.disconnect(controller());
         for (GuiSignalConnection connection : new ArrayList<>(to))
             connection.disconnect(controller());
     }
@@ -78,24 +95,22 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     @Override
     public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
         reset();
-        if (from.isEmpty())
+        if (first == null && second == null)
             throw new GeneratePatternException(this, "empty");
         if (processed.contains(this))
             throw new GeneratePatternException(this, "circular");
         processed.add(this);
-        if (from.size() == 1)
-            return from.get(0).from().generateCondition(processed);
         List<SignalInputCondition> parsed = new ArrayList<>();
-        for (int i = 0; i < from.size(); i++)
-            try {
-                parsed.add(from.get(i).from().generateCondition(new ArrayList<>(processed)));
-            } catch (GeneratePatternException e) {}
+        if (first != null)
+            parsed.add(first.from().generateCondition(new ArrayList<>(processed)));
+        if (second != null)
+            parsed.add(second.from().generateCondition(new ArrayList<>(processed)));
         
         if (parsed.isEmpty())
             throw new GeneratePatternException(this, "novalidchildren");
         if (parsed.size() == 1)
             return parsed.get(0);
-        return operator.create(parsed.toArray(new SignalInputCondition[parsed.size()]), position());
+        return comparater.create(parsed.toArray(new SignalInputCondition[parsed.size()]), position());
     }
     
 }

@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.gui.signal.node;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -54,40 +53,6 @@ public class GuiSignalNodeNotOperator extends GuiSignalNode {
     }
     
     @Override
-    public Iterator<GuiSignalConnection> iterator() {
-        return new Iterator<GuiSignalConnection>() {
-            
-            public int index = 0;
-            public Iterator<GuiSignalConnection> iterator = to.iterator();
-            
-            @Override
-            public boolean hasNext() {
-                if (index == 0)
-                    return from != null || iterator.hasNext();
-                else if (index == 1)
-                    return iterator.hasNext();
-                return false;
-            }
-            
-            @Override
-            public GuiSignalConnection next() {
-                if (index == 0) {
-                    index++;
-                    if (from != null)
-                        return from;
-                    else {
-                        index++;
-                        return iterator.next();
-                    }
-                } else if (index == 1)
-                    return iterator.next();
-                
-                throw new UnsupportedOperationException();
-            }
-        };
-    }
-    
-    @Override
     public Iterable<GuiSignalConnection> toConnections() {
         return to;
     }
@@ -106,13 +71,6 @@ public class GuiSignalNodeNotOperator extends GuiSignalNode {
             from.disconnect(controller());
         for (GuiSignalConnection connection : new ArrayList<>(to))
             connection.disconnect(controller());
-    }
-    
-    @Override
-    public int indexOf(GuiSignalConnection connection) {
-        if (connection.to() == this)
-            return 0;
-        return to.indexOf(connection);
     }
     
     @Override

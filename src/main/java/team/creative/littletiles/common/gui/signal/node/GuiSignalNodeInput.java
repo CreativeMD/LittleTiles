@@ -2,7 +2,6 @@ package team.creative.littletiles.common.gui.signal.node;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -46,21 +45,21 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     public GuiSignalNodeInput(SignalInputVariable variable, GuiSignalComponent com, @Nullable SignalPosition position) throws ParseException {
         super(com, position);
         SignalTarget target = variable.target.getNestedTarget();
-        if (target instanceof SignalTargetChildCustomIndex)
-            indexes = ((SignalTargetChildCustomIndex) target).indexes;
-        else if (target instanceof SignalTargetChildIndex)
-            indexes = new SignalCustomIndex[] { new SignalCustomIndexSingle(((SignalTargetChildIndex) target).index) };
-        else if (target instanceof SignalTargetChildIndexRange)
-            indexes = new SignalCustomIndex[] { new SignalCustomIndexRange(((SignalTargetChildIndexRange) target).index, ((SignalTargetChildIndexRange) target).index + ((SignalTargetChildIndexRange) target).length - 1) };
-        if (variable instanceof SignalInputVariableOperator) {
+        if (target instanceof SignalTargetChildCustomIndex c)
+            indexes = c.indexes;
+        else if (target instanceof SignalTargetChildIndex c)
+            indexes = new SignalCustomIndex[] { new SignalCustomIndexSingle(c.index) };
+        else if (target instanceof SignalTargetChildIndexRange c)
+            indexes = new SignalCustomIndex[] { new SignalCustomIndexRange(c.index, c.index + c.length - 1) };
+        if (variable instanceof SignalInputVariableOperator o) {
             operator = 1;
-            logic = ((SignalInputVariableOperator) variable).operator;
-        } else if (variable instanceof SignalInputVariablePattern) {
+            logic = o.operator;
+        } else if (variable instanceof SignalInputVariablePattern p) {
             operator = 2;
-            pattern = ((SignalInputVariablePattern) variable).indexes;
-        } else if (variable instanceof SignalInputVariableEquation) {
+            pattern = p.indexes;
+        } else if (variable instanceof SignalInputVariableEquation e) {
             operator = 3;
-            equation = ((SignalInputVariableEquation) variable).condition;
+            equation = e.condition;
         } else
             operator = 0;
         updateLabel();
@@ -151,11 +150,6 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     }
     
     @Override
-    public Iterator<GuiSignalConnection> iterator() {
-        return tos.iterator();
-    }
-    
-    @Override
     public Iterable<GuiSignalConnection> toConnections() {
         return tos;
     }
@@ -164,11 +158,6 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     public void remove() {
         for (GuiSignalConnection connection : new ArrayList<>(tos))
             connection.disconnect(controller());
-    }
-    
-    @Override
-    public int indexOf(GuiSignalConnection connection) {
-        return tos.indexOf(connection);
     }
     
     @Override

@@ -29,6 +29,26 @@ public class SignalPatternParser {
         }
     }
     
+    public String lookForNext(int length, boolean skipSpace) {
+        if (skipSpace) {
+            StringBuilder result = new StringBuilder();
+            int index = pos + 1;
+            int counter = 0;
+            while (counter < length && hasNext()) {
+                char next = pattern.charAt(index);
+                index++;
+                if (Character.isWhitespace(next))
+                    continue;
+                result.append(next);
+                counter++;
+            }
+            return result.toString();
+        }
+        if (hasNext())
+            return pattern.substring(pos + 1, Math.min(pattern.length(), pos + 1 + length));
+        return "";
+    }
+    
     public char lookForNext(boolean skipSpace) {
         if (skipSpace) {
             char next = ' ';
@@ -55,6 +75,19 @@ public class SignalPatternParser {
         } catch (NumberFormatException e) {
             throw exception("Invalid number " + digit);
         }
+    }
+    
+    public void skip(int amount, boolean skipSpace) {
+        if (skipSpace) {
+            int counter = 0;
+            while (counter < amount && hasNext()) {
+                char next = pattern.charAt(++pos);
+                if (Character.isWhitespace(next))
+                    continue;
+                counter++;
+            }
+        } else
+            pos += amount;
     }
     
     public int position() {

@@ -10,10 +10,11 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalController;
+import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
-public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSignalConnection> {
+public abstract class GuiSignalNode extends GuiButton {
     
     private int x = -1;
     private int y = -1;
@@ -109,8 +110,10 @@ public abstract class GuiSignalNode extends GuiButton implements Iterable<GuiSig
     
     public abstract void remove();
     
-    public abstract int indexOf(GuiSignalConnection connection);
-    
     public abstract Iterable<GuiSignalConnection> toConnections();
+    
+    public GuiSignalNodeAnchor connectionAnchor(boolean from, GuiSignalNode other) {
+        return from ? GuiSignalNodeAnchor.RIGHT : GuiSignalNodeAnchor.LEFT;
+    }
     
 }

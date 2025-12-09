@@ -2,7 +2,6 @@ package team.creative.littletiles.common.gui.signal.dialog;
 
 import java.text.ParseException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.network.chat.Component;
@@ -67,7 +66,7 @@ public class GuiDialogSignalInput extends GuiLayer {
             public void load(GuiSignalNodeInput input, GuiParent panel) {
                 panel.add(
                     new GuiStateButton<SignalLogicOperator>("operation", input.logic == null ? SignalLogicOperator.AND : input.logic, new TextMapBuilder<SignalLogicOperator>()
-                            .addComponent(Arrays.asList(SignalLogicOperator.AND, SignalLogicOperator.OR, SignalLogicOperator.XOR), x -> Component.literal(x.display))));
+                            .addComponent(SignalLogicOperator.NON_BITWISE_OPERATORS, x -> Component.literal(x.display))));
             }
             
             @Override

@@ -1,7 +1,8 @@
 package team.creative.littletiles.common.structure.signal.logic;
 
-import java.text.ParseException;
+import java.util.Arrays;
 import java.util.Iterator;
+import java.util.List;
 
 import team.creative.creativecore.common.util.type.itr.ArrayIterator;
 import team.creative.littletiles.LittleTiles;
@@ -12,7 +13,7 @@ import team.creative.littletiles.common.structure.signal.input.SignalInputCondit
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionOperator;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
-public enum SignalLogicOperator {
+public enum SignalLogicOperator implements SignalLogicEntry {
     
     AND('\n', false, "and", "") {
         @Override
@@ -422,16 +423,6 @@ public enum SignalLogicOperator {
         }
     };
     
-    public static final SignalLogicOperator HIGHEST_GENERAL = XOR;
-    
-    public static final SignalLogicOperator HIGHEST = DIV;
-    
-    public static SignalLogicOperator getHighest(boolean includeBitwise) {
-        if (includeBitwise)
-            return HIGHEST;
-        return HIGHEST_GENERAL;
-    }
-    
     public static SignalLogicOperator getOperator(char character) {
         switch (character) {
             case '&':
@@ -457,6 +448,8 @@ public enum SignalLogicOperator {
         }
     }
     
+    public static final List<SignalLogicOperator> NON_BITWISE_OPERATORS = Arrays.asList(SignalLogicOperator.AND, SignalLogicOperator.OR, SignalLogicOperator.XOR);
+    
     public final char operator;
     public final boolean bitwise;
     public final String display;
@@ -473,19 +466,14 @@ public enum SignalLogicOperator {
         this.seperator = seperator;
     }
     
-    public abstract SignalLogicOperator lower();
+    @Override
+    public String operator() {
+        return String.valueOf(operator);
+    }
     
-    public boolean goOn(SignalPatternParser parser) throws ParseException {
-        if (parser.hasNext()) {
-            if (this == AND) {
-                char next = parser.lookForNext(true);
-                return next == '(' || next == '!' || next <= 122 & next >= 97;
-            } else if (parser.lookForNext(true) == operator) {
-                parser.next(true);
-                return true;
-            }
-        }
-        return false;
+    @Override
+    public int maxArgmumentCount() {
+        return -1;
     }
     
     public abstract boolean perform(boolean first, boolean second);
@@ -493,8 +481,6 @@ public enum SignalLogicOperator {
     public abstract int perform(int first, int second);
     
     public abstract long perform(long first, long second);
-    
-    public abstract SignalInputCondition create(SignalInputCondition[] conditions, SignalPosition position);
     
     public static abstract class SignalInputConditionOperatorStackable extends SignalInputConditionOperator {
         

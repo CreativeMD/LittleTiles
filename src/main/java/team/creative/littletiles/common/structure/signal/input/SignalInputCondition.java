@@ -13,7 +13,7 @@ import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;
-import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
+import team.creative.littletiles.common.structure.signal.logic.SignalLogicEntry;
 import team.creative.littletiles.common.structure.signal.logic.SignalPatternParser;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
@@ -46,7 +46,7 @@ public abstract class SignalInputCondition {
             
             if (next == '(') {
                 parser.next(true);
-                SignalInputCondition condition = parseExpression(parser, new char[] { ')' }, SignalLogicOperator.getHighest(includeBitwise), includeBitwise, insideVariable);
+                SignalInputCondition condition = parseExpression(parser, new char[] { ')' }, SignalLogicEntry.getHighest(includeBitwise), includeBitwise, insideVariable);
                 parser.next(true);
                 return condition;
             } else if (next == '!') {
@@ -88,7 +88,7 @@ public abstract class SignalInputCondition {
         return null;
     }
     
-    private static SignalInputCondition parseLowerExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise,
+    private static SignalInputCondition parseLowerExpression(SignalPatternParser parser, char[] until, SignalLogicEntry operator, boolean includeBitwise,
             boolean insideVariable) throws ParseException {
         if (operator.lower() != null)
             return parseExpression(parser, until, operator.lower(), includeBitwise, insideVariable);
@@ -96,10 +96,10 @@ public abstract class SignalInputCondition {
     }
     
     public static SignalInputCondition parseExpression(SignalPatternParser parser, char[] until, boolean includeBitwise, boolean insideVariable) throws ParseException {
-        return parseExpression(parser, until, SignalLogicOperator.getHighest(includeBitwise), includeBitwise, insideVariable);
+        return parseExpression(parser, until, SignalLogicEntry.getHighest(includeBitwise), includeBitwise, insideVariable);
     }
     
-    public static SignalInputCondition parseExpression(SignalPatternParser parser, char[] until, SignalLogicOperator operator, boolean includeBitwise,
+    public static SignalInputCondition parseExpression(SignalPatternParser parser, char[] until, SignalLogicEntry operator, boolean includeBitwise,
             boolean insideVariable) throws ParseException {
         SignalInputCondition first = parseLowerExpression(parser, until, operator, includeBitwise, insideVariable);
         
@@ -112,6 +112,8 @@ public abstract class SignalInputCondition {
             conditions.add(parseLowerExpression(parser, until, operator, includeBitwise, insideVariable));
             while (operator.goOn(parser))
                 conditions.add(parseLowerExpression(parser, until, operator, includeBitwise, insideVariable));
+            if (operator.maxArgmumentCount() >= 0 && conditions.size() > operator.maxArgmumentCount())
+                throw parser.exception("Operator " + operator.operator() + " does not except " + conditions.size() + " arguments");
             return operator.create(conditions.toArray(new SignalInputCondition[conditions.size()]), parsePosition(parser));
         }
         return first;
