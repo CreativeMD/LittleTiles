@@ -544,7 +544,7 @@ public enum SignalLogicOperator implements SignalLogicEntry {
                         result += operator().seperator;
                     result += conditions[i].write();
                 }
-                return result + ")";
+                return result + writePosition() + ")";
             }
             String result = "";
             for (int i = 0; i < conditions.length; i++) {

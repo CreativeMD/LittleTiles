@@ -204,7 +204,7 @@ public enum SignalLogicComparator implements SignalLogicEntry {
                     result += comparator.operator;
                 result += conditions[i].write();
             }
-            return result + ")";
+            return result + writePosition() + ")";
         }
         
         @Override
