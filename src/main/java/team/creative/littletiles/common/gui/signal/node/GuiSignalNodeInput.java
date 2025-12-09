@@ -13,6 +13,7 @@ import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
+import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable;
@@ -96,7 +97,7 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
             operatorText = "...";
         if (!operatorText.isEmpty())
             caption += "{" + operatorText + "}";
-        setTitle(Component.literal(caption));
+        button.setTitle(Component.literal(caption));
         raiseEvent(new GuiControlChangedEvent(controller()));
     }
     
@@ -127,7 +128,7 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     }
     
     @Override
-    public boolean canConnectTo(GuiSignalNode node) {
+    public boolean canConnectTo(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         for (GuiSignalConnection connectTo : tos)
             if (connectTo.to() == node)
                 return false;
@@ -135,7 +136,7 @@ public class GuiSignalNodeInput extends GuiSignalNodeComponent {
     }
     
     @Override
-    public boolean canConnectFrom(GuiSignalNode node) {
+    public boolean canConnectFrom(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         return false;
     }
     

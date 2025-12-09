@@ -44,4 +44,9 @@ public class LittleConfigSignal {
     @CreativeConfig
     public double smallerEquals = 0.5;
     
+    @CreativeConfig
+    public double gate = 0.01;
+    @CreativeConfig
+    public double nGate = 0.01;
+    
 }

@@ -5,30 +5,48 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.network.chat.Component;
+import team.creative.creativecore.common.gui.GuiParent;
+import team.creative.creativecore.common.gui.control.simple.GuiButton;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
-import team.creative.littletiles.common.structure.signal.logic.SignalLogicComparator;
+import team.creative.littletiles.common.structure.signal.logic.SignalInputConditionGate;
 
-public class GuiSignalNodeComparator extends GuiSignalNode {
+public class GuiSignalNodeGate extends GuiSignalNode {
     
-    public SignalLogicComparator comparater;
-    
+    public final boolean invert;
     public GuiSignalConnection first;
     public GuiSignalConnection second;
     public List<GuiSignalConnection> to = new ArrayList<>();
+    public GuiParent upper;
     
-    public GuiSignalNodeComparator(SignalLogicComparator comparater, SignalPosition position) {
-        super(comparater.operator, position);
-        this.comparater = comparater;
+    public GuiSignalNodeGate(boolean invert, SignalPosition position) {
+        super(invert ? "ngate" : "gate", position);
+        this.invert = invert;
+    }
+    
+    @Override
+    protected void beforeAddingButton() {
+        super.beforeAddingButton();
+        upper = new GuiParent();
+        add(upper.setScale(0.5));
+        upper.add(new GuiButton("", x -> {
+            controller().selectOrConnect(GuiSignalNodeGate.this, UPPER_BOTTOM, false);
+        }).setTitle(Component.literal("if")));
+    }
+    
+    @Override
+    protected GuiSignalNodeAnchor buttonAnchor() {
+        return GuiSignalNodeAnchor.LEFT;
     }
     
     @Override
     public GuiSignalNodeAnchor connectionAnchor(boolean from, GuiSignalNode other) {
         if (!from)
-            return first == null ? GuiSignalNodeAnchor.TOP : GuiSignalNodeAnchor.BOTTOM;
+            return first == null ? UPPER_BOTTOM : GuiSignalNodeAnchor.LEFT;
         return super.connectionAnchor(from, other);
     }
     
@@ -46,7 +64,12 @@ public class GuiSignalNodeComparator extends GuiSignalNode {
             return false;
         if (second != null && second.from() == node)
             return false;
-        return first == null || second == null;
+        
+        if (anchor == null)
+            return first == null || second == null;
+        if (anchor == UPPER_BOTTOM)
+            return first == null;
+        return second == null;
     }
     
     @Override
@@ -76,10 +99,10 @@ public class GuiSignalNodeComparator extends GuiSignalNode {
     @Override
     public void connect(GuiSignalConnection connection) {
         if (connection.to() == this) {
-            if (first == null)
-                first = connection;
-            else
+            if (connection.toAnchor() == GuiSignalNodeAnchor.LEFT)
                 second = connection;
+            else
+                first = connection;
         } else
             to.add(connection);
     }
@@ -112,7 +135,21 @@ public class GuiSignalNodeComparator extends GuiSignalNode {
             throw new GeneratePatternException(this, "novalidchildren");
         if (parsed.size() == 1)
             return parsed.get(0);
-        return comparater.create(parsed.toArray(new SignalInputCondition[parsed.size()]), position());
+        return new SignalInputConditionGate(parsed.get(0), invert, parsed.get(1), position());
     }
+    
+    public static final GuiSignalNodeAnchor UPPER_BOTTOM = new GuiSignalNodeAnchor<GuiSignalNodeGate>() {
+        
+        @Override
+        public float x(GuiSignalNodeGate node) {
+            return node.upper.rect.centerX();
+        }
+        
+        @Override
+        public float y(GuiSignalNodeGate node) {
+            return node.upper.rect.centerY();
+        }
+        
+    };
     
 }

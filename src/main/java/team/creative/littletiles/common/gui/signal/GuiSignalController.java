@@ -43,6 +43,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignal;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNode;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeComparator;
+import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeGate;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeInput;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeNotOperator;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeOperator;
@@ -56,6 +57,7 @@ import team.creative.littletiles.common.structure.signal.input.SignalInputCondit
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualVariable;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputVariable;
+import team.creative.littletiles.common.structure.signal.logic.SignalInputConditionGate;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicComparator;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicComparator.SignalInputConditionComparator;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
@@ -82,6 +84,7 @@ public class GuiSignalController extends GuiParent {
     private GuiSignalNode dragged;
     private boolean startedDragging = false;
     private GuiSignalNode selected;
+    private GuiSignalNodeAnchor selectedAnchor;
     
     private Rect controllerRect;
     
@@ -247,7 +250,7 @@ public class GuiSignalController extends GuiParent {
             return true;
         }
         if (!super.mouseClicked(x, y, button)) {
-            select(null);
+            select(null, null);
             scrolling = true;
             dragX = (int) x;
             dragY = (int) y;
@@ -287,7 +290,7 @@ public class GuiSignalController extends GuiParent {
         super.mouseReleased(x, y, button);
         scrolling = false;
         if (dragged != null && !startedDragging)
-            select(dragged);
+            select(dragged, selectedAnchor);
         startedDragging = false;
         dragged = null;
     }
@@ -362,6 +365,14 @@ public class GuiSignalController extends GuiParent {
                 GuiSignalNode child = fill(subCondition, signal, parsed, level + 1);
                 GuiSignalConnection.connect(child, node);
             }
+        } else if (condition instanceof SignalInputConditionGate gate) {
+            node = new GuiSignalNodeGate(gate.invert, gate.position);
+            
+            GuiSignalNode child = fill(gate.gate, signal, parsed, level + 1);
+            GuiSignalConnection.connect(child, null, node, GuiSignalNodeGate.UPPER_BOTTOM);
+            
+            child = fill(gate.through, signal, parsed, level + 1);
+            GuiSignalConnection.connect(child, null, node, GuiSignalNodeAnchor.LEFT);
         } else
             throw new ParseException("Invalid condition type", 0);
         while (parsed.size() <= level)
@@ -394,34 +405,49 @@ public class GuiSignalController extends GuiParent {
         return setToFreeCell(1, new GuiSignalNodeComparator(comparator, null));
     }
     
+    public GuiSignalNodeGate addGate(boolean invert) {
+        return setToFreeCell(1, new GuiSignalNodeGate(invert, null));
+    }
+    
     public GuiSignalNode selected() {
         return selected;
     }
     
-    public void drag(GuiSignalNode node) {
+    public void drag(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         dragged = node;
+        selectedAnchor = anchor;
     }
     
-    public void select(GuiSignalNode node) {
+    public void select(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         if (selected != null)
             selected.setDefaultColor(ColorUtils.WHITE);
         selected = node;
+        selectedAnchor = anchor;
         if (selected != null)
             selected.setDefaultColor(ColorUtils.YELLOW);
     }
     
-    public void tryToggleConnectionToSelected(GuiSignalNode node) {
+    public void selectOrConnect(GuiSignalNode node, GuiSignalNodeAnchor anchor, boolean shouldDrag) {
+        if (selected() != null)
+            tryToggleConnectionToSelected(node, anchor);
+        else if (shouldDrag)
+            drag(node, anchor);
+        else
+            select(node, anchor);
+    }
+    
+    public void tryToggleConnectionToSelected(GuiSignalNode node, GuiSignalNodeAnchor anchor) {
         if (selected != node) {
             GuiSignalConnection connection = selected.getConnectionTo(node);
             if (connection != null) {
                 connection.disconnect(this);
                 raiseEvent(new GuiControlChangedEvent(this));
-            } else if (selected.canConnectTo(node) && node.canConnectFrom(selected)) {
-                GuiSignalConnection.connect(selected, node);
+            } else if (selected.canConnectTo(node, selectedAnchor) && node.canConnectFrom(selected, anchor)) {
+                GuiSignalConnection.connect(selected, selectedAnchor, node, anchor);
                 raiseEvent(new GuiControlChangedEvent(this));
             }
         }
-        select(null);
+        select(null, null);
     }
     
     public SignalInputCondition generatePattern() throws GeneratePatternException {

@@ -9,6 +9,7 @@ import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
+import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
@@ -18,16 +19,16 @@ public class GuiSignalNodeOutput extends GuiSignalNodeComponent {
     
     public GuiSignalNodeOutput(GuiSignalComponent component, @Nullable SignalPosition position) {
         super(component, position);
-        setTitle(Component.translatable("gui.signal.out").append(": " + component.name()));
+        button.setTitle(Component.translatable("gui.signal.out").append(": " + component.name()));
     }
     
     @Override
-    public boolean canConnectTo(GuiSignalNode node) {
+    public boolean canConnectTo(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         return false;
     }
     
     @Override
-    public boolean canConnectFrom(GuiSignalNode node) {
+    public boolean canConnectFrom(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         return from == null;
     }
     

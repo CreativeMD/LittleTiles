@@ -12,6 +12,7 @@ import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
+import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualNumber;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
@@ -33,7 +34,7 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     }
     
     public void updateLabel() {
-        setTitle(Component.literal("" + number));
+        button.setTitle(Component.literal("" + number));
         raiseEvent(new GuiControlChangedEvent(controller()));
     }
     
@@ -44,7 +45,7 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     }
     
     @Override
-    public boolean canConnectTo(GuiSignalNode node) {
+    public boolean canConnectTo(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         for (GuiSignalConnection connectTo : tos)
             if (connectTo.to() == node)
                 return false;
@@ -52,7 +53,7 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     }
     
     @Override
-    public boolean canConnectFrom(GuiSignalNode node) {
+    public boolean canConnectFrom(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         return false;
     }
     

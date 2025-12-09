@@ -118,6 +118,8 @@ public class GuiDialogSignal extends GuiLayer {
         map.addComponent(x -> x.addComparator(SignalLogicComparator.GREATER_EQUALS), Component.literal(SignalLogicComparator.GREATER_EQUALS.operator));
         map.addComponent(x -> x.addComparator(SignalLogicComparator.SMALLER), Component.literal(SignalLogicComparator.SMALLER.operator));
         map.addComponent(x -> x.addComparator(SignalLogicComparator.SMALLER_EQUALS), Component.literal(SignalLogicComparator.SMALLER_EQUALS.operator));
+        map.addComponent(x -> x.addGate(false), Component.literal("gate"));
+        map.addComponent(x -> x.addGate(true), Component.literal("ngate"));
         
         GuiComboBox<Consumer<GuiSignalController>> operators = new GuiComboBox<>("operators", map);
         bottom.addLeft(operators);

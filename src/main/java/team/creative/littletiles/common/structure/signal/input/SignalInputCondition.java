@@ -13,6 +13,7 @@ import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.signal.SignalState;
+import team.creative.littletiles.common.structure.signal.logic.SignalInputConditionGate;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicEntry;
 import team.creative.littletiles.common.structure.signal.logic.SignalPatternParser;
 import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
@@ -51,6 +52,9 @@ public abstract class SignalInputCondition {
                 return condition;
             } else if (next == '!') {
                 parser.next(true);
+                if (parser.lookForNext(true) == '[')
+                    return SignalInputConditionGate.parseGate(parser, true, includeBitwise, insideVariable);
+                
                 SignalPosition position = parsePosition(parser);
                 return new SignalInputConditionNot(parseNextCondition(parser, includeBitwise, insideVariable, forceBitwise), position);
             } else if (next == '~') {
@@ -82,6 +86,8 @@ public abstract class SignalInputCondition {
                 return SignalInputVariable.parseInput(parser, insideVariable, forceBitwise);
             else if (type == Character.UPPERCASE_LETTER)
                 return SignalInputVariable.parseInput(parser, insideVariable, forceBitwise);
+            else if (next == '[')
+                return SignalInputConditionGate.parseGate(parser, false, includeBitwise, insideVariable);
             else
                 return null;
         }

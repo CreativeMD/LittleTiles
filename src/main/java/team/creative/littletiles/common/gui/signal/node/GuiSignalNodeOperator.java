@@ -7,6 +7,7 @@ import javax.annotation.Nullable;
 
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
+import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
@@ -23,7 +24,7 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     }
     
     @Override
-    public boolean canConnectTo(GuiSignalNode node) {
+    public boolean canConnectTo(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         for (GuiSignalConnection connectTo : to)
             if (connectTo.to() == node)
                 return false;
@@ -31,7 +32,7 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     }
     
     @Override
-    public boolean canConnectFrom(GuiSignalNode node) {
+    public boolean canConnectFrom(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
         for (GuiSignalConnection connectFrom : from)
             if (connectFrom.from() == node)
                 return false;
