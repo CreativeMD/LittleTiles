@@ -1,3 +1,8 @@
+1.6.0-pre191
+Added testing for signals
+Added better configuration for comparators in signal
+Fixed bitwise operations not working correctly when working with single digit values
+
 1.6.0-pre190
 Added gate and ngate to signals
 Added new logic comparator for signals
