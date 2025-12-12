@@ -8,11 +8,13 @@ import javax.annotation.Nullable;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputVirtualNumber;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
@@ -21,6 +23,10 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     
     public List<GuiSignalConnection> tos = new ArrayList<>();
     public int number;
+    
+    private GuiLabel testLabel;
+    private SignalInputCondition testCondition;
+    private SignalContext testContext;
     
     public GuiSignalNodeVirtualNumberInput(@Nullable SignalPosition position) {
         super("" + 0, position);
@@ -87,9 +93,35 @@ public class GuiSignalNodeVirtualNumberInput extends GuiSignalNode {
     }
     
     @Override
-    public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
+    public SignalInputCondition generateCondition(List<GuiSignalNode> processed, @Nullable SignalContext testContext) throws GeneratePatternException {
         reset();
-        return new SignalInputVirtualNumber(number, position());
+        SignalInputCondition condition = new SignalInputVirtualNumber(number, position());
+        
+        if (testContext != null) {
+            if (testLabel == null)
+                testLabel = new GuiLabel("");
+            insertControlBefore(button, testLabel);
+            testCondition = condition;
+            this.testContext = testContext;
+            testInputChanged();
+        }
+        
+        return condition;
+    }
+    
+    @Override
+    public void resetTest() {
+        if (testLabel != null)
+            remove(testLabel);
+        testCondition = null;
+    }
+    
+    @Override
+    public void testInputChanged() {
+        if (testCondition == null || testLabel == null)
+            return;
+        
+        testLabel.setTitle(controller().testSignalOutput(testCondition.test(testContext, false), -1));
     }
     
 }

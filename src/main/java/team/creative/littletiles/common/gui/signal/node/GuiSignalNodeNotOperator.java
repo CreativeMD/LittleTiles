@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNot;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
@@ -18,6 +20,10 @@ public class GuiSignalNodeNotOperator extends GuiSignalNode {
     public final boolean bitwise;
     private GuiSignalConnection from;
     private List<GuiSignalConnection> to = new ArrayList<>();
+    
+    private GuiLabel testLabel;
+    private SignalInputCondition testCondition;
+    private SignalContext testContext;
     
     public GuiSignalNodeNotOperator(boolean bitwise, @Nullable SignalPosition position) {
         super(bitwise ? "b-not" : "not", position);
@@ -75,15 +81,41 @@ public class GuiSignalNodeNotOperator extends GuiSignalNode {
     }
     
     @Override
-    public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
+    public SignalInputCondition generateCondition(List<GuiSignalNode> processed, @Nullable SignalContext testContext) throws GeneratePatternException {
         reset();
         if (from == null)
             throw new GeneratePatternException(this, "empty");
         if (processed.contains(this))
             throw new GeneratePatternException(this, "circular");
         processed.add(this);
-        return bitwise ? new SignalInputConditionNotBitwise(from.from().generateCondition(processed), position()) : new SignalInputConditionNot(from.from().generateCondition(
-            processed), position());
+        SignalInputCondition condition = bitwise ? new SignalInputConditionNotBitwise(from.from().generateCondition(processed,
+            testContext), position()) : new SignalInputConditionNot(from.from().generateCondition(processed, testContext), position());
+        
+        if (testContext != null) {
+            if (testLabel == null)
+                testLabel = new GuiLabel("");
+            insertControlBefore(button, testLabel);
+            testCondition = condition;
+            this.testContext = testContext;
+            testInputChanged();
+        }
+        
+        return condition;
+    }
+    
+    @Override
+    public void resetTest() {
+        if (testLabel != null)
+            remove(testLabel);
+        testCondition = null;
+    }
+    
+    @Override
+    public void testInputChanged() {
+        if (testCondition == null || testLabel == null)
+            return;
+        
+        testLabel.setTitle(controller().testSignalOutput(testCondition.test(testContext, false), -1));
     }
     
 }

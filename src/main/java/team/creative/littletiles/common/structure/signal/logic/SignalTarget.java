@@ -4,11 +4,10 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.List;
 
-import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.SignalState;
-import team.creative.littletiles.common.structure.signal.SignalUtils;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 
 public abstract class SignalTarget {
@@ -93,17 +92,17 @@ public abstract class SignalTarget {
         this.child = child;
     }
     
-    public final SignalState getState(LittleStructure structure) {
+    public final SignalState getState(SignalContext context) {
         try {
-            return getState(getTarget(structure));
+            return getState(getTarget(context));
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
             return SignalState.FALSE;
         }
     }
     
-    public final int bandwidth(LittleStructure structure) {
+    public final int bandwidth(SignalContext context) {
         try {
-            return getTarget(structure).getBandwidth();
+            return getTarget(context).getBandwidth();
         } catch (CorruptedConnectionException | NotYetConnectedException e) {
             return 1;
         }
@@ -115,7 +114,7 @@ public abstract class SignalTarget {
         return component.getState();
     }
     
-    public abstract ISignalComponent getTarget(LittleStructure structure);
+    public abstract ISignalComponent getTarget(SignalContext context);
     
     public abstract String writeBase();
     
@@ -123,7 +122,7 @@ public abstract class SignalTarget {
     
     public abstract boolean isIndexVariable();
     
-    public int getBandwidth(LittleStructure structure) throws CorruptedConnectionException, NotYetConnectedException {
+    public int getBandwidth(SignalContext structure) throws CorruptedConnectionException, NotYetConnectedException {
         ISignalComponent component = getTarget(structure);
         if (component != null)
             return component.getBandwidth();
@@ -149,9 +148,9 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public ISignalComponent getTarget(LittleStructure structure) {
+        public ISignalComponent getTarget(SignalContext context) {
             try {
-                return subTarget.getTarget(structure.children.getChild(child).getStructure());
+                return subTarget.getTarget(context.getNestedSignalContext(child));
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             return null;
         }
@@ -187,11 +186,11 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public ISignalComponent getTarget(LittleStructure structure) {
-            if (structure.getParent() != null)
+        public ISignalComponent getTarget(SignalContext context) {
+            if (context.hasSignalContextParent())
                 try {
                     
-                    return subTarget.getTarget(structure.getParent().getStructure());
+                    return subTarget.getTarget(context.getParentSignalContext());
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             return null;
         }
@@ -229,7 +228,7 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public ISignalComponent getTarget(LittleStructure structure) {
+        public ISignalComponent getTarget(SignalContext context) {
             return null;
         }
         
@@ -263,8 +262,8 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public ISignalComponent getTarget(LittleStructure structure) {
-            return input ? SignalUtils.getInput(structure, child, external) : SignalUtils.getOutput(structure, child, external);
+        public ISignalComponent getTarget(SignalContext context) {
+            return input ? context.getInput(child, external) : context.getOutput(child, external);
         }
         
         @Override
@@ -311,7 +310,7 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public int getBandwidth(LittleStructure structure) {
+        public int getBandwidth(SignalContext context) {
             return 1;
         }
         
@@ -344,7 +343,7 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public int getBandwidth(LittleStructure structure) {
+        public int getBandwidth(SignalContext context) {
             return length;
         }
         
@@ -384,7 +383,7 @@ public abstract class SignalTarget {
         }
         
         @Override
-        public int getBandwidth(LittleStructure structure) {
+        public int getBandwidth(SignalContext context) {
             int length = 0;
             for (int i = 0; i < indexes.length; i++)
                 length += indexes[i].length();

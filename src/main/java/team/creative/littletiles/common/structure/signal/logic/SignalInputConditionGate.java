@@ -5,7 +5,7 @@ import java.util.Iterator;
 
 import team.creative.creativecore.common.util.type.itr.ArrayIterator;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 
@@ -32,9 +32,9 @@ public class SignalInputConditionGate extends SignalInputCondition {
     }
     
     @Override
-    public SignalState test(LittleStructure structure, boolean forceBitwise) {
-        if (gate.test(structure, forceBitwise).any() != invert)
-            return through.test(structure, forceBitwise);
+    public SignalState test(SignalContext context, boolean forceBitwise) {
+        if (gate.test(context, forceBitwise).any() != invert)
+            return through.test(context, forceBitwise);
         return SignalState.FALSE;
     }
     

@@ -6,7 +6,7 @@ import java.util.List;
 
 import team.creative.creativecore.common.util.type.itr.ArrayIterator;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.SignalState;
 import team.creative.littletiles.common.structure.signal.SignalState.SignalStateSize;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
@@ -492,11 +492,11 @@ public enum SignalLogicOperator implements SignalLogicEntry {
         }
         
         @Override
-        public SignalState test(LittleStructure structure) {
+        public SignalState test(SignalContext context) {
             SignalState[] state = new SignalState[conditions.length];
             SignalStateSize size = SignalStateSize.SINGLE;
             for (int i = 0; i < conditions.length; i++) {
-                state[i] = conditions[i].test(structure, false);
+                state[i] = conditions[i].test(context, false);
                 size = size.max(state[i].size());
             }
             
@@ -505,15 +505,15 @@ public enum SignalLogicOperator implements SignalLogicEntry {
                 if (i == 0) {
                     switch (size) {
                         case SINGLE -> result = result.set(0, state[i].any());
-                        case INT -> result = result.setNumber(state[i].size() == SignalStateSize.SINGLE ? -1 : state[i].number());
-                        case LONG -> result = result.setLongNumber(state[i].size() == SignalStateSize.SINGLE ? -1L : state[i].longNumber());
+                        case INT -> result = result.setNumber(state[i].number());
+                        case LONG -> result = result.setLongNumber(state[i].longNumber());
                     }
                     continue;
                 }
                 switch (size) {
                     case SINGLE -> result = result.set(0, operator().perform(result.any(), state[i].any()));
-                    case INT -> result = result.setNumber(operator().perform(result.number(), state[i].size() == SignalStateSize.SINGLE ? -1 : state[i].number()));
-                    case LONG -> result = result.setLongNumber(operator().perform(result.longNumber(), state[i].size() == SignalStateSize.SINGLE ? -1L : state[i].longNumber()));
+                    case INT -> result = result.setNumber(operator().perform(result.number(), state[i].number()));
+                    case LONG -> result = result.setLongNumber(operator().perform(result.longNumber(), state[i].longNumber()));
                 }
             }
             return result;
@@ -583,11 +583,11 @@ public enum SignalLogicOperator implements SignalLogicEntry {
         }
         
         @Override
-        public SignalState test(LittleStructure structure) {
+        public SignalState test(SignalContext context) {
             SignalState[] state = new SignalState[conditions.length];
             SignalStateSize size = SignalStateSize.SINGLE;
             for (int i = 0; i < conditions.length; i++) {
-                state[i] = conditions[i].test(structure, true);
+                state[i] = conditions[i].test(context, true);
                 size = size.max(state[i].size());
             }
             
@@ -596,8 +596,8 @@ public enum SignalLogicOperator implements SignalLogicEntry {
                 if (i == 0) {
                     switch (size) {
                         case SINGLE -> result = result.set(0, state[i].any());
-                        case INT -> result = result.setNumber(state[i].size() == SignalStateSize.SINGLE ? -1 : state[i].number());
-                        case LONG -> result = result.setLongNumber(state[i].size() == SignalStateSize.SINGLE ? -1L : state[i].longNumber());
+                        case INT -> result = result.setNumber(state[i].number());
+                        case LONG -> result = result.setLongNumber(state[i].longNumber());
                     }
                     continue;
                 }
@@ -624,11 +624,11 @@ public enum SignalLogicOperator implements SignalLogicEntry {
         }
         
         @Override
-        public SignalState test(LittleStructure structure) {
+        public SignalState test(SignalContext context) {
             SignalState[] state = new SignalState[conditions.length];
             SignalStateSize size = SignalStateSize.SINGLE;
             for (int i = 0; i < conditions.length; i++) {
-                state[i] = conditions[i].test(structure, true);
+                state[i] = conditions[i].test(context, true);
                 size = size.max(state[i].size());
             }
             

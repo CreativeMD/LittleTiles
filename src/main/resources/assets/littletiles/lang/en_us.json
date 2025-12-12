@@ -380,6 +380,8 @@
     "gui.signal.configuration.input.operation.type.operation": "operation",
     "gui.signal.configuration.input.operation.type.pattern": "pattern",
     "gui.signal.configuration.input.operation.type.equation": "equation",
+    "gui.signal.configuration.testing": "Testing",
+    "gui.signal.configuration.testing_numbers": "display as numbers",
     "signal.mode.equal": "EQUAL",
     "signal.mode.toggle": "TOGGLE",
     "signal.mode.pulse": "PULSE",

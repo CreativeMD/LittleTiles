@@ -15,6 +15,7 @@ import team.creative.creativecore.common.gui.VAlign;
 import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiCheckBox;
 import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
 import team.creative.creativecore.common.gui.flow.GuiFlow;
@@ -62,7 +63,10 @@ public class GuiDialogSignal extends GuiLayer {
                 label.setTitle(Component.translatable("gui.signal.configuration.result").append(" ").append(Component.translatable(e.getMessage())));
                 delay.setTitle(Component.literal(0 + " ticks"));
             }
-        }
+        } else if (event.control.is("testing"))
+            get("controller", GuiSignalController.class).setTesting(((GuiCheckBox) event.control).value);
+        else if (event.control.is("testingNumbers"))
+            get("controller", GuiSignalController.class).setTestingDisplayNumber(((GuiCheckBox) event.control).value);
     }
     
     @Override
@@ -128,6 +132,8 @@ public class GuiDialogSignal extends GuiLayer {
         if (event.getCondition() != null)
             controller.setCondition(event.getOutputPosition(), event.getCondition(), this);
         
+        bottom.addRight(new GuiCheckBox("testing", false).setTranslate("gui.signal.configuration.testing"));
+        bottom.addRight(new GuiCheckBox("testingNumbers", false).setTranslate("gui.signal.configuration.testing_numbers"));
         bottom.addRight(new GuiButton("save", x -> {
             try {
                 event.setCondition(controller.generatePattern(), controller.outputPosition());

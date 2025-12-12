@@ -18,6 +18,10 @@ public abstract class SignalState {
         return new IntegerState(number);
     }
     
+    public static SignalState of(int number, int bandwidth) {
+        return of(Math.min(number, maxNumber(bandwidth)));
+    }
+    
     public static SignalState of(long number) {
         throw new UnsupportedOperationException();
     }
@@ -64,9 +68,13 @@ public abstract class SignalState {
         int digit = 0;
         while (number != 0) {
             digit++;
-            number = number / 10;
+            number = number >> 1;
         }
         return digit;
+    }
+    
+    public static int maxNumber(int bandwidth) {
+        return (1 << bandwidth) - 1;
     }
     
     public static final SignalState TRUE = new PrimitveState(true);
@@ -289,6 +297,8 @@ public abstract class SignalState {
         
         @Override
         public String print(int length) {
+            if (length < 0)
+                length = getRequiredBandwidth(number());
             String result = "[";
             for (int i = 0; i < length; i++)
                 result += is(i) ? "1" : "0";

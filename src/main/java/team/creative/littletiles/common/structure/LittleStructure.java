@@ -91,6 +91,7 @@ import team.creative.littletiles.common.structure.exception.NotEnoughSpaceForStr
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.exception.RemovedStructureException;
 import team.creative.littletiles.common.structure.relative.StructureAbsolute;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
 import team.creative.littletiles.common.structure.signal.component.ISignalStructureComponent;
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
@@ -99,7 +100,7 @@ import team.creative.littletiles.common.structure.signal.output.InternalSignalOu
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
 
-public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider {
+public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider, SignalContext {
     
     public final LittleStructureType type;
     public final IStructureParentCollection mainBlock;
@@ -867,6 +868,53 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public void performInternalOutputChange(InternalSignalOutput output) {}
     
     public void receiveInternalOutputChange(InternalSignalOutput output) {}
+    
+    @Override
+    public SignalContext getNestedSignalContext(int child) throws CorruptedConnectionException, NotYetConnectedException {
+        return children.getChild(child).getStructure();
+    }
+    
+    @Override
+    public boolean hasSignalContextParent() {
+        return getParent() != null;
+    }
+    
+    @Override
+    public SignalContext getParentSignalContext() throws CorruptedConnectionException, NotYetConnectedException {
+        return getParent().getStructure();
+    }
+    
+    @Override
+    public ISignalComponent getInput(int id, boolean external) {
+        if (external) {
+            try {
+                LittleStructure child = children.getChild(id).getStructure();
+                if (child instanceof ISignalStructureComponent c && c.getComponentType() == SignalComponentType.INPUT)
+                    return c;
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            return null;
+        }
+        
+        if (id >= 0)
+            return getInput(id);
+        return null;
+    }
+    
+    @Override
+    public ISignalComponent getOutput(int id, boolean external) {
+        if (external) {
+            try {
+                LittleStructure child = children.getChild(id).getStructure();
+                if (child instanceof ISignalStructureComponent c && c.getComponentType() == SignalComponentType.OUTPUT)
+                    return c;
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            return null;
+        }
+        
+        if (id >= 0)
+            return getOutput(id);
+        return null;
+    }
     
     // ====================Previews====================
     

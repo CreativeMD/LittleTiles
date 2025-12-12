@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.function.Function;
 
 import javax.annotation.Nullable;
@@ -18,12 +19,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat.Mode;
 
+import it.unimi.dsi.fastutil.objects.Object2ObjectArrayMap;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.GuiRenderHelper;
@@ -31,6 +35,7 @@ import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiControlRect;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.event.GuiControlChangedEvent;
+import team.creative.creativecore.common.gui.event.GuiEvent;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.util.math.geo.Rect;
 import team.creative.creativecore.common.util.math.vec.SmoothValue;
@@ -51,6 +56,13 @@ import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeOperator;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeOutput;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeVirtualInput;
 import team.creative.littletiles.common.gui.signal.node.GuiSignalNodeVirtualNumberInput;
+import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
+import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
+import team.creative.littletiles.common.structure.signal.SignalContext;
+import team.creative.littletiles.common.structure.signal.SignalState;
+import team.creative.littletiles.common.structure.signal.component.ISignalComponent;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNot;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalInputConditionNotBitwise;
@@ -63,8 +75,9 @@ import team.creative.littletiles.common.structure.signal.logic.SignalLogicCompar
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicComparator.SignalInputConditionComparator;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator.SignalInputConditionOperatorStackable;
+import team.creative.littletiles.common.structure.signal.logic.SignalTarget;
 
-public class GuiSignalController extends GuiParent {
+public class GuiSignalController extends GuiParent implements SignalContext {
     
     protected int cellWidth = 60;
     protected int cellHeight = 40;
@@ -80,6 +93,7 @@ public class GuiSignalController extends GuiParent {
     private List<List<GuiControl>> grid = new ArrayList<>();
     
     public final List<GuiSignalComponent> inputs;
+    private final Map<String, ISignalComponent> testComponents = new Object2ObjectArrayMap<>();
     private GuiSignalNodeOutput output;
     
     private GuiSignalNode dragged;
@@ -89,10 +103,95 @@ public class GuiSignalController extends GuiParent {
     
     private Rect controllerRect;
     
+    private boolean testing;
+    private boolean displayNumbers;
+    
     public GuiSignalController(String name, GuiSignalComponent output, List<GuiSignalComponent> inputs) {
         super(name);
         this.inputs = inputs;
         setOutput(4, output, null);
+    }
+    
+    public GuiSignalComponent getComponent(String component) {
+        for (GuiSignalComponent c : inputs)
+            if (c.name().equals(component))
+                return c;
+        return null;
+    }
+    
+    public SignalState getInputState(String component, int bandwidth) {
+        var c = testComponents.get(component);
+        if (c != null)
+            try {
+                return c.getState();
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        
+        return SignalState.create(bandwidth);
+    }
+    
+    public void setInputState(String component, SignalState state) {
+        var c = testComponents.get(component);
+        if (c != null)
+            try {
+                c.overwriteState(state);
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        else {
+            var guiComponent = getComponent(component);
+            if (guiComponent != null)
+                testComponents.put(component, new TestingSignalComponent(guiComponent, state));
+        }
+        
+        for (List<GuiControl> row : grid)
+            for (GuiControl control : row)
+                if (control instanceof GuiSignalNode n)
+                    n.testInputChanged();
+    }
+    
+    public boolean testingDisplayNumber() {
+        return displayNumbers;
+    }
+    
+    public void setTestingDisplayNumber(boolean displayNumbers) {
+        this.displayNumbers = displayNumbers;
+        test();
+    }
+    
+    public void setTesting(boolean enabled) {
+        this.testing = enabled;
+        test();
+    }
+    
+    public void test() {
+        for (List<GuiControl> row : grid)
+            for (GuiControl control : row)
+                if (control instanceof GuiSignalNode c)
+                    c.resetTest();
+                
+        if (testing)
+            try {
+                output.generateCondition(new ArrayList<>(), this);
+            } catch (GeneratePatternException e) {}
+        
+        reflow();
+    }
+    
+    public Component testSignalOutput(SignalState state, int bandwidth) {
+        if (bandwidth < 0)
+            bandwidth = SignalState.getRequiredBandwidth(state.number());
+        if (displayNumbers)
+            return Component.literal("" + (Math.min(state.number(), SignalState.maxNumber(bandwidth))));
+        return Component.literal(state.print(Math.max(1, bandwidth)));
+    }
+    
+    @Override
+    public void raiseEvent(GuiEvent event) {
+        if (event instanceof GuiControlChangedEvent c && c.control == this)
+            testingChanged();
+        super.raiseEvent(event);
+    }
+    
+    public void testingChanged() {
+        test();
     }
     
     @Override
@@ -458,7 +557,7 @@ public class GuiSignalController extends GuiParent {
     }
     
     public SignalInputCondition generatePattern() throws GeneratePatternException {
-        return output.generateCondition(new ArrayList<>());
+        return output.generateCondition(new ArrayList<>(), null);
     }
     
     public SignalPosition outputPosition() {
@@ -543,6 +642,113 @@ public class GuiSignalController extends GuiParent {
         output.remove();
         dragged = null;
         selected = null;;
+    }
+    
+    @Override
+    public SignalContext getNestedSignalContext(int child) throws CorruptedConnectionException, NotYetConnectedException {
+        return new PrefixSignalContext("c" + child + ".");
+    }
+    
+    @Override
+    public boolean hasSignalContextParent() {
+        return true;
+    }
+    
+    @Override
+    public SignalContext getParentSignalContext() throws CorruptedConnectionException, NotYetConnectedException {
+        return new PrefixSignalContext("p.");
+    }
+    
+    @Override
+    public ISignalComponent getInput(int id, boolean external) {
+        return testComponents.get(SignalTarget.name(external, true, id));
+    }
+    
+    @Override
+    public ISignalComponent getOutput(int id, boolean external) {
+        return testComponents.get(SignalTarget.name(external, false, id));
+    }
+    
+    public static class TestingSignalComponent implements ISignalComponent {
+        
+        public final GuiSignalComponent component;
+        private SignalState state;
+        
+        public TestingSignalComponent(GuiSignalComponent component, SignalState state) {
+            this.component = component;
+            this.state = state;
+        }
+        
+        @Override
+        public int getBandwidth() throws CorruptedConnectionException, NotYetConnectedException {
+            return component.bandwidth();
+        }
+        
+        @Override
+        public void changed() throws CorruptedConnectionException, NotYetConnectedException {}
+        
+        @Override
+        public SignalState getState() throws CorruptedConnectionException, NotYetConnectedException {
+            return state;
+        }
+        
+        @Override
+        public void overwriteState(SignalState state) throws CorruptedConnectionException, NotYetConnectedException {
+            this.state = state;
+        }
+        
+        @Override
+        public SignalComponentType getComponentType() {
+            return component.input() ? SignalComponentType.INPUT : SignalComponentType.OUTPUT;
+        }
+        
+        @Override
+        public LittleStructure getStructure() {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public Level getStructureLevel() {
+            throw new UnsupportedOperationException();
+        }
+        
+    }
+    
+    private class PrefixSignalContext implements SignalContext {
+        
+        private String prefix;
+        
+        public PrefixSignalContext(String prefix) {
+            this.prefix = prefix;
+        }
+        
+        @Override
+        public SignalContext getNestedSignalContext(int child) throws CorruptedConnectionException, NotYetConnectedException {
+            prefix += "c" + child + ".";
+            return this;
+        }
+        
+        @Override
+        public boolean hasSignalContextParent() {
+            return true;
+        }
+        
+        @Override
+        public SignalContext getParentSignalContext() throws CorruptedConnectionException, NotYetConnectedException {
+            prefix += "p.";
+            return this;
+        }
+        
+        @Override
+        public ISignalComponent getInput(int id, boolean external) {
+            return testComponents.get(prefix + SignalTarget.name(external, true, id));
+        }
+        
+        @Override
+        public ISignalComponent getOutput(int id, boolean external) {
+            return testComponents.get(prefix + SignalTarget.name(external, false, id));
+        }
+        
     }
     
 }

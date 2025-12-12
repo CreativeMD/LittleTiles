@@ -5,9 +5,11 @@ import java.util.List;
 
 import javax.annotation.Nullable;
 
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
@@ -17,6 +19,10 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     public final SignalLogicOperator operator;
     private List<GuiSignalConnection> from = new ArrayList<>();
     private List<GuiSignalConnection> to = new ArrayList<>();
+    
+    private GuiLabel testLabel;
+    private SignalInputCondition testCondition;
+    private SignalContext testContext;
     
     public GuiSignalNodeOperator(SignalLogicOperator operator, @Nullable SignalPosition position) {
         super(operator.display, position);
@@ -77,7 +83,7 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
     }
     
     @Override
-    public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
+    public SignalInputCondition generateCondition(List<GuiSignalNode> processed, @Nullable SignalContext testContext) throws GeneratePatternException {
         reset();
         if (from.isEmpty())
             throw new GeneratePatternException(this, "empty");
@@ -85,18 +91,48 @@ public class GuiSignalNodeOperator extends GuiSignalNode {
             throw new GeneratePatternException(this, "circular");
         processed.add(this);
         if (from.size() == 1)
-            return from.get(0).from().generateCondition(processed);
+            return from.get(0).from().generateCondition(processed, testContext);
         List<SignalInputCondition> parsed = new ArrayList<>();
         for (int i = 0; i < from.size(); i++)
             try {
-                parsed.add(from.get(i).from().generateCondition(new ArrayList<>(processed)));
+                parsed.add(from.get(i).from().generateCondition(new ArrayList<>(processed), testContext));
             } catch (GeneratePatternException e) {}
         
         if (parsed.isEmpty())
             throw new GeneratePatternException(this, "novalidchildren");
+        
+        SignalInputCondition condition;
         if (parsed.size() == 1)
-            return parsed.get(0);
-        return operator.create(parsed.toArray(new SignalInputCondition[parsed.size()]), position());
+            condition = parsed.get(0);
+        else
+            condition = operator.create(parsed.toArray(new SignalInputCondition[parsed.size()]), position());
+        
+        if (testContext != null) {
+            if (testLabel == null)
+                testLabel = new GuiLabel("");
+            insertControlBefore(button, testLabel);
+            testCondition = condition;
+            this.testContext = testContext;
+            testInputChanged();
+        }
+        
+        return condition;
+        
+    }
+    
+    @Override
+    public void resetTest() {
+        if (testLabel != null)
+            remove(testLabel);
+        testCondition = null;
+    }
+    
+    @Override
+    public void testInputChanged() {
+        if (testCondition == null || testLabel == null)
+            return;
+        
+        testLabel.setTitle(controller().testSignalOutput(testCondition.test(testContext, false), -1));
     }
     
 }

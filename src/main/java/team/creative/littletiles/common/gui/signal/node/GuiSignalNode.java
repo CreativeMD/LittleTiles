@@ -14,6 +14,7 @@ import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalController;
 import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 
@@ -46,6 +47,10 @@ public abstract class GuiSignalNode extends GuiParent {
         flow = GuiFlow.STACK_Y;
         align = Align.CENTER;
     }
+    
+    public abstract void testInputChanged();
+    
+    public abstract void resetTest();
     
     protected GuiSignalNodeAnchor buttonAnchor(boolean from) {
         return null;
@@ -106,7 +111,7 @@ public abstract class GuiSignalNode extends GuiParent {
         return true;
     }
     
-    public abstract SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException;
+    public abstract SignalInputCondition generateCondition(List<GuiSignalNode> processed, @Nullable SignalContext testContext) throws GeneratePatternException;
     
     public abstract void disconnect(GuiSignalConnection connection);
     

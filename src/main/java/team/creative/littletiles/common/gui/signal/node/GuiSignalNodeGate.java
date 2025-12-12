@@ -8,9 +8,11 @@ import javax.annotation.Nullable;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.control.simple.GuiButton;
+import team.creative.creativecore.common.gui.control.simple.GuiLabel;
 import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalConnection;
 import team.creative.littletiles.common.gui.signal.GuiSignalNodeAnchor;
+import team.creative.littletiles.common.structure.signal.SignalContext;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition.SignalPosition;
 import team.creative.littletiles.common.structure.signal.logic.SignalInputConditionGate;
@@ -21,7 +23,7 @@ public class GuiSignalNodeGate extends GuiSignalNode {
         
         @Override
         public float x(GuiSignalNodeGate node) {
-            return node.upper.rect.centerX();
+            return node.upper.rect.getX();
         }
         
         @Override
@@ -36,6 +38,10 @@ public class GuiSignalNodeGate extends GuiSignalNode {
     public GuiSignalConnection second;
     public List<GuiSignalConnection> to = new ArrayList<>();
     public GuiParent upper;
+    
+    private GuiLabel testLabel;
+    private SignalInputCondition testCondition;
+    private SignalContext testContext;
     
     public GuiSignalNodeGate(boolean invert, SignalPosition position) {
         super(invert ? "ngate" : "gate", position);
@@ -138,7 +144,7 @@ public class GuiSignalNodeGate extends GuiSignalNode {
     }
     
     @Override
-    public SignalInputCondition generateCondition(List<GuiSignalNode> processed) throws GeneratePatternException {
+    public SignalInputCondition generateCondition(List<GuiSignalNode> processed, @Nullable SignalContext testContext) throws GeneratePatternException {
         reset();
         if (first == null && second == null)
             throw new GeneratePatternException(this, "empty");
@@ -147,15 +153,43 @@ public class GuiSignalNodeGate extends GuiSignalNode {
         processed.add(this);
         List<SignalInputCondition> parsed = new ArrayList<>();
         if (first != null)
-            parsed.add(first.from().generateCondition(new ArrayList<>(processed)));
+            parsed.add(first.from().generateCondition(new ArrayList<>(processed), testContext));
         if (second != null)
-            parsed.add(second.from().generateCondition(new ArrayList<>(processed)));
+            parsed.add(second.from().generateCondition(new ArrayList<>(processed), testContext));
         
         if (parsed.isEmpty())
             throw new GeneratePatternException(this, "novalidchildren");
+        SignalInputCondition condition;
         if (parsed.size() == 1)
-            return parsed.get(0);
-        return new SignalInputConditionGate(parsed.get(0), invert, parsed.get(1), position());
+            condition = parsed.get(0);
+        else
+            condition = new SignalInputConditionGate(parsed.get(0), invert, parsed.get(1), position());
+        
+        if (testContext != null) {
+            if (testLabel == null)
+                testLabel = new GuiLabel("");
+            add(testLabel);
+            testCondition = condition;
+            this.testContext = testContext;
+            testInputChanged();
+        }
+        
+        return condition;
+    }
+    
+    @Override
+    public void resetTest() {
+        if (testLabel != null)
+            remove(testLabel);
+        testCondition = null;
+    }
+    
+    @Override
+    public void testInputChanged() {
+        if (testCondition == null || testLabel == null)
+            return;
+        
+        testLabel.setTitle(controller().testSignalOutput(testCondition.test(testContext, false), -1));
     }
     
 }
