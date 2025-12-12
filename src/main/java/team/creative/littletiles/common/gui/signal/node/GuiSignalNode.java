@@ -40,14 +40,14 @@ public abstract class GuiSignalNode extends GuiParent {
                 return;
             }
             
-            controller.selectOrConnect(GuiSignalNode.this, buttonAnchor(), x == 0);
+            controller.selectOrConnect(GuiSignalNode.this, from -> buttonAnchor(from), x == 0);
         }));
         button.setTitle(Component.literal(caption));
         flow = GuiFlow.STACK_Y;
         align = Align.CENTER;
     }
     
-    protected GuiSignalNodeAnchor buttonAnchor() {
+    protected GuiSignalNodeAnchor buttonAnchor(boolean from) {
         return null;
     }
     

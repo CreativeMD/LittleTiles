@@ -17,6 +17,20 @@ import team.creative.littletiles.common.structure.signal.logic.SignalInputCondit
 
 public class GuiSignalNodeGate extends GuiSignalNode {
     
+    public static final GuiSignalNodeAnchor UPPER_BUTTON = new GuiSignalNodeAnchor<GuiSignalNodeGate>() {
+        
+        @Override
+        public float x(GuiSignalNodeGate node) {
+            return node.upper.rect.centerX();
+        }
+        
+        @Override
+        public float y(GuiSignalNodeGate node) {
+            return node.upper.rect.centerY();
+        }
+        
+    };
+    
     public final boolean invert;
     public GuiSignalConnection first;
     public GuiSignalConnection second;
@@ -34,19 +48,25 @@ public class GuiSignalNodeGate extends GuiSignalNode {
         upper = new GuiParent();
         add(upper.setScale(0.5));
         upper.add(new GuiButton("", x -> {
-            controller().selectOrConnect(GuiSignalNodeGate.this, UPPER_BOTTOM, false);
-        }).setTitle(Component.literal("if")));
+            if (x == 1) {
+                if (first != null)
+                    first.disconnect(controller());
+            } else
+                controller().selectOrConnect(GuiSignalNodeGate.this, from -> from ? UPPER_BUTTON : null, false);
+        }).setTitle(Component.literal(" ")));
     }
     
     @Override
-    protected GuiSignalNodeAnchor buttonAnchor() {
-        return GuiSignalNodeAnchor.LEFT;
+    protected GuiSignalNodeAnchor buttonAnchor(boolean from) {
+        if (from)
+            return GuiSignalNodeAnchor.LEFT;
+        return null;
     }
     
     @Override
     public GuiSignalNodeAnchor connectionAnchor(boolean from, GuiSignalNode other) {
         if (!from)
-            return first == null ? UPPER_BOTTOM : GuiSignalNodeAnchor.LEFT;
+            return first == null ? UPPER_BUTTON : GuiSignalNodeAnchor.LEFT;
         return super.connectionAnchor(from, other);
     }
     
@@ -67,7 +87,7 @@ public class GuiSignalNodeGate extends GuiSignalNode {
         
         if (anchor == null)
             return first == null || second == null;
-        if (anchor == UPPER_BOTTOM)
+        if (anchor == UPPER_BUTTON)
             return first == null;
         return second == null;
     }
@@ -137,19 +157,5 @@ public class GuiSignalNodeGate extends GuiSignalNode {
             return parsed.get(0);
         return new SignalInputConditionGate(parsed.get(0), invert, parsed.get(1), position());
     }
-    
-    public static final GuiSignalNodeAnchor UPPER_BOTTOM = new GuiSignalNodeAnchor<GuiSignalNodeGate>() {
-        
-        @Override
-        public float x(GuiSignalNodeGate node) {
-            return node.upper.rect.centerX();
-        }
-        
-        @Override
-        public float y(GuiSignalNodeGate node) {
-            return node.upper.rect.centerY();
-        }
-        
-    };
     
 }

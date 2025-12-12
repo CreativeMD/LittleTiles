@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.Function;
 
 import javax.annotation.Nullable;
 
@@ -84,7 +85,7 @@ public class GuiSignalController extends GuiParent {
     private GuiSignalNode dragged;
     private boolean startedDragging = false;
     private GuiSignalNode selected;
-    private GuiSignalNodeAnchor selectedAnchor;
+    private Function<Boolean, GuiSignalNodeAnchor> selectedAnchor;
     
     private Rect controllerRect;
     
@@ -361,15 +362,17 @@ public class GuiSignalController extends GuiParent {
             node = new GuiSignalNodeVirtualNumberInput(number, number.position);
         else if (condition instanceof SignalInputConditionComparator com) {
             node = new GuiSignalNodeComparator(com.comparator, com.position);
-            for (SignalInputCondition subCondition : com.conditions) {
-                GuiSignalNode child = fill(subCondition, signal, parsed, level + 1);
-                GuiSignalConnection.connect(child, node);
-            }
+            
+            GuiSignalNode child = fill(com.conditions[0], signal, parsed, level + 1);
+            GuiSignalConnection.connect(child, null, node, GuiSignalNodeComparator.UPPER_BUTTON);
+            
+            child = fill(com.conditions[1], signal, parsed, level + 1);
+            GuiSignalConnection.connect(child, null, node, GuiSignalNodeComparator.LOWER_BUTTON);
         } else if (condition instanceof SignalInputConditionGate gate) {
             node = new GuiSignalNodeGate(gate.invert, gate.position);
             
             GuiSignalNode child = fill(gate.gate, signal, parsed, level + 1);
-            GuiSignalConnection.connect(child, null, node, GuiSignalNodeGate.UPPER_BOTTOM);
+            GuiSignalConnection.connect(child, null, node, GuiSignalNodeGate.UPPER_BUTTON);
             
             child = fill(gate.through, signal, parsed, level + 1);
             GuiSignalConnection.connect(child, null, node, GuiSignalNodeAnchor.LEFT);
@@ -413,12 +416,12 @@ public class GuiSignalController extends GuiParent {
         return selected;
     }
     
-    public void drag(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
+    public void drag(GuiSignalNode node, @Nullable Function<Boolean, GuiSignalNodeAnchor> anchor) {
         dragged = node;
         selectedAnchor = anchor;
     }
     
-    public void select(GuiSignalNode node, @Nullable GuiSignalNodeAnchor anchor) {
+    public void select(GuiSignalNode node, @Nullable Function<Boolean, GuiSignalNodeAnchor> anchor) {
         if (selected != null)
             selected.setDefaultColor(ColorUtils.WHITE);
         selected = node;
@@ -427,7 +430,7 @@ public class GuiSignalController extends GuiParent {
             selected.setDefaultColor(ColorUtils.YELLOW);
     }
     
-    public void selectOrConnect(GuiSignalNode node, GuiSignalNodeAnchor anchor, boolean shouldDrag) {
+    public void selectOrConnect(GuiSignalNode node, @Nullable Function<Boolean, GuiSignalNodeAnchor> anchor, boolean shouldDrag) {
         if (selected() != null)
             tryToggleConnectionToSelected(node, anchor);
         else if (shouldDrag)
@@ -436,15 +439,19 @@ public class GuiSignalController extends GuiParent {
             select(node, anchor);
     }
     
-    public void tryToggleConnectionToSelected(GuiSignalNode node, GuiSignalNodeAnchor anchor) {
+    public void tryToggleConnectionToSelected(GuiSignalNode node, @Nullable Function<Boolean, GuiSignalNodeAnchor> anchor) {
         if (selected != node) {
             GuiSignalConnection connection = selected.getConnectionTo(node);
             if (connection != null) {
                 connection.disconnect(this);
                 raiseEvent(new GuiControlChangedEvent(this));
-            } else if (selected.canConnectTo(node, selectedAnchor) && node.canConnectFrom(selected, anchor)) {
-                GuiSignalConnection.connect(selected, selectedAnchor, node, anchor);
-                raiseEvent(new GuiControlChangedEvent(this));
+            } else {
+                var fromAnchor = selectedAnchor != null ? selectedAnchor.apply(false) : null;
+                var toAnchor = anchor != null ? anchor.apply(true) : null;
+                if (selected.canConnectTo(node, fromAnchor) && node.canConnectFrom(selected, toAnchor)) {
+                    GuiSignalConnection.connect(selected, fromAnchor, node, toAnchor);
+                    raiseEvent(new GuiControlChangedEvent(this));
+                }
             }
         }
         select(null, null);
