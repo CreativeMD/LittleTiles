@@ -13,19 +13,14 @@ import team.creative.littletiles.common.structure.signal.schedule.SignalSchedule
 public class SignalOutputHandlerExtender extends SignalOutputHandler {
     
     public final int pulseLength;
-    public boolean stateBefore;
+    public SignalState stateBefore;
     public SignalScheduleTicket pulseStart;
     public SignalScheduleTicket pulseEnd;
     
     public SignalOutputHandlerExtender(ISignalComponent component, int delay, CompoundTag nbt) {
         super(component, delay, nbt);
         this.pulseLength = nbt.contains("length") ? nbt.getInt("length") : 10;
-        this.stateBefore = nbt.getBoolean("before");
-    }
-    
-    @Override
-    public int getBandwidth() throws CorruptedConnectionException, NotYetConnectedException {
-        return super.getBandwidth();
+        this.stateBefore = SignalState.loadFromTag(nbt.get("before"));
     }
     
     @Override
@@ -49,16 +44,13 @@ public class SignalOutputHandlerExtender extends SignalOutputHandler {
         try {
             int bandwidth = getBandwidth();
             boolean current = state.any();
-            if (!stateBefore && current) { // switch from off to on
+            if ((stateBefore == null || !stateBefore.any()) && current) { // switch from off to on
                 if (pulseEnd != null) {
                     pulseEnd.markObsolete();
                     pulseEnd = null;
-                } else if (pulseStart == null) {
-                    
-                    SignalState startState = SignalState.create(bandwidth).fill(true);
-                    pulseStart = LittleTiles.TICKERS.schedule(this, startState, delay);
-                }
-            } else if (stateBefore && !current) { // switch from on to off
+                } else if (pulseStart == null)
+                    pulseStart = LittleTiles.TICKERS.schedule(this, SignalState.copy(state), delay);
+            } else if (stateBefore != null && stateBefore.any() && !current) { // switch from on to off
                 if (pulseEnd != null) {
                     pulseEnd.markObsolete();
                     pulseEnd = null;
@@ -66,14 +58,17 @@ public class SignalOutputHandlerExtender extends SignalOutputHandler {
                 
                 pulseEnd = LittleTiles.TICKERS.schedule(this, SignalState.create(bandwidth), delay + pulseLength);
             }
-            stateBefore = current;
+            stateBefore = SignalState.copy(state);
         } catch (CorruptedConnectionException | NotYetConnectedException e) {}
     }
     
     @Override
     public void write(boolean preview, CompoundTag nbt) {
         nbt.putInt("length", pulseLength);
-        nbt.putBoolean("before", stateBefore);
+        if (stateBefore != null)
+            nbt.put("before", stateBefore.save());
+        else
+            nbt.remove("before");
         if (preview)
             return;
         if (pulseStart != null)

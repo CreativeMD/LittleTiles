@@ -13,19 +13,14 @@ import team.creative.littletiles.common.structure.signal.schedule.SignalSchedule
 public class SignalOutputHandlerPulse extends SignalOutputHandler {
     
     public final int pulseLength;
-    public boolean stateBefore;
+    public SignalState stateBefore;
     public SignalScheduleTicket pulseStart;
     public SignalScheduleTicket pulseEnd;
     
     public SignalOutputHandlerPulse(ISignalComponent component, int delay, CompoundTag nbt) {
         super(component, delay, nbt);
         this.pulseLength = nbt.contains("length") ? nbt.getInt("length") : 10;
-        this.stateBefore = nbt.getBoolean("before");
-    }
-    
-    @Override
-    public int getBandwidth() throws CorruptedConnectionException, NotYetConnectedException {
-        return super.getBandwidth();
+        this.stateBefore = SignalState.loadFromTag(nbt.get("before"));
     }
     
     @Override
@@ -47,22 +42,23 @@ public class SignalOutputHandlerPulse extends SignalOutputHandler {
     @Override
     public void queue(SignalState state) {
         boolean current = state.any();
-        if (pulseEnd == null && !stateBefore && current) {
+        if (pulseEnd == null && (stateBefore == null || !stateBefore.any()) && current) {
             try {
                 int bandwidth = getBandwidth();
-                SignalState startState = SignalState.create(bandwidth).fill(true);
-                SignalState endState = SignalState.create(bandwidth);
-                pulseStart = LittleTiles.TICKERS.schedule(this, startState, delay);
-                pulseEnd = LittleTiles.TICKERS.schedule(this, endState, delay + pulseLength);
+                pulseStart = LittleTiles.TICKERS.schedule(this, SignalState.copy(state), delay);
+                pulseEnd = LittleTiles.TICKERS.schedule(this, SignalState.create(bandwidth), delay + pulseLength);
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
-        stateBefore = current;
+        stateBefore = SignalState.copy(state);
     }
     
     @Override
     public void write(boolean preview, CompoundTag nbt) {
         nbt.putInt("length", pulseLength);
-        nbt.putBoolean("before", stateBefore);
+        if (stateBefore != null)
+            nbt.put("before", stateBefore.save());
+        else
+            nbt.remove("before");
         if (preview)
             return;
         if (pulseStart != null)
