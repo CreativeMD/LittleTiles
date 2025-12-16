@@ -16,14 +16,14 @@ public class LittleBlockClientRegistry {
     private static final ChunkRenderTypeSet SOLID = ChunkRenderTypeSet.of(RenderType.solid());
     private static final Map<LittleBlock, ChunkRenderTypeSet> CACHED_LAYERS = Collections.synchronizedMap(new HashMap<>());
     
-    public static boolean canRenderInLayer(LittleBlock block, RenderType layer) {
+    public static synchronized boolean canRenderInLayer(LittleBlock block, RenderType layer) {
         ChunkRenderTypeSet layers = CACHED_LAYERS.get(block);
         if (layers == null) {
             if (block.shouldUseStateForRenderType())
-                Minecraft.getInstance().executeBlocking(() -> CACHED_LAYERS.put(block, Minecraft.getInstance().getBlockRenderer().getBlockModel(block.getState()).getRenderTypes(
-                    block.getState(), ILittleMCBlock.RANDOM, ModelData.EMPTY)));
+                CACHED_LAYERS.put(block, Minecraft.getInstance().getBlockRenderer().getBlockModel(block.getState()).getRenderTypes(block.getState(), ILittleMCBlock.RANDOM,
+                    ModelData.EMPTY));
             else
-                Minecraft.getInstance().executeBlocking(() -> CACHED_LAYERS.put(block, SOLID));
+                CACHED_LAYERS.put(block, SOLID);
             layers = CACHED_LAYERS.get(block);
         }
         if (layers == null)
@@ -31,7 +31,7 @@ public class LittleBlockClientRegistry {
         return layers.contains(layer);
     }
     
-    public static void clearCache() {
+    public static synchronized void clearCache() {
         CACHED_LAYERS.clear();
     }
     
