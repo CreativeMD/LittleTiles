@@ -36,4 +36,8 @@ public sealed interface ILittleFace extends IGridBased permits LittleFace, Littl
     
     public void setPartiallyFilled();
     
+    public boolean isFilled();
+    
+    public boolean isPartiallyFilled();
+    
 }

@@ -242,34 +242,50 @@ public class BERenderManager {
                             LittleFaceState state = cube.box.getFaceState(facing);
                             
                             if (state.outside())
-                                calculateFaces(facing, state, context, (LittleTile) cube.customData, cube.box, cube);
+                                calculateFaces(facing, state, context, (LittleTile) cube.customData, cube.box, cube, true);
                         }
                     
         }
     }
     
-    private void calculateFaces(Facing facing, LittleFaceState state, RenderingBlockContext context, @Nullable LittleTile tile, LittleBox box, LittleRenderBox cube) {
+    private void calculateFaces(Facing facing, LittleFaceState state, RenderingBlockContext context, @Nullable LittleTile tile, LittleBox box, LittleRenderBox cube,
+            boolean recheck) {
+        
+        LittleFace face = null;
+        if (recheck) {
+            face = cube.box.generateFace(be.getGrid(), facing);
+            
+            if (face == null) {
+                cube.setFace(facing, RenderBoxFace.NOT_RENDER);
+                return;
+            }
+            
+            state = face.calculateOutsideClient(tile, context);
+        } else if (state.outside())
+            cube.customData = tile;
+        
         if (state.coveredFully()) {
             cube.setFace(facing, RenderBoxFace.NOT_RENDER);
             return;
         }
         
         if (tile != null && tile.isTranslucent() && state.partially()) {
-            LittleFace face = cube.box.generateFace(be.getGrid(), facing);
+            if (face != null)
+                face = cube.box.generateFace(be.getGrid(), facing);
             if (face == null)
                 cube.setFace(facing, RenderBoxFace.NOT_RENDER);
             else {
                 BETiles toCheck = be;
                 if (state.outside()) {
                     toCheck = context.getNeighbour(facing);
-                    face.move(facing);
+                    if (!recheck) // Prevent moving it twice, because face.calculateOutsideClient(tile, context) does move it already
+                        face.move(facing);
                 }
                 if (toCheck.shouldFaceBeRendered(face, tile))
                     cube.setFace(facing, new RenderBoxFaceSpecial(face.generateFans(), (float) face.grid.pixelLength));
                 else
                     cube.setFace(facing, RenderBoxFace.NOT_RENDER);
             }
-            cube.customData = tile;
         } else
             cube.setFace(facing, RenderBoxFace.RENDER);
     }
@@ -302,7 +318,7 @@ public class BERenderManager {
                         
                         // Check for sides which does not need to be rendered
                         for (int k = 0; k < Facing.VALUES.length; k++)
-                            calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, box, cube);
+                            calculateFaces(Facing.VALUES[k], cube.box.getFaceState(Facing.VALUES[k]), context, tile, box, cube, false);
                         
                         list.add(cube);
                     }

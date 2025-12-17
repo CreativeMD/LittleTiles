@@ -99,6 +99,7 @@ import team.creative.littletiles.common.structure.signal.input.InternalSignalInp
 import team.creative.littletiles.common.structure.signal.output.InternalSignalOutput;
 import team.creative.littletiles.common.structure.signal.output.SignalExternalOutputHandler;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
+import team.creative.littletiles.server.LittleTilesServer;
 
 public abstract class LittleStructure implements ISignalSchedulable, ILevelPositionProvider, SignalContext {
     
@@ -628,7 +629,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         removeStructureSameLevelWithoutCheck(collector);
         entity.getStructure().transferChildrenToAnimation(entity);
         
-        collector.process();
+        LittleTilesServer.NEIGHBOR.schedule(collector);
         entity.clearTrackingChanges();
         entity.initialTick();
         return entity;
@@ -673,7 +674,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         transferOverFormChange(result.parentStructure);
         
         removeStructureSameLevelWithoutCheck(collector);
-        collector.process();
+        LittleTilesServer.NEIGHBOR.schedule(collector);
         
         entity.setRemoved(RemovalReason.KILLED);
     }

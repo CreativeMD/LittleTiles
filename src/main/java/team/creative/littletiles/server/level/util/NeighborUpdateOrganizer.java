@@ -17,16 +17,22 @@ import net.neoforged.neoforge.event.level.LevelEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.creativecore.common.level.NeighborUpdateCollector;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
 
 public class NeighborUpdateOrganizer {
     
+    private List<NeighborUpdateCollector> scheduledCollectors = new ArrayList<>();
     private HashMapList<Level, BlockPos> positions = new HashMapList<>();
     
     public NeighborUpdateOrganizer() {
         NeoForge.EVENT_BUS.register(this);
+    }
+    
+    public void schedule(NeighborUpdateCollector collector) {
+        scheduledCollectors.add(collector);
     }
     
     public void add(Level level, BlockPos pos) {
@@ -34,6 +40,15 @@ public class NeighborUpdateOrganizer {
             return;
         if (!positions.contains(level, pos))
             positions.add(level, pos);
+    }
+    
+    @SubscribeEvent
+    public void tickPre(ServerTickEvent.Pre event) {
+        if (!scheduledCollectors.isEmpty()) {
+            for (NeighborUpdateCollector collector : scheduledCollectors)
+                collector.process();
+            scheduledCollectors.clear();
+        }
     }
     
     @SubscribeEvent

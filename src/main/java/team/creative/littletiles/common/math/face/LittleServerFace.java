@@ -23,6 +23,42 @@ import team.creative.littletiles.common.structure.attribute.LittleStructureAttri
 
 public non-sealed class LittleServerFace implements ILittleFace {
     
+    public static LittleFaceState calculate(BETiles be, Facing facing, ILittleFace face, LittleTile rendered, boolean outside) {
+        return face.unsafeSameGridRestore(be, () -> {
+            for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
+                if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
+                    continue;
+                if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
+                    pair.value.fillFace(pair.key, face, be.getGrid());
+            }
+            
+            if (outside)
+                if (face.isFilled())
+                    return LittleFaceState.OUTISDE_COVERED;
+                else if (face.isPartiallyFilled())
+                    return LittleFaceState.OUTSIDE_PARTIALLY_COVERED;
+                else
+                    return LittleFaceState.OUTSIDE_UNCOVERED;
+                
+            if (face.isFilled())
+                return LittleFaceState.INSIDE_COVERED;
+            else if (face.isPartiallyFilled())
+                return LittleFaceState.INSIDE_PARTIALLY_COVERED;
+            return LittleFaceState.INSIDE_UNCOVERED;
+        });
+    }
+    
+    public static BETiles checkforBE(Level level, Direction facing, BlockPos pos) {
+        BlockEntity be = level.getBlockEntity(pos.relative(facing));
+        if (be instanceof BETiles t)
+            return t;
+        return null;
+    }
+    
+    public static boolean checkforNeighbour(Level level, Direction facing, BlockPos pos, BlockState state, int color) {
+        return !Block.shouldRenderFace(state, level, pos, facing, pos.relative(facing)) || (ColorUtils.WHITE == color && state == level.getBlockState(pos.relative(facing)));
+    }
+    
     private final BETiles be;
     private final HashMap<Facing, Boolean> neighbours = new HashMap<>();
     private final HashMap<Facing, BETiles> neighboursTiles = new HashMap<>();
@@ -99,6 +135,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
         filled = new boolean[maxOne - minOne][maxTwo - minTwo];
     }
     
+    @Override
     public boolean isPartiallyFilled() {
         if (partiallyFilled)
             return true;
@@ -109,6 +146,7 @@ public non-sealed class LittleServerFace implements ILittleFace {
         return false;
     }
     
+    @Override
     public boolean isFilled() {
         for (int one = 0; one < filled.length; one++)
             for (int two = 0; two < filled[one].length; two++)
@@ -187,31 +225,6 @@ public non-sealed class LittleServerFace implements ILittleFace {
         filled[one][two] = value;
     }
     
-    public static LittleFaceState calculate(BETiles be, Facing facing, LittleServerFace face, LittleTile rendered, boolean outside) {
-        return face.unsafeSameGridRestore(be, () -> {
-            for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
-                if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
-                    continue;
-                if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
-                    pair.value.fillFace(pair.key, face, be.getGrid());
-            }
-            
-            if (outside)
-                if (face.isFilled())
-                    return LittleFaceState.OUTISDE_COVERED;
-                else if (face.isPartiallyFilled())
-                    return LittleFaceState.OUTSIDE_PARTIALLY_COVERED;
-                else
-                    return LittleFaceState.OUTSIDE_UNCOVERED;
-                
-            if (face.isFilled())
-                return LittleFaceState.INSIDE_COVERED;
-            else if (face.isPartiallyFilled())
-                return LittleFaceState.INSIDE_PARTIALLY_COVERED;
-            return LittleFaceState.INSIDE_UNCOVERED;
-        });
-    }
-    
     public LittleFaceState calculate() {
         if (!validFace)
             return LittleFaceState.UNLOADED;
@@ -244,14 +257,4 @@ public non-sealed class LittleServerFace implements ILittleFace {
         return LittleFaceState.OUTSIDE_UNCOVERED;
     }
     
-    private static BETiles checkforBE(Level level, Direction facing, BlockPos pos) {
-        BlockEntity be = level.getBlockEntity(pos.relative(facing));
-        if (be instanceof BETiles)
-            return (BETiles) be;
-        return null;
-    }
-    
-    private static boolean checkforNeighbour(Level level, Direction facing, BlockPos pos, BlockState state, int color) {
-        return !Block.shouldRenderFace(state, level, pos, facing, pos.relative(facing)) || (ColorUtils.WHITE == color && state == level.getBlockState(pos.relative(facing)));
-    }
 }

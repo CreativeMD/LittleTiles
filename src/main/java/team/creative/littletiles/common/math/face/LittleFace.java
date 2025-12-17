@@ -9,6 +9,9 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
+import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxCombiner;
@@ -100,6 +103,7 @@ public non-sealed class LittleFace implements ILittleFace {
         }
     }
     
+    @Override
     public boolean isPartiallyFilled() {
         if (toCut != null)
             return true;
@@ -108,6 +112,11 @@ public non-sealed class LittleFace implements ILittleFace {
                 if (filled[one][two])
                     return true;
         return false;
+    }
+    
+    @Override
+    public boolean isFilled() {
+        return isFilled(false);
     }
     
     public boolean isFilled(boolean important) {
@@ -276,4 +285,19 @@ public non-sealed class LittleFace implements ILittleFace {
         filled[one][two] = value;
     }
     
+    /** Only called if neighbor changed, because server does not transmit update face data */
+    public LittleFaceState calculateOutsideClient(LittleTile tile, RenderingBlockContext context) {
+        if (!tile.cullOverEdge())
+            return LittleFaceState.OUTSIDE_UNCOVERED;
+        
+        if (LittleServerFace.checkforNeighbour(context.be.getLevel(), facing.toVanilla(), context.be.getBlockPos(), tile.getState(), tile.color))
+            return LittleFaceState.OUTISDE_COVERED;
+        
+        BETiles otherTile = context.getNeighbour(facing);
+        if (otherTile != null) {
+            move(facing);
+            return LittleServerFace.calculate(otherTile, facing.opposite(), this, tile, true);
+        }
+        return LittleFaceState.OUTSIDE_UNCOVERED;
+    }
 }
