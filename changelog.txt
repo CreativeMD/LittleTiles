@@ -1,3 +1,9 @@
+1.6.0-pre192
+Fixed not recalculating faces when animation changes state
+Fixed animation switching state calling neighbor updates to early causing client to incorrectly calculate faces
+Fixed game freeze due to dead lock caused by checking for render layers
+Reworked pulse and extender signal mode to not loose bit information
+
 1.6.0-pre191
 Added testing for signals
 Added better configuration for comparators in signal
