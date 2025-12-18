@@ -70,7 +70,7 @@ public class ItemLittleBag extends Item implements ILittleIngredientInventory, I
         }
         ingredients.set(blocks.getClass(), blocks);
         
-        ColorIngredient color = new ColorIngredient(nbt.getInt("black"), nbt.getInt("cyan"), nbt.getInt("magenta"), nbt.getInt("yellow"));
+        ColorIngredient color = new ColorIngredient(nbt.getInt("black"), nbt.getInt("cyan"), nbt.getInt("magenta"), nbt.getInt("yellow"), nbt.getInt("alpha"));
         color.setLimit(LittleTiles.CONFIG.general.bag.colorStorage);
         ingredients.set(color.getClass(), color);
         return ingredients;
@@ -98,6 +98,7 @@ public class ItemLittleBag extends Item implements ILittleIngredientInventory, I
         nbt.putInt("cyan", color.cyan);
         nbt.putInt("magenta", color.magenta);
         nbt.putInt("yellow", color.yellow);
+        nbt.putInt("alpha", color.alpha);
         ILittleTool.setData(stack, nbt);
     }
     

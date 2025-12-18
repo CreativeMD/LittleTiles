@@ -1,0 +1,15 @@
+{
+    "result": {
+        "id": "littletiles:bottle_alpha",
+        "components": {
+            "littletiles:color_amount": 4096
+        }
+    },
+    "category": "building",
+    "ingredients": [
+        {
+            "item": "minecraft:glass"
+        }
+    ],
+    "type": "minecraft:crafting_shapeless"
+}

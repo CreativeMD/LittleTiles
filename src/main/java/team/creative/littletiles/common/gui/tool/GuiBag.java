@@ -193,6 +193,7 @@ public class GuiBag extends GuiConfigure {
         right.add(new GuiColorProgressBar("cyan", unit.cyan, colorStorage, Color.CYAN));
         right.add(new GuiColorProgressBar("magenta", unit.magenta, colorStorage, Color.MAGENTA));
         right.add(new GuiColorProgressBar("yellow", unit.yellow, colorStorage, Color.YELLOW));
+        right.add(new GuiColorProgressBar("alpha", unit.alpha, colorStorage, Color.WHITE));
         
         bag = ((ItemLittleBag) tool.get().getItem()).getInventory(tool.get());
         
@@ -213,6 +214,7 @@ public class GuiBag extends GuiConfigure {
         get("cyan", GuiColorProgressBar.class).pos = unit.cyan;
         get("magenta", GuiColorProgressBar.class).pos = unit.magenta;
         get("yellow", GuiColorProgressBar.class).pos = unit.yellow;
+        get("alpha", GuiColorProgressBar.class).pos = unit.alpha;
         clearItemCache();
     }
     

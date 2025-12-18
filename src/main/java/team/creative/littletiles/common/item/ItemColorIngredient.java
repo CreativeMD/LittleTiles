@@ -40,6 +40,9 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             case yellow:
                 stack = new ItemStack(LittleTilesRegistry.YELLOW_COLOR.value());
                 break;
+            case alpha:
+                stack = new ItemStack(LittleTilesRegistry.ALPHA_COLOR.value());
+                break;
             default:
                 stack = ItemStack.EMPTY;
                 break;
@@ -55,12 +58,23 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
     }
     
     @Override
-    public boolean overrideStackedOnOther(ItemStack stack, Slot slot, ClickAction action, Player player) {
-        return false;
-    }
-    
-    @Override
     public boolean overrideOtherStackedOnMe(ItemStack me, ItemStack other, Slot slot, ClickAction action, Player player, SlotAccess otherSlot) {
+        if (other.getItem() instanceof ItemColorIngredient i && i.type == type) {
+            int amount = slot.getItem().getOrDefault(LittleTilesRegistry.COLOR_AMOUNT, 0);
+            int otherAmount = other.getOrDefault(LittleTilesRegistry.COLOR_AMOUNT, 0);
+            int toAdd = Math.min(ColorIngredient.BOTTLE_SIZE - amount, otherAmount);
+            if (toAdd <= 0)
+                return false;
+            
+            slot.getItem().set(LittleTilesRegistry.COLOR_AMOUNT, amount + toAdd);
+            otherAmount -= toAdd;
+            if (otherAmount <= 0) {
+                other.remove(LittleTilesRegistry.COLOR_AMOUNT);
+                other.setCount(0);
+            } else
+                other.set(LittleTilesRegistry.COLOR_AMOUNT, otherAmount);
+            return true;
+        }
         return false;
     }
     
@@ -71,16 +85,19 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
             
             switch (type) {
                 case black:
-                    ingredient.setLimit(ColorIngredient.BOTTLE_SIZE, 0, 0, 0);
+                    ingredient.setLimit(ColorIngredient.BOTTLE_SIZE, 0, 0, 0, 0);
                     break;
                 case cyan:
-                    ingredient.setLimit(0, ColorIngredient.BOTTLE_SIZE, 0, 0);
+                    ingredient.setLimit(0, ColorIngredient.BOTTLE_SIZE, 0, 0, 0);
                     break;
                 case magenta:
-                    ingredient.setLimit(0, 0, ColorIngredient.BOTTLE_SIZE, 0);
+                    ingredient.setLimit(0, 0, ColorIngredient.BOTTLE_SIZE, 0, 0);
                     break;
                 case yellow:
-                    ingredient.setLimit(0, 0, 0, ColorIngredient.BOTTLE_SIZE);
+                    ingredient.setLimit(0, 0, 0, ColorIngredient.BOTTLE_SIZE, 0);
+                    break;
+                case alpha:
+                    ingredient.setLimit(0, 0, 0, 0, ColorIngredient.BOTTLE_SIZE);
                     break;
                 default:
                     break;
@@ -213,6 +230,24 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
                 return Component.literal(ingredient.getYellowDescription());
             }
             
+        },
+        alpha {
+            
+            @Override
+            public int getIngredient(ColorIngredient ingredient) {
+                return ingredient.alpha;
+            }
+            
+            @Override
+            public void setIngredient(ColorIngredient ingredient, int value) {
+                ingredient.alpha = value;
+            }
+            
+            @Override
+            public Component print(ColorIngredient ingredient) {
+                return Component.literal(ingredient.getAlphaDescription());
+            }
+            
         };
         
         public abstract int getIngredient(ColorIngredient ingredient);
@@ -231,6 +266,8 @@ public class ItemColorIngredient extends Item implements ILittleIngredientInvent
                     return ColorIngredientType.magenta;
                 case "yellow":
                     return ColorIngredientType.yellow;
+                case "alpha":
+                    return ColorIngredientType.alpha;
                 default:
                     return null;
             }

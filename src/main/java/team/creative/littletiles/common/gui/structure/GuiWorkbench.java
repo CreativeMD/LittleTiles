@@ -84,6 +84,8 @@ public class GuiWorkbench extends GuiLayer {
                             listBox.addItem(new GuiLabel("").setTitle(Component.literal(color.getMagentaDescription())));
                         if (color.yellow > 0)
                             listBox.addItem(new GuiLabel("").setTitle(Component.literal(color.getYellowDescription())));
+                        if (color.alpha > 0)
+                            listBox.addItem(new GuiLabel("").setTitle(Component.literal(color.getAlphaDescription())));
                     }
                     
                     StackIngredient stacks = missing.get(StackIngredient.class);

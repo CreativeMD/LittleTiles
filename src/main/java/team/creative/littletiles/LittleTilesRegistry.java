@@ -101,6 +101,7 @@ public class LittleTilesRegistry {
     public static final Holder<Item> CYAN_COLOR = ITEMS.register("bottle_cyan", () -> new ItemColorIngredient(ColorIngredientType.cyan));
     public static final Holder<Item> MAGENTA_COLOR = ITEMS.register("bottle_magenta", () -> new ItemColorIngredient(ColorIngredientType.magenta));
     public static final Holder<Item> YELLOW_COLOR = ITEMS.register("bottle_yellow", () -> new ItemColorIngredient(ColorIngredientType.yellow));
+    public static final Holder<Item> ALPHA_COLOR = ITEMS.register("bottle_alpha", () -> new ItemColorIngredient(ColorIngredientType.alpha));
     
     // DATA COMPONENTS
     

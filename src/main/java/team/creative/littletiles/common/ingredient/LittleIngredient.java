@@ -191,6 +191,11 @@ public abstract class LittleIngredient<T extends LittleIngredient> extends Littl
                     ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
                     stacks.add(stack);
                 }
+                if (overflow.alpha > 0) {
+                    ItemStack stack = new ItemStack(LittleTilesRegistry.ALPHA_COLOR.value());
+                    ((ItemColorIngredient) stack.getItem()).setInventory(stack, ingredients, null);
+                    stacks.add(stack);
+                }
                 return stacks;
             }
         }, new IngredientConvertionHandler<ColorIngredient>() {

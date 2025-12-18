@@ -75,6 +75,9 @@ public class LittleTilesConfig {
         public boolean enableCollisionMotion = true;
         
         @CreativeConfig
+        public int alphaBlockVolume = 255;
+        
+        @CreativeConfig
         public float dyeVolume = 2;
         
         @CreativeConfig

@@ -267,6 +267,7 @@ public class LittleTilesClient {
             ItemProperties.register(LittleTilesRegistry.CYAN_COLOR.value(), filled, function);
             ItemProperties.register(LittleTilesRegistry.MAGENTA_COLOR.value(), filled, function);
             ItemProperties.register(LittleTilesRegistry.YELLOW_COLOR.value(), filled, function);
+            ItemProperties.register(LittleTilesRegistry.ALPHA_COLOR.value(), filled, function);
         });
         
         MC.getItemColors().register((stack, layer) -> {
