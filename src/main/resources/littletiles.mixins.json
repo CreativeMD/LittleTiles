@@ -9,6 +9,8 @@
         "common.block.StateHolderAccessor",
         "common.collision.BlockCollisionsMixin",
         "common.collision.CommonHooksMixin",
+        "common.collision.ShapesAccessor",
+        "common.collision.ShapesMixin",
         "common.entity.EntityAccessor",
         "common.entity.EntityMixin",
         "common.entity.LivingEntityBedMixin",

@@ -111,9 +111,17 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
             parent.setBoundingBox(parent.getOrigin().getAABB(bb).toVanilla());
             if (originChanged)
                 parent.resetOriginChange();
+            
+            Vec3d deltaMovement = center != null ? new Vec3d(center) : new Vec3d(parent.getBoundingBox().getCenter());
             center = parent.getBoundingBox().getCenter();
+            deltaMovement.x = center.x - deltaMovement.x;
+            deltaMovement.y = center.y - deltaMovement.y;
+            deltaMovement.z = center.z - deltaMovement.z;
+            parent.getOrigin().deltaMovement(deltaMovement);
             bbChanged = false;
-        }
+        } else if (parent.getOrigin().deltaMovement() instanceof Vec3d vec && (vec.x != 0 || vec.y != 0 || vec.z != 0))
+            parent.getOrigin().deltaMovement(new Vec3d());
+        
     }
     
     public ABB getOBB() {

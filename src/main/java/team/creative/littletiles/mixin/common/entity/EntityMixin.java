@@ -3,10 +3,12 @@ package team.creative.littletiles.mixin.common.entity;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
@@ -19,17 +21,24 @@ import it.unimi.dsi.fastutil.floats.FloatArrays;
 import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.minecraft.core.Direction;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.box.BoxesVoxelShape;
+import team.creative.creativecore.common.util.math.box.OBB;
+import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.mixin.common.collision.ShapesAccessor;
 
 @Mixin(Entity.class)
 public class EntityMixin {
@@ -37,6 +46,71 @@ public class EntityMixin {
     @Unique
     private Entity asEntity() {
         return (Entity) (Object) this;
+    }
+    
+    @WrapOperation(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", require = 1, at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/level/block/Block;updateEntityAfterFallOn(Lnet/minecraft/world/level/BlockGetter;Lnet/minecraft/world/entity/Entity;)V"))
+    public void deltaMovementVertical(Block block, BlockGetter level, Entity entity, Operation<Void> original) {
+        var vec = decreaseDelta(Axis.Y, entity);
+        if (vec != null)
+            entity.setDeltaMovement(vec);
+        else
+            original.call(block, level, entity);
+    }
+    
+    @Unique
+    private Vec3 decreaseDelta(Axis axis, Entity entity) {
+        var shape = axis == Axis.X ? ShapesAccessor.getCollidedX() : (axis == Axis.Y ? ShapesAccessor.getCollidedY() : ShapesAccessor.getCollidedZ());
+        if (shape instanceof BoxesVoxelShape b && b.boxes.getFirst() instanceof OBB o) {
+            var d = o.origin.deltaMovement();
+            if (d == null)
+                return null;
+            double value = d.get(axis);
+            if (value == 0)
+                return null;
+            
+            Vec3 delta = entity.getDeltaMovement();
+            double detlaValue = VectorUtils.get(axis, delta);
+            if (detlaValue != 0 && detlaValue < 0 ? (detlaValue < value) : (detlaValue > value))
+                return VectorUtils.set(delta, value, axis);
+        }
+        return null;
+    }
+    
+    @WrapOperation(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", require = 1, at = @At(value = "FIELD", target = "horizontalCollision:Z",
+            opcode = Opcodes.GETFIELD, ordinal = 1))
+    public boolean deltaMovementHorizontal(Entity entity, Operation<Boolean> original) {
+        if (!original.call(entity))
+            return false;
+        
+        Vec3 deltaX = decreaseDelta(Axis.X, entity);
+        Vec3 deltaZ = decreaseDelta(Axis.Z, entity);
+        if (deltaX == null && deltaZ == null)
+            return true;
+        
+        var delta = entity.getDeltaMovement();
+        
+        double x = delta.x;
+        if (deltaX != null)
+            x = deltaX.x;
+        else if (ShapesAccessor.getCollidedX() != null)
+            x = 0;
+        
+        double z = delta.z;
+        if (deltaZ != null)
+            z = deltaZ.z;
+        else if (ShapesAccessor.getCollidedZ() != null)
+            z = 0;
+        
+        entity.setDeltaMovement(new Vec3(x, delta.y, z));
+        return false;
+    }
+    
+    @Inject(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", require = 1, at = @At("TAIL"))
+    public void moveEnd(MoverType type, Vec3 motion, CallbackInfo info) {
+        ShapesAccessor.setCollidedX(null);
+        ShapesAccessor.setCollidedY(null);
+        ShapesAccessor.setCollidedZ(null);
     }
     
     @Inject(method = "pick", at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILHARD, cancellable = true, require = 1)
