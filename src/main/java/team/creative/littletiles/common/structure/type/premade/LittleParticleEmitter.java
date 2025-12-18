@@ -23,6 +23,7 @@ import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -155,6 +156,11 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             count = nbt.getInt("tickCount");
         else
             count = 1;
+        
+        double perSecond = (count * 20) / (delay + 1);
+        if (perSecond > LittleTiles.CONFIG.general.maxParticlesPerSecond)
+            count = (int) (LittleTiles.CONFIG.general.maxParticlesPerSecond * (delay + 1) / 20); // Set count to the highest number possible
+            
         if (nbt.contains("settings"))
             settings = new ParticleSettings(nbt.getCompound("settings"));
         else

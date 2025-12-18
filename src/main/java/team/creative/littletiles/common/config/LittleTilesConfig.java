@@ -87,6 +87,9 @@ public class LittleTilesConfig {
         public double maxDoorRotation = 1440;
         
         @CreativeConfig
+        public double maxParticlesPerSecond = 200;
+        
+        @CreativeConfig
         public LittleConfigBag bag = new LittleConfigBag();
         
         @CreativeConfig
