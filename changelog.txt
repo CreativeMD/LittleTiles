@@ -1,3 +1,9 @@
+1.6.0-pre193
+Added ability to stack color ingredients on top of each other
+Added alpha color part (can be obtained via crafting one glass -> alpha bottle)
+Added maxParticlesPerSecond config option (default is 200)
+Added way to preserve momentum when colliding with animation this fixes bouncing behavior of door going downwards
+
 1.6.0-pre192
 Fixed not recalculating faces when animation changes state
 Fixed animation switching state calling neighbor updates to early causing client to incorrectly calculate faces
