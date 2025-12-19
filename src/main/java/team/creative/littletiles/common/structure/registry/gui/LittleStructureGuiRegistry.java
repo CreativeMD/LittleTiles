@@ -128,6 +128,8 @@ public class LittleStructureGuiRegistry {
                     child.activateParent = set.get(i);
         }, axis, sliding, advanced, activator);
         
+        registerByType(new LittleStructureGui("particle_emitter", get("particle_emitter"), LittleParticleGui::new));
+        
         register((x, y) -> {
             if (x instanceof LittlePremadeType) {
                 LittleStructureGui gui = new LittleStructureGui(x.id, x, LittleStructurePremadeGui::new);

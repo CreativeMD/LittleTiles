@@ -130,22 +130,8 @@ public class GuiParticle extends GuiLayer {
     }
     
     public LittleParticleEmitter particle;
-    public GuiComboBox<LittleParticlePresets> presetBox;
-    public GuiComboBox<LittleParticleTexture> textureBox;
-    public GuiCounterDecimal sizeStart;
-    public GuiCounterDecimal sizeEnd;
-    public GuiCounterDecimal sizeDiv;
-    public GuiColorPicker color;
-    public GuiCheckBox randomColor;
-    public GuiSlider gravity;
-    public GuiCheckBox collision;
-    public GuiSteppedSlider age;
-    public GuiCounter ageDiv;
-    public GuiCounter count;
-    public GuiCounter delay;
-    public GuiTabButton<ParticleSpreadGuiHandler> spread;
-    public GuiPanel spreadPanel;
-    public GuiCheckBox locked;
+    
+    public GuiParticleControl control;
     
     public GuiSyncLocal<CompoundTag> SAVE = getSyncHolder().register("save", x -> {
         particle.loadSettings(x);
@@ -156,132 +142,162 @@ public class GuiParticle extends GuiLayer {
     public GuiParticle(LittleParticleEmitter particle) {
         super("particle", 200, 230);
         this.particle = particle;
-        this.flow = GuiFlow.STACK_Y;
-        this.setAlign(Align.STRETCH);
-        registerEventChanged(x -> {
-            if (x.control.is("spread"))
-                loadSpread(particle.spread);
-        });
     }
     
     @Override
     public void create() {
-        GuiParent presets = new GuiParent();
-        add(presets);
-        presets.add(presetBox = new GuiComboBox<>("presets", new TextMapBuilder<LittleParticlePresets>().addComponent(null, Component.literal("")).addComponent(
-            LittleParticlePresets.values(), x -> Component.translatable("gui.particle.preset." + x.name().toLowerCase()))));
-        presetBox.setExpandableX();
-        presets.add(new GuiButton("save_preset", x -> {
-            if (presetBox.selected() != null)
-                loadPreset(presetBox.selected());
-        }).setTranslate("gui.particle.load"));
-        
-        add(new GuiLabeledControl("gui.particle.texture", textureBox = new GuiComboBox<LittleParticleTexture>("texture", new TextMapBuilder<LittleParticleTexture>().addComponent(
-            LittleParticleTexture.values(), x -> x.title()))));
-        
-        GuiParent size = new GuiParent();
-        add(size.setVAlign(VAlign.CENTER));
-        
-        size.add(new GuiLabel("sizeLabel").setTranslate("gui.particle.size"));
-        size.add(sizeStart = new GuiCounterDecimal("size", 0.4).setStep(0.05));
-        size.add(new GuiLabel("sizeLabel").setTitle(Component.literal("->")));
-        size.add(sizeEnd = new GuiCounterDecimal("sizeend", 0.6).setStep(0.05));
-        size.add(new GuiLabel("sizeDeviationLabel").setTranslate("gui.particle.sizedeviation"));
-        size.add(sizeDiv = new GuiCounterDecimal("sizeDiv", 0.02).setStep(0.02));
-        
-        add(color = new GuiColorPicker("color", new Color(255, 255, 255), true, 1));
-        add(randomColor = new GuiCheckBox("randomColor", particle.settings.randomColor).setTranslate("gui.particle.randomcolor"));
-        
-        GuiParent physic = new GuiParent();
-        add(physic.setVAlign(VAlign.CENTER));
-        physic.add(new GuiLabeledControl("gui.particle.gravity", gravity = new GuiSlider("gravity", 0, -1, 1)));
-        physic.add(collision = new GuiCheckBox("collision", particle.settings.collision).setTranslate("gui.particle.collision"));
-        
-        GuiParent ageParent = new GuiParent();
-        add(ageParent.setVAlign(VAlign.CENTER));
-        ageParent.add(new GuiLabeledControl("gui.particle.age", age = new GuiSteppedSlider("age", 20, 1, 100)));
-        ageParent.add(new GuiLabeledControl("gui.particle.agedeviation", ageDiv = new GuiCounter("ageDiv", 20, 1, 100)));
-        
-        GuiParent amount = new GuiParent();
-        add(amount.setVAlign(VAlign.CENTER));
-        amount.add(new GuiLabeledControl("gui.particle.count", count = new GuiCounter("counter", particle.count)));
-        amount.add(new GuiLabeledControl("gui.particle.per", delay = new GuiCounter("delay", particle.delay)));
-        amount.add(new GuiLabel("tickLabel").setTranslate("gui.particle.tick"));
-        
-        add(spread = new GuiTabButton<>("spread", new TextMapBuilder<ParticleSpreadGuiHandler>().addEntrySet(REGISTRY.entrySet(), (x) -> Component.translatable(
-            "gui.particle.spread." + x.getKey()))));
-        
-        add(spreadPanel = new GuiPanel());
-        spread.select(REGISTRY.get(particle.spread.getClass()));
-        
-        GuiLeftRightBox bottom = new GuiLeftRightBox();
-        add(bottom);
-        bottom.addLeft(locked = new GuiCheckBox("locked", particle.locked).setTranslate("gui.structure.locked"));
-        bottom.addRight(new GuiButton("save", x -> {
+        add(control = new GuiParticleControl(particle.spread, particle.settings, particle.count, particle.delay, particle.locked));
+        control.bottom.addRight(new GuiButton("save", x -> {
             CompoundTag nbt = new CompoundTag();
             
-            nbt.putInt("tickCount", count.getValue());
-            nbt.putInt("tickDelay", delay.getValue());
+            nbt.putInt("tickCount", control.count.getValue());
+            nbt.putInt("tickDelay", control.delay.getValue());
             
-            ParticleSpread spread = saveSpread();
+            ParticleSpread spread = control.saveSpread();
             spread.write(nbt);
             
             ParticleSettings newSettings = new ParticleSettings();
-            newSettings.randomColor = randomColor.value;
-            newSettings.collision = collision.value;
-            newSettings.texture = textureBox.selected();
-            newSettings.lifetime = age.getIntValue();
-            newSettings.lifetimeDeviation = ageDiv.getValue();
-            newSettings.color = color.color.toInt();
-            newSettings.gravity = (float) gravity.getValue();
-            newSettings.startSize = (float) sizeStart.getValue();
-            newSettings.endSize = (float) sizeEnd.getValue();
-            newSettings.sizeDeviation = (float) sizeDiv.getValue();
+            newSettings.randomColor = control.randomColor.value;
+            newSettings.collision = control.collision.value;
+            newSettings.texture = control.textureBox.selected();
+            newSettings.lifetime = control.age.getIntValue();
+            newSettings.lifetimeDeviation = control.ageDiv.getValue();
+            newSettings.color = control.color.color.toInt();
+            newSettings.gravity = (float) control.gravity.getValue();
+            newSettings.startSize = (float) control.sizeStart.getValue();
+            newSettings.endSize = (float) control.sizeEnd.getValue();
+            newSettings.sizeDeviation = (float) control.sizeDiv.getValue();
             CompoundTag data = new CompoundTag();
             newSettings.write(data);
             nbt.put("settings", data);
             
-            nbt.putBoolean("locked", locked.value);
+            nbt.putBoolean("locked", control.locked.value);
             
             SAVE.send(nbt);
             closeThisLayer();
         }).setTranslate("gui.save"));
-        loadParticleSettings(particle.settings);
     }
     
-    public void loadPreset(LittleParticlePresets preset) {
-        loadParticleSettings(preset.settings);
-        count.setValue(preset.count);
-        delay.setValue(preset.delay);
-        spread.select(REGISTRY.get(particle.spread.getClass()));
-        loadSpread(preset.spread);
+    public static class GuiParticleControl extends GuiParent {
+        
+        public GuiComboBox<LittleParticlePresets> presetBox;
+        public GuiComboBox<LittleParticleTexture> textureBox;
+        public GuiCounterDecimal sizeStart;
+        public GuiCounterDecimal sizeEnd;
+        public GuiCounterDecimal sizeDiv;
+        public GuiColorPicker color;
+        public GuiCheckBox randomColor;
+        public GuiSlider gravity;
+        public GuiCheckBox collision;
+        public GuiSteppedSlider age;
+        public GuiCounter ageDiv;
+        public GuiCounter count;
+        public GuiCounter delay;
+        public GuiTabButton<ParticleSpreadGuiHandler> spread;
+        public GuiPanel spreadPanel;
+        public GuiCheckBox locked;
+        public GuiLeftRightBox bottom;
+        
+        public ParticleSpread particleSpread;
+        
+        public GuiParticleControl(ParticleSpread particleSpread, ParticleSettings settings, int particleCount, int particleDelay, boolean particleLocked) {
+            this.particleSpread = particleSpread;
+            this.flow = GuiFlow.STACK_Y;
+            this.setAlign(Align.STRETCH);
+            registerEventChanged(x -> {
+                if (x.control.is("spread"))
+                    loadSpread(particleSpread);
+            });
+            GuiParent presets = new GuiParent();
+            add(presets);
+            presets.add(presetBox = new GuiComboBox<>("presets", new TextMapBuilder<LittleParticlePresets>().addComponent(null, Component.literal("")).addComponent(
+                LittleParticlePresets.values(), x -> Component.translatable("gui.particle.preset." + x.name().toLowerCase()))));
+            presetBox.setExpandableX();
+            presets.add(new GuiButton("save_preset", x -> {
+                if (presetBox.selected() != null)
+                    loadPreset(presetBox.selected());
+            }).setTranslate("gui.particle.load"));
+            
+            add(new GuiLabeledControl("gui.particle.texture", textureBox = new GuiComboBox<LittleParticleTexture>("texture", new TextMapBuilder<LittleParticleTexture>()
+                    .addComponent(LittleParticleTexture.values(), x -> x.title()))));
+            
+            GuiParent size = new GuiParent();
+            add(size.setVAlign(VAlign.CENTER));
+            
+            size.add(new GuiLabel("sizeLabel").setTranslate("gui.particle.size"));
+            size.add(sizeStart = new GuiCounterDecimal("size", 0.4).setStep(0.05));
+            size.add(new GuiLabel("sizeLabel").setTitle(Component.literal("->")));
+            size.add(sizeEnd = new GuiCounterDecimal("sizeend", 0.6).setStep(0.05));
+            size.add(new GuiLabel("sizeDeviationLabel").setTranslate("gui.particle.sizedeviation"));
+            size.add(sizeDiv = new GuiCounterDecimal("sizeDiv", 0.02).setStep(0.02));
+            
+            add(color = new GuiColorPicker("color", new Color(255, 255, 255), true, 1));
+            add(randomColor = new GuiCheckBox("randomColor", settings.randomColor).setTranslate("gui.particle.randomcolor"));
+            
+            GuiParent physic = new GuiParent();
+            add(physic.setVAlign(VAlign.CENTER));
+            physic.add(new GuiLabeledControl("gui.particle.gravity", gravity = new GuiSlider("gravity", 0, -1, 1)));
+            physic.add(collision = new GuiCheckBox("collision", settings.collision).setTranslate("gui.particle.collision"));
+            
+            GuiParent ageParent = new GuiParent();
+            add(ageParent.setVAlign(VAlign.CENTER));
+            ageParent.add(new GuiLabeledControl("gui.particle.age", age = new GuiSteppedSlider("age", 20, 1, 100)));
+            ageParent.add(new GuiLabeledControl("gui.particle.agedeviation", ageDiv = new GuiCounter("ageDiv", 20, 1, 100)));
+            
+            GuiParent amount = new GuiParent();
+            add(amount.setVAlign(VAlign.CENTER));
+            amount.add(new GuiLabeledControl("gui.particle.count", count = new GuiCounter("counter", particleCount)));
+            amount.add(new GuiLabeledControl("gui.particle.per", delay = new GuiCounter("delay", particleDelay)));
+            amount.add(new GuiLabel("tickLabel").setTranslate("gui.particle.tick"));
+            
+            add(spread = new GuiTabButton<>("spread", new TextMapBuilder<ParticleSpreadGuiHandler>().addEntrySet(REGISTRY.entrySet(), (x) -> Component.translatable(
+                "gui.particle.spread." + x.getKey()))));
+            
+            add(spreadPanel = new GuiPanel());
+            spread.select(REGISTRY.get(particleSpread.getClass()));
+            
+            bottom = new GuiLeftRightBox();
+            add(bottom);
+            bottom.addLeft(locked = new GuiCheckBox("locked", particleLocked).setTranslate("gui.structure.locked"));
+            
+            loadParticleSettings(settings);
+            loadSpread(particleSpread);
+        }
+        
+        public void loadPreset(LittleParticlePresets preset) {
+            loadParticleSettings(preset.settings);
+            count.setValue(preset.count);
+            delay.setValue(preset.delay);
+            spread.select(REGISTRY.get(particleSpread.getClass()));
+            loadSpread(preset.spread);
+        }
+        
+        public void loadSpread(ParticleSpread particleSpread) {
+            ParticleSpreadGuiHandler handler = spread.selected();
+            spreadPanel.clear();
+            handler.load(spreadPanel, particleSpread);
+            reflow();
+        }
+        
+        public ParticleSpread saveSpread() {
+            ParticleSpreadGuiHandler handler = spread.selected();
+            if (handler != null)
+                return handler.save(spreadPanel);
+            return new ParticleSpreadRandom();
+        }
+        
+        public void loadParticleSettings(ParticleSettings settings) {
+            textureBox.select(settings.texture);
+            age.setValue(settings.lifetime);
+            ageDiv.setValue(settings.lifetimeDeviation);
+            color.setColor(new Color(settings.color));
+            randomColor.set(settings.randomColor);
+            gravity.setValue(settings.gravity);
+            sizeStart.setValue(settings.startSize);
+            sizeEnd.setValue(settings.endSize);
+            sizeDiv.setValue(settings.sizeDeviation);
+            collision.set(settings.collision);
+        }
+        
     }
-    
-    public void loadSpread(ParticleSpread particleSpread) {
-        ParticleSpreadGuiHandler handler = spread.selected();
-        spreadPanel.clear();
-        handler.load(spreadPanel, particleSpread);
-        reflow();
-    }
-    
-    public ParticleSpread saveSpread() {
-        ParticleSpreadGuiHandler handler = spread.selected();
-        if (handler != null)
-            return handler.save(spreadPanel);
-        return new ParticleSpreadRandom();
-    }
-    
-    public void loadParticleSettings(ParticleSettings settings) {
-        textureBox.select(settings.texture);
-        age.setValue(settings.lifetime);
-        ageDiv.setValue(settings.lifetimeDeviation);
-        color.setColor(new Color(settings.color));
-        randomColor.set(settings.randomColor);
-        gravity.setValue(settings.gravity);
-        sizeStart.setValue(settings.startSize);
-        sizeEnd.setValue(settings.endSize);
-        sizeDiv.setValue(settings.sizeDeviation);
-        collision.set(settings.collision);
-    }
-    
 }
