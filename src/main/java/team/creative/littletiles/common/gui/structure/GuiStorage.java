@@ -4,6 +4,7 @@ import net.minecraft.nbt.EndTag;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.gui.Align;
 import team.creative.creativecore.common.gui.GuiLayer;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -50,14 +51,8 @@ public class GuiStorage extends GuiLayer {
         
         GuiInventoryGrid inv = new GuiInventoryGrid("storage", storage.inventory, size.cols, (int) Math.ceil(storage.inventory.getContainerSize() / (double) size.cols), (c, i) -> {
             if (i + 1 == storage.numberOfSlots && storage.lastSlotStackSize > 0)
-                return new Slot(c, i, 0, 0) {
-                    
-                    @Override
-                    public int getMaxStackSize() {
-                        return storage.lastSlotStackSize;
-                    }
-                };
-            return new Slot(c, i, 0, 0);
+                return new StorageSlot(c, i, storage.lastSlotStackSize);
+            return new StorageSlot(c, i, -1);
         });
         
         parent.add(inv);
@@ -83,6 +78,29 @@ public class GuiStorage extends GuiLayer {
         super.closed();
         if (storage != null && !isClient())
             storage.closeContainer(this);
+    }
+    
+    public static class StorageSlot extends Slot {
+        
+        public int stackSize;
+        
+        public StorageSlot(Container container, int index, int stackSize) {
+            super(container, index, 0, 0);
+            this.stackSize = stackSize;
+        }
+        
+        @Override
+        public int getMaxStackSize() {
+            if (stackSize != -1)
+                return stackSize;
+            return super.getMaxStackSize();
+        }
+        
+        @Override
+        public boolean mayPlace(ItemStack stack) {
+            return super.mayPlace(stack) && container.canPlaceItem(index, stack);
+        }
+        
     }
     
     public static enum StorageSize {

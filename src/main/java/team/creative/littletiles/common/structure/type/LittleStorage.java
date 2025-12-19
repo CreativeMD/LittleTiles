@@ -7,6 +7,8 @@ import java.util.function.BiFunction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -14,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
 import team.creative.creativecore.common.util.inventory.InventoryUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesGuiRegistry;
@@ -56,6 +59,9 @@ public class LittleStorage extends LittleStructure {
     
     public boolean invisibleStorageTiles = false;
     
+    public boolean whitelist;
+    public List<CreativeIngredient> filter;
+    
     public LittleStorage(LittleStructureType type, IStructureParentCollection mainBlock) {
         super(type, mainBlock);
     }
@@ -66,20 +72,49 @@ public class LittleStorage extends LittleStructure {
         lastSlotStackSize = (int) ((slots % 1) * stackSizeLimit);
     }
     
+    public boolean canBeFoundInFilterList(ItemStack stack) {
+        if (filter == null)
+            return false;
+        for (CreativeIngredient ingredient : filter)
+            if (ingredient.is(stack))
+                return true;
+        return false;
+    }
+    
+    public boolean isValidItem(ItemStack stack) {
+        return canBeFoundInFilterList(stack) == whitelist;
+    }
+    
     @Override
     protected void loadExtra(CompoundTag nbt, HolderLookup.Provider provider) {
         inventorySize = nbt.getInt("inventorySize");
         stackSizeLimit = nbt.getInt("stackSizeLimit");
         numberOfSlots = nbt.getInt("numberOfSlots");
         lastSlotStackSize = nbt.getInt("lastSlot");
-        if (nbt.contains("inventory"))
-            inventory = InventoryUtils.load(provider, nbt.getCompound("inventory"));
-        else
+        if (nbt.contains("inventory")) {
+            var invNBT = nbt.getCompound("inventory");
+            inventory = new SimpleContainer(invNBT.getInt("size")) {
+                @Override
+                public boolean canPlaceItem(int index, ItemStack stack) {
+                    return isValidItem(stack);
+                }
+            };
+            InventoryUtils.load(inventory, provider, invNBT);
+        } else
             inventory = null;
+        
         if (inventory != null)
             inventory.addListener(x -> onInventoryChanged());
         
         invisibleStorageTiles = nbt.getBoolean("invisibleStorage");
+        whitelist = nbt.getBoolean("f_white");
+        if (nbt.contains("filter")) {
+            ListTag list = nbt.getList("filter", Tag.TAG_COMPOUND);
+            filter = new ArrayList<>();
+            for (int i = 0; i < list.size(); i++)
+                filter.add(CreativeIngredient.load(provider, list.getCompound(i)));
+        } else
+            filter = null;
     }
     
     @Override
@@ -92,17 +127,24 @@ public class LittleStorage extends LittleStructure {
             nbt.put("inventory", InventoryUtils.save(provider, inventory));
         }
         nbt.putBoolean("invisibleStorage", invisibleStorageTiles);
+        nbt.putBoolean("f_white", whitelist);
+        if (filter != null) {
+            ListTag list = new ListTag();
+            for (int i = 0; i < filter.size(); i++)
+                list.add(filter.get(i).save(provider));
+            nbt.put("filter", list);
+        } else
+            nbt.remove("filter");
     }
     
     @Override
     public void structureDestroyed() {
         super.structureDestroyed();
-        if (!isClient()) {
+        if (!isClient())
             for (GuiStorage container : openContainers) {
                 container.storage = null;
                 container.closeThisLayer();
             }
-        }
     }
     
     public boolean hasPlayerOpened(Player player) {
