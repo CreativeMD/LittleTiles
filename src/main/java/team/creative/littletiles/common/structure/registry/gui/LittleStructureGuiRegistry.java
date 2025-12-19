@@ -129,6 +129,7 @@ public class LittleStructureGuiRegistry {
         }, axis, sliding, advanced, activator);
         
         registerByType(new LittleStructureGui("particle_emitter", get("particle_emitter"), LittleParticleGui::new));
+        registerByType(new LittleStructureGui("item_holder", get("item_holder"), LittleItemHolderGui::new));
         
         register((x, y) -> {
             if (x instanceof LittlePremadeType) {

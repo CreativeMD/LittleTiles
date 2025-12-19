@@ -36,12 +36,15 @@ public class ItemLittleWrench extends Item implements ILittleTool, IItemTooltip 
             if (context.getLevel().isClientSide) {
                 LittleTileContext result = LittleTileContext.selectFocused(context.getLevel(), context.getClickedPos(), context.getPlayer());
                 if (context.getPlayer().isCrouching()) {
-                    if (result.isComplete() && result.parent.isStructure())
-                        try {
-                            LittleTilesGuiRegistry.STRUCTURE_SIGNAL.open(context.getPlayer(), result.parent.getStructure());
-                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-                    else
-                        LittleTiles.NETWORK.sendToServer(new BlockPacket(context.getLevel(), context.getClickedPos(), context.getPlayer(), BlockPacketAction.WRENCH));
+                    try {
+                        if (result.isComplete() && result.parent.isStructure())
+                            if (result.parent.getStructure().wrenchInteract(context.getPlayer()))
+                                LittleTiles.NETWORK.sendToServer(new BlockPacket(context.getLevel(), context.getClickedPos(), context.getPlayer(), BlockPacketAction.WRENCH_INFO));
+                            else
+                                LittleTilesGuiRegistry.STRUCTURE_SIGNAL.open(context.getPlayer(), result.parent.getStructure());
+                        else
+                            LittleTiles.NETWORK.sendToServer(new BlockPacket(context.getLevel(), context.getClickedPos(), context.getPlayer(), BlockPacketAction.WRENCH));
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
                     return InteractionResult.SUCCESS;
                 }
             }

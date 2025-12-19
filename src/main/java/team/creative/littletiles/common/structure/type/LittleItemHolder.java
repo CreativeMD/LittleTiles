@@ -92,7 +92,8 @@ public class LittleItemHolder extends LittleStructure {
     
     @Override
     public boolean wrenchInteract(Player player) {
-        LittleTilesGuiRegistry.ITEM_HOLDER.open(player, this);
+        if (!player.level().isClientSide)
+            LittleTilesGuiRegistry.ITEM_HOLDER.open(player, this);
         return true;
     }
     

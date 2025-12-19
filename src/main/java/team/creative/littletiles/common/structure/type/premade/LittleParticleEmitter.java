@@ -75,7 +75,8 @@ public class LittleParticleEmitter extends LittleStructurePremade {
     
     @Override
     public boolean wrenchInteract(Player player) {
-        LittleTilesGuiRegistry.PARTICLE.open(player, this);
+        if (!player.level().isClientSide)
+            LittleTilesGuiRegistry.PARTICLE.open(player, this);
         return true;
     }
     
