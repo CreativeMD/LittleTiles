@@ -1,3 +1,12 @@
+1.6.0-pre194
+Added filter to storage structure
+Added in blueprint configuration for item holder
+Added in blueprint configuration for particle emitter
+Added new block tag 'incompatible' which includes all blocks that cause issues with littletiles (added a few blocks by default thanks to Dado)
+Fixed not being able to interact with item holder using wrench
+Fixed storage gui not saving contents when changing it in blueprint
+Fixed not using structure blocks tag
+
 1.6.0-pre193
 Added ability to stack color ingredients on top of each other
 Added alpha color part (can be obtained via crafting one glass -> alpha bottle)
