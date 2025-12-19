@@ -459,7 +459,6 @@ public abstract class LittleAction<T> extends CreativePacket {
     }
     
     private static boolean isBlockValid(Block block) {
-        
         if (LittleBlockRegistry.isSpecialBlock(block))
             return true;
         return block instanceof TransparentBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock || block instanceof LeavesBlock;
@@ -468,8 +467,14 @@ public abstract class LittleAction<T> extends CreativePacket {
     private static boolean isBlockInvalid(Block block) {
         if (block instanceof EntityBlock || block instanceof SlabBlock)
             return true;
-        var location = block.builtInRegistryHolder().unwrapKey().get().location();
-        return location.getNamespace().equals("framedblocks");
+        
+        if (block.builtInRegistryHolder().is(LittleTilesRegistry.INCOMPATIBLE_TAG))
+            return true;
+        
+        if (block.builtInRegistryHolder().unwrapKey().get().location().getNamespace().equals("framedblocks"))
+            return true;
+        
+        return false;
     }
     
     public static boolean isBlockValid(BlockState state) {

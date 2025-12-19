@@ -16,6 +16,8 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.util.datafix.fixes.References;
 import net.minecraft.world.entity.EntityType;
@@ -196,6 +198,11 @@ public class LittleTilesRegistry {
         ITEMS.register(name, () -> new BlockItem(ret.value(), new Item.Properties()));
         return ret;
     }
+    
+    // BLOCK-TAGS
+    
+    public static final TagKey<Block> STORAGE_BLOCKS_TAG = BlockTags.create(ResourceLocation.tryBuild(LittleTiles.MODID, "storage_blocks"));
+    public static final TagKey<Block> INCOMPATIBLE_TAG = BlockTags.create(ResourceLocation.tryBuild(LittleTiles.MODID, "incompatible"));
     
     // BLOCK_ENTITY
     
