@@ -23,7 +23,7 @@ public class LittlePermissionBuild {
         placeBlockLimit.setEnabled(survival);
         
         editUnbreakable = !survival;
-        minimumTransparency = survival ? 255 : 0;
+        minimumTransparency = 0;
         harvestLevelBlock = survival ? HarvestLevel.STONE : HarvestLevel.DIAMOND;
     }
     
@@ -35,7 +35,7 @@ public class LittlePermissionBuild {
     
     @CreativeConfig
     @CreativeConfig.IntRange(min = 0, max = 255)
-    public int minimumTransparency = 255;
+    public int minimumTransparency = 0;
     
     @CreativeConfig
     public ToggleableConfig<Integer> affectedBlockLimit = new ToggleableConfig<Integer>(2, true);
