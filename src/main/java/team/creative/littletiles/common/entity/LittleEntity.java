@@ -192,7 +192,6 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         subLevel.tick();
         
         physic.tick();
-        physic.updateBoundingBox();
         
         syncMovement();
         

@@ -76,6 +76,10 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         return parent.getOrigin();
     }
     
+    public boolean noCollision() {
+        return noCollision;
+    }
+    
     public void ignoreCollision(Runnable run) {
         preventPush = true;
         try {
@@ -188,6 +192,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         if (LittleTiles.CONFIG.general.enableAnimationCollision)
             transform(coordinator);
         coordinator.finish();
+        updateBoundingBox();
     }
     
     public void transform(CollisionCoordinator coordinator) {
@@ -201,9 +206,8 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
             for (int i = 0; i < entities.size(); i++) {
                 Entity entity = entities.get(i);
                 
-                if (entity.getType().is(NO_COLLISION)) {
+                if (entity.getType().is(NO_COLLISION))
                     continue;
-                }
                 
                 AABB entityBB = entity.getBoundingBox();
                 AABB originalBox = entity.getBoundingBox();
