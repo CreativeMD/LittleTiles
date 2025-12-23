@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -146,6 +147,11 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     @Override
     public void prepareChangeLevel(Level oldLevel, Level newLevel) {
         setParentLevel(newLevel);
+    }
+    
+    @Override
+    public boolean checkEntityInside(Entity entity) {
+        return true;
     }
     
 }

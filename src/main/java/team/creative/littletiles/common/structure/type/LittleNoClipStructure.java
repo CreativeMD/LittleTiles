@@ -10,6 +10,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.Vec3;
+import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.parent.IStructureParentCollection;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -44,10 +45,14 @@ public class LittleNoClipStructure extends LittleStructure {
         if (level.isClientSide)
             return;
         
+        var bb = entityIn.getBoundingBox();
+        if (level instanceof IOrientatedLevel o)
+            bb = o.getOrigin().getOBB(bb).toVanilla();
+        
         boolean intersected = false;
         for (LittleTile tile : parent) {
             for (LittleBox box : tile)
-                if (box.getBB(parent.getGrid(), pos).intersects(entityIn.getBoundingBox())) {
+                if (box.getBB(parent.getGrid(), pos).intersects(bb)) {
                     intersected = true;
                     break;
                 }

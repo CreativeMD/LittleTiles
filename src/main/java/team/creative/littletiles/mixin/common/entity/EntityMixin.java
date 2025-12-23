@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.objectweb.asm.Opcodes;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -19,12 +20,19 @@ import com.llamalad7.mixinextras.sugar.Local;
 import it.unimi.dsi.fastutil.floats.FloatArraySet;
 import it.unimi.dsi.fastutil.floats.FloatArrays;
 import it.unimi.dsi.fastutil.floats.FloatSet;
+import net.minecraft.CrashReport;
+import net.minecraft.CrashReportCategory;
+import net.minecraft.ReportedException;
+import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.MoverType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
@@ -37,6 +45,7 @@ import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.mixin.common.collision.ShapesAccessor;
 
@@ -197,6 +206,58 @@ public class EntityMixin {
         float[] afloat = floatset.toFloatArray();
         FloatArrays.unstableSort(afloat);
         return afloat;
+    }
+    
+    @Shadow
+    protected void onInsideBlock(BlockState state) {
+        throw new UnsupportedOperationException();
+    }
+    
+    @Inject(method = "checkInsideBlocks()V", require = 1, at = @At("HEAD"))
+    protected void checkInsideBlocks(CallbackInfo info) {
+        if (!LittleTiles.CONFIG.general.checkCollisionListenerForAnimations)
+            return;
+        
+        MutableBlockPos min = new MutableBlockPos();
+        MutableBlockPos max = new MutableBlockPos();
+        MutableBlockPos pos = new MutableBlockPos();
+        var handler = LittleTiles.ANIMATION_HANDLERS.getWithoutCreate(asEntity().level());
+        for (LittleEntity entity : handler.find(asEntity().getBoundingBox())) {
+            if (!entity.checkEntityInside(entity))
+                continue;
+            
+            var bb = entity.getOrigin().getOBB(asEntity().getBoundingBox());
+            var level = entity.getSubLevel();
+            
+            min.set(Mth.floor(bb.minX + 1.0E-7), Mth.floor(bb.minY + 1.0E-7), Mth.floor(bb.minZ + 1.0E-7));
+            max.set(Mth.floor(bb.maxX - 1.0E-7), Mth.floor(bb.maxY - 1.0E-7), Mth.floor(bb.maxZ - 1.0E-7));
+            if (level.hasChunksAt(min, max)) {
+                
+                for (int i = min.getX(); i <= max.getX(); i++) {
+                    for (int j = min.getY(); j <= max.getY(); j++) {
+                        for (int k = min.getZ(); k <= max.getZ(); k++) {
+                            if (!asEntity().isAlive()) {
+                                return;
+                            }
+                            
+                            pos.set(i, j, k);
+                            BlockState blockstate = level.getBlockState(pos);
+                            
+                            try {
+                                blockstate.entityInside((Level) level, pos, asEntity());
+                                this.onInsideBlock(blockstate);
+                            } catch (Throwable throwable) {
+                                CrashReport crashreport = CrashReport.forThrowable(throwable, "Colliding entity with block");
+                                CrashReportCategory crashreportcategory = crashreport.addCategory("Block being collided with");
+                                CrashReportCategory.populateBlockDetails(crashreportcategory, level, pos, blockstate);
+                                throw new ReportedException(crashreport);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
     }
     
 }

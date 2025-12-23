@@ -361,6 +361,9 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     public boolean noClip() {
         return false;
     }
+    
+    public abstract boolean checkEntityInside(Entity entity);
+    
     // ================CLIENT================
     
     @Override

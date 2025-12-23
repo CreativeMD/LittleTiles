@@ -98,6 +98,9 @@ public class LittleTilesConfig {
         @CreativeConfig
         public int messageStructureLength = 4098;
         
+        @CreativeConfig
+        public boolean checkCollisionListenerForAnimations = true;
+        
     }
     
     public static class Core implements ICreativeConfig {

@@ -5,6 +5,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
@@ -29,6 +30,7 @@ import team.creative.littletiles.common.packet.entity.animation.LittleBlockChang
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.structure.LittleStructure;
+import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 import team.creative.littletiles.common.structure.connection.direct.StructureConnection;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -64,6 +66,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
     
     private StructureAbsolute center;
     private StructureConnection structure;
+    private boolean collisionListener;
     
     public LittleAnimationEntity(EntityType<?> type, Level level) {
         super(type, level);
@@ -79,6 +82,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         this.structure = new StructureConnection(subLevel, new LocalStructureLocation(result.parentStructure));
         physic.tick();
         physic.updateBoundingBox();
+        recalculateCollisionListener();
     }
     
     protected void beforeInitalPlacement() {
@@ -126,6 +130,34 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         return structure.getStructure();
     }
     
+    @Override
+    public boolean checkEntityInside(Entity entity) {
+        return collisionListener;
+    }
+    
+    protected void recalculateCollisionListener() {
+        try {
+            collisionListener = hasCollisionListener(getStructure());
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {
+            collisionListener = false;
+        }
+    }
+    
+    private boolean hasCollisionListener(LittleStructure structure) {
+        if (structure == null)
+            return false;
+        
+        if (LittleStructureAttribute.collisionListener(structure.getAttribute()))
+            return true;
+        for (StructureChildConnection c : structure.children.all())
+            try {
+                if (hasCollisionListener(c.getStructure()))
+                    return true;
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        return false;
+        
+    }
+    
     public void applyChanges(Iterable<LittleBlockChange> changes) {
         for (LittleBlockChange change : changes)
             if (change.isEmpty())
@@ -160,6 +192,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         loadBlocks(nbt);
         
         this.structure = new StructureConnection((Level) subLevel, nbt.getCompound("s"));
+        recalculateCollisionListener();
     }
     
     @Override
