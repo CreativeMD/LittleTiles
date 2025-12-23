@@ -131,6 +131,7 @@ public class LittleBed extends LittleStructure {
         ((ILittleBedPlayerExtension) player).setBed(this);
         broadcastPacket(new BedUpdate(getStructureLocation(), player, false));
         
+        player.resetStat(Stats.CUSTOM.get(Stats.TIME_SINCE_REST));
         player.setPose(Pose.SLEEPING);
         ((ILittleBedPlayerExtension) player).setPositionToBed();
         player.setSleepingPos(getStructurePos());
