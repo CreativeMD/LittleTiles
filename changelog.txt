@@ -1,3 +1,11 @@
+1.6.0-pre195
+Fixed animation pushing an entity could collide with itself
+Fixed not updating bounding box of animation properly (caused player to fall through)
+Fixed sleeping in little bed not reseting phantom timer
+Added checkCollisionListenerForAnimations config option
+Added collisionListener functionality for animations
+Changed minimumTransparency to zero for survival
+
 1.6.0-pre194
 Added filter to storage structure
 Added in blueprint configuration for item holder
