@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "littletiles:colored_lava_flowing"
+          "name": "littletiles:colored_lava"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "littletiles:blocks/colored_lava_flowing"
+  "random_sequence": "littletiles:blocks/colored_lava"
 }

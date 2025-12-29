@@ -11,11 +11,11 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "littletiles:colored_water_flowing"
+          "name": "littletiles:colored_water"
         }
       ],
       "rolls": 1.0
     }
   ],
-  "random_sequence": "littletiles:blocks/colored_water_flowing"
+  "random_sequence": "littletiles:blocks/colored_water"
 }
