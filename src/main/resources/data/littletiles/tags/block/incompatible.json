@@ -1,7 +1,13 @@
 {
     "replace": false,
     "values": [
-        "create:sail_frame",
-        "create:white_sail"
+        {
+            "id": "create:sail_frame",
+            "required": false
+        },
+        {
+            "id": "create:white_sail",
+            "required": false
+        }
     ]
 }
