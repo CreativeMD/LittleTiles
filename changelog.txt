@@ -1,3 +1,18 @@
+1.6.0-pre196
+Fixed debug box flickering for animations
+Added possibility to use sound added by a resourcepack for animations
+Fixed incorrect rayTrace calculations for animations causing issues during interaction
+Added light updates for animations
+Fixed no overlap boxes copy function
+Fixed removing or coloring boxes not working on server side due to changed grid (causing action to be revoked)
+Fixed glove rendering position with different grid sizes
+Fixed changing to even axis causing preview to move down in blueprint
+Fixed not rendering translucent faces when there is a tile in the way
+Added KBB's blocks to 1.12.2 conversion list
+Fixed compatibility with chisel and bits
+Fixed white lava, lava and water flowing variants having no drop
+Fixed incompatible tag not being loaded if blocks do not exist
+
 1.6.0-pre195
 Fixed animation pushing an entity could collide with itself
 Fixed not updating bounding box of animation properly (caused player to fall through)
