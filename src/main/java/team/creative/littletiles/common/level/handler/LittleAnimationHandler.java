@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -46,6 +47,10 @@ public abstract class LittleAnimationHandler extends LevelHandler {
     public void tick() {
         for (LittleEntity entity : entities)
             tickEntity(entity);
+    }
+    
+    public List<LittleEntity> find(SectionPos pos) {
+        return find(new AABB(pos.minBlockX(), pos.minBlockY(), pos.minBlockZ(), pos.maxBlockX() + 1, pos.maxBlockY() + 1, pos.maxBlockZ() + 1));
     }
     
     public List<LittleEntity> find(AABB bb) {

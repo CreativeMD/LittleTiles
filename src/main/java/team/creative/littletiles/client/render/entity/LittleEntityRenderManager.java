@@ -30,8 +30,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.server.level.BlockDestructionProgress;
 import net.minecraft.world.level.BlockGetter;
+import net.minecraft.world.level.LightLayer;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -39,6 +41,7 @@ import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelDataManager;
 import net.neoforged.neoforge.common.extensions.ILevelExtension;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
@@ -223,6 +226,15 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     public abstract void resortTransparency(RenderType layer, double x, double y, double z);
     
     public abstract void renderChunkLayer(RenderType layer, PoseStack pose, double x, double y, double z, Matrix4f projectionMatrix, Uniform offset);
+    
+    public void onLightUpdate(LightLayer layer, SectionPos pos) {
+        var chunk = getLevel().getChunk(pos.getX(), pos.getZ());
+        if (chunk instanceof LevelChunk c)
+            for (BlockEntity be : c.getBlockEntities().values())
+                if (be instanceof BETiles t)
+                    t.render.hasLightChanged = true;
+        setSectionDirty(pos.getX(), pos.getY(), pos.getZ(), false);
+    }
     
     public void blockChanged(BlockGetter level, BlockPos pos, BlockState actualState, BlockState setState, int updateType) {
         this.setBlockDirty(pos, (updateType & 8) != 0);
