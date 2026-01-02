@@ -113,6 +113,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
             if (originChanged)
                 parent.markOriginChange();
             parent.setBoundingBox(parent.getOrigin().getAABB(bb).toVanilla());
+            parent.setPos(parent.getBoundingBox().getCenter());
             if (originChanged)
                 parent.resetOriginChange();
             
