@@ -269,6 +269,8 @@ public class LittleToolTransformer extends LittleTool {
                 LittleVec vec = new LittleVec(facing);
                 vec.scale(Screen.hasControlDown() ? grid.count : 1);
                 corners[marked].add(new LittleVecAbsolute(BlockPos.ZERO, grid, vec));
+                if (corners[marked].getGrid().count < grid.count)
+                    corners[marked].convertTo(grid);
                 updateBox();
                 return true;
             }
