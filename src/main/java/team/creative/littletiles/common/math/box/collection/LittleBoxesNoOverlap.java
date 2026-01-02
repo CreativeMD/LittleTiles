@@ -56,7 +56,7 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
     
     @Override
     public LittleBoxesNoOverlap copy() {
-        return new LittleBoxesNoOverlap(pos, grid, new HashMapList<>(blockMap));
+        return new LittleBoxesNoOverlap(pos, grid, generateBlockWise());
     }
     
     @Override
@@ -123,7 +123,14 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
     
     @Override
     public HashMapList<BlockPos, LittleBox> generateBlockWise() {
-        return blockMap;
+        HashMapList<BlockPos, LittleBox> copyMap = new HashMapList<>();
+        for (Entry<BlockPos, ArrayList<LittleBox>> entry : blockMap.entrySet()) {
+            List<LittleBox> copyList = new ArrayList<>(entry.getValue().size());
+            for (LittleBox box : entry.getValue())
+                copyList.add(box.copy());
+            copyMap.add(entry.getKey(), copyList);
+        }
+        return copyMap;
     }
     
     @Override
