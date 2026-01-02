@@ -270,7 +270,7 @@ public class BERenderManager {
         }
         
         if (tile != null && tile.isTranslucent() && state.partially()) {
-            if (face != null)
+            if (face == null)
                 face = cube.box.generateFace(be.getGrid(), facing);
             if (face == null)
                 cube.setFace(facing, RenderBoxFace.NOT_RENDER);
