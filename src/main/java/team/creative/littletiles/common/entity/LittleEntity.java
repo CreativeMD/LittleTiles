@@ -350,7 +350,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, CollisionContext.empty()));
         if (tempResult == null || tempResult.getType() != Type.BLOCK || !(tempResult instanceof BlockHitResult))
             return result;
-        if (result == null || pos.distanceTo(tempResult.getLocation()) < distance)
+        if (result == null || newPos.distanceTo(tempResult.getLocation()) < distance)
             return new LittleHitResult(this, tempResult, subLevel);
         return result;
     }
