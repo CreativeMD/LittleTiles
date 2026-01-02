@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
@@ -82,8 +82,8 @@ public class GuiSoundEventPanel extends GuiTimelinePanel {
             editKey.clear();
             if (x.control.channel instanceof GuiSoundTimelineChannel) {
                 PlaySoundEvent value = (PlaySoundEvent) x.control.value;
-                GuiComboBox<ResourceLocation> box = new GuiComboBox<ResourceLocation>("sound", new TextMapBuilder<ResourceLocation>().addComponent(BuiltInRegistries.SOUND_EVENT
-                        .keySet(), y -> {
+                GuiComboBox<ResourceLocation> box = new GuiComboBox<ResourceLocation>("sound", new TextMapBuilder<ResourceLocation>().addComponent(Minecraft.getInstance()
+                        .getSoundManager().getAvailableSounds(), y -> {
                             if (y.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE))
                                 return Component.literal(y.getPath());
                             return Component.literal(y.toString());
