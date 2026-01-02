@@ -98,7 +98,7 @@ public class LittleDoorAxisGui extends LittleDoorBaseGui {
             viewer.setAxis(box, x);
         }));
         
-        registerEvent(GuiAnimationAxisChangedEvent.class, x -> item.setNewCenter(new StructureAbsolute(new BlockPos(0, 0, 0), viewer.getBox().copy(), viewer.getGrid())));
+        registerEvent(GuiAnimationAxisChangedEvent.class, x -> item.setNewCenter(new StructureAbsolute(new BlockPos(0, 15, 0), viewer.getBox().copy(), viewer.getGrid())));
         registerEvent(GuiAnimationViewChangedEvent.class, x -> updateTimeline());
         raiseEvent(new GuiAnimationAxisChangedEvent(viewer));
     }

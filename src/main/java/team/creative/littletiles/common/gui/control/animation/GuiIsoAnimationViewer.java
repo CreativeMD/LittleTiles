@@ -100,6 +100,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
         if (!changed || box == null)
             return;
         
+        box = box.copy();
         if (even) {
             box.minX -= 1;
             box.minY -= 1;

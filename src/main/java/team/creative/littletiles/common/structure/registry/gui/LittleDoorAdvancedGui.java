@@ -177,7 +177,7 @@ public class LittleDoorAdvancedGui extends LittleStructureGuiControl {
         
         tabs.select(sameTransition ? 0 : 1);
         
-        registerEvent(GuiAnimationAxisChangedEvent.class, x -> item.setNewCenter(new StructureAbsolute(new BlockPos(0, 0, 0), viewer.getBox().copy(), viewer.getGrid())));
+        registerEvent(GuiAnimationAxisChangedEvent.class, x -> item.setNewCenter(new StructureAbsolute(new BlockPos(0, 15, 0), viewer.getBox().copy(), viewer.getGrid())));
         raiseEvent(new GuiAnimationAxisChangedEvent(viewer));
         
         tabs.registerEventChanged(x -> {
