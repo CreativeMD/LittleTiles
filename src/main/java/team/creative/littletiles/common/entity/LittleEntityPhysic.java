@@ -275,7 +275,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
                         continue;
                     Facing collideFacing = CollidingPlane.getDirection(coordinator, cache, center);
                     if (collideFacing == null || (!coordinator.hasRotation && (!coordinator.hasTranslation || coordinator.translation.get(
-                        collideFacing.axis) > 0 != collideFacing.positive)))
+                        collideFacing.axis) == 0 || coordinator.translation.get(collideFacing.axis) > 0 != collideFacing.positive)))
                         continue;
                     
                     double intersectingVolume = BoxUtils.getIntersectionVolume(cache.bb, entityOBB);
