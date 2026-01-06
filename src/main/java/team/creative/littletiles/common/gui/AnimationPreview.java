@@ -64,7 +64,7 @@ public class AnimationPreview {
         box = entireBox.getBB(grid);
         StructureAbsolute absolute = structure != null ? structure.createAnimationCenter(pos, grid) : null;
         if (absolute == null)
-            absolute = new StructureAbsolute(pos, entireBox, previews.getGrid());
+            absolute = new StructureAbsolute(pos, entireBox, grid);
         Placement placement = new Placement(null, subLevel, PlacementPreview.load((UUID) null, PlacementMode.ALL, new LittleGroupAbsolute(pos, previews)));
         
         animation = new LittleAnimationEntity((Level) fakeLevel, subLevel, absolute, placement);
