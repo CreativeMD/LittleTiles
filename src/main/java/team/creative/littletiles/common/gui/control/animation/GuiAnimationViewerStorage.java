@@ -93,7 +93,7 @@ public interface GuiAnimationViewerStorage {
         shaderinstance.setDefaultUniforms(Mode.QUADS, pose.last().pose(), matrix, Minecraft.getInstance().getWindow());
         shaderinstance.apply();
         
-        preview.animation.getRenderManager().renderChunkLayer(layer, pose, 0, 0, 0, matrix, shaderinstance.CHUNK_OFFSET);
+        preview.animation.getRenderManager().renderChunkLayer(layer, pose, 0, 0, 0, matrix, null);
         shaderinstance.clear();
         VertexBuffer.unbind();
         layer.clearRenderState();
