@@ -236,7 +236,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
                             continue;
                         for (CollidingPlane plane : cache.planes) {
                             Double tempT = plane.binarySearch(t, entityBB, radius, center, coordinator);
-                            if (tempT != null) {
+                            if (tempT != null && (t == null || tempT < t)) {
                                 t = tempT;
                                 facing = plane.facing;
                                 if (t == 0)
@@ -245,13 +245,14 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
                         }
                     }
                     
-                    // Applying found t
-                    if (t != null) {
-                        Vec3d newCenter = new Vec3d(center);
-                        coordinator.transform(newCenter, 1 - t);
-                        
-                        entityBB = entityBB.move(newCenter.x - center.x, newCenter.y - center.y, newCenter.z - center.z);
-                    }
+                }
+                
+                // Applying found t
+                if (t != null) {
+                    Vec3d newCenter = new Vec3d(center);
+                    coordinator.transform(newCenter, 1 - t);
+                    
+                    entityBB = entityBB.move(newCenter.x - center.x, newCenter.y - center.y, newCenter.z - center.z);
                 }
                 
                 Axis one = null;
