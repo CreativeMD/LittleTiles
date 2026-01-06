@@ -7,9 +7,13 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityInLevelCallback;
+import net.minecraft.world.phys.Vec3;
 
 @Mixin(Entity.class)
 public interface EntityAccessor {
+    
+    @Accessor
+    public void setPushedByAnimationDelta(Vec3 vec);
     
     @Accessor
     public EntityInLevelCallback getLevelCallback();

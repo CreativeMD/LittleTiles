@@ -26,6 +26,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.structure.animation.PhysicalState;
+import team.creative.littletiles.mixin.common.entity.EntityAccessor;
 
 public abstract class LittleEntityPhysic<T extends LittleEntity<? extends LittleEntityPhysic>> {
     
@@ -113,7 +114,6 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
             if (originChanged)
                 parent.markOriginChange();
             parent.setBoundingBox(parent.getOrigin().getAABB(bb).toVanilla());
-            parent.setPos(parent.getBoundingBox().getCenter());
             if (originChanged)
                 parent.resetOriginChange();
             
@@ -194,8 +194,14 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         CollisionCoordinator coordinator = new CollisionCoordinator(x, y, z, rotX, rotY, rotZ, getOrigin());
         if (LittleTiles.CONFIG.general.enableAnimationCollision)
             transform(coordinator);
+        
+        parent.setOldPosAndRot();
+        parent.performTick();
+        parent.tickedAlready = true;
+        
         coordinator.finish();
         updateBoundingBox();
+        parent.setPos(center.x, center.y, center.z);;
     }
     
     public void transform(CollisionCoordinator coordinator) {
@@ -345,11 +351,13 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
                 double moveY = entityBB.minY - originalBox.minY + rotatedVec.y * scale;
                 double moveZ = entityBB.minZ - originalBox.minZ + rotatedVec.z * scale;
                 
-                entity.move(MoverType.SELF, new Vec3(moveX, moveY, moveZ));
-                
+                entity.setOldPosAndRot();
+                var moved = new Vec3(moveX, moveY, moveZ);
+                entity.move(MoverType.SELF, moved);
+                ((EntityAccessor) entity).setPushedByAnimationDelta(moved); // To be added later on
                 if (LittleTiles.CONFIG.general.enableCollisionMotion)
-                    entity.setDeltaMovement(entity.getDeltaMovement().add(moveX, moveY, moveZ));
-                
+                    entity.setDeltaMovement(entity.getDeltaMovement().subtract(moved)); // Delta movement is removed, this is done so the entity does not speed up unreasonable
+                    
                 if (moveX != 0 || moveZ != 0)
                     collidedHorizontally = true;
                 if (moveY != 0) {

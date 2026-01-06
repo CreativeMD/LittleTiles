@@ -46,6 +46,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     public final T physic = createPhysic();
     private List<Entity> entitiesToAdd;
     protected boolean changedLevel;
+    public boolean tickedAlready;
     
     // ================Constructors================
     
@@ -169,12 +170,23 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     // ================Ticking================
     
+    @Override
+    public void tick() {
+        if (tickedAlready)
+            return;
+        super.tick();
+    }
+    
     public abstract void initialTick();
     
     public abstract void internalTick();
     
     @Override
     public void performTick() {
+        if (tickedAlready) {
+            tickedAlready = false;
+            return;
+        }
         if (entitiesToAdd != null) {
             for (Entity entity : entitiesToAdd)
                 subLevel.addFreshEntity(entity);
@@ -192,13 +204,14 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         subLevel.tick();
         
         physic.tick();
-        
-        syncMovement();
-        
         origin.tick();
         
         Vec3 center = physic.getCenter();
-        setPosRaw(center.x, center.y, center.z);
+        setPos(center.x, center.y, center.z);
+        
+        syncMovement();
+        
+        physic.updateBoundingBox();
     }
     
     public abstract void syncMovement();

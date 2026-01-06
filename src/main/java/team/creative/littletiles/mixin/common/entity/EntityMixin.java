@@ -53,8 +53,29 @@ import team.creative.littletiles.mixin.common.collision.ShapesAccessor;
 public class EntityMixin {
     
     @Unique
+    private Vec3 pushedByAnimationDelta;
+    
+    @Unique
     private Entity asEntity() {
         return (Entity) (Object) this;
+    }
+    
+    @Inject(method = "setOldPosAndRot()V", require = 1, cancellable = true, at = @At("HEAD"))
+    public final void setOldPosAndRotHead(CallbackInfo info) {
+        if (pushedByAnimationDelta != null)
+            info.cancel();
+        if (asEntity() instanceof LittleEntity e && e.tickedAlready)
+            info.cancel();
+    }
+    
+    @Inject(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", require = 1, at = @At("TAIL"))
+    public void move(MoverType type, Vec3 vec, CallbackInfo info) {
+        if (type == MoverType.SELF && pushedByAnimationDelta != null) {
+            if (LittleTiles.CONFIG.general.enableCollisionMotion)
+                asEntity().setDeltaMovement(asEntity().getDeltaMovement().add(pushedByAnimationDelta.x, pushedByAnimationDelta.y, pushedByAnimationDelta.z));
+            pushedByAnimationDelta = null;
+        }
+        
     }
     
     @WrapOperation(method = "move(Lnet/minecraft/world/entity/MoverType;Lnet/minecraft/world/phys/Vec3;)V", require = 1, at = @At(value = "INVOKE",
@@ -71,6 +92,8 @@ public class EntityMixin {
     private Vec3 decreaseDelta(Axis axis, Entity entity) {
         var shape = axis == Axis.X ? ShapesAccessor.getCollidedX() : (axis == Axis.Y ? ShapesAccessor.getCollidedY() : ShapesAccessor.getCollidedZ());
         if (shape instanceof BoxesVoxelShape b && b.boxes.getFirst() instanceof OBB o) {
+            if (pushedByAnimationDelta != null)
+                return null;
             var d = o.origin.deltaMovement();
             if (d == null)
                 return null;

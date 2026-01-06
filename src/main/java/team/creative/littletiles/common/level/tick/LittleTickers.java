@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.function.Function;
 
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
 import net.neoforged.neoforge.event.tick.ServerTickEvent;
@@ -26,6 +27,7 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
     
     public LittleTickers() {
         super();
+        NeoForge.EVENT_BUS.addListener(this::clientTick);
         NeoForge.EVENT_BUS.addListener(this::levelTick);
         NeoForge.EVENT_BUS.addListener(this::serverTick);
     }
@@ -47,7 +49,14 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
             client = null;
     }
     
-    public void levelTick(LevelTickEvent.Post event) {
+    public void clientTick(ClientTickEvent.Pre event) {
+        if (client != null)
+            client.tick();
+    }
+    
+    public void levelTick(LevelTickEvent.Pre event) {
+        if (event.getLevel().isClientSide)
+            return;
         LittleTicker ticker = getWithoutCreate(event.getLevel());
         if (ticker != null)
             ticker.tick();
