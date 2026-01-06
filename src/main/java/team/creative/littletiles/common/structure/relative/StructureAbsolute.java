@@ -16,6 +16,18 @@ public class StructureAbsolute extends StructureRelative {
         return coord < 0 ? -((-coord - 1) / bucketSize) - 1 : coord / bucketSize;
     }
     
+    private static BlockPos getPos(int[] array) {
+        return new BlockPos(array[0], array[1], array[2]);
+    }
+    
+    public static LittleBox convertAxisToBox(LittleVecGrid vec, LittleVec additional) {
+        if (additional.x == 0)
+            return new LittleBox(vec.getVec().x - 1, vec.getVec().y - 1, vec.getVec().z - 1, vec.getVec().x + 1, vec.getVec().y + 1, vec.getVec().z + 1);
+        return new LittleBox(additional.x > 0 ? vec.getVec().x : vec.getVec().x - 1, additional.y > 0 ? vec.getVec().y : vec.getVec().y - 1, additional.z > 0 ? vec.getVec().z : vec
+                .getVec().z - 1, additional.x > 0 ? vec.getVec().x + 1 : vec.getVec().x, additional.y > 0 ? vec.getVec().y + 1 : vec.getVec().y, additional.z > 0 ? vec
+                        .getVec().z + 1 : vec.getVec().z);
+    }
+    
     public final LittleVecGrid inBlockOffset;
     public final BlockPos baseOffset;
     public final SectionPos chunkOffset;
@@ -102,15 +114,9 @@ public class StructureAbsolute extends StructureRelative {
         return new LittleVec((box.maxX * 2 - box.minX * 2) / 2, (box.maxY * 2 - box.minY * 2) / 2, (box.maxZ * 2 - box.minZ * 2) / 2);
     }
     
-    private static BlockPos getPos(int[] array) {
-        return new BlockPos(array[0], array[1], array[2]);
+    @Override
+    public String toString() {
+        return "[" + baseOffset.getX() + "," + baseOffset.getY() + "," + baseOffset.getZ() + ",grid:" + grid + ",box:" + box + "]";
     }
     
-    public static LittleBox convertAxisToBox(LittleVecGrid vec, LittleVec additional) {
-        if (additional.x == 0)
-            return new LittleBox(vec.getVec().x - 1, vec.getVec().y - 1, vec.getVec().z - 1, vec.getVec().x + 1, vec.getVec().y + 1, vec.getVec().z + 1);
-        return new LittleBox(additional.x > 0 ? vec.getVec().x : vec.getVec().x - 1, additional.y > 0 ? vec.getVec().y : vec.getVec().y - 1, additional.z > 0 ? vec.getVec().z : vec
-                .getVec().z - 1, additional.x > 0 ? vec.getVec().x + 1 : vec.getVec().x, additional.y > 0 ? vec.getVec().y + 1 : vec.getVec().y, additional.z > 0 ? vec
-                        .getVec().z + 1 : vec.getVec().z);
-    }
 }
