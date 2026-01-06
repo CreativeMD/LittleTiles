@@ -1,3 +1,12 @@
+1.6.0-pre197
+Made animations move before all other entities (fixing hovering above animation)
+Fixed animation preview incorrectly respecting chunk offset causing it to be outside screen
+Fixed incorrect setting of axis for advanced and axis door
+Fixed incorrectly being move to the side by an animation even if the motion is just up or down
+Fixed mistake in collision calculation causing entity to be moved multiple times (especially apparent for fast movements)
+Fixed animations moving to start position when being loaded (causing lots of collision calculations)
+Fixed animations sending position and motion updates
+
 1.6.0-pre196
 Fixed debug box flickering for animations
 Added possibility to use sound added by a resourcepack for animations
