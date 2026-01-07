@@ -22,11 +22,13 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.math.location.StructureLocation;
@@ -117,12 +119,26 @@ public class LittleToolWrench extends LittleTool {
         var cameraOrientation = mc.getEntityRenderDispatcher().cameraOrientation();
         var buffer = mc.renderBuffers().bufferSource();
         
+        boolean focus = false;
+        LittleStructure focusedStructure = null;
+        if (player.isShiftKeyDown()) {
+            focus = true;
+            if (mc.hitResult.getType() == Type.BLOCK && mc.hitResult instanceof BlockHitResult b && level.getBlockState(b.getBlockPos()).getBlock() instanceof BlockTile) {
+                LittleTileContext tileContext = LittleTileContext.selectFocused(level, b.getBlockPos(), mc.player);
+                if (tileContext.isComplete() && tileContext.parent.isStructure())
+                    try {
+                        focusedStructure = tileContext.parent.getStructure();
+                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+            }
+        }
+        
         buffer.endBatch();
         
         pose.pushPose();
         pose.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
         for (StructureTooltip s : receivedStructures)
-            s.render(pose, buffer, mc.font, cameraOrientation);
+            if (s.visible(focus, focusedStructure))
+                s.render(pose, buffer, mc.font, cameraOrientation);
         pose.popPose();
         
         RenderSystem.disableDepthTest();
@@ -156,6 +172,14 @@ public class LittleToolWrench extends LittleTool {
         
         public void receive(List<Component> info) {
             this.info = info;
+        }
+        
+        public boolean visible(boolean focus, LittleStructure structure) {
+            try {
+                return !focus || this.structure.isChildOf(structure);
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                return false;
+            }
         }
         
         public void render(PoseStack pose, MultiBufferSource buffer, Font font, Quaternionf cameraOrientation) {
