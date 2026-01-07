@@ -44,8 +44,9 @@ public class LittleParticleGui extends LittleStructureGuiControl {
     public LittleStructure save(LittleStructure structure) {
         LittleParticleEmitter particle = (LittleParticleEmitter) structure;
         
-        structure.load(item.group.getStructureTag(), item.provider()); // Make sure other fields are like direction
-        
+        if (item.group.getStructureTag() != null)
+            structure.load(item.group.getStructureTag(), item.provider()); // Make sure other fields are like direction
+            
         particle.count = control.count.getValue();
         particle.delay = control.delay.getValue();
         

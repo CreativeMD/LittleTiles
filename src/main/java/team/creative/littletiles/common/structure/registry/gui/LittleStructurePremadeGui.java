@@ -17,7 +17,8 @@ public class LittleStructurePremadeGui extends LittleStructureGuiControl {
     
     @Override
     public LittleStructure save(LittleStructure structure) {
-        structure.load(item.group.getStructureTag(), item.provider());
+        if (item.group.getStructureTag() != null)
+            structure.load(item.group.getStructureTag(), item.provider());
         return structure;
     }
     

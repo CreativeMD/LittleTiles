@@ -58,7 +58,8 @@ public class LittleItemHolderGui extends LittleStructureGuiControl {
     @Override
     public LittleStructure save(LittleStructure structure) {
         LittleItemHolder holder = (LittleItemHolder) structure;
-        structure.load(item.group.getStructureTag(), item.provider());
+        if (item.group.getStructureTag() != null)
+            structure.load(item.group.getStructureTag(), item.provider());
         
         holder.locked = locked.value;
         

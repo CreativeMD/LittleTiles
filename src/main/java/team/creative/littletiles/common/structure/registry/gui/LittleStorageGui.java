@@ -66,8 +66,9 @@ public class LittleStorageGui extends LittleStructureGuiControl {
     @Override
     public LittleStructure save(LittleStructure structure) {
         LittleStorage storage = (LittleStorage) structure;
-        structure.load(item.group.getStructureTag(), item.provider()); // Make sure the items do not get lost
-        
+        if (item.group.getStructureTag() != null)
+            structure.load(item.group.getStructureTag(), item.provider()); // Make sure the items do not get lost
+            
         storage.invisibleStorageTiles = ((GuiCheckBox) get("invisible")).value;
         
         for (LittleTile tile : item.group)
