@@ -3,7 +3,7 @@ package team.creative.littletiles.common.gui.control.animation;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import team.creative.creativecore.common.gui.GuiControl;
@@ -137,8 +137,8 @@ public class GuiAnimationTimelinePanel extends GuiTimelinePanel {
                 reflow();
             } else if (x.control.channel instanceof GuiSoundTimelineChannel) {
                 PlaySoundEvent value = (PlaySoundEvent) x.control.value;
-                GuiComboBox<ResourceLocation> box = new GuiComboBox<ResourceLocation>("sound", new TextMapBuilder<ResourceLocation>().addComponent(BuiltInRegistries.SOUND_EVENT
-                        .keySet(), y -> {
+                GuiComboBox<ResourceLocation> box = new GuiComboBox<ResourceLocation>("sound", new TextMapBuilder<ResourceLocation>().addComponent(Minecraft.getInstance()
+                        .getSoundManager().getAvailableSounds(), y -> {
                             if (y.getNamespace().equals(ResourceLocation.DEFAULT_NAMESPACE))
                                 return Component.literal(y.getPath());
                             return Component.literal(y.toString());
