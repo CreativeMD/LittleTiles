@@ -1,3 +1,6 @@
+1.6.0-pre198
+Fixed crash when saving structure if there is no structure data available (storage, particle, holder, not found and premade)
+
 1.6.0-pre197
 Made animations move before all other entities (fixing hovering above animation)
 Fixed animation preview incorrectly respecting chunk offset causing it to be outside screen
