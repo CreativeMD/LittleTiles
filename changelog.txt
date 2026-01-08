@@ -1,3 +1,7 @@
+1.6.0-pre199
+Fixed not being able to select custom sounds for advanced doors
+Added holding shift to wrench to show focused structure signals only
+
 1.6.0-pre198
 Fixed crash when saving structure if there is no structure data available (storage, particle, holder, not found and premade)
 
