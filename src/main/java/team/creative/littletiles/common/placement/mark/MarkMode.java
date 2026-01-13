@@ -1,18 +1,9 @@
 package team.creative.littletiles.common.placement.mark;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.LevelRenderer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
@@ -43,26 +34,7 @@ public class MarkMode implements IMarkMode {
     
     @Override
     public void render(LittleGrid positionGrid, PoseStack pose) {
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        
-        RenderSystem.depthMask(true);
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-        
-        AABB box = position.getBox().inflate(0.002);
-        
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        RenderSystem.lineWidth(4.0F);
-        LevelRenderer.renderLineBox(pose, bufferbuilder, box, 0, 0, 0, 1F);
-        
-        RenderSystem.disableDepthTest();
-        RenderSystem.lineWidth(1.0F);
-        LevelRenderer.renderLineBox(pose, bufferbuilder, box, 1F, 0.3F, 0.0F, 1F);
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-        RenderSystem.enableDepthTest();
+        position.render(pose, true, positionGrid);
     }
     
     @Override

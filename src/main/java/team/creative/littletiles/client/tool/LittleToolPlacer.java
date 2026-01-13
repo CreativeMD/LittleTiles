@@ -211,11 +211,7 @@ public class LittleToolPlacer extends LittleTool {
                     pos.setVecContext(new LittleVecGrid(new LittleVec(0, 0, 0), lastGrid));
                 
                 marked = onMark(player, pos);
-                //if (Screen.hasControlDown())
-                //    GuiCreator.openClientSide(marked.getConfigurationGui());
-            } // else if (Screen.hasControlDown())
-              //    GuiCreator.openClientSide(marked.getConfigurationGui());
-            else {
+            } else {
                 markedFixed = false;
                 marked.done();
                 marked = null;
@@ -317,13 +313,15 @@ public class LittleToolPlacer extends LittleTool {
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
         
+        if (marked != null)
+            marked.render(placer.getPositionGrid(player, stack), pose);
+        
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
         
         matrix.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
         RenderSystem.applyModelViewMatrix();
-        if (marked != null)
-            marked.render(placer.getPositionGrid(player, stack), pose);
+        
         matrix.translate(placedPosition.getPos().getX(), placedPosition.getPos().getY(), placedPosition.getPos().getZ());
         
         setupPreviewRenderer(lines);

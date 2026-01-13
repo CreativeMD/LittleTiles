@@ -236,6 +236,13 @@ public class LittleVecAbsolute implements IGridBased {
         return new ABB(x, y, z, x + grid.pixelLength, y + grid.pixelLength, z + grid.pixelLength);
     }
     
+    public ABB getBB(LittleGrid grid) {
+        double x = getPosX();
+        double y = getPosY();
+        double z = getPosZ();
+        return new ABB(x, y, z, x + grid.pixelLength, y + grid.pixelLength, z + grid.pixelLength);
+    }
+    
     public AABB getBox() {
         var grid = getGrid();
         double x = getPosX();
@@ -246,6 +253,11 @@ public class LittleVecAbsolute implements IGridBased {
     
     @OnlyIn(Dist.CLIENT)
     public void render(PoseStack pose, boolean selected) {
+        render(pose, selected, getGrid());
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public void render(PoseStack pose, boolean selected, LittleGrid grid) {
         Tesselator tesselator = Tesselator.getInstance();
         BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
         
@@ -255,7 +267,7 @@ public class LittleVecAbsolute implements IGridBased {
         RenderSystem.defaultBlendFunc();
         RenderSystem.enableDepthTest();
         
-        ABB box = this.getBB();
+        ABB box = this.getBB(grid);
         box.inflate(0.002);
         
         RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
