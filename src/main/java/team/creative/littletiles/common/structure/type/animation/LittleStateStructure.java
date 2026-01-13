@@ -179,7 +179,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     }
     
     public boolean canRightClick() {
-        return !isChanging();
+        return !isChanging() && !getOutput(1).getState().any();
     }
     
     public boolean hasState(int index) {
@@ -329,6 +329,7 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         public <T extends LittleStateStructure> LittleStateStructureType(String id, Class<T> structureClass, BiFunction<? extends LittleStateStructureType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, int bandwidth, SignalMode mode) {
             super(id, structureClass, factory, attribute);
             addOutput("state", bandwidth, mode);
+            addOutput("locked", 1, SignalMode.TOGGLE);
         }
         
     }
