@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.gui.signal;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.ChatFormatting;
 import team.creative.littletiles.common.structure.LittleStructureType.InternalComponent;
 import team.creative.littletiles.common.structure.LittleStructureType.InternalComponentOutput;
@@ -9,20 +11,20 @@ import team.creative.littletiles.common.structure.signal.component.ISignalCompon
 import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
 
-public record GuiSignalComponent(String name, boolean input, boolean external, int index, int bandwidth, String totalName, SignalMode defaultMode) {
+public record GuiSignalComponent(String name, boolean input, boolean external, int index, int bandwidth, String description, String totalName, SignalMode defaultMode) {
     
     public GuiSignalComponent {}
     
     public GuiSignalComponent(String name, String parentName, InternalComponent component, boolean input, boolean external, int index) {
-        this(name, input, external, index, component.bandwidth, parentName + "." + component.identifier, component instanceof InternalComponentOutput output ? output.defaultMode : SignalMode.EQUAL);
+        this(name, input, external, index, component.bandwidth, component.identifier, parentName + "." + component.identifier, component instanceof InternalComponentOutput output ? output.defaultMode : SignalMode.EQUAL);
     }
     
-    public GuiSignalComponent(String name, String totalName, ISignalComponent component, boolean external, int index) {
-        this(name, component.getComponentType() == SignalComponentType.INPUT, external, index, getBandwidth(component), totalName, SignalMode.EQUAL);
+    public GuiSignalComponent(String name, @Nullable String description, String totalName, ISignalComponent component, boolean external, int index) {
+        this(name, component.getComponentType() == SignalComponentType.INPUT, external, index, getBandwidth(component), description, totalName, SignalMode.EQUAL);
     }
     
     public GuiSignalComponent(String name, String totalName, int bandwidth, SignalComponentType type, boolean external, int index) {
-        this(name, type == SignalComponentType.INPUT, external, index, bandwidth, totalName, SignalMode.EQUAL);
+        this(name, type == SignalComponentType.INPUT, external, index, bandwidth, null, totalName, SignalMode.EQUAL);
     }
     
     public String display() {
@@ -33,6 +35,12 @@ public record GuiSignalComponent(String name, boolean input, boolean external, i
         if (totalName == null)
             return name;
         return name + " " + totalName;
+    }
+    
+    public String title() {
+        if (description == null)
+            return name;
+        return description + " (" + name + ")";
     }
     
     private static int getBandwidth(ISignalComponent component) {

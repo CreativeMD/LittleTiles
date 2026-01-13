@@ -60,7 +60,7 @@ public class GuiComponentSearch {
             
             String name = structure.name;
             if (structure instanceof ISignalComponent com && com.getComponentType() == SignalComponentType.INPUT)
-                list.add(new GuiSignalComponent(prefix + "i" + i, item.getTitle() + "." + (name != null ? name : "i" + i), com, true, i));
+                list.add(new GuiSignalComponent(prefix + "i" + i, name, item.getTitle() + "." + (name != null ? name : "i" + i), com, true, i));
             else if (includeRelations)
                 gatherInputs(child, prefix + "c" + i + ".", list, includeRelations, false);
             i++;
@@ -92,9 +92,9 @@ public class GuiComponentSearch {
             if (structure == null)
                 continue;
             
-            String name = structure.name;;
+            String name = structure.name;
             if (structure instanceof ISignalComponent com && com.getComponentType() == SignalComponentType.OUTPUT)
-                list.add(new GuiSignalComponent(prefix + "o" + i, item.getTitle() + "." + (name != null ? name : "o" + i), com, true, i));
+                list.add(new GuiSignalComponent(prefix + "o" + i, name, item.getTitle() + "." + (name != null ? name : "o" + i), com, true, i));
             else if (includeRelations)
                 gatherOutputs(child, prefix + "c" + i + ".", list, includeRelations, false);
             i++;

@@ -35,7 +35,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
     public List<GuiSignalEvent> events;
     
     public GuiDialogSignalEvents() {
-        super("gui.dialog.signal.overview", 300, 200);
+        super("gui.dialog.signal.overview", 340, 200);
         flow = GuiFlow.STACK_Y;
     }
     
@@ -80,7 +80,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
         
         GuiScrollY right = new GuiScrollY("components");
         right.flow = GuiFlow.STACK_Y;
-        upper.add(right.setDim(new GuiFixedDimension(100)).setExpandableY());
+        upper.add(right.setDim(new GuiFixedDimension(140)).setExpandableY());
         
         right.add(new GuiLabel("title").setTranslate("gui.signal.components"));
         
@@ -161,7 +161,7 @@ public class GuiDialogSignalEvents extends GuiLayer {
                 return;
             
             GuiLabel label = (GuiLabel) panel.get("label");
-            label.setTitle(Component.literal(component.name() + ": " + condition));
+            label.setTitle(Component.literal(component.title() + ": " + condition));
             GuiLabel mode = (GuiLabel) panel.get("mode");
             int delay = modeConfig.delay;
             if (condition != null)

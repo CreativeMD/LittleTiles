@@ -89,8 +89,8 @@ public class GuiDialogSignal extends GuiLayer {
         add(bottom);
         
         List<GuiSignalComponent> allInputs = new ArrayList<>(inputs);
-        allInputs.add(new GuiSignalComponent("[]", true, false, -1, 1, null, SignalMode.EQUAL));
-        allInputs.add(new GuiSignalComponent("number", true, false, -1, 1, null, SignalMode.EQUAL));
+        allInputs.add(new GuiSignalComponent("[]", true, false, -1, 1, null, null, SignalMode.EQUAL));
+        allInputs.add(new GuiSignalComponent("number", true, false, -1, 1, null, null, SignalMode.EQUAL));
         
         GuiComboBox<GuiSignalComponent> inputs = new GuiComboBox<GuiSignalComponent>("inputs", new TextMapBuilder<GuiSignalComponent>().addComponent(allInputs, x -> Component
                 .literal(x.info())));
