@@ -100,7 +100,9 @@ public class LittleAxisDoor extends LittleDoor {
         
         @Override
         public void transform(IntMatrix3c matrix) {
-            clockwise = Rotation.getRotation(axis, clockwise).transform(matrix).clockwise;
+            Rotation rotation = Rotation.getRotation(axis, clockwise).transform(matrix);
+            clockwise = rotation.clockwise;
+            axis = rotation.axis;
         }
         
         @Override
@@ -121,7 +123,9 @@ public class LittleAxisDoor extends LittleDoor {
         
         @Override
         public void transform(IntMatrix3c matrix) {
-            degree = Rotation.getRotation(axis, degree > 0 ? true : false).transform(matrix).clockwise ? Math.abs(degree) : -Math.abs(degree);
+            Rotation rotation = Rotation.getRotation(axis, degree > 0 ? true : false).transform(matrix);
+            axis = rotation.axis;
+            degree = rotation.clockwise ? Math.abs(degree) : -Math.abs(degree);
         }
         
         @Override
