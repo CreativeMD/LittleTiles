@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.resources.model.BakedModel;
@@ -14,6 +15,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.client.RenderTypeHelper;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.client.render.model.CreativeBakedBoxModel;
@@ -65,7 +67,7 @@ public class ItemRenderCache implements LevelAwareHandler {
                 return null;
             CreativeItemBoxModel renderer = get(stack);
             if (renderer != null) {
-                if (renderer.hasTranslucentLayer(stack))
+                if (renderer.checkTranslucentLayer(stack))
                     cache = new ItemModelCacheLayered();
                 else
                     cache = new ItemModelCache();
@@ -148,7 +150,8 @@ public class ItemRenderCache implements LevelAwareHandler {
                         if (translucent) {
                             quads = new ArrayList<>();
                             for (int j = 0; j < Facing.VALUES.length; j++)
-                                CreativeBakedBoxModel.compileBoxes(renderer.getBoxes(pair.key, true), Facing.VALUES[j], Sheets.translucentCullBlockSheet(), rand, true, quads);
+                                CreativeBakedBoxModel.compileBoxes(renderer.getBoxes(pair.key, true), Facing.VALUES[j], RenderTypeHelper.getEntityRenderType(RenderType
+                                        .translucent(), false), rand, true, quads);
                             pair.value.setQuads(true, quads);
                         }
                         pair.value.complete();

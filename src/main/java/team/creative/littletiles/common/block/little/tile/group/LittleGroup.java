@@ -26,6 +26,7 @@ import team.creative.creativecore.common.util.type.itr.FunctionIterator;
 import team.creative.creativecore.common.util.type.itr.IterableIterator;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
+import team.creative.littletiles.client.render.block.LittleBlockClientRegistry;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
@@ -723,6 +724,19 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     }
     
     @OnlyIn(Dist.CLIENT)
+    public boolean hasTranslucentBlocksInGui() {
+        for (LittleTile tile : content)
+            if (tile.isTranslucent() || LittleBlockClientRegistry.isTranslucentInGui(tile.getBlock()))
+                return true;
+        if (hasStructure() && getStructureType().hasTranslucentItemPreview(this))
+            return true;
+        for (LittleGroup child : children.all())
+            if (child.hasTranslucentBlocksInGui())
+                return true;
+        return false;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
     public List<RenderBox> getRenderingBoxes(boolean translucent) {
         List<RenderBox> boxes = new ArrayList<>();
         if (totalBoxes() > LittleTiles.CONFIG.rendering.itemLowResolutionBoxCount) {
@@ -737,7 +751,7 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
     @OnlyIn(Dist.CLIENT)
     protected void addRenderingBoxes(List<RenderBox> boxes, boolean translucent, boolean itemPreview) {
         for (LittleTile tile : content)
-            if (tile.isTranslucent() == translucent)
+            if ((tile.isTranslucent() || LittleBlockClientRegistry.isTranslucentInGui(tile.getBlock())) == translucent)
                 tile.addRenderingBoxes(grid, boxes);
         if (hasStructure() && itemPreview) {
             List<RenderBox> structureBoxes = getStructureType().getItemPreview(this, translucent);

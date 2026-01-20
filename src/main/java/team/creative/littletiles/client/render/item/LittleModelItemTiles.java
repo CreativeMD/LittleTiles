@@ -29,6 +29,14 @@ public class LittleModelItemTiles extends CreativeItemBoxModel {
     }
     
     @Override
+    public boolean checkTranslucentLayer(ItemStack stack) {
+        ILittlePlacer tool = (ILittlePlacer) stack.getItem();
+        if (tool.hasTiles(stack))
+            return tool.getTiles(stack).hasTranslucentBlocksInGui();
+        return false;
+    }
+    
+    @Override
     public boolean hasTranslucentLayer(ItemStack stack) {
         return LittleTilesClient.ITEM_RENDER_CACHE.hasTranslucent(stack);
     }
