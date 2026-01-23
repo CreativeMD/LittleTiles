@@ -5,7 +5,6 @@ import java.util.UUID;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -13,6 +12,7 @@ import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -25,8 +25,16 @@ import team.creative.littletiles.common.structure.exception.MissingAnimationExce
 /** PlacementPosition + Previews -> PlacementPreview (can be rendered) + Player/ Cause -> Placement */
 public class PlacementPreview {
     
+    public static PlacementPreview create(Level level, LittleGroup previews, PlacementMode mode, PlacementPosition position) {
+        return new PlacementPreview(level instanceof ISubLevel sub ? sub.getHolder().getUUID() : null, previews, mode, position);
+    }
+    
     public static PlacementPreview load(UUID levelUUID, LittleGroup previews, PlacementMode mode, PlacementPosition position) {
         return new PlacementPreview(levelUUID, previews, mode, position);
+    }
+    
+    public static PlacementPreview create(Level level, PlacementMode mode, LittleGroupAbsolute previews) {
+        return new PlacementPreview(level instanceof ISubLevel sub ? sub.getHolder().getUUID() : null, previews, mode, null);
     }
     
     public static PlacementPreview load(UUID levelUUID, PlacementMode mode, LittleGroupAbsolute previews) {
@@ -68,14 +76,14 @@ public class PlacementPreview {
     PlacementPreview(UUID levelUUID, LittleGroupAbsolute previews, PlacementMode mode, Facing facing) {
         this.levelUUID = levelUUID;
         this.previews = previews.group;
-        if (this.previews.hasStructureIncludeChildren() && !mode.canPlaceStructures())
-            mode = PlacementMode.getStructureDefault();
-        this.mode = mode;
+        
+        this.mode = check(mode);
         this.position = new PlacementPosition(previews.pos, new LittleVecGrid(), facing);
     }
     
-    public Level getLevel(Entity entity) throws MissingAnimationException {
-        Level level = entity.level();
+    public void validate() throws LittleActionException {}
+    
+    public Level getLevel(Level level) throws MissingAnimationException {
         if (levelUUID != null) {
             LittleEntity levelEntity = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide, levelUUID);
             if (levelEntity == null)
@@ -84,6 +92,12 @@ public class PlacementPreview {
             level = (Level) levelEntity.getSubLevel();
         }
         return level;
+    }
+    
+    protected PlacementMode check(PlacementMode mode) {
+        if (this.previews.hasStructureIncludeChildren() && !mode.canPlaceStructures())
+            return PlacementMode.getStructureDefault();
+        return mode;
     }
     
     public Set<BlockPos> getPositions() {

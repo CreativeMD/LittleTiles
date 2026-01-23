@@ -255,6 +255,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         blocks.add(new StructureBlockConnector(this, block.getPos().subtract(getStructurePos())));
     }
     
+    public void takeOverBlocks(LittleStructure structure) {
+        for (StructureBlockConnector c : structure.blocks)
+            blocks.add(new StructureBlockConnector(this, c.pos));
+    }
+    
     public Iterable<BlockPos> positions() {
         return new IterableIterator<BlockPos>() {
             

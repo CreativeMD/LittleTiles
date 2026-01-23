@@ -39,6 +39,7 @@ import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.entity.animation.LittleBlockChange;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
+import team.creative.littletiles.common.placement.PlacementPreviewAdd;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 import team.creative.littletiles.common.structure.animation.AnimationTimeline;
@@ -429,6 +430,11 @@ public class LittlePacketTypes {
             
             @Override
             protected void writeContent(PlacementPreview content, RegistryFriendlyByteBuf buffer) {
+                buffer.writeBoolean(content instanceof PlacementPreviewAdd);
+                
+                if (content instanceof PlacementPreviewAdd a)
+                    NetworkFieldTypes.write(StructureLocation.class, a.parent, buffer, null);
+                
                 if (content.levelUUID != null) {
                     buffer.writeBoolean(true);
                     buffer.writeUUID(content.levelUUID);
@@ -442,6 +448,10 @@ public class LittlePacketTypes {
             
             @Override
             protected PlacementPreview readContent(RegistryFriendlyByteBuf buffer) {
+                if (buffer.readBoolean())
+                    return new PlacementPreviewAdd(NetworkFieldTypes.read(StructureLocation.class, buffer, null), buffer.readBoolean() ? buffer.readUUID() : null, NetworkFieldTypes
+                            .read(LittleGroup.class, buffer, null), NetworkFieldTypes.read(PlacementMode.class, buffer, null), NetworkFieldTypes.read(PlacementPosition.class,
+                                buffer, null));
                 return PlacementPreview.load(buffer.readBoolean() ? buffer.readUUID() : null, NetworkFieldTypes.read(LittleGroup.class, buffer, null), NetworkFieldTypes.read(
                     PlacementMode.class, buffer, null), NetworkFieldTypes.read(PlacementPosition.class, buffer, null));
             }

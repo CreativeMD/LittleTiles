@@ -54,6 +54,7 @@ import team.creative.littletiles.common.level.LittleUpdateCollector;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.box.volume.LittleVolumes;
+import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.placement.box.LittlePlaceBox;
 import team.creative.littletiles.common.structure.LittleStructure;
@@ -84,7 +85,10 @@ public class Placement {
         this.source = source;
         this.level = level;
         this.preview = preview;
-        this.origin = createStructureTree(null, preview.previews, null);
+        if (preview instanceof PlacementPreviewAdd a)
+            this.origin = createPlaceAddStructure(a);
+        else
+            this.origin = createStructureTree(null, preview.previews, null);
         
         this.removedIngredients = new LittleIngredients();
         this.removedTiles = new LittleGroupAbsolute(preview.position.getPos());
@@ -312,6 +316,10 @@ public class Placement {
         return block;
     }
     
+    private PlacementStructurePreview createPlaceAddStructure(PlacementPreviewAdd preview) throws LittleActionException {
+        return new PlacementStructurePreview(preview.previews, preview.parent);
+    }
+    
     private PlacementStructurePreview createStructureTree(PlacementStructurePreview parent, LittleGroup previews, String extension) {
         PlacementStructurePreview structure = new PlacementStructurePreview(parent, previews, extension);
         
@@ -529,9 +537,13 @@ public class Placement {
                                     ParentCollection parent = x.noneStructureTiles();
                                     PlacementStructurePreview structure = structures.get(i);
                                     if (structure.isStructure()) {
-                                        StructureParentCollection list = x.addStructure(structure.getIndex(), structure.getAttribute());
-                                        structure.place(list, level.registryAccess());
-                                        parent = list;
+                                        parent = x.getStructure(structure.getIndex());
+                                        
+                                        if (parent == null) {
+                                            StructureParentCollection list = x.addStructure(structure.getIndex(), structure.getAttribute());
+                                            structure.place(list, level.registryAccess());
+                                            parent = list;
+                                        }
                                     }
                                     context.setParent(parent);
                                     
@@ -573,9 +585,22 @@ public class Placement {
         public final int index;
         public final String extension;
         private int structureIndex = -1;
+        private boolean add = false;
         
         List<PlacementStructurePreview> children = new ArrayList<>();
         HashMap<String, PlacementStructurePreview> extensions = new HashMap<>();
+        
+        public PlacementStructurePreview(LittleGroup group, StructureLocation location) throws LittleActionException {
+            this.index = structures.size();
+            structures.add(this);
+            
+            this.extension = null;
+            this.parent = null;
+            this.previews = group;
+            this.add = true;
+            cachedStructure = location.find(level);
+            structureIndex = cachedStructure.getIndex();
+        }
         
         public PlacementStructurePreview(PlacementStructurePreview parent, LittleGroup previews, String extension) {
             this.index = structures.size();
@@ -589,6 +614,8 @@ public class Placement {
         }
         
         public int getAttribute() {
+            if (add)
+                return cachedStructure.getAttribute();
             return previews.getStructureType().attribute;
         }
         
@@ -601,7 +628,7 @@ public class Placement {
         }
         
         public boolean isStructure() {
-            return previews.hasStructure();
+            return add || previews.hasStructure();
         }
         
         public void addChild(PlacementStructurePreview child) {
@@ -631,10 +658,6 @@ public class Placement {
             
             for (PlacementStructurePreview preview : children)
                 preview.place();
-        }
-        
-        public boolean isPlaced() {
-            return isStructure() && cachedStructure != null;
         }
         
         public LittleStructure getStructure() {

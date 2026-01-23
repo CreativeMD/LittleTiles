@@ -77,6 +77,8 @@ public class LittleActionPlace extends LittleAction<Boolean> {
             return false;
         }
         
+        preview.validate();
+        
         if (action == PlaceAction.PLACER) {
             ItemStack stack = source.getActionItem();
             if (!(stack.getItem() instanceof ILittlePlacer))
