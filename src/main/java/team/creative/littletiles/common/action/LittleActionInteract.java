@@ -20,6 +20,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.exception.AreaProtected;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -70,15 +71,15 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
     
     protected abstract boolean isRightClick();
     
-    protected abstract T action(Level level, BETiles te, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos,
+    protected abstract T action(Level level, BETiles te, LittleTileContext context, ItemStack stack, LittleActionSource source, BlockHitResult hit, BlockPos pos,
             boolean secondMode) throws LittleActionException;
     
     protected abstract T ignored();
     
     @Override
-    public T action(Player player) throws LittleActionException {
+    public T action(LittleActionSource source) throws LittleActionException {
         
-        Level level = player.level();
+        Level level = source.getActionLevel();
         
         if (!transformedCoordinates) {
             transformedPos = this.pos;
@@ -90,7 +91,7 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             if (animation == null)
                 onEntityNotFound();
             
-            if (!isAllowedToInteract(player, animation, isRightClick()))
+            if (!isAllowedToInteract(source, animation, isRightClick()))
                 return failed();
             
             level = (Level) animation.getSubLevel();
@@ -101,23 +102,23 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             }
         }
         
-        if (requiresBreakEvent() && !fireBlockBreakEvent(level, blockPos, player))
+        if (requiresBreakEvent() && !fireBlockBreakEvent(level, blockPos, source))
             throw new AreaProtected();
         
         BlockEntity blockEntity = level.getBlockEntity(blockPos);
         if (blockEntity instanceof BETiles be) {
             LittleTileContext context = be.getFocusedTile(transformedPos, transformedLook);
             
-            if (!isAllowedToInteract(level, player, blockPos, isRightClick(), Facing.EAST)) {
-                sendBlockResetToClient(level, player, be);
+            if (!isAllowedToInteract(level, source, blockPos, isRightClick(), Facing.EAST)) {
+                sendBlockResetToClient(level, source, be);
                 return failed();
             }
             
             if (context.isComplete()) {
-                ItemStack stack = player.getMainHandItem();
+                ItemStack stack = source.getActionItem();
                 BlockHitResult moving = rayTrace(be, context, transformedPos, transformedLook);
                 if (moving != null)
-                    return action(level, be, context, stack, player, moving, blockPos, secondMode);
+                    return action(level, be, context, stack, source, moving, blockPos, secondMode);
             } else
                 onTileNotFound();
         } else

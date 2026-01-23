@@ -83,6 +83,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionDestroy;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.entity.BETilesRendered;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -124,8 +125,8 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         return null;
     }
     
-    public static boolean selectEntireBlock(Player player, boolean secondMode) {
-        return secondMode && !(player.getMainHandItem().getItem() instanceof ItemLittleSaw) && !(player.getMainHandItem().getItem() instanceof ItemLittlePaintBrush);
+    public static boolean selectEntireBlock(LittleActionSource source, boolean secondMode) {
+        return secondMode && !(source.getActionItem().getItem() instanceof ItemLittleSaw) && !(source.getActionItem().getItem() instanceof ItemLittlePaintBrush);
     }
     
     public static BlockState getStateByAttribute(Level level, BlockPos pos, int attribute) {
@@ -308,7 +309,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     public VoxelShape getSelectionShape(BlockGetter level, BlockPos pos) {
         LittleTileContext tileContext = LittleTileContext.selectFocused(level, pos, Minecraft.getInstance().player);
         if (tileContext.isComplete()) {
-            if (selectEntireBlock(Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode()))
+            if (selectEntireBlock((LittleActionSource) Minecraft.getInstance().player, LittleActionHandlerClient.isUsingSecondMode()))
                 return tileContext.parent.getBE().getBlockShape();
             if (LittleTiles.CONFIG.rendering.highlightStructureBox && tileContext.parent.isStructure())
                 try {
@@ -576,7 +577,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         
         LittleTileContext result = LittleTileContext.selectFocused(level, pos, player);
         if (result.isComplete()) {
-            if (selectEntireBlock(player, LittleActionHandlerClient.isUsingSecondMode())) {
+            if (selectEntireBlock((LittleActionSource) player, LittleActionHandlerClient.isUsingSecondMode())) {
                 ItemStack drop = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
                 LittleGroup group = new LittleGroup();
                 for (LittleTile tile : result.parent)

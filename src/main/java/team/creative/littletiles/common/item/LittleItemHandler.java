@@ -13,6 +13,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickB
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.ingredient.NotEnoughIngredientsException;
@@ -52,8 +53,8 @@ public class LittleItemHandler {
             }
             
             try {
-                if (LittleAction.canGive(player, inventory, ingredients)) {
-                    LittleAction.give(player, inventory, ingredients);
+                if (LittleAction.canGive((LittleActionSource) player, inventory, ingredients)) {
+                    LittleAction.give((LittleActionSource) player, inventory, ingredients);
                     
                     player.onItemPickup(entityItem);
                     entityItem.kill();

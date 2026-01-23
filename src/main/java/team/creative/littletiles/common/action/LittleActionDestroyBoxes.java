@@ -6,17 +6,16 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.action.LittleActionDestroy.StructurePreview;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.entity.BETiles.BlockEntityInteractor;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -26,7 +25,6 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.block.little.tile.parent.ParentCollection;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
-import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -65,7 +63,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
         return false;
     }
     
-    public LittleIngredients action(Player player, BETiles be, List<LittleBox> boxes, boolean simulate, LittleGrid grid) {
+    public LittleIngredients action(LittleActionSource source, BETiles be, List<LittleBox> boxes, boolean simulate, LittleGrid grid) {
         doneSomething = false;
         
         if (destroyed == null)
@@ -169,10 +167,10 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public void action(Level world, Player player, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException {
-        fireBlockBreakEvent(world, pos, player);
+    public void action(Level world, LittleActionSource source, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException {
+        fireBlockBreakEvent(world, pos, source);
         
-        BlockEntity blockEntity = loadBE(player, world, pos, null, true, 0);
+        BlockEntity blockEntity = loadBE(source, world, pos, null, true, 0);
         
         if (blockEntity instanceof BETiles) {
             BETiles be = (BETiles) blockEntity;
@@ -186,8 +184,8 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
                     be.convertTo(grid);
             }
             
-            if (checkAndGive(player, new LittleInventory(player), action(player, be, boxes, true, grid)))
-                action(player, be, boxes, false, grid);
+            if (checkAndGive(source, source.createInventory(), action(source, be, boxes, true, grid)))
+                action(source, be, boxes, false, grid);
             
             be.combineAllTiles(false); // Does not need to be optimised. Chance of this having an effect is a lot less.
             
@@ -197,9 +195,9 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public Boolean action(Player player) throws LittleActionException {
+    public Boolean action(LittleActionSource source) throws LittleActionException {
         destroyedStructures = new ArrayList<>();
-        return super.action(player);
+        return super.action(source);
     }
     
     @Override
@@ -208,7 +206,7 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public LittleAction revert(Player player) {
+    public LittleAction revert(LittleActionSource source) {
         boolean additionalPreviews = destroyed != null && !destroyed.isEmpty();
         LittleAction[] actions = new LittleAction[(additionalPreviews ? 1 : 0) + destroyedStructures.size()];
         if (additionalPreviews) {
@@ -341,14 +339,14 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public void actionDone(Level level, Player player) {
+    public void actionDone(Level level, LittleActionSource source) {
         for (StructurePreview structure : destroyedStructures) {
             try {
                 if (!structure.structure.mainBlock.isRemoved()) {
-                    if ((structure.structure.shouldForceDrop() || needIngredients(player)) && !level.isClientSide) {
+                    if ((structure.structure.shouldForceDrop() || source.needsIngredients()) && !level.isClientSide) {
                         ItemStack stack = structure.structure.getStructureDrop();
-                        if (!stack.isEmpty() && !player.addItem(stack))
-                            LevelUtils.dropItem(player, stack);
+                        if (!stack.isEmpty() && !source.addStack(stack))
+                            source.dropStack(stack);
                     }
                     structure.structure.tileDestroyed();
                 }

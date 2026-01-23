@@ -12,6 +12,7 @@ import team.creative.littletiles.client.action.ActionEvent;
 import team.creative.littletiles.client.action.ActionEvent.ActionType;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.packet.action.ActionMessagePacket;
 import team.creative.littletiles.common.packet.action.PlacementPlayerSettingPacket;
 import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
@@ -31,7 +32,7 @@ public class LittleActionHandlerServer {
     
     public static <T> T execute(ServerPlayer player, LittleAction<T> action) {
         try {
-            T result = action.action(player);
+            T result = action.action((LittleActionSource) player);
             if (action.wasSuccessful(result)) {
                 NeoForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
                 return result;

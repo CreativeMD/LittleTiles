@@ -15,6 +15,7 @@
         "common.entity.EntityMixin",
         "common.entity.LivingEntityBedMixin",
         "common.entity.PlayerBedMixin",
+        "common.entity.PlayerMixin",
         "common.entity.PrimedTntAccessor",
         "common.level.BlockBehaviourAccessor",
         "common.level.LevelAccessor",

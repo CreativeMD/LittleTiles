@@ -17,7 +17,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.SoundType;
@@ -33,6 +32,7 @@ import team.creative.littletiles.common.action.exception.AreaProtected;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.exception.NotAllowedToPlaceException;
 import team.creative.littletiles.common.action.exception.TooDenseException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -60,7 +60,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 
 public class Placement {
     
-    public final Player player;
+    public final LittleActionSource source;
     public final Level level;
     public final PlacementPreview preview;
     public final LinkedHashMap<BlockPos, PlacementBlock> blocks = new LinkedHashMap<>();
@@ -80,8 +80,8 @@ public class Placement {
     protected BiPredicate<IParentCollection, LittleTile> predicate;
     protected boolean playSounds = true;
     
-    public Placement(@Nullable Player player, Level level, PlacementPreview preview) throws LittleActionException {
-        this.player = player;
+    public Placement(@Nullable LittleActionSource source, Level level, PlacementPreview preview) throws LittleActionException {
+        this.source = source;
         this.level = level;
         this.preview = preview;
         this.origin = createStructureTree(null, preview.previews, null);
@@ -98,8 +98,8 @@ public class Placement {
             block.convertToSmallest();
     }
     
-    public Placement(Player player, PlacementPreview preview) throws LittleActionException {
-        this(player, preview.getLevel(player), preview);
+    public Placement(LittleActionSource source, PlacementPreview preview) throws LittleActionException {
+        this(source, preview.getLevel(source.getActionLevel()), preview);
     }
     
     public Placement setPlaySounds(boolean sounds) {
@@ -142,8 +142,8 @@ public class Placement {
         affectedBlocks.setValue(0);
         
         for (BlockPos pos : blocks.keySet()) {
-            if (!LittleAction.isAllowedToInteract(level, player, pos, true, Facing.EAST)) {
-                LittleAction.sendBlockResetToClient(level, player, pos);
+            if (!LittleAction.isAllowedToInteract(level, source, pos, true, Facing.EAST)) {
+                LittleAction.sendBlockResetToClient(level, source, pos);
                 return false;
             }
         }
@@ -167,13 +167,16 @@ public class Placement {
         if (blocks.isEmpty())
             return null;
         
-        if (player != null && !level.isClientSide) {
-            if (player != null) {
+        if (source != null && !level.isClientSide) {
+            affectedBlocks.setValue(0);
+            
+            if (source.isPlayer()) {
+                var player = source.asPlayer();
                 LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
                 
                 if (LittleTiles.CONFIG.isPlaceLimited(player) && preview.previews.getVolumeIncludingChildren() > config.placeBlockLimit.value) {
                     for (BlockPos pos : blocks.keySet())
-                        LittleAction.sendBlockResetToClient(level, player, pos);
+                        LittleAction.sendBlockResetToClient(level, source, pos);
                     throw new NotAllowedToPlaceException(config);
                 }
                 
@@ -183,27 +186,25 @@ public class Placement {
                             LittleAction.isAllowedToPlacePreview(player, tile);
                         } catch (LittleActionException e) {
                             for (BlockPos pos : blocks.keySet())
-                                LittleAction.sendBlockResetToClient(level, player, pos);
+                                LittleAction.sendBlockResetToClient(level, source, pos);
                             throw e;
                         }
                     }
-            }
-            
-            affectedBlocks.setValue(0);
-            
-            boolean cancelled = false;
-            BlockState against = level.getBlockState(preview.position.facing == null ? preview.position.getPos() : preview.position.getPos().relative(preview.position.facing
-                    .toVanilla()));
-            for (BlockPos snapPos : blocks.keySet())
-                if (NeoForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(BlockSnapshot.create(level.dimension(), level, snapPos), against, player)).isCanceled()) {
-                    cancelled = true;
-                    break;
-                }
-            
-            if (cancelled) {
+                
+                boolean cancelled = false;
+                BlockState against = level.getBlockState(preview.position.facing == null ? preview.position.getPos() : preview.position.getPos().relative(preview.position.facing
+                        .toVanilla()));
                 for (BlockPos snapPos : blocks.keySet())
-                    LittleAction.sendBlockResetToClient(level, player, snapPos);
-                throw new AreaProtected();
+                    if (NeoForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(BlockSnapshot.create(level.dimension(), level, snapPos), against, player)).isCanceled()) {
+                        cancelled = true;
+                        break;
+                    }
+                
+                if (cancelled) {
+                    for (BlockPos snapPos : blocks.keySet())
+                        LittleAction.sendBlockResetToClient(level, source, snapPos);
+                    throw new AreaProtected();
+                }
             }
         }
         try {
@@ -409,7 +410,7 @@ public class Placement {
             if (!ignoreWorldBoundaries && (pos.getY() < 0 || pos.getY() >= 256))
                 return false;
             
-            BETiles te = LittleAction.loadBE(player, level, pos, null, false, attribute);
+            BETiles te = LittleAction.loadBE(source, level, pos, null, false, attribute);
             if (te != null) {
                 
                 int size = te.tilesCount();
@@ -451,7 +452,7 @@ public class Placement {
             BlockState state = level.getBlockState(pos);
             if (state.is(BlockTags.REPLACEABLE))
                 return true;
-            else if (preview.mode.checkAll() || !(LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, level, pos, state, affectedBlocks.incrementAndGet())))
+            else if (preview.mode.checkAll() || !(LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(source, level, pos, state, affectedBlocks.incrementAndGet())))
                 return false;
             return true;
         }
@@ -500,7 +501,7 @@ public class Placement {
                         LittleAction.setBlockPreventPredict(level, pos, BlockTile.getStateByAttribute(level, pos, attribute), 0);
                     }
                     
-                    cached = LittleAction.loadBE(player, level, pos, affectedBlocks, Placement.this.preview.mode.shouldConvertBlock(), attribute);
+                    cached = LittleAction.loadBE(source, level, pos, affectedBlocks, Placement.this.preview.mode.shouldConvertBlock(), attribute);
                 } else
                     cached = cached.forceSupportAttribute(attribute);
                 

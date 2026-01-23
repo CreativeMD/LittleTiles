@@ -18,6 +18,7 @@ import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.ActionEvent.ActionType;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.level.handler.LevelHandler;
 import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 
@@ -83,7 +84,7 @@ public class LittleActionHandlerClient extends LevelHandler {
         Player player = Minecraft.getInstance().player;
         
         try {
-            T result = action.action(player);
+            T result = action.action((LittleActionSource) player);
             if (action.wasSuccessful(result)) {
                 rememberAction(action);
                 NeoForge.EVENT_BUS.post(new ActionEvent(action, ActionType.NORMAL, player));
@@ -105,12 +106,12 @@ public class LittleActionHandlerClient extends LevelHandler {
             if (!canUseUndoOrRedo())
                 return false;
             
-            LittleAction reverted = lastActions.get(index).revert(player);
+            LittleAction reverted = lastActions.get(index).revert((LittleActionSource) player);
             
             if (reverted == null)
                 throw new LittleActionException("action.revert.notavailable");
             
-            if (reverted.wasSuccessful(reverted.action(player))) {
+            if (reverted.wasSuccessful(reverted.action((LittleActionSource) player))) {
                 NeoForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.UNDO, player));
                 LittleTiles.NETWORK.sendToServer(reverted);
                 
@@ -131,12 +132,12 @@ public class LittleActionHandlerClient extends LevelHandler {
             
             index--;
             
-            LittleAction reverted = lastActions.get(index).revert(player);
+            LittleAction reverted = lastActions.get(index).revert((LittleActionSource) player);
             
             if (reverted == null)
                 throw new LittleActionException("action.revert.notavailable");
             
-            if (reverted.wasSuccessful(reverted.action(player))) {
+            if (reverted.wasSuccessful(reverted.action((LittleActionSource) player))) {
                 NeoForge.EVENT_BUS.post(new ActionEvent(reverted, ActionType.REDO, player));
                 LittleTiles.NETWORK.sendToServer(reverted);
                 

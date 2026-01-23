@@ -9,7 +9,6 @@ import java.util.function.Consumer;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -19,13 +18,13 @@ import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.exception.NotAllowedToPlaceColorException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.entity.BETiles.BlockEntityInteractor;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.collection.LittleCollection;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
-import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.ColorIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
@@ -190,15 +189,14 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public void action(Level level, Player player, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException {
-        LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
+    public void action(Level level, LittleActionSource source, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException {
         
-        if (ColorUtils.alpha(color) < LittleTiles.CONFIG.getMinimumTransparency(player))
-            throw new NotAllowedToPlaceColorException(config);
+        if (source.isPlayer() && ColorUtils.alpha(color) < LittleTiles.CONFIG.getMinimumTransparency(source.asPlayer()))
+            throw new NotAllowedToPlaceColorException(LittleTiles.CONFIG.build.get(source.asPlayer()));
         
-        fireBlockBreakEvent(level, pos, player);
+        fireBlockBreakEvent(level, pos, source);
         
-        BlockEntity blockEntity = loadBE(player, level, pos, null, true, 0);
+        BlockEntity blockEntity = loadBE(source, level, pos, null, true, 0);
         
         if (blockEntity instanceof BETiles) {
             BETiles be = (BETiles) blockEntity;
@@ -217,17 +215,17 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
             ColorIngredient toDrain = action(be, boxes, gained, true, grid);
             LittleIngredients gainedIngredients = new LittleIngredients(gained);
             LittleIngredients drainedIngredients = new LittleIngredients(toDrain);
-            LittleInventory inventory = new LittleInventory(player);
+            LittleInventory inventory = source.createInventory();
             try {
                 inventory.startSimulation();
-                give(player, inventory, gainedIngredients);
-                take(player, inventory, drainedIngredients);
+                give(source, inventory, gainedIngredients);
+                take(source, inventory, drainedIngredients);
             } finally {
                 inventory.stopSimulation();
             }
             
-            give(player, inventory, gainedIngredients);
-            take(player, inventory, drainedIngredients);
+            give(source, inventory, gainedIngredients);
+            take(source, inventory, drainedIngredients);
             action(be, boxes, gained, false, grid);
             
             be.combineAllTiles(true);
@@ -238,9 +236,9 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public Boolean action(Player player) throws LittleActionException {
+    public Boolean action(LittleActionSource source) throws LittleActionException {
         revertList = new Int2ObjectOpenHashMap<>();
-        return super.action(player);
+        return super.action(source);
     }
     
     @Override
@@ -249,7 +247,7 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     }
     
     @Override
-    public LittleAction revert(Player player) {
+    public LittleAction revert(LittleActionSource source) {
         List<LittleAction> actions = new ArrayList<>();
         for (var entry : revertList.int2ObjectEntrySet()) {
             var boxes = entry.getValue().copy();

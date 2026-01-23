@@ -26,6 +26,7 @@ import team.creative.creativecore.common.util.text.content.ContentItemStack;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.ingredient.BlockIngredient;
 import team.creative.littletiles.common.ingredient.BlockIngredientEntry;
@@ -60,7 +61,7 @@ public class GuiWorkbench extends GuiLayer {
                 LittleIngredients ingredients = LittleAction.getIngredients(getPlayer().registryAccess(), group);
                 
                 try {
-                    if (LittleAction.checkAndTake(player, inventory, ingredients)) {
+                    if (LittleAction.checkAndTake((LittleActionSource) player, inventory, ingredients)) {
                         ItemStack stack = ItemMultiTiles.of(group);
                         if (!player.getInventory().add(stack))
                             player.drop(stack, false);

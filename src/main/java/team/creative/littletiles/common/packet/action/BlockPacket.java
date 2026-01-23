@@ -24,6 +24,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -144,7 +145,7 @@ public class BlockPacket extends CreativePacket {
             if (entity == null)
                 return;
             
-            if (!LittleAction.isAllowedToInteract(player, entity, action.rightClick))
+            if (!LittleAction.isAllowedToInteract((LittleActionSource) player, entity, action.rightClick))
                 return;
             
             level = entity.getSubLevel();
@@ -156,8 +157,8 @@ public class BlockPacket extends CreativePacket {
         if (blockEntity instanceof BETiles be) {
             LittleTileContext context = be.getFocusedTile(pos, look);
             
-            if (!LittleAction.isAllowedToInteract(level, player, blockPos, action.rightClick, Facing.EAST)) {
-                LittleAction.sendBlockResetToClient(level, player, be);
+            if (!LittleAction.isAllowedToInteract(level, (LittleActionSource) player, blockPos, action.rightClick, Facing.EAST)) {
+                LittleAction.sendBlockResetToClient(level, (LittleActionSource) player, be);
                 return;
             }
             

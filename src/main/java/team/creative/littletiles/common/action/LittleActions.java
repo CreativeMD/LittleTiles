@@ -1,8 +1,8 @@
 package team.creative.littletiles.common.action;
 
-import net.minecraft.world.entity.player.Player;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 
 public class LittleActions extends LittleAction<Boolean> {
@@ -25,22 +25,22 @@ public class LittleActions extends LittleAction<Boolean> {
     }
     
     @Override
-    public LittleAction revert(Player player) throws LittleActionException {
+    public LittleAction revert(LittleActionSource source) throws LittleActionException {
         LittleAction[] newActions = new LittleAction[actions.length];
         for (int i = 0; i < newActions.length; i++) {
             if (actions[actions.length - 1 - i] != null)
-                newActions[i] = actions[actions.length - 1 - i].revert(player);
+                newActions[i] = actions[actions.length - 1 - i].revert(source);
         }
         return new LittleActions(newActions);
     }
     
     @Override
-    public Boolean action(Player player) throws LittleActionException {
+    public Boolean action(LittleActionSource source) throws LittleActionException {
         if (actions.length == 0)
             return true;
         boolean success = false;
         for (int i = 0; i < actions.length; i++) {
-            if (actions[i] != null && actions[i].wasSuccessful(actions[i].action(player)))
+            if (actions[i] != null && actions[i].wasSuccessful(actions[i].action(source)))
                 success = true;
         }
         return success;

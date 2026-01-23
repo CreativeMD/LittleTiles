@@ -10,6 +10,7 @@ import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -45,7 +46,7 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     }
     
     @Override
-    public LittleAction revert(Player player) {
+    public LittleAction revert(LittleActionSource source) {
         if (structurePreview != null)
             return structurePreview.getPlaceAction();
         destroyedTiles.convertToSmallest();
@@ -58,36 +59,36 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     }
     
     @Override
-    protected Boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos,
+    protected Boolean action(Level level, BETiles be, LittleTileContext context, ItemStack stack, LittleActionSource source, BlockHitResult hit, BlockPos pos,
             boolean secondMode) throws LittleActionException {
         if (context.parent.isStructure()) {
             try {
                 LittleStructure structure = context.parent.getStructure();
                 structure.checkConnections();
                 structurePreview = new StructurePreview(structure);
-                if ((structure.shouldForceDrop() || needIngredients(player)) && !player.level().isClientSide)
+                if ((structure.shouldForceDrop() || source.needsIngredients()) && !level.isClientSide)
                     LevelUtils.dropItem(level, structure.getStructureDrop(), pos);
                 structure.tileDestroyed();
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
-                if (player.getMainHandItem().getItem() instanceof ItemLittleWrench) {
+                if (source.getActionItem().getItem() instanceof ItemLittleWrench) {
                     ((StructureParentCollection) context.parent).remove();
                     be.updateTiles();
                 } else
                     throw new LittleActionException.StructureNotLoadedException();
             }
         } else {
-            LittleInventory inventory = new LittleInventory(player);
+            LittleInventory inventory = source.createInventory();
             destroyedTiles = new LittleGroupAbsolute(pos);
-            if (BlockTile.selectEntireBlock(player, secondMode)) {
+            if (BlockTile.selectEntireBlock(source, secondMode)) {
                 for (LittleTile toDestroy : context.parent)
                     destroyedTiles.add(context.parent, toDestroy);
                 
-                checkAndGive(player, inventory, getIngredients(player.registryAccess(), destroyedTiles));
+                checkAndGive(source, inventory, getIngredients(source.getActionRegistry(), destroyedTiles));
                 be.updateTiles(x -> x.noneStructureTiles().clear());
             } else {
                 destroyedTiles.add(context.parent, context.tile, context.box);
                 
-                checkAndGive(player, inventory, getIngredients(player.registryAccess(), destroyedTiles));
+                checkAndGive(source, inventory, getIngredients(source.getActionRegistry(), destroyedTiles));
                 
                 be.updateTiles((x) -> x.get(context.parent).remove(context.tile, context.box));
             }

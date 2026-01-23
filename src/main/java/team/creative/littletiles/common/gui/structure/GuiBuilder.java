@@ -25,7 +25,7 @@ import team.creative.creativecore.common.gui.sync.GuiSyncLocal;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
-import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
@@ -54,7 +54,7 @@ public class GuiBuilder extends GuiLayer {
             LittleStructureBuilderType type = LittleStructureBuilder.REGISTRY.get(builder.lastStructureType);
             if (type != null) {
                 ItemStack stack = builder.inventory.getItem(0);
-                if (!LittleAction.needIngredients(getPlayer()) && stack.isEmpty()) {
+                if (!((LittleActionSource) getPlayer()).needsIngredients() && stack.isEmpty()) {
                     stack = new ItemStack(LittleTilesRegistry.BLUEPRINT.value());
                     builder.inventory.setItem(0, stack);
                 }

@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.BlockTags;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import team.creative.creativecore.common.level.ISubLevel;
@@ -24,6 +23,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.exception.AreaProtected;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.exception.NotAllowedToEditException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -54,14 +54,14 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
     
     public LittleActionBoxes() {}
     
-    public abstract void action(Level level, Player player, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException;
+    public abstract void action(Level level, LittleActionSource source, BlockPos pos, BlockState state, List<LittleBox> boxes, LittleGrid grid) throws LittleActionException;
     
     @Override
-    public Boolean action(Player player) throws LittleActionException {
+    public Boolean action(LittleActionSource source) throws LittleActionException {
         if (boxes.isEmpty())
             return true;
         
-        Level level = player.level();
+        Level level = source.getActionLevel();
         if (levelUUID != null) {
             LittleEntity animation = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide, levelUUID);
             if (animation == null)
@@ -70,31 +70,31 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
             level = (Level) animation.getSubLevel();
         }
         
-        if (LittleTiles.CONFIG.isEditLimited(player)) {
-            LittlePermissionBuild config = LittleTiles.CONFIG.build.get(player);
+        if (source.isPlayer() && LittleTiles.CONFIG.isEditLimited(source.asPlayer())) {
+            LittlePermissionBuild config = LittleTiles.CONFIG.build.get(source.asPlayer());
             if (boxes.getSurroundingBox().getPercentVolume(boxes.grid) > config.editBlockLimit.value)
                 throw new NotAllowedToEditException(config);
         }
         
-        isAllowedToUse(player, boxes);
+        isAllowedToUse(source, boxes);
         
         HashMapList<BlockPos, LittleBox> boxesMap = boxes.generateBlockWise();
         MutableInt affectedBlocks = new MutableInt();
         
         try {
             for (BlockPos pos : boxesMap.keySet()) {
-                BETiles be = LittleAction.loadBE(player, level, pos, null, false, 0);
+                BETiles be = LittleAction.loadBE(source, level, pos, null, false, 0);
                 if (be != null)
                     continue;
                 BlockState state = level.getBlockState(pos);
                 if (state.is(BlockTags.REPLACEABLE))
                     continue;
-                else if (LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(player, level, pos, state, affectedBlocks.incrementAndGet()))
+                else if (LittleAction.isBlockValid(state) && LittleAction.canConvertBlock(source, level, pos, state, affectedBlocks.incrementAndGet()))
                     continue;
             }
         } catch (LittleActionException e) {
             for (BlockPos pos : boxesMap.keySet())
-                sendBlockResetToClient(level, player, pos);
+                sendBlockResetToClient(level, source, pos);
             throw e;
         }
         
@@ -104,28 +104,29 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
             Entry<BlockPos, ArrayList<LittleBox>> entry = iterator.next();
             BlockPos pos = entry.getKey();
             BlockState state = level.getBlockState(pos);
-            if (!isAllowedToInteract(level, player, pos, false, Facing.EAST)) {
+            if (!isAllowedToInteract(level, source, pos, false, Facing.EAST)) {
                 if (!level.isClientSide)
-                    sendBlockResetToClient(level, player, pos);
+                    sendBlockResetToClient(level, source, pos);
                 continue;
             }
-            if (requiresBreak() && !fireBlockBreakEvent(level, pos, player)) {
+            if (requiresBreak() && !fireBlockBreakEvent(level, pos, source)) {
                 areaProtected = true;
                 continue;
             }
             
-            action(level, player, pos, state, entry.getValue(), boxes.grid);
+            action(level, source, pos, state, entry.getValue(), boxes.grid);
         }
         
-        actionDone(level, player);
+        actionDone(level, source);
         
-        level.playSound(null, player, SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1, 1);
+        source.playSound(SoundEvents.ITEM_FRAME_ADD_ITEM, SoundSource.BLOCKS, 1, 1);
+        
         if (areaProtected)
             throw new AreaProtected();
         return true;
     }
     
-    public void actionDone(Level level, Player player) {}
+    public void actionDone(Level level, LittleActionSource source) {}
     
     protected LittleActionBoxes assignMirror(LittleActionBoxes action, Axis axis, LittleBoxAbsolute box) {
         action.boxes = this.boxes.copy();

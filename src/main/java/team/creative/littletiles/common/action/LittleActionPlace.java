@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.action;
 
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
@@ -8,6 +7,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
@@ -45,7 +45,7 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     }
     
     @Override
-    public LittleAction revert(Player player) throws LittleActionException {
+    public LittleAction revert(LittleActionSource source) throws LittleActionException {
         if (result == null)
             return null;
         result.placedBoxes.convertToSmallest();
@@ -69,39 +69,39 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     }
     
     @Override
-    public Boolean action(Player player) throws LittleActionException {
-        Level level = player.level();
+    public Boolean action(LittleActionSource source) throws LittleActionException {
+        Level level = source.getActionLevel();
         
-        if (!isAllowedToInteract(level, player, preview.position.getPos(), true, preview.position.facing)) {
-            sendBlockResetToClient(level, player, preview);
+        if (!isAllowedToInteract(level, source, preview.position.getPos(), true, preview.position.facing)) {
+            sendBlockResetToClient(level, source, preview);
             return false;
         }
         
         if (action == PlaceAction.PLACER) {
-            ItemStack stack = player.getMainHandItem();
+            ItemStack stack = source.getActionItem();
             if (!(stack.getItem() instanceof ILittlePlacer))
                 return false;
-            PlacementResult tiles = placeTile(player, stack, preview);
+            PlacementResult tiles = placeTile(source, stack, preview);
             
             if (!level.isClientSide)
-                player.inventoryMenu.broadcastChanges();
+                source.broadcastChanges();
             return tiles != null;
         }
         
-        LittleInventory inventory = new LittleInventory(player);
-        if (canDrainIngredientsBeforePlacing(player, inventory)) {
-            Placement placement = new Placement(player, preview);
+        LittleInventory inventory = source.createInventory();
+        if (canDrainIngredientsBeforePlacing(source, inventory)) {
+            Placement placement = new Placement(source, preview);
             result = placement.place();
             
             if (result != null) {
-                drainIngredientsAfterPlacing(player, inventory, result, preview.previews);
+                drainIngredientsAfterPlacing(source, inventory, result, preview.previews);
                 
                 if (!level.isClientSide) {
-                    checkAndGive(player, inventory, getIngredients(player.registryAccess(), placement.unplaceableTiles));
-                    checkAndGive(player, inventory, placement.overflow());
+                    checkAndGive(source, inventory, getIngredients(source.getActionRegistry(), placement.unplaceableTiles));
+                    checkAndGive(source, inventory, placement.overflow());
                 }
                 
-                if (!placement.removedTiles.isEmpty() && player.level().isClientSide)
+                if (!placement.removedTiles.isEmpty() && level.isClientSide)
                     destroyed = placement.removedTiles.copy();
                 
                 if (toVanilla)
@@ -115,64 +115,65 @@ public class LittleActionPlace extends LittleAction<Boolean> {
         return false;
     }
     
-    public PlacementResult placeTile(Player player, ItemStack stack, PlacementPreview preview) throws LittleActionException {
+    public PlacementResult placeTile(LittleActionSource source, ItemStack stack, PlacementPreview preview) throws LittleActionException {
         ILittlePlacer iTile = (ILittlePlacer) stack.getItem();
         ItemStack toPlace = stack.copy();
         
-        LittleInventory inventory = new LittleInventory(player);
+        LittleInventory inventory = source.createInventory();
         
-        if (needIngredients(player))
+        if (source.needsIngredients())
             if (!iTile.containsIngredients(stack))
-                canTake(player, inventory, preview.getBeforePlaceIngredients(player.registryAccess()));
+                canTake(source, inventory, preview.getBeforePlaceIngredients(source.getActionRegistry()));
             
-        isAllowedToUse(player, preview.previews);
-        isAllowedToUse(player, preview.position);
+        isAllowedToUse(source, preview.previews);
+        isAllowedToUse(source, preview.position);
         
-        Placement placement = new Placement(player, preview).setStack(toPlace);
+        Placement placement = new Placement(source, preview).setStack(toPlace);
         result = placement.place();
         
         if (result != null) {
-            if (needIngredients(player)) {
-                checkAndGive(player, inventory, placement.overflow());
+            if (source.needsIngredients()) {
+                checkAndGive(source, inventory, placement.overflow());
                 
                 if (iTile.containsIngredients(stack)) {
                     stack.shrink(1);
-                    checkAndGive(player, inventory, getIngredients(player.registryAccess(), placement.unplaceableTiles));
+                    checkAndGive(source, inventory, getIngredients(source.getActionRegistry(), placement.unplaceableTiles));
                 } else {
-                    LittleIngredients ingredients = LittleIngredient.extractStructureOnly(player.registryAccess(), preview.previews);
+                    LittleIngredients ingredients = LittleIngredient.extractStructureOnly(source.getActionRegistry(), preview.previews);
                     ingredients.add(result.ingredients.copy());
-                    take(player, inventory, ingredients);
+                    take(source, inventory, ingredients);
                 }
             }
             
-            if (!placement.removedTiles.isEmpty() && player.level().isClientSide)
+            if (!placement.removedTiles.isEmpty() && source.getActionLevel().isClientSide)
                 destroyed = placement.removedTiles.copy();
         }
         return result;
     }
     
-    protected boolean canDrainIngredientsBeforePlacing(Player player, LittleInventory inventory) throws LittleActionException {
+    protected boolean canDrainIngredientsBeforePlacing(LittleActionSource source, LittleInventory inventory) throws LittleActionException {
         if (action != PlaceAction.PREMADE)
-            return canTake(player, inventory, preview.getBeforePlaceIngredients(player.registryAccess()));
+            return canTake(source, inventory, preview.getBeforePlaceIngredients(source.getActionRegistry()));
         
         LittlePremadePreview entry = LittlePremadeRegistry.getPreview(preview.previews.getStructureId());
         
         try {
             inventory.startSimulation();
-            return take(player, inventory, entry.stack) && entry.arePreviewsEqual(preview.previews);
+            return take(source, inventory, entry.stack) && entry.arePreviewsEqual(preview.previews);
         } finally {
             inventory.stopSimulation();
         }
     }
     
-    protected void drainIngredientsAfterPlacing(Player player, LittleInventory inventory, PlacementResult placedTiles, LittleGroup previews) throws LittleActionException {
+    protected void drainIngredientsAfterPlacing(LittleActionSource source, LittleInventory inventory, PlacementResult placedTiles,
+            LittleGroup previews) throws LittleActionException {
         if (action == PlaceAction.PREMADE) {
-            take(player, inventory, LittlePremadeRegistry.getPreview(previews.getStructureId()).stack);
+            take(source, inventory, LittlePremadeRegistry.getPreview(previews.getStructureId()).stack);
             return;
         }
-        LittleIngredients ingredients = LittleIngredient.extractStructureOnly(player.registryAccess(), previews);
-        ingredients.add(getIngredients(player.registryAccess(), placedTiles.placedPreviews));
-        take(player, inventory, ingredients);
+        LittleIngredients ingredients = LittleIngredient.extractStructureOnly(source.getActionRegistry(), previews);
+        ingredients.add(getIngredients(source.getActionRegistry(), placedTiles.placedPreviews));
+        take(source, inventory, ingredients);
     }
     
     @Override

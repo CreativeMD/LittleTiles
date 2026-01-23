@@ -10,6 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
@@ -27,8 +28,11 @@ public class LittleActionActivated extends LittleActionInteract<InteractionResul
     public LittleActionActivated() {}
     
     @Override
-    protected InteractionResult action(Level level, BETiles be, LittleTileContext context, ItemStack stack, Player player, BlockHitResult hit, BlockPos pos,
+    protected InteractionResult action(Level level, BETiles be, LittleTileContext context, ItemStack stack, LittleActionSource source, BlockHitResult hit, BlockPos pos,
             boolean secondMode) throws LittleActionException {
+        if (!source.isPlayer())
+            return InteractionResult.PASS;
+        var player = source.asPlayer();
         if (context.parent.isStructure() && LittleTiles.CONFIG.interact.get(player).interactWithStructure)
             return context.parent.getStructure().use(level, context, pos, player, hit);
         
@@ -44,7 +48,7 @@ public class LittleActionActivated extends LittleActionInteract<InteractionResul
     }
     
     @Override
-    public LittleAction revert(Player player) {
+    public LittleAction revert(LittleActionSource source) {
         return null;
     }
     
