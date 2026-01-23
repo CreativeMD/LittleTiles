@@ -24,6 +24,8 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -1219,6 +1221,20 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
                 infos.add("o" + component.getId() + ":broken");
             }
         return String.join(",", infos);
+    }
+    
+    // ====================EXTRA====================
+    
+    public void playSound(SoundEvent event) {
+        playSound(event, SoundSource.BLOCKS, 1, 1);
+    }
+    
+    public void playSound(SoundEvent event, SoundSource source) {
+        playSound(event, source, 1, 1);
+    }
+    
+    public void playSound(SoundEvent event, SoundSource source, float volume, float pitch) {
+        getStructureLevel().playSound(null, getStructurePos(), event, source, volume, pitch);
     }
     
 }
