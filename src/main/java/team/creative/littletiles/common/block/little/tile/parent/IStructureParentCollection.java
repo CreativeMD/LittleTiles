@@ -6,4 +6,6 @@ public interface IStructureParentCollection extends IParentCollection {
     
     public boolean isRemoved();
     
+    public void postLoad();
+    
 }

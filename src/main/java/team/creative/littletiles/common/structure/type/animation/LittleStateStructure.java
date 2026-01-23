@@ -229,6 +229,10 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         
         this.stayAnimated = nbt.getBoolean("stay");
         
+    }
+    
+    @Override
+    public void postLoad() {
         if (isChanging())
             queueForNextTick();
     }

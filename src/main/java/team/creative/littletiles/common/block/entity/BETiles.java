@@ -116,6 +116,10 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         super.setLevel(level);
         if (tiles == null)
             init();
+        else
+            for (IStructureParentCollection parent : structures())
+                if (parent.isMain())
+                    parent.postLoad();
     }
     
     private void init() {

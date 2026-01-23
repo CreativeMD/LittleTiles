@@ -444,6 +444,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         load(nbt, provider);
     }
     
+    /** called after the block has fully loaded. Can be used to schedule structure for tick */
+    public void postLoad() {}
+    
     protected Object failedLoadingRelative(CompoundTag nbt, StructureDirectionalField field) {
         return field.getDefault(this);
     }

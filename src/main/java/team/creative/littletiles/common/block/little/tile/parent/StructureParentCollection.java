@@ -205,6 +205,11 @@ public class StructureParentCollection extends ParentCollection implements IStru
         return size();
     }
     
+    @Override
+    public void postLoad() {
+        ((LittleStructure) cache).postLoad();
+    }
+    
     @Deprecated
     public void mirrorForWarpDrive(Axis axis) {
         relativePos = axis.mirror(relativePos);
