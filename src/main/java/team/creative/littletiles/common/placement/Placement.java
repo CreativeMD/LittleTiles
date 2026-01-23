@@ -212,7 +212,7 @@ public class Placement {
                 return placeTiles();
         } catch (LittleActionException e) {
             for (BlockPos snapPos : blocks.keySet())
-                LittleAction.sendBlockResetToClient(level, player, snapPos);
+                LittleAction.sendBlockResetToClient(level, source, snapPos);
             throw e;
         }
         return null;

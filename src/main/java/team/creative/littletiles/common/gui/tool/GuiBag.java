@@ -256,7 +256,7 @@ public class GuiBag extends GuiConfigure {
     }
     
     @Override
-    public Iterable<IGuiInventory> inventoriesToExract() {
+    public Iterable<IGuiInventory> inventoriesToExtract() {
         return inventoriesInv;
     }
     

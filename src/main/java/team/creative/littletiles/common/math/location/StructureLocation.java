@@ -63,7 +63,7 @@ public class StructureLocation {
         return nbt;
     }
     
-    public LittleStructure find(LevelAccessor level) throws LittleActionException {
+    public BETiles findBE(LevelAccessor level) throws LittleActionException {
         if (levelUUID != null) {
             LittleEntity entity = LittleTiles.ANIMATION_HANDLERS.find(level.isClientSide(), levelUUID);
             if (entity == null)
@@ -72,13 +72,17 @@ public class StructureLocation {
             level = entity.getSubLevel();
         }
         BlockEntity be = level.getBlockEntity(pos);
-        if (be instanceof BETiles tiles) {
-            IStructureParentCollection structure = tiles.getStructure(index);
-            if (structure != null)
-                return structure.getStructure();
-            throw new LittleActionException.StructureNotFoundException();
-        } else
-            throw new LittleActionException.BlockEntityNotFoundException();
+        if (be instanceof BETiles tiles)
+            return tiles;
+        
+        throw new LittleActionException.BlockEntityNotFoundException();
+    }
+    
+    public LittleStructure find(LevelAccessor level) throws LittleActionException {
+        IStructureParentCollection parent = findBE(level).getStructure(index);
+        if (parent != null)
+            return parent.getStructure();
+        throw new LittleActionException.StructureNotFoundException();
     }
     
     @Override

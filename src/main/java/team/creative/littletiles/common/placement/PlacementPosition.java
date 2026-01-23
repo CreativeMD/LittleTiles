@@ -24,6 +24,11 @@ public class PlacementPosition extends LittleVecAbsolute {
         this.facing = facing;
     }
     
+    public PlacementPosition(LittleVecAbsolute vec, Facing facing) {
+        super(vec.getPos(), vec.getVecGrid());
+        this.facing = facing;
+    }
+    
     public PlacementPosition(BlockPos pos, LittleGrid context, LittleVec vec, Facing facing) {
         super(pos, context, vec);
         this.facing = facing;

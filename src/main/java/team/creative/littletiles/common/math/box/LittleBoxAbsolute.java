@@ -12,6 +12,7 @@ import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 
 public class LittleBoxAbsolute implements IGridBased {
@@ -114,6 +115,10 @@ public class LittleBoxAbsolute implements IGridBased {
         return boxes;
     }
     
+    public LittleVecAbsolute getMin() {
+        return new LittleVecAbsolute(pos, grid, box.getMinVec());
+    }
+    
     public int getMinPos(Axis axis) {
         switch (axis) {
             case X:
@@ -137,6 +142,10 @@ public class LittleBoxAbsolute implements IGridBased {
         if (x != 0 || y != 0 || z != 0)
             return pos.offset(x, y, z);
         return pos;
+    }
+    
+    public LittleVecAbsolute getMax() {
+        return new LittleVecAbsolute(pos, grid, box.getMaxVec());
     }
     
     public int getMaxPos(Axis axis) {

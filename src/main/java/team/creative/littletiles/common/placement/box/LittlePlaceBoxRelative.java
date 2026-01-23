@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.placement.box;
 
+import javax.annotation.Nullable;
+
 import net.minecraft.core.BlockPos;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -16,9 +18,10 @@ import team.creative.littletiles.common.structure.relative.StructureRelative;
 public class LittlePlaceBoxRelative extends LittlePlaceBox {
     
     public StructureDirectionalField relativeType;
+    @Nullable
     public StructureRelative relative;
     
-    public LittlePlaceBoxRelative(LittleBox box, StructureRelative relative, StructureDirectionalField relativeType) {
+    public LittlePlaceBoxRelative(LittleBox box, @Nullable StructureRelative relative, StructureDirectionalField relativeType) {
         super(box.copy());
         this.relative = relative;
         this.relativeType = relativeType;
@@ -34,9 +37,11 @@ public class LittlePlaceBoxRelative extends LittlePlaceBox {
     
     @Override
     public void place(Placement placement, LittleGrid grid, BlockPos pos, LittleStructure structure) throws LittleActionException {
-        relative.setBox(BlockPos.ZERO, box.copy(), grid);
-        relative.add(pos.subtract(structure.getStructurePos()));
-        relativeType.set(structure, relative);
+        if (relative != null) {
+            relative.setBox(BlockPos.ZERO, box.copy(), grid);
+            relative.add(pos.subtract(structure.getStructurePos()));
+            relativeType.set(structure, relative);
+        }
     }
     
 }
