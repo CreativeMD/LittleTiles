@@ -267,6 +267,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     @Override
     public void onRemovedFromLevel() {
         super.onRemovedFromLevel();
+        entities().forEach(x -> x.onRemovedFromLevel());
         LittleTiles.ANIMATION_HANDLERS.get(level()).remove(this);
     }
     
