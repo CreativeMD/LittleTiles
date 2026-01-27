@@ -27,6 +27,8 @@ public class LittlePermissionInteract {
     public boolean structureBuilderGui = true;
     @CreativeConfig
     public boolean workbenchGui = true;
+    @CreativeConfig
+    public boolean printer3dGui = true;
     
     @CreativeConfig
     public boolean wrenchEditSignal = true;

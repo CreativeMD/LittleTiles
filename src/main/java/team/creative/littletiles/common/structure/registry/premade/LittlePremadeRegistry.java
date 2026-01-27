@@ -25,6 +25,7 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 import team.creative.littletiles.common.structure.attribute.LittleAttributeBuilder;
 import team.creative.littletiles.common.structure.registry.LittleStructureRegistry;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
+import team.creative.littletiles.common.structure.type.premade.Little3dPrinter;
 import team.creative.littletiles.common.structure.type.premade.LittleBlankOMatic;
 import team.creative.littletiles.common.structure.type.premade.LittleExporter;
 import team.creative.littletiles.common.structure.type.premade.LittleImporter;
@@ -153,6 +154,7 @@ public class LittlePremadeRegistry {
         register(new LittleStructureTypeParticleEmitter("particle_emitter", LittleParticleEmitter.class, LittleParticleEmitter::new, new LittleAttributeBuilder()
                 .ticking(), LittleTiles.MODID)).addOutput("disabled", 1, SignalMode.TOGGLE, true).setFieldDefault("facing", Facing.UP);
         register("blankomatic", LittleTiles.MODID, LittleBlankOMatic.class, LittleBlankOMatic::new);
+        register("3dprinter", LittleTiles.MODID, Little3dPrinter.class, Little3dPrinter::new).addOutput("active", 1, SignalMode.TOGGLE);
         
         register(new LittleStructureTypeCable("single_cable1", LittleSignalCable.class, LittleSignalCable::new, new LittleAttributeBuilder()
                 .extraRendering(), LittleTiles.MODID, 1));

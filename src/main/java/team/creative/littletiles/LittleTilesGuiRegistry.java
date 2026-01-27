@@ -16,6 +16,7 @@ import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalInput;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalMode;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalVirtualInput;
 import team.creative.littletiles.common.gui.signal.dialog.GuiDialogSignalVirtualNumberInput;
+import team.creative.littletiles.common.gui.structure.Gui3dPrinter;
 import team.creative.littletiles.common.gui.structure.GuiBlankOMatic;
 import team.creative.littletiles.common.gui.structure.GuiBuilder;
 import team.creative.littletiles.common.gui.structure.GuiItemHolder;
@@ -24,6 +25,7 @@ import team.creative.littletiles.common.gui.structure.GuiStorage;
 import team.creative.littletiles.common.gui.structure.GuiWorkbench;
 import team.creative.littletiles.common.structure.type.LittleItemHolder;
 import team.creative.littletiles.common.structure.type.LittleStorage;
+import team.creative.littletiles.common.structure.type.premade.Little3dPrinter;
 import team.creative.littletiles.common.structure.type.premade.LittleBlankOMatic;
 import team.creative.littletiles.common.structure.type.premade.LittleParticleEmitter;
 import team.creative.littletiles.common.structure.type.premade.LittleStructureBuilder;
@@ -72,6 +74,9 @@ public class LittleTilesGuiRegistry {
             structure) -> new GuiBuilder((LittleStructureBuilder) structure), x -> x.structureBuilderGui));
     public static final LittleStructureGuiCreator WORKBENCH = GuiCreator.register("workbench", new LittleStructureGuiCreator((nbt, player,
             structure) -> new GuiWorkbench(), x -> x.workbenchGui));
+    
+    public static final LittleStructureGuiCreator PRINTER3D = GuiCreator.register("3d_printer", new LittleStructureGuiCreator((nbt, player,
+            structure) -> new Gui3dPrinter((Little3dPrinter) structure), x -> x.printer3dGui));
     
     public static void init() {}
     
