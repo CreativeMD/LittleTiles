@@ -77,7 +77,19 @@ public class BlockIngredient extends LittleIngredient<BlockIngredient> implement
         }
         
         if (maxEntries == -1 || content.size() < maxEntries) {
-            content.add(ingredient.copy());
+            if (maxVolume == -1)
+                content.add(ingredient.copy());
+            else {
+                while (!ingredient.isEmpty()) {
+                    var extract = ingredient.copy(Math.min(ingredient.value, maxVolume));
+                    content.add(extract);
+                    double remaining = ingredient.value - extract.value;
+                    if (remaining <= 0)
+                        return null;
+                    ingredient = ingredient.copy(remaining);
+                }
+            }
+            
             return null;
         }
         return ingredient;
