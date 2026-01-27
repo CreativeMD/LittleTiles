@@ -288,15 +288,15 @@ public class ColorIngredient extends LittleIngredient<ColorIngredient> {
     public int getMinimumCount(ColorIngredient other, int availableCount) {
         int count = -1;
         if (this.black > 0 && other.black > 0)
-            count = Math.max(count, this.black / other.black);
+            count = Math.max(count, Mth.ceil(this.black / (double) other.black));
         if (this.cyan > 0 && other.cyan > 0)
-            count = Math.max(count, this.cyan / other.cyan);
+            count = Math.max(count, Mth.ceil(this.cyan / (double) other.cyan));
         if (this.magenta > 0 && other.magenta > 0)
-            count = Math.max(count, this.magenta / other.magenta);
+            count = Math.max(count, Mth.ceil(this.magenta / (double) other.magenta));
         if (this.yellow > 0 && other.yellow > 0)
-            count = Math.max(count, this.yellow / other.yellow);
+            count = Math.max(count, Mth.ceil(this.yellow / (double) other.yellow));
         if (this.alpha > 0 && other.alpha > 0)
-            count = Math.max(count, this.alpha / other.alpha);
+            count = Math.max(count, Mth.ceil(this.alpha / (double) other.alpha));
         return Math.min(availableCount, count);
     }
     
