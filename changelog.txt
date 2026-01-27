@@ -1,3 +1,17 @@
+1.6.0-pre201
+Added 3d printer
+- including system to place new tiles to existing structure
+- added littlegroup as a directional type
+- reworked action by adding custom action source to allow for actions not done by a player
+Added postLoad which fixes structures getting corrupted which try to tick when being loaded (caused structure to vanish)
+Fixed crash when saving equation input configuration
+Fixed crash when adding structure to bag which content exceeds inventory stack limit
+Fixed color ingredient not taking dyes when needed if the amount required is smaller than zero
+Fixed exporter having missing textures
+Fixed incorrect checking whether block has translucent layer in gui
+Fixed blocks from fusion mod being invisible in inventory
+Fixed all blocks with changed transparency being invisible in inventory
+
 1.6.0-pre200
 Added output description to signal event screen
 Added locked door output to prevent right click via signals
