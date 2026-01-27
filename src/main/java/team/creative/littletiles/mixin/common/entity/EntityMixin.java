@@ -245,6 +245,9 @@ public class EntityMixin {
         MutableBlockPos max = new MutableBlockPos();
         MutableBlockPos pos = new MutableBlockPos();
         var handler = LittleTiles.ANIMATION_HANDLERS.getWithoutCreate(asEntity().level());
+        if (handler == null)
+            return;
+        
         for (LittleEntity entity : handler.find(asEntity().getBoundingBox())) {
             if (!entity.checkEntityInside(entity))
                 continue;
