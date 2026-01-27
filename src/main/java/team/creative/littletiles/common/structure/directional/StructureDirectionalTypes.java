@@ -348,6 +348,8 @@ public class StructureDirectionalTypes {
             
             @Override
             public Tag write(StructureDirectionalField field, LittleGroup value) {
+                if (value.isEmptyIncludeChildren())
+                    return new CompoundTag();
                 return LittleGroup.save(value);
             }
             
@@ -359,6 +361,7 @@ public class StructureDirectionalTypes {
             
             @Override
             public LittleGroup transform(StructureDirectionalField field, LittleGroup value, LittleGrid grid, IntMatrix3c matrix, LittleVec doubledCenter) {
+                value.convertTo(grid);
                 value.transform(matrix, doubledCenter);
                 return value;
             }
@@ -373,6 +376,16 @@ public class StructureDirectionalTypes {
                 if (value.isEmptyIncludeChildren())
                     return null;
                 return new LittlePlaceBoxRelative(value.getSurroundingBox(), null, field);
+            }
+            
+            @Override
+            public void convertToSmallest(LittleGroup value) {
+                value.convertToSmallest();
+            }
+            
+            @Override
+            public void advancedScale(LittleGroup value, int from, int to) {
+                value.advancedScale(from, to);
             }
             
             @Override
