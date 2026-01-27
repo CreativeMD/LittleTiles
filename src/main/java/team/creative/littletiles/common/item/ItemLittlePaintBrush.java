@@ -6,9 +6,6 @@ import java.util.List;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
@@ -67,15 +63,6 @@ public class ItemLittlePaintBrush extends Item implements ILittleShaper, IItemTo
         LittleShapeInstance shape = getShape(stack);
         shape.appendInformation(stack, context, tooltip, flag);
         tooltip.add(Component.literal(TooltipUtils.printColor(stack.getOrDefault(LittleTilesRegistry.COLOR, ColorUtils.WHITE))));
-    }
-    
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        if (hand == InteractionHand.OFF_HAND)
-            return new InteractionResultHolder(InteractionResult.PASS, player.getItemInHand(hand));
-        if (!level.isClientSide)
-            GuiCreator.ITEM_OPENER.open(player, hand);
-        return new InteractionResultHolder(InteractionResult.SUCCESS, player.getItemInHand(hand));
     }
     
     @Override

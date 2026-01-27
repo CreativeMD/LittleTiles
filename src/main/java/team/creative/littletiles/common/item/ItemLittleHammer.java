@@ -6,9 +6,6 @@ import java.util.List;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,7 +15,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiLayer;
-import team.creative.creativecore.common.gui.creator.GuiCreator;
 import team.creative.creativecore.common.gui.creator.ItemGuiCreator;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTilesRegistry;
@@ -48,15 +44,6 @@ public class ItemLittleHammer extends Item implements ILittleShaper, IItemToolti
     public void appendHoverText(ItemStack stack, TooltipContext context, List<Component> tooltip, TooltipFlag flag) {
         LittleShapeInstance shape = getShape(stack);
         shape.appendInformation(stack, context, tooltip, flag);
-    }
-    
-    @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
-        if (hand == InteractionHand.OFF_HAND)
-            return new InteractionResultHolder(InteractionResult.PASS, player.getItemInHand(hand));
-        if (!level.isClientSide)
-            GuiCreator.ITEM_OPENER.open(player, hand);
-        return new InteractionResultHolder(InteractionResult.SUCCESS, player.getItemInHand(hand));
     }
     
     @Override
