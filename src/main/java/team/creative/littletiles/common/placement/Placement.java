@@ -658,6 +658,9 @@ public class Placement {
             
             for (PlacementStructurePreview preview : children)
                 preview.place();
+            
+            if (add)
+                cachedStructure.updateStructure();
         }
         
         public LittleStructure getStructure() {
