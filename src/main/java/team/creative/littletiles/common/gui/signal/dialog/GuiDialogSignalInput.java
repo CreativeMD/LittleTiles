@@ -116,7 +116,7 @@ public class GuiDialogSignalInput extends GuiLayer {
             
             @Override
             public void save(GuiSignalNodeInput input, GuiParent panel) {
-                GuiTextfield textfield = (GuiTextfield) get("equation");
+                GuiTextfield textfield = (GuiTextfield) panel.get("equation");
                 try {
                     input.equation = SignalInputCondition.parseExpression(new SignalPatternParser(textfield.getText()), new char[0], false, true);
                 } catch (ParseException e) {
