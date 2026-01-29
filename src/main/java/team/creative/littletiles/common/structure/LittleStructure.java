@@ -82,6 +82,7 @@ import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.connection.ILevelPositionProvider;
+import team.creative.littletiles.common.structure.connection.LittleStructureRelationCache;
 import team.creative.littletiles.common.structure.connection.block.StructureBlockConnector;
 import team.creative.littletiles.common.structure.connection.children.LevelChildrenList;
 import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
@@ -118,6 +119,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     private final InternalSignalOutput[] outputs;
     
     private boolean signalChanged = false;
+    private boolean queuedForNextTick = false;
     
     public LittleStructure(LittleStructureType type, IStructureParentCollection mainBlock) {
         this.type = type;
@@ -618,6 +620,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             return null;
         
         checkConnections();
+        LittleStructureRelationCache cache = new LittleStructureRelationCache(this);
         
         StructureLocation location = getStructureLocation();
         Level level = getStructureLevel();
@@ -625,7 +628,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         BlockPos pos = getStructurePos();
         Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos))).setPlaySounds(
-            playSoundWhenChangingState());;
+            playSoundWhenChangingState());
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
         LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(mainBlock.getPos(), mainBlock.getGrid()), placement);
@@ -642,6 +645,12 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleTilesServer.NEIGHBOR.schedule(collector);
         entity.clearTrackingChanges();
         entity.initialTick();
+        
+        cache.forEachSameLevel(entity.getStructure(), (old, current) -> {
+            if (old.isQueuedForNextTick())
+                current.queueForNextTick();
+        });
+        
         return entity;
     }
     
@@ -661,12 +670,15 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         if (!isAnimated())
             return;
         
+        checkConnections();
+        LittleStructureRelationCache cache = new LittleStructureRelationCache(this);
+        
         LittleAnimationEntity entity = getAnimationEntity();
         Level level = entity.level();
         
         BlockPos pos = getStructurePos();
         Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos))).setPlaySounds(
-            playSoundWhenChangingState());;
+            playSoundWhenChangingState());
         LittleUpdateCollector collector = new LittleUpdateCollector();
         PlacementResult result = placement.place();
         
@@ -687,6 +699,11 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleTilesServer.NEIGHBOR.schedule(collector);
         
         entity.setRemoved(RemovalReason.KILLED);
+        
+        cache.forEachSameLevel(entity.getStructure(), (old, current) -> {
+            if (old.isQueuedForNextTick())
+                current.queueForNextTick();
+        });
     }
     
     protected void transferChildrenFromAnimation(Level level) throws CorruptedConnectionException, NotYetConnectedException {
@@ -1125,9 +1142,20 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     
     public void tick() {}
     
+    public boolean isQueuedForNextTick() {
+        return queuedForNextTick;
+    }
+    
     /** only server side **/
     public void queueForNextTick() {
+        if (queuedForNextTick)
+            return;
+        queuedForNextTick = true;
         LittleTiles.TICKERS.queueNexTick(this);
+    }
+    
+    public void clearNextTick() {
+        queuedForNextTick = false;
     }
     
     /** only server side **/

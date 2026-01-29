@@ -139,8 +139,10 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
             if (!tickingStructures.isEmpty()) {
                 for (Iterator<LittleStructure> iterator = tickingStructures.iterator(); iterator.hasNext();) {
                     LittleStructure structure = iterator.next();
-                    if (!structure.queuedTick())
+                    if (!structure.queuedTick()) {
+                        structure.clearNextTick();
                         iterator.remove();
+                    }
                 }
             }
             ticking = false;
