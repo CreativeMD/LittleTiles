@@ -593,7 +593,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public LittleAnimationEntity getAnimationEntity() {
-        if (getStructureLevel() instanceof LittleSubLevel sub && sub.getHolder() instanceof LittleAnimationEntity entity)
+        if (getStructureLevel() instanceof LittleSubLevel sub && sub.getHolder() instanceof LittleAnimationEntity entity && entity.getStructureOrNull() == this)
             return entity;
         return null;
     }

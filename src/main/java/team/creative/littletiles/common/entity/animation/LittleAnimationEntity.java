@@ -130,6 +130,10 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         return structure.getStructure();
     }
     
+    public LittleStructure getStructureOrNull() {
+        return structure.getStructureOrNull();
+    }
+    
     @Override
     public boolean checkEntityInside(Entity entity) {
         return collisionListener;

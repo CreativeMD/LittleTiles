@@ -13,6 +13,13 @@ public interface IStructureConnection {
     
     public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException;
     
+    public default LittleStructure getStructureOrNull() {
+        try {
+            return getStructure();
+        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        return null;
+    }
+    
     public default void checkConnection() throws CorruptedConnectionException, NotYetConnectedException {
         getStructureUncached();
     }
