@@ -1,3 +1,10 @@
+1.6.0-pre202
+Added system to make sure structures that were queued for next tick are remember when changing form
+Fixed door mistakenly thinking is its own even though it is just part of a bigger door
+Fixed child animations not getting removed properly causing them to flicker
+Fixed crash with entities from other mods when there are no doors
+Fixed hammer and paint brush not being able to interact with marked position properly
+
 1.6.0-pre201
 Added 3d printer
 - including system to place new tiles to existing structure
