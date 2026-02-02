@@ -296,8 +296,7 @@ public class LittleToolShaper extends LittleTool {
         if (mesh != null) {
             var matrix = RenderSystem.getModelViewStack();
             matrix.pushMatrix();
-            matrix.translate(pos.getX(), pos.getY(), pos.getZ());
-            matrix.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
+            matrix.translate((float) (pos.getX() - cam.x), (float) (pos.getY() - cam.y), (float) (pos.getZ() - cam.z));
             
             RenderSystem.applyModelViewMatrix();
             setupPreviewRenderer(lines);
