@@ -2,6 +2,7 @@ package team.creative.littletiles.common.placement.shape.config;
 
 import java.util.List;
 
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
@@ -9,7 +10,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.api.IntRangeSupplier;
-import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.text.TextBuilder;
 import team.creative.littletiles.client.LittleTilesClient;
 
@@ -31,9 +31,9 @@ public class HollowThicknessConfig extends LittleShapeConfig {
     @Override
     public List<Component> information() {
         TextBuilder text = new TextBuilder();
-        text.color(ColorUtils.WHITE).translate("shape.config.hollow").text(": ").bool(hollow);
+        text.textColor(ChatFormatting.WHITE).translate("shape.config.hollow").text(": ").bool(hollow);
         if (hollow)
-            text.newLine().color(ColorUtils.WHITE).translate("shape.config.thickness").text(": ").color(ColorUtils.GRAY).text("" + thickness);
+            text.newLine().textColor(ChatFormatting.WHITE).translate("shape.config.thickness").text(": ").textColor(ChatFormatting.GRAY).text("" + thickness);
         return text.build();
     }
     
