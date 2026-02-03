@@ -156,24 +156,24 @@ public class LittlePremadeRegistry {
         register("blankomatic", LittleTiles.MODID, LittleBlankOMatic.class, LittleBlankOMatic::new);
         register("3dprinter", LittleTiles.MODID, Little3dPrinter.class, Little3dPrinter::new).addOutput("active", 1, SignalMode.TOGGLE);
         
-        register(new LittleStructureTypeCable("single_cable1", LittleSignalCable.class, LittleSignalCable::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 1));
-        register(new LittleStructureTypeCable("single_cable4", LittleSignalCable.class, LittleSignalCable::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 4));
+        register(new LittleStructureTypeCable("single_cable1", LittleSignalCable.class, LittleSignalCable::new, new LittleAttributeBuilder().extraRendering(), LittleTiles.MODID, 1)
+                .setItemTexture());
+        register(new LittleStructureTypeCable("single_cable4", LittleSignalCable.class, LittleSignalCable::new, new LittleAttributeBuilder().extraRendering(), LittleTiles.MODID, 4)
+                .setItemTexture());
         register(new LittleStructureTypeCable("single_cable16", LittleSignalCable.class, LittleSignalCable::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 16));
+                .extraRendering(), LittleTiles.MODID, 16).setItemTexture());
         
         register(new LittleStructureTypeOutput("single_output1", LittleSignalOutput.class, LittleSignalOutput::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 1));
+                .extraRendering(), LittleTiles.MODID, 1).setItemTexture());
         register(new LittleStructureTypeOutput("single_output4", LittleSignalOutput.class, LittleSignalOutput::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 4));
+                .extraRendering(), LittleTiles.MODID, 4).setItemTexture());
         register(new LittleStructureTypeOutput("single_output16", LittleSignalOutput.class, LittleSignalOutput::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 16));
+                .extraRendering(), LittleTiles.MODID, 16).setItemTexture());
         
-        register(new LittleStructureTypeInput("single_input1", LittleSignalInput.class, LittleSignalInput::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 1));
-        register(new LittleStructureTypeInput("single_input4", LittleSignalInput.class, LittleSignalInput::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 4));
+        register(new LittleStructureTypeInput("single_input1", LittleSignalInput.class, LittleSignalInput::new, new LittleAttributeBuilder().extraRendering(), LittleTiles.MODID, 1)
+                .setItemTexture());
+        register(new LittleStructureTypeInput("single_input4", LittleSignalInput.class, LittleSignalInput::new, new LittleAttributeBuilder().extraRendering(), LittleTiles.MODID, 4)
+                .setItemTexture());
         register(new LittleStructureTypeInput("single_input16", LittleSignalInput.class, LittleSignalInput::new, new LittleAttributeBuilder()
                 .extraRendering(), LittleTiles.MODID, 16));
         
