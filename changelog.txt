@@ -1,3 +1,13 @@
+1.6.0-pre203
+Added signal display 4 and 1 bit variant
+Added textures for signal displays
+Added ability to paint signal displays
+Added item textures for cables, input and outputs
+Added ability for premade structures to have an item model
+Update Chinese localization (thanks to EdgewalkerBlue)
+Fixed rendering of preview boxes not working correctly when being far out
+Fixed incorrect shape information
+
 1.6.0-pre202
 Added system to make sure structures that were queued for next tick are remember when changing form
 Fixed door mistakenly thinking is its own even though it is just part of a bigger door
