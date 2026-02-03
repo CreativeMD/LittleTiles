@@ -376,6 +376,8 @@
     "structure.single_output4": "Single Output (4-bit)",
     "structure.single_output16": "Single Output (16-bit)",
     "structure.particle_emitter": "Particle Emitter",
+    "structure.signal_display_1": "Signal Display (1 bit)",
+    "structure.signal_display_4": "Signal Display (4 bit)",
     "structure.signal_display_16": "Signal Display (16 bit)",
     "structure.item_holder": "Item Holder",
     "structure.structure_builder": "Structure Builder",

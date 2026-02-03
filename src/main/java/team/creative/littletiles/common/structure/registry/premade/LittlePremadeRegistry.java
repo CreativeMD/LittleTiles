@@ -175,10 +175,14 @@ public class LittlePremadeRegistry {
         register(new LittleStructureTypeInput("single_input4", LittleSignalInput.class, LittleSignalInput::new, new LittleAttributeBuilder().extraRendering(), LittleTiles.MODID, 4)
                 .setItemTexture());
         register(new LittleStructureTypeInput("single_input16", LittleSignalInput.class, LittleSignalInput::new, new LittleAttributeBuilder()
-                .extraRendering(), LittleTiles.MODID, 16));
+                .extraRendering(), LittleTiles.MODID, 16).setItemTexture());
         
-        register("signal_display_16", LittleTiles.MODID, LittleSignalDisplay.class, LittleSignalDisplay::new, new LittleAttributeBuilder().tickRendering()).addOutput("pixels", 16,
-            SignalMode.EQUAL, true);
+        register("signal_display_1", LittleTiles.MODID, LittleSignalDisplay.class, LittleSignalDisplay::new, new LittleAttributeBuilder().extraRendering().tickRendering())
+                .setItemTexture().addOutput("pixels", 1, SignalMode.EQUAL, true);
+        register("signal_display_4", LittleTiles.MODID, LittleSignalDisplay.class, LittleSignalDisplay::new, new LittleAttributeBuilder().extraRendering().tickRendering())
+                .setItemTexture().addOutput("pixels", 4, SignalMode.EQUAL, true);
+        register("signal_display_16", LittleTiles.MODID, LittleSignalDisplay.class, LittleSignalDisplay::new, new LittleAttributeBuilder().extraRendering().tickRendering())
+                .setItemTexture().addOutput("pixels", 16, SignalMode.EQUAL, true);
         
         register("structure_builder", LittleTiles.MODID, LittleStructureBuilder.class, LittleStructureBuilder::new);
         
