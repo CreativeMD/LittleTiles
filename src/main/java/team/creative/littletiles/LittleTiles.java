@@ -153,11 +153,11 @@ public class LittleTiles {
         LittleTilesRegistry.INGREDIENT_TYPES.register(bus);
         
         LittlePacketTypes.init();
+        LittleStructureRegistry.initStructures();
     }
     
     private void init(final FMLCommonSetupEvent event) {
         IngredientRules.loadRules();
-        LittleStructureRegistry.initStructures();
         
         NETWORK.registerType(ActionMessagePacket.class, ActionMessagePacket::new);
         NETWORK.registerType(BlockPacket.class, BlockPacket::new);

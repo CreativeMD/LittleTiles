@@ -2,11 +2,13 @@ package team.creative.littletiles.common.structure.type.premade;
 
 import java.util.function.BiFunction;
 
+import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittleTool;
@@ -52,6 +54,7 @@ public abstract class LittleStructurePremade extends LittleStructure {
         public final String modid;
         public boolean showInCreativeTab = true;
         public boolean snapToGrid = true;
+        public ModelResourceLocation itemTexture;
         
         public <T extends LittleStructurePremade> LittlePremadeType(String id, String path, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
             super(id, structureClass, factory, attribute.premade());
@@ -61,6 +64,11 @@ public abstract class LittleStructurePremade extends LittleStructure {
         
         public <T extends LittleStructurePremade> LittlePremadeType(String id, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
             this(id, "", structureClass, factory, attribute, modid);
+        }
+        
+        public LittlePremadeType setItemTexture() {
+            itemTexture = new ModelResourceLocation(ResourceLocation.tryBuild(modid, "item/premade/" + path + "" + id), ModelResourceLocation.STANDALONE_VARIANT);
+            return this;
         }
         
         public boolean hasCustomTab() {

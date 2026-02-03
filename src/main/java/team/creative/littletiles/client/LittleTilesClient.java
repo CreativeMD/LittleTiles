@@ -86,6 +86,7 @@ import team.creative.littletiles.common.item.ItemColorIngredient;
 import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
 
 @OnlyIn(Dist.CLIENT)
@@ -283,6 +284,10 @@ public class LittleTilesClient {
         event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT));
         event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT));
         event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT));
+        
+        for (LittlePremadeType type : LittlePremadeRegistry.types())
+            if (type.itemTexture != null)
+                event.register(type.itemTexture);
     }
     
     private static void modelEvent(RegisterGeometryLoaders event) {
@@ -320,7 +325,12 @@ public class LittleTilesClient {
                 
                 return cubes;
             }
-        });
+        }.setResolver((original, stack, level, entity, light) -> {
+            LittlePremadeType type = ItemPremadeStructure.get(stack);
+            if (type != null && type.itemTexture != null)
+                return Minecraft.getInstance().getModelManager().getModel(type.itemTexture);
+            return null;
+        }));
         
         CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
             LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
@@ -379,8 +389,13 @@ public class LittleTilesClient {
     }
     
     private static void initItemColors(RegisterColorHandlersEvent.Item event) {
-        CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.PREMADE.value());
         CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.ITEM_TILES.value());
+        event.register((stack, tint) -> {
+            LittlePremadeType type = ItemPremadeStructure.get(stack);
+            if (type != null && type.itemTexture != null)
+                return ColorUtils.WHITE;
+            return tint;
+        }, LittleTilesRegistry.PREMADE.value());
         event.register((stack, tint) -> {
             if (stack.getItem() instanceof BlockItem block)
                 return event.getBlockColors().getColor(block.getBlock().defaultBlockState(), (BlockAndTintGetter) null, (BlockPos) null, tint);
