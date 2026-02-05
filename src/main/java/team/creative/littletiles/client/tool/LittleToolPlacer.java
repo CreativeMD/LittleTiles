@@ -318,18 +318,8 @@ public class LittleToolPlacer extends LittleTool {
         
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
-        
-        matrix.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
-        RenderSystem.applyModelViewMatrix();
-        
-        matrix.translate(placedPosition.getPos().getX(), placedPosition.getPos().getY(), placedPosition.getPos().getZ());
-        
         setupPreviewRenderer(lines);
-        
-        float internalX = (float) placedPosition.getVecGrid().getPosX();
-        float internalY = (float) placedPosition.getVecGrid().getPosY();
-        float internalZ = (float) placedPosition.getVecGrid().getPosZ();
-        matrix.translate(internalX, internalY, internalZ);
+        matrix.translate((float) (placedPosition.getPosX() - cam.x), (float) (placedPosition.getPosY() - cam.y), (float) (placedPosition.getPosZ() - cam.z));
         RenderSystem.applyModelViewMatrix();
         BufferUploader.drawWithShader(mesh);
         matrix.popMatrix();
