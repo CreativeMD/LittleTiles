@@ -1,3 +1,6 @@
+1.6.0-pre204
+Fixed rendering of preview boxes of structures not working correctly when being far out
+
 1.6.0-pre203
 Added signal display 4 and 1 bit variant
 Added textures for signal displays
