@@ -24,6 +24,7 @@ import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
@@ -31,20 +32,21 @@ import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.placement.selection.SelectionMode;
 import team.creative.littletiles.common.placement.selection.SelectionParameters;
-import team.creative.littletiles.common.placement.selection.SelectionResult;
+import team.creative.littletiles.common.placement.selection.SelectionScanResult;
 
 public class GuiBlueprintSelection extends GuiConfigure {
     
-    public SelectionResult result;
+    public SelectionScanResult result;
     
     public final GuiSyncLocal<CompoundTag> SAVE_SELECTION = getSyncHolder().register("save_selection", nbt -> {
         
         try {
             SelectionMode mode = SelectionMode.REGISTRY.get(nbt.getString("mode"));
-            SelectionParameters selection = new SelectionParameters(getPlayer().level(), getPlayer(), nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean(
-                "includeLT"), nbt.getBoolean("remember_structure"));
+            SelectionParameters selection = new SelectionParameters(nbt.getBoolean("includeVanilla"), nbt.getBoolean("includeCB"), nbt.getBoolean("includeLT"), nbt.getBoolean(
+                "remember_structure"));
             SelectionComponent component = SelectionComponent.of(mode, nbt.getCompound("sel_config"));
-            LittleGroup previews = mode.select(selection, component);
+            tool.get().set(LittleTilesRegistry.SELECTION, component);
+            LittleGroup previews = mode.select(getPlayer().level(), (LittleActionSource) getPlayer(), selection, tool.get(), component);
             if (nbt.contains("grid")) {
                 LittleGrid grid = LittleGrid.get(nbt.getInt("grid"));
                 previews.convertTo(grid);
@@ -101,7 +103,7 @@ public class GuiBlueprintSelection extends GuiConfigure {
         box.select(component.mode);
         add(box.setExpandableX());
         
-        result = component.mode.scan(getPlayer().level(), component);
+        result = component.mode.scan(getPlayer().level(), stack, component);
         
         GuiCheckBox vanilla = new GuiCheckBox("includeVanilla", false).setTranslate("selection.include.vanilla");
         if (result != null && result.hasBlocks())
@@ -143,13 +145,13 @@ public class GuiBlueprintSelection extends GuiConfigure {
             }, DialogButton.NO, DialogButton.YES);
         }).setTranslate("selection.clear"));
         bottom.addRight(new GuiButton("save", x -> {
-            SelectionParameters selection = new SelectionParameters(getPlayer().level(), getPlayer(), get("includeVanilla", GuiCheckBox.class).value, get("includeCB",
-                GuiCheckBox.class).value, get("includeLT", GuiCheckBox.class).value, get("remember_structure", GuiCheckBox.class).value);
+            SelectionParameters selection = new SelectionParameters(get("includeVanilla", GuiCheckBox.class).value, get("includeCB", GuiCheckBox.class).value, get("includeLT",
+                GuiCheckBox.class).value, get("remember_structure", GuiCheckBox.class).value);
             
             SelectionMode mode = box.selected(SelectionMode.REGISTRY.getDefault());
             
             try {
-                if (selection.rememberStructure() && mode.select(selection, component).isEmptyIncludeChildren()) {
+                if (selection.rememberStructure() && mode.select(getPlayer().level(), (LittleActionSource) getPlayer(), selection, stack, component).isEmptyIncludeChildren()) {
                     GuiDialogHandler.openDialog(getIntegratedParent(), "no_tiles", Component.translatable("selection.no_tiles"), (g, b) -> {}, DialogButton.OK);
                     return;
                 }

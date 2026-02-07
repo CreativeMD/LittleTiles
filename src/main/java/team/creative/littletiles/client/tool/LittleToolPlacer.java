@@ -60,8 +60,6 @@ import team.creative.littletiles.common.structure.LittleStructureType;
 
 public class LittleToolPlacer extends LittleTool {
     
-    private static final PoseStack EMPTY = new PoseStack();
-    
     private final ILittlePlacer placer;
     
     private IMarkMode marked;
@@ -424,6 +422,9 @@ public class LittleToolPlacer extends LittleTool {
     
     @Override
     public boolean onRightClick(Level level, Player player, BlockHitResult result) {
+        if (!placer.hasTiles(stack))
+            return false;
+        
         markedFixed = false;
         if (!built)
             return false;

@@ -3,6 +3,7 @@ package team.creative.littletiles.mixin.common.entity;
 import org.spongepowered.asm.mixin.Mixin;
 
 import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -63,5 +64,15 @@ public class PlayerMixin implements LittleActionSource {
     @Override
     public void dropStack(ItemStack stack) {
         LevelUtils.dropItem(asPlayer(), stack);
+    }
+    
+    @Override
+    public boolean isClient() {
+        return asPlayer().level().isClientSide;
+    }
+    
+    @Override
+    public void sendText(Component translatable) {
+        asPlayer().sendSystemMessage(translatable);
     }
 }

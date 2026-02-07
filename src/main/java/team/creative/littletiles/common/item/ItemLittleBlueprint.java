@@ -20,11 +20,13 @@ import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.api.common.tool.ILittleSelector;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.LittleToolPlacer;
+import team.creative.littletiles.client.tool.LittleToolSelection;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
@@ -35,9 +37,8 @@ import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.action.BlockPacket;
 import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
-import team.creative.littletiles.common.packet.item.SelectionModePacket;
 
-public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemTooltip {
+public class ItemLittleBlueprint extends Item implements ILittlePlacer, ILittleSelector, IItemTooltip {
     
     public static final String CONTENT_KEY = "c";
     public static final int DEFAULT_COLOR = ColorUtils.rgb(242, 231, 198);
@@ -60,6 +61,11 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
         if (content.contains(LittleGroup.STRUCTURE_KEY) && content.getCompound(LittleGroup.STRUCTURE_KEY).contains("n"))
             return Component.literal(content.getCompound(LittleGroup.STRUCTURE_KEY).getString("n"));
         return super.getName(stack);
+    }
+    
+    @Override
+    public boolean hasSelection(ItemStack stack) {
+        return !hasTiles(stack);
     }
     
     @Override
@@ -140,13 +146,13 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
     
     @Override
     public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleToolBlueprint(stack));
+        return Arrays.asList(new LittleToolPlacer(stack), new LittleToolBlueprintSelection(stack));
     }
     
     @OnlyIn(Dist.CLIENT)
-    public class LittleToolBlueprint extends LittleToolPlacer {
+    public class LittleToolBlueprintSelection extends LittleToolSelection {
         
-        public LittleToolBlueprint(ItemStack stack) {
+        public LittleToolBlueprintSelection(ItemStack stack) {
             super(stack);
         }
         
@@ -159,33 +165,6 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, IItemToo
                 LittleTiles.NETWORK.sendToServer(new BlockPacket(world, result.getBlockPos(), player, BlockPacketAction.BLUEPRINT, nbt));
                 return true;
             }
-            return true;
-        }
-        
-        @Override
-        public boolean onRightClick(Level level, Player player, BlockHitResult result) {
-            if (result == null)
-                return false;
-            if (hasTiles(stack))
-                return super.onRightClick(level, player, result);
-            
-            var packet = new SelectionModePacket(result.getBlockPos(), true);
-            packet.execute(player);
-            LittleTiles.NETWORK.sendToServer(packet);
-            return true;
-        }
-        
-        @Override
-        public boolean onLeftClick(Level level, Player player, BlockHitResult result) {
-            if (result == null)
-                return false;
-            
-            if (hasTiles(stack))
-                return super.onLeftClick(level, player, result);
-            
-            var packet = new SelectionModePacket(result.getBlockPos(), false);
-            packet.execute(player);
-            LittleTiles.NETWORK.sendToServer(packet);
             return true;
         }
         

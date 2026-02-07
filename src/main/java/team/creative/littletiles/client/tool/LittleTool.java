@@ -27,6 +27,8 @@ import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 
 public abstract class LittleTool {
     
+    public static final PoseStack EMPTY = new PoseStack();
+    
     public ItemStack stack;
     
     public LittleTool(ItemStack stack) {

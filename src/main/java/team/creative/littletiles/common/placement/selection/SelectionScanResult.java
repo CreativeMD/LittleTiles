@@ -18,7 +18,7 @@ import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 
-public class SelectionResult {
+public class SelectionScanResult {
     
     public final Level level;
     
@@ -35,7 +35,7 @@ public class SelectionResult {
     private MutableBlockPos min = null;
     private MutableBlockPos max = null;
     
-    public SelectionResult(Level level) {
+    public SelectionScanResult(Level level) {
         this.level = level;
     }
     

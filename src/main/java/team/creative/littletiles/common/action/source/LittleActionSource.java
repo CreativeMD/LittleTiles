@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.action.source;
 
 import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -33,4 +34,8 @@ public interface LittleActionSource {
     public boolean addStack(ItemStack stack);
     
     public void dropStack(ItemStack stack);
+    
+    public boolean isClient();
+    
+    public void sendText(Component translatable);
 }

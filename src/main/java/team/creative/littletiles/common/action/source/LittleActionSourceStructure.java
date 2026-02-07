@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.action.source;
 
 import net.minecraft.core.HolderLookup.Provider;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.ItemStack;
@@ -50,5 +51,13 @@ public abstract class LittleActionSourceStructure<T extends LittleStructure> imp
     public void dropStack(ItemStack stack) {
         LevelUtils.dropItem(getActionLevel(), stack, structure.mainBlock.getPos());
     }
+    
+    @Override
+    public boolean isClient() {
+        return structure.isClient();
+    }
+    
+    @Override
+    public void sendText(Component translatable) {}
     
 }
