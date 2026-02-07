@@ -1,3 +1,8 @@
+1.6.0-pre205
+Reworked selection
+- Added preview for blueprint selection
+Fixed not loading on server side
+
 1.6.0-pre204
 Fixed rendering of preview boxes of structures not working correctly when being far out
 
