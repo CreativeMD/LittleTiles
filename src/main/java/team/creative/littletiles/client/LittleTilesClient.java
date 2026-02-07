@@ -286,8 +286,8 @@ public class LittleTilesClient {
         event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT));
         
         for (LittlePremadeType type : LittlePremadeRegistry.types())
-            if (type.itemTexture != null)
-                event.register(type.itemTexture);
+            if (type.itemTexture)
+                event.register(type.getItemTexture());
     }
     
     private static void modelEvent(RegisterGeometryLoaders event) {
@@ -327,8 +327,8 @@ public class LittleTilesClient {
             }
         }.setResolver((original, stack, level, entity, light) -> {
             LittlePremadeType type = ItemPremadeStructure.get(stack);
-            if (type != null && type.itemTexture != null)
-                return Minecraft.getInstance().getModelManager().getModel(type.itemTexture);
+            if (type != null && type.itemTexture)
+                return Minecraft.getInstance().getModelManager().getModel(type.getItemTexture());
             return null;
         }));
         
@@ -392,7 +392,7 @@ public class LittleTilesClient {
         CreativeCoreClient.registerItemColor(event.getItemColors(), LittleTilesRegistry.ITEM_TILES.value());
         event.register((stack, tint) -> {
             LittlePremadeType type = ItemPremadeStructure.get(stack);
-            if (type != null && type.itemTexture != null)
+            if (type != null && type.itemTexture)
                 return ColorUtils.WHITE;
             return tint;
         }, LittleTilesRegistry.PREMADE.value());

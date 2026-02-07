@@ -10,6 +10,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
@@ -54,7 +56,9 @@ public abstract class LittleStructurePremade extends LittleStructure {
         public final String modid;
         public boolean showInCreativeTab = true;
         public boolean snapToGrid = true;
-        public ModelResourceLocation itemTexture;
+        public boolean itemTexture = false;
+        @OnlyIn(Dist.CLIENT)
+        private ModelResourceLocation texture;
         
         public <T extends LittleStructurePremade> LittlePremadeType(String id, String path, Class<T> structureClass, BiFunction<? extends LittlePremadeType, IStructureParentCollection, T> factory, LittleAttributeBuilder attribute, String modid) {
             super(id, structureClass, factory, attribute.premade());
@@ -67,8 +71,15 @@ public abstract class LittleStructurePremade extends LittleStructure {
         }
         
         public LittlePremadeType setItemTexture() {
-            itemTexture = new ModelResourceLocation(ResourceLocation.tryBuild(modid, "item/premade/" + path + "" + id), ModelResourceLocation.STANDALONE_VARIANT);
+            itemTexture = true;
             return this;
+        }
+        
+        @OnlyIn(Dist.CLIENT)
+        public ModelResourceLocation getItemTexture() {
+            if (texture == null)
+                texture = new ModelResourceLocation(ResourceLocation.tryBuild(modid, "item/premade/" + path + "" + id), ModelResourceLocation.STANDALONE_VARIANT);
+            return texture;
         }
         
         public boolean hasCustomTab() {
