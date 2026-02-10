@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.placement;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.phys.BlockHitResult;
@@ -20,15 +19,23 @@ import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager
  * preview and placing **/
 public class PlacementHelper {
     
-    public static PlacementPosition getPosition(Level level, BlockHitResult moving, LittleGrid context, ItemStack stack) {
-        int x = moving.getBlockPos().getX();
-        int y = moving.getBlockPos().getY();
-        int z = moving.getBlockPos().getZ();
+    public static PlacementPosition getPositionInside(Level level, BlockHitResult hit, LittleGrid grid) {
+        var pos = getPosition(level, hit, grid);
+        if (pos.facing != null)
+            if (pos.facing.positive && grid.isAtEdge(pos.facing.axis.get(hit.getLocation())))
+                pos.getVec().sub(pos.facing);
+        return pos;
+    }
+    
+    public static PlacementPosition getPosition(Level level, BlockHitResult hit, LittleGrid grid) {
+        int x = hit.getBlockPos().getX();
+        int y = hit.getBlockPos().getY();
+        int z = hit.getBlockPos().getZ();
         
-        Facing facing = moving.getType() != Type.MISS ? Facing.get(moving.getDirection()) : null;
+        Facing facing = hit.getType() != Type.MISS ? Facing.get(hit.getDirection()) : null;
         
         boolean canBePlacedInsideBlock = true;
-        if (facing != null && !canBePlacedInside(level, moving.getBlockPos(), moving.getLocation(), facing)) {
+        if (facing != null && !canBePlacedInside(level, hit.getBlockPos(), hit.getLocation(), facing)) {
             switch (facing) {
                 case EAST -> x++;
                 case WEST -> x--;
@@ -40,10 +47,10 @@ public class PlacementHelper {
             canBePlacedInsideBlock = false;
         }
         
-        if (context == null)
+        if (grid == null)
             return null;
         
-        return new PlacementPosition(new BlockPos(x, y, z), getHitVec(moving, context, canBePlacedInsideBlock).getVecGrid(), facing);
+        return new PlacementPosition(new BlockPos(x, y, z), getHitVec(hit, grid, canBePlacedInsideBlock).getVecGrid(), facing);
     }
     
     public static LittleVecAbsolute getHitVec(BlockHitResult result, LittleGrid grid, boolean isInsideOfBlock) {

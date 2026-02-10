@@ -91,6 +91,8 @@ public class LittleToolSelection extends LittleTool {
     
     @Override
     public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {
+        if (!selector.hasSelection(stack))
+            return;
         var sel = selector.getSelection(stack);
         if (cachedSelection == null || !cachedSelection.equals(sel))
             build(level);
@@ -174,8 +176,12 @@ public class LittleToolSelection extends LittleTool {
         }
         
         public void addBox(RenderBox box, boolean line) {
+            addBox(box, line, 255);
+        }
+        
+        public void addBox(RenderBox box, boolean line, int alpha) {
             checkOrigin();
-            buildBox(EMPTY, box, getBuilder(line), 255, line);
+            buildBox(EMPTY, box, getBuilder(line), alpha, line);
         }
         
         public void addLine(Vec3 start, Vec3 end, int color) {

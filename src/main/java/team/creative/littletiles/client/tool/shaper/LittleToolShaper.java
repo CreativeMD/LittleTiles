@@ -147,7 +147,7 @@ public class LittleToolShaper extends LittleTool {
         var shape = in.shape;
         
         if (blockHit != null)
-            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, grid, stack), blockHit, false, shaper.previewInside(player, stack));
+            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, grid), blockHit, false, shaper.previewInside(player, stack));
         
         if (built && (builtShape != shape || !ShapeRegistry.SHAPE_CONFIG_REGISTRY.equals(builtShapeConfig, shapeConfig,
             Side.CLIENT) || builtLines != lines || lastGrid != grid || hasPositionChanged()))

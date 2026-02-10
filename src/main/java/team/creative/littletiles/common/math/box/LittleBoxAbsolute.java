@@ -1,6 +1,9 @@
 package team.creative.littletiles.common.math.box;
 
+import java.util.Arrays;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.phys.AABB;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -16,6 +19,13 @@ import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 
 public class LittleBoxAbsolute implements IGridBased {
+    
+    public static LittleBoxAbsolute of(int[] array) {
+        var pos = new BlockPos(array[0], array[1], array[2]);
+        if (array.length == 3)
+            return new LittleBoxAbsolute(pos, new LittleBox(0, 0, 0, LittleGrid.MIN.count, LittleGrid.MIN.count, LittleGrid.MIN.count), LittleGrid.MIN);
+        return new LittleBoxAbsolute(pos, LittleBox.create(Arrays.copyOfRange(array, 4, array.length)), LittleGrid.get(array[3]));
+    }
     
     public BlockPos pos;
     public LittleGrid grid;
@@ -47,6 +57,18 @@ public class LittleBoxAbsolute implements IGridBased {
         this.grid = box.getGrid();
     }
     
+    public int[] toArray() {
+        int[] boxArray = box.getArray();
+        int[] result = new int[boxArray.length + 4];
+        result[0] = pos.getX();
+        result[1] = pos.getY();
+        result[2] = pos.getZ();
+        result[3] = grid.count;
+        for (int i = 0; i < boxArray.length; i++)
+            result[4 + i] = boxArray[i];
+        return result;
+    }
+    
     @Override
     public LittleGrid getGrid() {
         return grid;
@@ -61,6 +83,10 @@ public class LittleBoxAbsolute implements IGridBased {
     @Override
     public int getSmallest() {
         return box.getSmallest(grid);
+    }
+    
+    public void include(LittleBoxAbsolute box) {
+        include(box.grid, box.pos, box.box);
     }
     
     public void include(LittleGrid grid, BlockPos pos, LittleBox box) {
@@ -217,6 +243,19 @@ public class LittleBoxAbsolute implements IGridBased {
     
     @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderingBox() {
-        return box.getRenderingBox(grid);
+        return box.getRenderingBox(grid, new LittleVec(grid, pos));
     }
+    
+    public AABB toAABB() {
+        return box.getBB(grid, pos);
+    }
+    
+    public LittleBox extractSimple(BlockPos position) {
+        int x = (pos.getX() - position.getX()) * grid.count;
+        int y = (pos.getY() - position.getY()) * grid.count;
+        int z = (pos.getZ() - position.getZ()) * grid.count;
+        return box.extractBox(grid, Math.max(box.minX + x, 0), Math.max(box.minY + y, 0), Math.max(box.minZ + z, 0), Math.min(box.maxX + x, grid.count), Math.min(box.maxY + y,
+            grid.count), Math.min(box.maxZ + z, grid.count), null);
+    }
+    
 }

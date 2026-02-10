@@ -170,7 +170,7 @@ public class LittleToolPlacer extends LittleTool {
         if (blockHit == null)
             return;
         var grid = placer.getPositionGrid(player, stack);
-        var pos = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, grid, stack);
+        var pos = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, grid);
         var mode = placer.getPlacementMode(stack);
         var matrix = placer.getMatrix(stack);
         var hasTiles = placer.hasTiles(stack);

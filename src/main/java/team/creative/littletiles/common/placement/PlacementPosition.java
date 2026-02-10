@@ -5,6 +5,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
@@ -76,5 +77,10 @@ public class PlacementPosition extends LittleVecAbsolute {
             else
                 return true;
         return false;
+    }
+    
+    public LittleBoxAbsolute toAbsoluteBox() {
+        return new LittleBoxAbsolute(pos, new LittleBox(gridVec.getVec().x, gridVec.getVec().y, gridVec.getVec().z, gridVec.getVec().x + 1, gridVec.getVec().y + 1, gridVec
+                .getVec().z + 1), getGrid());
     }
 }

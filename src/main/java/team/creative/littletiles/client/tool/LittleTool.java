@@ -66,6 +66,7 @@ public abstract class LittleTool {
         RenderSystem.setShaderTexture(0, PreviewRenderer.WHITE_TEXTURE);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.depthMask(Minecraft.useShaderTransparency());
+        RenderSystem.enableCull();
     }
     
     protected ByteBufferBuilder createBuffer() {

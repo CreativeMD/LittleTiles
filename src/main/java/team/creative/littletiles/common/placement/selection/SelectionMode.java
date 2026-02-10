@@ -17,6 +17,7 @@ import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.component.SelectionComponent;
 
 public abstract class SelectionMode {
@@ -25,6 +26,7 @@ public abstract class SelectionMode {
     
     static {
         REGISTRY.registerDefault("area", new AreaSelectionMode());
+        REGISTRY.register("exact", new ExactAreaSelectionMode());
     }
     
     public SelectionMode() {}
@@ -39,9 +41,11 @@ public abstract class SelectionMode {
     
     public abstract SelectionScanResult scan(Level level, ItemStack stack, SelectionComponent config);
     
-    public abstract SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, BlockHitResult hit, @Nullable LittleTileContext context);
+    public abstract SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
+            @Nullable LittleTileContext context);
     
-    public abstract SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, BlockHitResult hit, @Nullable LittleTileContext context);
+    public abstract SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
+            @Nullable LittleTileContext context);
     
     public abstract LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack,
             SelectionComponent config) throws LittleActionException;

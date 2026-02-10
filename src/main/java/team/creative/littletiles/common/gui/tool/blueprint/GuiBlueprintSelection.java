@@ -37,6 +37,7 @@ import team.creative.littletiles.common.placement.selection.SelectionScanResult;
 public class GuiBlueprintSelection extends GuiConfigure {
     
     public SelectionScanResult result;
+    private boolean preventSave = false;
     
     public final GuiSyncLocal<CompoundTag> SAVE_SELECTION = getSyncHolder().register("save_selection", nbt -> {
         
@@ -89,13 +90,17 @@ public class GuiBlueprintSelection extends GuiConfigure {
     
     @Override
     public boolean saveConfiguration(PatchedDataComponentMap data) {
+        if (preventSave)
+            return false;
         GuiComboBox<SelectionMode> box = get("selection_mode");
         data.set(LittleTilesRegistry.SELECTION.get(), SelectionComponent.getOrDefault(tool.get()).withMode(box.selected(SelectionMode.REGISTRY.getDefault())));
-        return false; // Needs to be changed to true for more selection modes
+        return true;
     }
     
     @Override
     public void create() {
+        if (!isClient())
+            return;
         ItemStack stack = tool.get();
         SelectionComponent component = SelectionComponent.getOrDefault(stack);
         GuiComboBox<SelectionMode> box = new GuiComboBox<>("selection_mode", new TextMapBuilder<SelectionMode>().addEntrySet(SelectionMode.REGISTRY.entrySet(), x -> x.getValue()
@@ -176,6 +181,7 @@ public class GuiBlueprintSelection extends GuiConfigure {
             }
             
             SAVE_SELECTION.send(nbt);
+            preventSave = true;
         }).setTranslate("gui.save").setEnabled(result != null));
     }
     

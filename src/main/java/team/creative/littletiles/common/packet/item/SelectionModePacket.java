@@ -42,9 +42,11 @@ public class SelectionModePacket extends CreativePacket {
             SelectionComponent sel = selector.getSelection(stack);
             try {
                 if (rightClick)
-                    stack.set(LittleTilesRegistry.SELECTION, sel.mode.rightClick((LittleActionSource) player, stack, sel, hit, tile != null ? tile.find(player.level()) : null));
+                    stack.set(LittleTilesRegistry.SELECTION, sel.mode.rightClick((LittleActionSource) player, stack, sel, selector.getSelectorGrid(player, stack), hit,
+                        tile != null ? tile.find(player.level()) : null));
                 else
-                    stack.set(LittleTilesRegistry.SELECTION, sel.mode.leftClick((LittleActionSource) player, stack, sel, hit, tile != null ? tile.find(player.level()) : null));
+                    stack.set(LittleTilesRegistry.SELECTION, sel.mode.leftClick((LittleActionSource) player, stack, sel, selector.getSelectorGrid(player, stack), hit,
+                        tile != null ? tile.find(player.level()) : null));
             } catch (LittleActionException e) {}
             
         }

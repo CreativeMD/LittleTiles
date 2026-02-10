@@ -16,6 +16,7 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 
 public class SelectionScanResult {
@@ -44,7 +45,7 @@ public class SelectionScanResult {
     }
     
     public List<Component> blockInfo() {
-        return new TextBuilder().text(blocks + " ").translate("selection.blocks").build();
+        return new TextBuilder().text(blocks + " ").translate("gui.blocks").build();
     }
     
     public boolean hasTiles() {
@@ -145,6 +146,38 @@ public class SelectionScanResult {
         
         for (LittleEntity entity : LittleTiles.ANIMATION_HANDLERS.get(level).find(new AABB(minX, minY, minZ, maxX + 1, maxY + 1, maxZ + 1)))
             addBlocksWorld((Level) entity.getSubLevel(), pos, pos2);
+    }
+    
+    protected void addBlocksWorld(Level level, LittleBoxAbsolute box) {
+        BlockPos pos = box.getMinPos();
+        BlockPos pos2 = box.getMaxPos();
+        int minX = Math.min(pos.getX(), pos2.getX());
+        int minY = Math.min(pos.getY(), pos2.getY());
+        int minZ = Math.min(pos.getZ(), pos2.getZ());
+        int maxX = Math.max(pos.getX(), pos2.getX());
+        int maxY = Math.max(pos.getY(), pos2.getY());
+        int maxZ = Math.max(pos.getZ(), pos2.getZ());
+        
+        if (min == null) {
+            min = new MutableBlockPos(minX, minY, minZ);
+            max = new MutableBlockPos(maxX, maxY, maxZ);
+        } else {
+            min.set(Math.min(min.getX(), minX), Math.min(min.getY(), minY), Math.min(min.getZ(), minZ));
+            max.set(Math.max(max.getX(), minX), Math.max(max.getY(), minY), Math.max(max.getZ(), minZ));
+        }
+        
+        MutableBlockPos mutPos = new MutableBlockPos();
+        for (int posX = minX; posX <= maxX; posX++)
+            for (int posY = minY; posY <= maxY; posY++)
+                for (int posZ = minZ; posZ <= maxZ; posZ++)
+                    addBlockDirectly(level, mutPos.set(posX, posY, posZ));
+    }
+    
+    public void addBlocks(LittleBoxAbsolute box) {
+        addBlocksWorld(level, box);
+        
+        for (LittleEntity entity : LittleTiles.ANIMATION_HANDLERS.get(level).find(box.toAABB()))
+            addBlocksWorld((Level) entity.getSubLevel(), box);
     }
     
     public Vec3i getSize() {

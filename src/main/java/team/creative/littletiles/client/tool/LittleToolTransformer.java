@@ -64,8 +64,8 @@ public class LittleToolTransformer extends LittleTool {
         if (blockHit == null)
             return;
         
-        last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, transformer.getPositionGrid(player, stack), stack), blockHit, false, transformer
-                .previewInside(player, stack));
+        last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, transformer.getPositionGrid(player, stack)), blockHit, false, transformer.previewInside(
+            player, stack));
     }
     
     protected LittleBoxAbsolute getSelectionBox() {
