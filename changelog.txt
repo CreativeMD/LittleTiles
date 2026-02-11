@@ -1,3 +1,13 @@
+1.6.0-pre206
+Added tile selection mode
+Added exact area selection mode
+Added proper way to change blueprint selection type
+Made blueprint selection be less visible
+Fixed rendering issue with blueprint selection
+Fixed crash when creating rendering threads before config is loaded
+Fixed crash when calculating light before tiles block is fully loaded
+Fixed TileLocation not respecting grid
+
 1.6.0-pre205
 Reworked selection
 - Added preview for blueprint selection
