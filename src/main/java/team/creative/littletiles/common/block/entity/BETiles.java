@@ -1047,8 +1047,11 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             };
             
             if (result == null)
-                set(facing, result = calculate(facing));
-            
+                if (tiles == null)
+                    return SideState.EMPTY;
+                else
+                    set(facing, result = calculate(facing));
+                
             return result;
         }
         
