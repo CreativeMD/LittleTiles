@@ -340,6 +340,14 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return changed;
     }
     
+    public boolean intersectsWith(Iterable<LittleBox> intersects) {
+        for (LittleBox intersect : intersects)
+            for (LittleBox box : boxes)
+                if (LittleBox.intersectsWith(box, intersect))
+                    return true;
+        return false;
+    }
+    
     public boolean intersectsWith(LittleBox intersect) {
         for (LittleBox box : boxes)
             if (LittleBox.intersectsWith(box, intersect))

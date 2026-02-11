@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.grid.IGridBased;
@@ -18,8 +19,18 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     
     protected List<LittleBox> boxes = new ArrayList<>();
     
-    public LittleBoxesSimple(BlockPos pos, LittleGrid context) {
-        super(pos, context);
+    public LittleBoxesSimple(BlockPos pos, LittleGrid grid) {
+        super(pos, grid);
+    }
+    
+    public LittleBoxesSimple(CompoundTag nbt) {
+        super(nbt);
+    }
+    
+    public LittleBoxesSimple(BlockPos pos, LittleGrid grid, Iterable<LittleBox> boxes) {
+        this(pos, grid);
+        for (LittleBox box : boxes)
+            add(box.copy());
     }
     
     @Override
@@ -87,8 +98,8 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     }
     
     @Override
-    public Iterable<LittleBox> all() {
-        return this;
+    public List<LittleBox> all() {
+        return boxes;
     }
     
     @Override

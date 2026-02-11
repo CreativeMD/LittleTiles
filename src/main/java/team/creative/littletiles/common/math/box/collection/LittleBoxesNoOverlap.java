@@ -6,7 +6,11 @@ import java.util.List;
 import java.util.Map.Entry;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -27,6 +31,16 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
     
     public LittleBoxesNoOverlap(BlockPos pos, LittleGrid grid) {
         super(pos, grid);
+    }
+    
+    public LittleBoxesNoOverlap(CompoundTag nbt) {
+        super(null, null);
+        int[] posArray = nbt.getIntArray("p");
+        this.pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
+        this.grid = LittleGrid.get(nbt);
+        ListTag list = nbt.getList("b", Tag.TAG_INT_ARRAY);
+        for (int i = 0; i < list.size(); i++)
+            add(LittleBox.create(list.getIntArray(i)));
     }
     
     @Override
@@ -50,6 +64,38 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
             LittleBoxCombiner.combineLast(existingBoxes);
             if (missing)
                 blockMap.add(entry.getKey(), existingBoxes);
+        }
+        tempMap.clear();
+    }
+    
+    public void cutOut(LittleGrid grid, BlockPos pos, LittleBox box) {
+        if (this.grid != grid) {
+            if (this.grid.count > grid.count) {
+                box.convertTo(grid, this.grid);
+                grid = this.grid;
+            } else
+                convertTo(grid);
+        }
+        
+        tempMap.clear();
+        box.split(grid, pos, LittleVec.ZERO, tempMap, null);
+        SingletonList<LittleBox> cutter = new SingletonList<>(box);
+        for (Entry<BlockPos, ArrayList<LittleBox>> entry : tempMap.entrySet()) {
+            List<LittleBox> existingBoxes = blockMap.get(entry.getKey());
+            if (existingBoxes == null || existingBoxes.isEmpty())
+                continue;
+            
+            List<LittleBox> remaining = new ArrayList<>();
+            for (LittleBox existing : existingBoxes) {
+                cutOutTemp.clear();
+                remaining.addAll(existing.cutOut(getGrid(), cutter, cutOutTemp, null));
+            }
+            
+            LittleBoxCombiner.combineLast(remaining);
+            
+            blockMap.removeKey(entry.getKey());
+            if (!remaining.isEmpty())
+                blockMap.add(entry.getKey(), remaining);
         }
         tempMap.clear();
     }

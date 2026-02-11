@@ -218,6 +218,7 @@
     "selection.no_tiles": "Parent structure has to have at least one tile!\nDisable remember structure or adjust your selection.",
     "mode.selection.area": "Area",
     "mode.selection.exact": "Exact Area",
+    "mode.selection.tile": "Tiles",
     "selection.mode.area.pos.first": "First: %s %s %s",
     "selection.mode.area.pos.second": "Second: %s %s %s",
     "selection.clear": "Clear",

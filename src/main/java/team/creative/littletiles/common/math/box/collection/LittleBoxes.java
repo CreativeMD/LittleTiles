@@ -1,6 +1,12 @@
 package team.creative.littletiles.common.math.box.collection;
 
+import java.util.List;
+
 import net.minecraft.core.BlockPos;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.IntArrayTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
@@ -25,6 +31,25 @@ public abstract class LittleBoxes implements IGridBased {
     public LittleBoxes(BlockPos pos, LittleGrid grid) {
         this.pos = pos;
         this.grid = grid;
+    }
+    
+    public LittleBoxes(CompoundTag nbt) {
+        int[] posArray = nbt.getIntArray("p");
+        this.pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
+        this.grid = LittleGrid.get(nbt);
+        ListTag list = nbt.getList("b", Tag.TAG_INT_ARRAY);
+        for (int i = 0; i < list.size(); i++)
+            add(LittleBox.create(list.getIntArray(i)));
+    }
+    
+    public CompoundTag save(CompoundTag nbt) {
+        nbt.putIntArray("p", new int[] { pos.getX(), pos.getY(), pos.getZ() });
+        grid.set(nbt);
+        ListTag list = new ListTag();
+        for (LittleBox box : all())
+            list.add(new IntArrayTag(box.getArray()));
+        nbt.put("b", list);
+        return nbt;
     }
     
     public abstract void add(LittleBox box);
@@ -74,7 +99,7 @@ public abstract class LittleBoxes implements IGridBased {
     
     public abstract HashMapList<BlockPos, LittleBox> generateBlockWise();
     
-    public abstract Iterable<LittleBox> all();
+    public abstract List<LittleBox> all();
     
     public abstract void mirror(Axis axis, LittleBoxAbsolute absoluteBox);
     

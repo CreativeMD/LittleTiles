@@ -593,13 +593,11 @@ public class LittleBox {
         int max = getMax(axis);
         RangedBitSet set = new RangedBitSet(min, max);
         
-        for (LittleBox box : boxes) {
-            
+        for (LittleBox box : boxes)
             if (box.intersectsWith(this)) {
                 set.add(box.getMin(axis));
                 set.add(box.getMax(axis));
             }
-        }
         
         return set;
     }
@@ -1052,9 +1050,8 @@ public class LittleBox {
     
     @Override
     public boolean equals(Object object) {
-        if (object instanceof LittleBox)
-            return object.getClass() == this
-                    .getClass() && minX == ((LittleBox) object).minX && minY == ((LittleBox) object).minY && minZ == ((LittleBox) object).minZ && maxX == ((LittleBox) object).maxX && maxY == ((LittleBox) object).maxY && maxZ == ((LittleBox) object).maxZ;
+        if (object instanceof LittleBox b)
+            return object.getClass() == this.getClass() && minX == b.minX && minY == b.minY && minZ == b.minZ && maxX == b.maxX && maxY == b.maxY && maxZ == b.maxZ;
         return super.equals(object);
     }
     

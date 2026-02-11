@@ -16,21 +16,25 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.little.tile.parent.StructureParentCollection;
 import team.creative.littletiles.common.entity.LittleEntity;
+import team.creative.littletiles.common.grid.IGridBased;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
 
-public class TileLocation {
+public class TileLocation implements IGridBased {
     
     public final BlockPos pos;
     public final boolean isStructure;
     public final int index;
+    private LittleGrid grid;
     public final LittleBox box;
     public final UUID levelUUID;
     
-    public TileLocation(BlockPos pos, boolean isStructure, int index, LittleBox box, UUID world) {
+    public TileLocation(BlockPos pos, boolean isStructure, int index, LittleGrid grid, LittleBox box, UUID world) {
         this.pos = pos;
         this.isStructure = isStructure;
         this.index = index;
+        this.grid = grid;
         this.box = box;
         this.levelUUID = world;
     }
@@ -43,6 +47,7 @@ public class TileLocation {
             this.isStructure = false;
             this.index = -1;
         }
+        this.grid = context.parent.getGrid();
         this.pos = context.parent.getPos();
         this.box = context.box.copy();
         if (context.parent.getLevel() instanceof ISubLevel sub)
@@ -59,6 +64,7 @@ public class TileLocation {
         pos = new BlockPos(posArray[0], posArray[1], posArray[2]);
         isStructure = nbt.contains("index");
         index = nbt.getInt("index");
+        grid = LittleGrid.get(nbt);
         box = LittleBox.create(nbt.getIntArray("box"));
         if (nbt.contains("world"))
             levelUUID = UUID.fromString(nbt.getString("world"));
@@ -70,6 +76,7 @@ public class TileLocation {
         nbt.putIntArray("pos", new int[] { pos.getX(), pos.getY(), pos.getZ() });
         if (isStructure)
             nbt.putInt("index", index);
+        grid.set(nbt);
         nbt.putIntArray("box", box.getArray());
         if (levelUUID != null)
             nbt.putString("world", levelUUID.toString());
@@ -87,14 +94,39 @@ public class TileLocation {
         
         BlockEntity be = level.getBlockEntity(pos);
         if (be instanceof BETiles) {
-            IParentCollection list = ((BETiles) be).noneStructureTiles();
+            IParentCollection list;
             if (isStructure)
                 list = ((BETiles) be).getStructure(index);
-            for (LittleTile tile : list)
-                if (tile.contains(box))
-                    return new LittleTileContext(list, tile, box);
-            throw new LittleActionException.TileNotFoundException();
+            else
+                list = ((BETiles) be).noneStructureTiles();
+            
+            var result = ((BETiles) be).sameGrid(this, () -> {
+                for (LittleTile tile : list)
+                    if (tile.contains(box))
+                        return new LittleTileContext(list, tile, box.copy());
+                return null;
+            });
+            
+            if (result == null)
+                throw new LittleActionException.TileNotFoundException();
+            return result;
         }
         throw new LittleActionException.BlockEntityNotFoundException();
+    }
+    
+    @Override
+    public LittleGrid getGrid() {
+        return grid;
+    }
+    
+    @Override
+    public void convertTo(LittleGrid to) {
+        this.box.convertTo(grid, to);
+        this.grid = to;
+    }
+    
+    @Override
+    public int getSmallest() {
+        return box.getSmallest(grid);
     }
 }

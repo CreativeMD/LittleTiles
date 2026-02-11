@@ -27,6 +27,7 @@ public abstract class SelectionMode {
     static {
         REGISTRY.registerDefault("area", new AreaSelectionMode());
         REGISTRY.register("exact", new ExactAreaSelectionMode());
+        REGISTRY.register("tile", new TileSelectionMode());
     }
     
     public SelectionMode() {}

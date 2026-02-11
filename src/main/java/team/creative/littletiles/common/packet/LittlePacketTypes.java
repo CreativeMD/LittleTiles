@@ -57,6 +57,7 @@ public class LittlePacketTypes {
                 buffer.writeBlockPos(content.pos);
                 buffer.writeBoolean(content.isStructure);
                 buffer.writeInt(content.index);
+                buffer.writeInt(content.getGrid().count);
                 NetworkFieldTypes.writeIntArray(content.box.getArray(), buffer);
                 if (content.levelUUID != null) {
                     buffer.writeBoolean(true);
@@ -70,11 +71,12 @@ public class LittlePacketTypes {
                 BlockPos pos = buffer.readBlockPos();
                 boolean isStructure = buffer.readBoolean();
                 int index = buffer.readInt();
+                int grid = buffer.readInt();
                 int[] boxArray = NetworkFieldTypes.readIntArray(buffer);
                 UUID level = null;
                 if (buffer.readBoolean())
                     level = buffer.readUUID();
-                return new TileLocation(pos, isStructure, index, LittleBox.create(boxArray), level);
+                return new TileLocation(pos, isStructure, index, LittleGrid.get(grid), LittleBox.create(boxArray), level);
             }
             
         }, TileLocation.class);

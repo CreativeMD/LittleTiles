@@ -46,6 +46,13 @@ public interface IParentCollection extends Iterable<LittleTile>, ILevelProvider 
     
     public BETiles getBE();
     
+    public default boolean intersectsWith(Iterable<LittleBox> box) {
+        for (LittleTile tile : this)
+            if (tile.intersectsWith(box))
+                return true;
+        return false;
+    }
+    
     public default boolean intersectsWith(LittleBox box) {
         for (LittleTile tile : this)
             if (tile.intersectsWith(box))

@@ -23,6 +23,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
@@ -37,6 +38,7 @@ public class SelectionBuilder {
     private final List<LittleGroup> children = new ArrayList<>();
     private final LittleGroup previews = new LittleGroup();
     private final MutableBlockPos temp = new MutableBlockPos();
+    private BlockPos pos;
     
     public SelectionBuilder(SelectionParameters selection) throws AreaTooLarge {
         this.selection = selection;
@@ -48,7 +50,7 @@ public class SelectionBuilder {
     }
     
     public void scanLevel(LevelAccessor level, int minX, int minY, int minZ, int maxX, int maxY, int maxZ, @Nullable LittleBoxAbsolute box) throws LittleActionException {
-        BlockPos center = new BlockPos(minX, minY, minZ);
+        pos = new BlockPos(minX, minY, minZ);
         for (int posX = minX; posX <= maxX; posX++) {
             for (int posY = minY; posY <= maxY; posY++) {
                 for (int posZ = minZ; posZ <= maxZ; posZ++) {
@@ -73,7 +75,7 @@ public class SelectionBuilder {
                                                 structure = structure.getParent().getStructure();
                                             structure.checkConnections();
                                             if (!structures.contains(structure)) {
-                                                children.add(structure.getPreviews(center));
+                                                children.add(structure.getPreviews(pos));
                                                 structures.add(structure);
                                             }
                                         } catch (CorruptedConnectionException | NotYetConnectedException e) {
@@ -108,6 +110,7 @@ public class SelectionBuilder {
                                 be.sameGrid(box, run);
                             else
                                 run.run();
+                            continue;
                         }
                         
                         if (selection.includeCB()) {
@@ -155,6 +158,91 @@ public class SelectionBuilder {
                         }
                     }
                 }
+            }
+        }
+    }
+    
+    public void addBoxes(LevelAccessor level, BlockPos pos, LittleBoxes boxes) {
+        if (this.pos == null)
+            this.pos = pos;
+        
+        int difX = pos.getX() - this.pos.getX();
+        int difY = pos.getY() - this.pos.getY();
+        int difZ = pos.getZ() - this.pos.getZ();
+        
+        if (selection.includeBE()) {
+            BlockEntity blockEntity = level.getBlockEntity(pos);
+            
+            if (selection.includeLT() && blockEntity instanceof BETiles be) {
+                be.sameGrid(boxes, () -> {
+                    for (IParentCollection parent : be.groups())
+                        if (selection.rememberStructure() && parent.isStructure()) {
+                            try {
+                                if (!parent.intersectsWith(boxes.all()))
+                                    return;
+                                LittleStructure structure = parent.getStructure();
+                                while (structure.getParent() != null)
+                                    structure = structure.getParent().getStructure();
+                                structure.checkConnections();
+                                if (!structures.contains(structure)) {
+                                    children.add(structure.getPreviews(pos));
+                                    structures.add(structure);
+                                }
+                            } catch (CorruptedConnectionException | NotYetConnectedException e) {
+                                continue;
+                            }
+                            
+                        } else
+                            for (LittleTile tile : parent) {
+                                List<LittleBox> cutout = new ArrayList<>();
+                                for (LittleBox box : tile)
+                                    box.cutOut(parent.getGrid(), boxes.all(), cutout, null);
+                                if (cutout.isEmpty())
+                                    continue;
+                                tile = tile.copy(cutout);
+                                tile.move(new LittleVec(parent.getGrid().toGrid(difX), parent.getGrid().toGrid(difY), parent.getGrid().toGrid(difZ)));
+                                previews.add(parent.getGrid(), tile, tile);
+                            }
+                });
+                return;
+            }
+            
+            if (selection.includeCB()) {
+                LittleGroup specialPreviews = ChiselsAndBitsManager.getGroup(blockEntity);
+                if (specialPreviews != null) {
+                    LittleGroup otherPreviews = new LittleGroup();
+                    final var cBPreviews = specialPreviews;
+                    specialPreviews.sameGrid(boxes, () -> {
+                        for (LittleTile tile : otherPreviews) {
+                            List<LittleBox> cutout = new ArrayList<>();
+                            for (LittleBox box : tile)
+                                box.cutOut(boxes.getGrid(), boxes.all(), cutout, null);
+                            if (cutout.isEmpty())
+                                continue;
+                            if (!otherPreviews.isEmpty())
+                                otherPreviews.add(cBPreviews.getGrid(), tile, cutout);
+                        }
+                    });
+                    specialPreviews = otherPreviews;
+                    specialPreviews.move(new LittleVecGrid(new LittleVec(boxes.getGrid().toGrid(difX), boxes.getGrid().toGrid(difY), boxes.getGrid().toGrid(difZ)), boxes
+                            .getGrid()));
+                    previews.add(specialPreviews);
+                    return;
+                }
+            }
+        }
+        
+        if (selection.includeVanilla()) {
+            BlockState state = level.getBlockState(pos);
+            if (LittleAction.isBlockValid(state)) {
+                List<LittleBox> result = new ArrayList<>();
+                LittleVec offset = new LittleVec(difX * previews.getGrid().count, difY * previews.getGrid().count, difZ * previews.getGrid().count);
+                for (LittleBox box : boxes.all()) {
+                    box = box.copy();
+                    box.add(offset);
+                    result.add(box);
+                }
+                previews.add(previews.getGrid(), new LittleElement(state, ColorUtils.WHITE), result);
             }
         }
     }
