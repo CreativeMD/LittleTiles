@@ -105,7 +105,8 @@ public class RenderingThread extends Thread {
     }
     
     static {
-        initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
+        if (LittleTiles.CONFIG != null)
+            initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
     }
     
     public RenderingThread() {
