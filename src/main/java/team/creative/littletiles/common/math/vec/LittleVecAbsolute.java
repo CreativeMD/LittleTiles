@@ -174,16 +174,11 @@ public class LittleVecAbsolute implements IGridBased {
     }
     
     public double getVanillaGrid(Axis axis) {
-        switch (axis) {
-            case X:
-                return getPosX();
-            case Y:
-                return getPosY();
-            case Z:
-                return getPosZ();
-            default:
-                return 0;
-        }
+        return switch (axis) {
+            case X -> getPosX();
+            case Y -> getPosY();
+            case Z -> getPosZ();
+        };
     }
     
     public double getPosX() {
