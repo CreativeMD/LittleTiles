@@ -20,6 +20,7 @@ import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittleSelector;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.mc.MeshDataExtender;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
@@ -60,7 +61,7 @@ public class LittleToolSelection extends LittleTool {
         if (result == null)
             return false;
         
-        var packet = new SelectionModePacket(result, LittleTileContext.selectFocused(level, result.getBlockPos(), player), true);
+        var packet = new SelectionModePacket(result, LittleTileContext.selectFocused(level, result.getBlockPos(), player), LittleActionHandlerClient.isUsingSecondMode(), true);
         packet.execute(player);
         LittleTiles.NETWORK.sendToServer(packet);
         return true;
@@ -71,7 +72,7 @@ public class LittleToolSelection extends LittleTool {
         if (result == null)
             return false;
         
-        var packet = new SelectionModePacket(result, LittleTileContext.selectFocused(level, result.getBlockPos(), player), false);
+        var packet = new SelectionModePacket(result, LittleTileContext.selectFocused(level, result.getBlockPos(), player), LittleActionHandlerClient.isUsingSecondMode(), false);
         packet.execute(player);
         LittleTiles.NETWORK.sendToServer(packet);
         return true;

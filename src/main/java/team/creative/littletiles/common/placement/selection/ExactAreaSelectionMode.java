@@ -49,7 +49,7 @@ public class ExactAreaSelectionMode extends SelectionMode {
     
     @Override
     public SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            LittleTileContext context) {
+            LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
         var pos = PlacementHelper.getPositionInside(source.getActionLevel(), hit, positionGrid);
         nbt.putIntArray("pos1", pos.toAbsoluteBox().toArray());
@@ -58,7 +58,7 @@ public class ExactAreaSelectionMode extends SelectionMode {
     
     @Override
     public SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            LittleTileContext context) {
+            LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
         var pos = PlacementHelper.getPositionInside(source.getActionLevel(), hit, positionGrid);
         nbt.putIntArray("pos2", pos.toAbsoluteBox().toArray());

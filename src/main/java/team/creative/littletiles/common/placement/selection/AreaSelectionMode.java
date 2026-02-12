@@ -56,7 +56,7 @@ public class AreaSelectionMode extends SelectionMode {
     
     @Override
     public SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            @Nullable LittleTileContext context) {
+            @Nullable LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
         var pos = hit.getBlockPos();
         nbt.putIntArray("pos1", new int[] { pos.getX(), pos.getY(), pos.getZ() });
@@ -67,7 +67,7 @@ public class AreaSelectionMode extends SelectionMode {
     
     @Override
     public SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            @Nullable LittleTileContext context) {
+            @Nullable LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
         var pos = hit.getBlockPos();
         nbt.putIntArray("pos2", new int[] { pos.getX(), pos.getY(), pos.getZ() });

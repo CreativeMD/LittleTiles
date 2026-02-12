@@ -23,13 +23,15 @@ public class SelectionModePacket extends CreativePacket {
     public TileLocation tile;
     
     public boolean rightClick;
+    public boolean secondMode;
     
-    public SelectionModePacket(BlockHitResult hit, @Nullable LittleTileContext context, boolean rightClick) {
+    public SelectionModePacket(BlockHitResult hit, @Nullable LittleTileContext context, boolean secondMode, boolean rightClick) {
         this.hit = hit;
         if (context.isComplete())
             this.tile = new TileLocation(context);
         else
             this.tile = null;
+        this.secondMode = secondMode;
         this.rightClick = rightClick;
     }
     
@@ -43,10 +45,10 @@ public class SelectionModePacket extends CreativePacket {
             try {
                 if (rightClick)
                     stack.set(LittleTilesRegistry.SELECTION, sel.mode.rightClick((LittleActionSource) player, stack, sel, selector.getSelectorGrid(player, stack), hit,
-                        tile != null ? tile.find(player.level()) : null));
+                        tile != null ? tile.find(player.level()) : null, secondMode));
                 else
                     stack.set(LittleTilesRegistry.SELECTION, sel.mode.leftClick((LittleActionSource) player, stack, sel, selector.getSelectorGrid(player, stack), hit,
-                        tile != null ? tile.find(player.level()) : null));
+                        tile != null ? tile.find(player.level()) : null, secondMode));
             } catch (LittleActionException e) {}
             
         }

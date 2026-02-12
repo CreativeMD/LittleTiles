@@ -43,10 +43,10 @@ public abstract class SelectionMode {
     public abstract SelectionScanResult scan(Level level, ItemStack stack, SelectionComponent config);
     
     public abstract SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            @Nullable LittleTileContext context);
+            @Nullable LittleTileContext context, boolean secondMode);
     
     public abstract SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            @Nullable LittleTileContext context);
+            @Nullable LittleTileContext context, boolean secondMode);
     
     public abstract LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack,
             SelectionComponent config) throws LittleActionException;

@@ -13,14 +13,19 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.tool.LittleToolSelection.SelectionRenderQueue;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.exception.AreaTooLarge;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
+import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
+import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -51,7 +56,7 @@ public class TileSelectionMode extends SelectionMode {
     
     @Override
     public SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            @Nullable LittleTileContext context) {
+            @Nullable LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
         var boxes = nbt.contains("boxes") ? new LittleBoxesNoOverlap(nbt.getCompound("boxes")) : new LittleBoxesNoOverlap(hit.getBlockPos().immutable(), LittleGrid.MIN);
         if (context == null || !context.isComplete())
@@ -59,7 +64,13 @@ public class TileSelectionMode extends SelectionMode {
                 boxes.addBox(LittleGrid.MIN, hit.getBlockPos(), LittleGrid.MIN.box());
             else
                 return config;
-        else
+        else if (secondMode) {
+            BETiles be = BlockTile.loadBE(source.getActionLevel(), hit.getBlockPos());
+            if (be != null) {
+                for (Pair<IParentCollection, LittleTile> pair : be.allBoxes())
+                    boxes.addBoxes(pair.key, pair.value);
+            }
+        } else
             boxes.addBox(context.parent.getGrid(), hit.getBlockPos(), context.box);
         nbt.put("boxes", boxes.save(new CompoundTag()));
         return config.withConfig(nbt);
@@ -67,7 +78,7 @@ public class TileSelectionMode extends SelectionMode {
     
     @Override
     public SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            @Nullable LittleTileContext context) {
+            @Nullable LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
         if (source.asPlayer().isCrouching()) {
             nbt.remove("boxes");
@@ -76,6 +87,8 @@ public class TileSelectionMode extends SelectionMode {
         
         var boxes = nbt.contains("boxes") ? new LittleBoxesNoOverlap(nbt.getCompound("boxes")) : new LittleBoxesNoOverlap(hit.getBlockPos().immutable(), LittleGrid.MIN);
         if (context == null || !context.isComplete())
+            boxes.cutOut(LittleGrid.MIN, hit.getBlockPos(), LittleGrid.MIN.box());
+        else if (secondMode)
             boxes.cutOut(LittleGrid.MIN, hit.getBlockPos(), LittleGrid.MIN.box());
         else
             boxes.cutOut(context.parent.getGrid(), hit.getBlockPos(), context.box);
