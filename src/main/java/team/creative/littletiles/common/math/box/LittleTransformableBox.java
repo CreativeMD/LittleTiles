@@ -363,6 +363,7 @@ public class LittleTransformableBox extends LittleBox {
                 if (!axisFaceCache.hasAxisStrip())
                     break;
             }
+            axisFaceCache.combineAxisStrips(facing.axis);
         }
         this.cache = new SoftReference<>(cache);
         return cache;
@@ -1534,6 +1535,32 @@ public class LittleTransformableBox extends LittleBox {
                 fans.addAll((Collection<? extends VectorFan>) stripsSorted);
         }
         
+        public void combineAxisStrips(Axis axis) {
+            int i = 0;
+            while (axisStrips.size() > 1 && i < axisStrips.size()) {
+                int sizeBefore = axisStrips.size();
+                
+                int j = 0;
+                while (j < axisStrips.size()) {
+                    if (i == j) {
+                        j++;
+                        continue;
+                    }
+                    var combined = axisStrips.get(i).combine(axis, axisStrips.get(j));
+                    if (combined != null) {
+                        axisStrips.set(i, combined);
+                        if (j < i)
+                            i--;
+                        axisStrips.remove(j);
+                    } else
+                        j++;
+                }
+                
+                if (axisStrips.size() >= sizeBefore)
+                    i++;
+            }
+        }
+        
         public void cutAxisStrip(Facing facing, NormalPlaneF plane, NormalPlaneF plane2) {
             Axis one = facing.one();
             Axis two = facing.two();
@@ -1544,10 +1571,14 @@ public class LittleTransformableBox extends LittleBox {
                 VectorFan strip = axisStrips.get(i).cut(plane);
                 VectorFan strip2 = axisStrips.get(i).cut(plane2);
                 
-                if (strip != null && strip2 != null && strip.intersect2d(strip2, one, two, inverse, 0.001F)) {
-                    List<VectorFan> fans = strip.cut2d(strip2, one, two, inverse, false);
-                    newAxisStrips.add(strip2);
-                    newAxisStrips.addAll(fans);
+                if (strip != null && strip2 != null) {
+                    if (strip.equals(strip2))
+                        newAxisStrips.add(strip);
+                    else if (strip.intersect2d(strip2, one, two, inverse, 0.001F)) {
+                        List<VectorFan> fans = strip.cut2d(strip2, one, two, inverse, false);
+                        newAxisStrips.add(strip2);
+                        newAxisStrips.addAll(fans);
+                    }
                 } else {
                     if (strip != null)
                         newAxisStrips.add(strip);
