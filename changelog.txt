@@ -1,3 +1,9 @@
+1.6.0-pre207
+Added combining of axis fans for transformable box which fixes a few issues and enhances performance
+Added select entire block when using second mode with tile selector
+Added hold down alt to make shape edges have same length
+Fixed not rendering glove box
+
 1.6.0-pre206
 Added tile selection mode
 Added exact area selection mode
