@@ -246,6 +246,11 @@ public class LittleBoxAbsolute implements IGridBased {
         return box.getRenderingBox(grid, new LittleVec(grid, pos));
     }
     
+    @OnlyIn(Dist.CLIENT)
+    public LittleRenderBox getRenderingBoxWithoutOffset() {
+        return box.getRenderingBox(grid);
+    }
+    
     public AABB toAABB() {
         return box.getBB(grid, pos);
     }

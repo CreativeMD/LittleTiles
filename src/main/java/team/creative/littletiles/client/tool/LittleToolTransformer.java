@@ -143,7 +143,7 @@ public class LittleToolTransformer extends LittleTool {
                 corners[i].render(pose, marked == i);
             pose.popPose();
             
-            buildBox(pose, box.getRenderingBox(), builder, 255, lines);
+            buildBox(pose, box.getRenderingBoxWithoutOffset(), builder, 255, lines);
             mesh = builder.build();
             pos = box.pos;
         } else {
@@ -151,7 +151,7 @@ public class LittleToolTransformer extends LittleTool {
                 return;
             
             LittleBoxAbsolute selectionBox = getSelectionBox();
-            buildBox(pose, selectionBox.getRenderingBox(), builder, 255, lines);
+            buildBox(pose, selectionBox.getRenderingBoxWithoutOffset(), builder, 255, lines);
             pos = selectionBox.pos;
             mesh = builder.build();
         }
@@ -159,8 +159,7 @@ public class LittleToolTransformer extends LittleTool {
         if (mesh != null) {
             var matrix = RenderSystem.getModelViewStack();
             matrix.pushMatrix();
-            matrix.translate(pos.getX(), pos.getY(), pos.getZ());
-            matrix.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
+            matrix.translate((float) (pos.getX() - cam.x), (float) (pos.getY() - cam.y), (float) (pos.getZ() - cam.z));
             
             RenderSystem.applyModelViewMatrix();
             setupPreviewRenderer(lines);
