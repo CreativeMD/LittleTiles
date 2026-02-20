@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.Arrays;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
@@ -55,8 +53,8 @@ public class ItemLittleWrench extends Item implements ILittleTool, IItemTooltip 
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleToolWrench(stack));
+    public LittleTool tool(ItemStack stack) {
+        return new LittleToolWrench(stack);
     }
     
     @Override

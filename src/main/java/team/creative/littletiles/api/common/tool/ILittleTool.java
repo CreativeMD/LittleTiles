@@ -51,6 +51,11 @@ public interface ILittleTool {
     }
     
     @OnlyIn(Dist.CLIENT)
-    public Iterable<LittleTool> tools(ItemStack stack);
+    public default boolean isCorrectTool(ItemStack stack, LittleTool tool) {
+        return true;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public LittleTool tool(ItemStack stack);
     
 }

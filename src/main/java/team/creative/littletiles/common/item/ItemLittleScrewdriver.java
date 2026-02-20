@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.Arrays;
 import java.util.List;
 
 import javax.annotation.Nullable;
@@ -82,8 +81,8 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleTool(stack) {
+    public LittleTool tool(ItemStack stack) {
+        return new LittleTool(stack) {
             
             @Override
             public void tick(Level level, Player player, BlockHitResult blockHit) {}
@@ -115,7 +114,7 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
                 return true;
             }
             
-        });
+        };
     }
     
 }

@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -102,8 +101,8 @@ public class ItemLittlePaintBrush extends Item implements ILittleShaper, IItemTo
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleToolShaper(stack) {
+    public LittleTool tool(ItemStack stack) {
+        return new LittleToolShaper(stack) {
             @Override
             public boolean onMouseWheelClickBlock(Level level, Player player, BlockHitResult result) {
                 BlockState state = level.getBlockState(result.getBlockPos());
@@ -124,7 +123,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleShaper, IItemTo
                 }
                 return super.onMouseWheelClickBlock(level, player, result);
             }
-        });
+        };
     }
     
     @Override

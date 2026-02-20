@@ -70,22 +70,21 @@ public class PreviewRenderer implements LevelAwareHandler {
     }
     
     private ItemStack lastHeld = ItemStack.EMPTY;
-    private Iterable<LittleTool> tools;
+    private LittleTool tool;
     
     public PreviewRenderer() {
         NeoForge.EVENT_BUS.register(this);
     }
     
-    public Iterable<LittleTool> tools() {
-        return tools;
+    public LittleTool tool() {
+        return tool;
     }
     
     public void clearToolPreviews() {
         lastHeld = ItemStack.EMPTY;
-        if (tools != null)
-            for (LittleTool p : tools)
-                p.removed();
-        tools = null;
+        if (tool != null)
+            tool.removed();
+        tool = null;
     }
     
     @Override
@@ -105,12 +104,12 @@ public class PreviewRenderer implements LevelAwareHandler {
         ItemStack stack = player.getMainHandItem();
         PoseStack pose = new PoseStack();
         
-        if (!ItemStack.isSameItem(stack, lastHeld)) {
+        if (!ItemStack.isSameItem(stack, lastHeld) || (stack.getItem() instanceof ILittleTool tool && !tool.isCorrectTool(stack, this.tool))) {
             clearToolPreviews();
             if (stack.getItem() instanceof ILittleTool tool)
-                tools = tool.tools(stack);
+                this.tool = tool.tool(stack);
             else
-                tools = null;
+                this.tool = null;
             lastHeld = stack.copy();
         }
         
@@ -119,22 +118,19 @@ public class PreviewRenderer implements LevelAwareHandler {
             return;
         }
         
-        if (tools != null) {
+        if (tool != null) {
             BlockHitResult blockHit = blockHit();
-            for (LittleTool t : tools) {
-                t.stack = stack;
-                t.tick(level, player, blockHit);
-            }
+            tool.stack = stack;
+            tool.tick(level, player, blockHit);
         }
         
         processKeys(level, player, stack, true);
         
-        if (tools != null) {
+        if (tool != null) {
             Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
             RenderSystem.enableBlend();
             
-            for (LittleTool t : tools)
-                t.render(level, player, pose, cam, false);
+            tool.render(level, player, pose, cam, false);
             
             RenderSystem.depthMask(true);
             RenderSystem.disableBlend();
@@ -180,23 +176,21 @@ public class PreviewRenderer implements LevelAwareHandler {
         
         for (KeyMapping key : LittleTilesClient.TOOL_KEYS)
             while (key.consumeClick())
-                if (execute && tools != null)
-                    for (LittleTool p : tools)
-                        if (p.keyPressed(level, player, key))
-                            break;
+                if (execute && tool != null)
+                    if (tool.keyPressed(level, player, key))
+                        break;
     }
     
     @SubscribeEvent
     public void drawNonHighlight(RenderLevelStageEvent event) {
         if (event.getStage() != Stage.AFTER_BLOCK_ENTITIES)
             return;
-        if (mc.getCameraEntity() instanceof Player && !mc.options.hideGui && mc.hitResult != null && mc.hitResult.getType() == Type.MISS && tools != null) {
+        if (mc.getCameraEntity() instanceof Player && !mc.options.hideGui && mc.hitResult != null && mc.hitResult.getType() == Type.MISS && tool != null) {
             Player player = mc.player;
             Level level = player.level();
             Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
             
-            for (LittleTool t : tools)
-                t.render(level, player, event.getPoseStack(), cam, true);
+            tool.render(level, player, event.getPoseStack(), cam, true);
         }
     }
     
@@ -211,10 +205,9 @@ public class PreviewRenderer implements LevelAwareHandler {
         Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
         
         PoseStack pose = event.getPoseStack();
-        if (tools != null)
-            for (LittleTool t : tools)
-                t.render(level, player, pose, cam, true);
-            
+        if (tool != null)
+            tool.render(level, player, pose, cam, true);
+        
         if (!event.isCanceled() && level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder().isWithinBounds(event.getTarget()
                 .getBlockPos())) {
             BlockPos pos = event.getTarget().getBlockPos();
@@ -242,58 +235,53 @@ public class PreviewRenderer implements LevelAwareHandler {
     
     @SubscribeEvent
     public void onMouseWheelClick(InteractionKeyMappingTriggered event) {
-        if (!event.isPickBlock() || tools == null)
+        if (!event.isPickBlock() || tool == null)
             return;
         BlockHitResult hit = blockHit();
         
-        for (LittleTool t : tools)
-            if (t.onMouseWheelClickBlock(mc.level, mc.player, hit)) {
-                event.setCanceled(true);
-                return;
-            }
+        if (tool.onMouseWheelClickBlock(mc.level, mc.player, hit)) {
+            event.setCanceled(true);
+            return;
+        }
     }
     
     @SubscribeEvent
     public void onLeftClickAir(LeftClickEmpty event) {
-        if (!event.getLevel().isClientSide || tools == null)
+        if (!event.getLevel().isClientSide || tool == null)
             return;
         
         var hit = blockHit();
-        for (LittleTool t : tools)
-            t.onLeftClick(event.getLevel(), event.getEntity(), hit);
+        tool.onLeftClick(event.getLevel(), event.getEntity(), hit);
     }
     
     @SubscribeEvent
     public void onLeftClickBlock(LeftClickBlock event) {
-        if (!event.getLevel().isClientSide || tools == null || event.getAction() != Action.START)
+        if (!event.getLevel().isClientSide || tool == null || event.getAction() != Action.START)
             return;
         
         var hit = blockHit();
-        for (LittleTool t : tools)
-            if (t.onLeftClick(event.getLevel(), event.getEntity(), hit))
-                event.setUseItem(TriState.TRUE);
+        if (tool.onLeftClick(event.getLevel(), event.getEntity(), hit))
+            event.setUseItem(TriState.TRUE);
     }
     
     @SubscribeEvent
     public void onRightClickAir(RightClickEmpty event) {
-        if (!event.getLevel().isClientSide || tools == null)
+        if (!event.getLevel().isClientSide || tool == null)
             return;
         var hit = blockHit();
-        for (LittleTool t : tools)
-            t.onRightClick(event.getLevel(), event.getEntity(), hit);
+        tool.onRightClick(event.getLevel(), event.getEntity(), hit);
     }
     
     @SubscribeEvent
     public void onRightClickBlock(RightClickBlock event) {
-        if (event.getHand() != InteractionHand.MAIN_HAND || !event.getLevel().isClientSide || tools == null)
+        if (event.getHand() != InteractionHand.MAIN_HAND || !event.getLevel().isClientSide || tool == null)
             return;
         
         var hit = blockHit();
-        for (LittleTool t : tools)
-            if (t.onRightClick(mc.level, mc.player, hit)) {
-                event.setCancellationResult(InteractionResult.CONSUME);
-                event.setCanceled(true);
-            }
+        if (tool.onRightClick(mc.level, mc.player, hit)) {
+            event.setCancellationResult(InteractionResult.CONSUME);
+            event.setCanceled(true);
+        }
     }
     
 }

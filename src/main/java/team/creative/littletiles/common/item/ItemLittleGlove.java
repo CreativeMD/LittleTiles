@@ -1,7 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.Arrays;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
@@ -66,8 +64,8 @@ public class ItemLittleGlove extends Item implements ILittleTransformer, IItemTo
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleToolTransformer(stack));
+    public LittleTool tool(ItemStack stack) {
+        return new LittleToolTransformer(stack);
     }
     
 }

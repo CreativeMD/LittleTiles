@@ -9,7 +9,6 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.client.LittleTilesClient;
-import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.LittleToolWrench;
 
 public class WrenchReceiveInfoPacket extends CreativePacket {
@@ -25,11 +24,8 @@ public class WrenchReceiveInfoPacket extends CreativePacket {
     @Override
     @OnlyIn(Dist.CLIENT)
     public void executeClient(Player player) {
-        var tools = LittleTilesClient.PREVIEW_RENDERER.tools();
-        if (tools != null)
-            for (LittleTool tool : tools)
-                if (tool instanceof LittleToolWrench w)
-                    w.receive(result);
+        if (LittleTilesClient.PREVIEW_RENDERER.tool() instanceof LittleToolWrench w)
+            w.receive(result);
     }
     
     @Override

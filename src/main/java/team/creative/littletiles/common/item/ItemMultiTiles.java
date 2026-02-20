@@ -1,7 +1,6 @@
 package team.creative.littletiles.common.item;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -178,8 +177,8 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleToolPlacer(stack));
+    public LittleTool tool(ItemStack stack) {
+        return new LittleToolPlacer(stack);
     }
     
 }

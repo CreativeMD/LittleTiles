@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.core.component.DataComponentMap;
@@ -141,7 +140,7 @@ public class ItemPremadeStructure extends Item implements ILittlePlacer, IItemTo
     }
     
     @Override
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleToolPlacer(stack));
+    public LittleTool tool(ItemStack stack) {
+        return new LittleToolPlacer(stack);
     }
 }

@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.client.Minecraft;
@@ -145,8 +144,17 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, ILittleS
     }
     
     @Override
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleToolPlacer(stack), new LittleToolBlueprintSelection(stack));
+    @OnlyIn(Dist.CLIENT)
+    public boolean isCorrectTool(ItemStack stack, LittleTool tool) {
+        return hasTiles(stack) == (tool instanceof LittleToolPlacer);
+    }
+    
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public LittleTool tool(ItemStack stack) {
+        if (hasTiles(stack))
+            return new LittleToolPlacer(stack);
+        return new LittleToolBlueprintSelection(stack);
     }
     
     @OnlyIn(Dist.CLIENT)

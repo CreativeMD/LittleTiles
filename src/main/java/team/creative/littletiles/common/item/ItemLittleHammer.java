@@ -1,6 +1,5 @@
 package team.creative.littletiles.common.item;
 
-import java.util.Arrays;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
@@ -108,7 +107,7 @@ public class ItemLittleHammer extends Item implements ILittleShaper, IItemToolti
     
     @OnlyIn(Dist.CLIENT)
     @Override
-    public Iterable<LittleTool> tools(ItemStack stack) {
-        return Arrays.asList(new LittleToolShaper(stack));
+    public LittleTool tool(ItemStack stack) {
+        return new LittleToolShaper(stack);
     }
 }
