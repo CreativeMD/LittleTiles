@@ -1,3 +1,8 @@
+1.6.0-pre208
+Added Building Mode
+Added proportional configuration for shaper
+Changed from multiple tools to a single one
+
 1.6.0-pre207
 Added combining of axis fans for transformable box which fixes a few issues and enhances performance
 Added select entire block when using second mode with tile selector
