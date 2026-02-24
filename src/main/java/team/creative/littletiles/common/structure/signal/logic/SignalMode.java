@@ -96,7 +96,10 @@ public enum SignalMode {
         public SignalOutputHandler create(ISignalComponent component, int delay, CompoundTag nbt, boolean hasWorld) {
             SignalState before;
             SignalState result;
-            int bandwidth = nbt.getInt("bandwidth");
+            int bandwidth = 0;
+            try {
+                bandwidth = component.getBandwidth();
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             if (bandwidth > 0) {
                 before = SignalState.create(bandwidth);
                 result = SignalState.create(bandwidth);
