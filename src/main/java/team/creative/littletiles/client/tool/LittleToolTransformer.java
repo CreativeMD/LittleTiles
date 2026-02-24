@@ -260,7 +260,10 @@ public class LittleToolTransformer extends LittleTool {
     }
     
     @Override
-    public boolean keyPressed(Level level, Player player, KeyMapping key) {
+    public boolean toolKeyPressed(Level level, Player player, KeyMapping key) {
+        if (super.toolKeyPressed(level, player, key))
+            return true;
+        
         if (box != null && marked > -1) {
             var facing = LittleTilesClient.facingFromKeybind(player, key);
             if (facing != null) {
@@ -277,8 +280,5 @@ public class LittleToolTransformer extends LittleTool {
         
         return false;
     }
-    
-    @Override
-    public void removed() {}
     
 }

@@ -3,12 +3,12 @@ package team.creative.littletiles.client.tool.shaper;
 import java.util.Iterator;
 import java.util.List;
 
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -53,7 +53,7 @@ public class ShapeSelection implements Iterable<ShapePosition> {
     
     @OnlyIn(Dist.CLIENT)
     public LittleBox getOverallBox() {
-        if (positions.size() > 1 && Screen.hasAltDown()) {
+        if (positions.size() > 1 && BuildingModeFeatures.TOGGLE_PROPORTIONAL_SCALING.enabled()) {
             LittleVec size = overallBox.getSize();
             int smallestSize = Math.min(size.x, Math.min(size.y, size.z));
             var first = positions.getFirst();

@@ -451,5 +451,7 @@
     "shape.config.thickness": "thickness",
     "shape.config.second_type": "second-type",
     "shape.config.simple": "simple",
-    "shape.config.hollow": "hollow"
+    "shape.config.hollow": "hollow",
+    
+    "building.toggle.proportional": "Proportional"
 }

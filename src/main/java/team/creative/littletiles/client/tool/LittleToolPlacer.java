@@ -200,7 +200,9 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     @Override
-    public boolean keyPressed(Level level, Player player, KeyMapping key) {
+    public boolean toolKeyPressed(Level level, Player player, KeyMapping key) {
+        if (super.toolKeyPressed(level, player, key))
+            return true;
         if (key == LittleTilesClient.KEY_MARK) {
             if (marked == null) {
                 markedFixed = LittleActionHandlerClient.isUsingSecondMode();
@@ -353,7 +355,8 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     @Override
-    public void removed() {
+    public void remove() {
+        super.remove();
         removeCache();
     }
     

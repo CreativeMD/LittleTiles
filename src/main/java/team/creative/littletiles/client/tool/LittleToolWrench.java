@@ -9,7 +9,6 @@ import org.joml.Quaternionf;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
@@ -150,14 +149,6 @@ public class LittleToolWrench extends LittleTool {
     public boolean onRightClick(Level level, Player player, BlockHitResult result) {
         return false;
     }
-    
-    @Override
-    public boolean keyPressed(Level level, Player player, KeyMapping key) {
-        return false;
-    }
-    
-    @Override
-    public void removed() {}
     
     public static class StructureTooltip {
         

@@ -3,6 +3,7 @@ package team.creative.littletiles.client;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map.Entry;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -48,6 +49,7 @@ import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.CreativeBlockModel;
 import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
+import team.creative.creativecore.common.config.holder.ConfigHolderDynamic;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
@@ -76,6 +78,8 @@ import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -125,6 +129,7 @@ public class LittleTilesClient {
     public static KeyMapping KEY_DOWN;
     public static KeyMapping KEY_RIGHT;
     public static KeyMapping KEY_LEFT;
+    public static KeyMapping KEY_BUILDING_MODE;
     
     public static KeyMapping[] TOOL_KEYS;
     
@@ -203,6 +208,7 @@ public class LittleTilesClient {
         KEY_MARK = new LittleKeyMapping("key.little.mark", LITTLE_KEY_CONTEXT, InputConstants.KEY_M, "key.categories.littletiles").ignoreModifier();
         KEY_CONFIGURE = new LittleKeyMapping("key.little.config.item", LITTLE_KEY_CONTEXT, InputConstants.KEY_C, "key.categories.littletiles");
         KEY_CONFIGURE_SECONDARY = new LittleKeyMapping("key.little.config_secondary.item", LITTLE_KEY_CONTEXT, KeyModifier.SHIFT, InputConstants.KEY_C, "key.categories.littletiles");
+        KEY_BUILDING_MODE = new LittleKeyMapping("key.little.building_mode", LITTLE_KEY_CONTEXT, KeyModifier.NONE, InputConstants.KEY_B, "key.categories.littletiles");
         
         KEY_UNDO = new LittleKeyMapping("key.little.undo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Z, "key.categories.littletiles");
         KEY_REDO = new LittleKeyMapping("key.little.redo", LITTLE_KEY_CONTEXT, KeyModifier.CONTROL, InputConstants.KEY_Y, "key.categories.littletiles");
@@ -216,8 +222,9 @@ public class LittleTilesClient {
         event.register(KEY_MARK);
         event.register(KEY_CONFIGURE);
         event.register(KEY_CONFIGURE_SECONDARY);
+        event.register(KEY_BUILDING_MODE);
         
-        TOOL_KEYS = new KeyMapping[] { KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_MIRROR, KEY_MARK, KEY_CONFIGURE, KEY_CONFIGURE_SECONDARY };
+        TOOL_KEYS = new KeyMapping[] { KEY_UP, KEY_DOWN, KEY_RIGHT, KEY_LEFT, KEY_MIRROR, KEY_MARK, KEY_CONFIGURE, KEY_CONFIGURE_SECONDARY, KEY_BUILDING_MODE };
         
         event.register(KEY_UNDO);
         event.register(KEY_REDO);
@@ -278,6 +285,13 @@ public class LittleTilesClient {
         
         SodiumManager.init();
         IrisManager.init();
+        
+        // Register feature configuration
+        ConfigHolderDynamic holder = LittleTiles.CONFIG.building.buildingMode;
+        
+        holder.clear();
+        for (Entry<String, BuildingModeFeature> entry : BuildingModeFeatures.REGISTRY.entrySet())
+            holder.registerValue(entry.getKey(), entry.getValue());
     }
     
     private static void modelLoader(RegisterAdditional event) {
@@ -433,6 +447,10 @@ public class LittleTilesClient {
         
         public LittleKeyMapping(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, int keyCode, String category) {
             super(description, keyConflictContext, keyModifier, InputConstants.Type.KEYSYM, keyCode, category);
+        }
+        
+        public LittleKeyMapping(String description, IKeyConflictContext keyConflictContext, KeyModifier keyModifier, InputConstants.Type type, int keyCode, String category) {
+            super(description, keyConflictContext, keyModifier, type, keyCode, category);
         }
         
         public LittleKeyMapping ignoreModifier() {

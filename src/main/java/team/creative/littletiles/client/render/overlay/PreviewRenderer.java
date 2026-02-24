@@ -23,6 +23,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -83,7 +84,7 @@ public class PreviewRenderer implements LevelAwareHandler {
     public void clearToolPreviews() {
         lastHeld = ItemStack.EMPTY;
         if (tool != null)
-            tool.removed();
+            tool.remove();
         tool = null;
     }
     
@@ -177,7 +178,7 @@ public class PreviewRenderer implements LevelAwareHandler {
         for (KeyMapping key : LittleTilesClient.TOOL_KEYS)
             while (key.consumeClick())
                 if (execute && tool != null)
-                    if (tool.keyPressed(level, player, key))
+                    if (tool.toolKeyPressed(level, player, key))
                         break;
     }
     
@@ -223,6 +224,12 @@ public class PreviewRenderer implements LevelAwareHandler {
         }
         
         RenderSystem.enableCull();
+    }
+    
+    @SubscribeEvent
+    public void keyPressed(InputEvent.Key key) {
+        if (tool != null)
+            tool.keyPressed(key);
     }
     
     public BlockHitResult blockHit() {

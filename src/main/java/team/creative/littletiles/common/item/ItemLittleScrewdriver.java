@@ -6,7 +6,6 @@ import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
@@ -89,14 +88,6 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
             
             @Override
             public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {}
-            
-            @Override
-            public boolean keyPressed(Level level, Player player, KeyMapping key) {
-                return false;
-            }
-            
-            @Override
-            public void removed() {}
             
             @Override
             public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult result) {

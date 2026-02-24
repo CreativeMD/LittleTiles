@@ -1,8 +1,12 @@
 package team.creative.littletiles.common.config;
 
 import team.creative.creativecore.common.config.api.CreativeConfig;
+import team.creative.creativecore.common.config.holder.ConfigHolderDynamic;
 
 public class LittleConfigBuilding {
+    
+    @CreativeConfig
+    public ConfigHolderDynamic buildingMode;
     
     @CreativeConfig
     public boolean invertStickToGrid = false;

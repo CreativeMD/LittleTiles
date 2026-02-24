@@ -36,6 +36,8 @@ import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.mc.MeshDataExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.tool.LittleTool;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -68,6 +70,13 @@ public class LittleToolShaper extends LittleTool {
     public LittleToolShaper(ItemStack stack) {
         super(stack);
         this.shaper = (ILittleShaper) stack.getItem();
+    }
+    
+    @Override
+    public List<BuildingModeFeature> buildingFeatures() {
+        var list = super.buildingFeatures();
+        list.add(BuildingModeFeatures.TOGGLE_PROPORTIONAL_SCALING);
+        return list;
     }
     
     protected void removeCache() {
@@ -311,7 +320,10 @@ public class LittleToolShaper extends LittleTool {
     }
     
     @Override
-    public boolean keyPressed(Level level, Player player, KeyMapping key) {
+    public boolean toolKeyPressed(Level level, Player player, KeyMapping key) {
+        if (super.toolKeyPressed(level, player, key))
+            return true;
+        
         if (key == LittleTilesClient.KEY_MARK) {
             toggleMark();
             return true;
@@ -336,7 +348,8 @@ public class LittleToolShaper extends LittleTool {
     }
     
     @Override
-    public void removed() {
+    public void remove() {
+        super.remove();
         clearPositions();
     }
     

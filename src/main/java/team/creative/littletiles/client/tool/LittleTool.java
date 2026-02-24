@@ -1,5 +1,8 @@
 package team.creative.littletiles.client.tool;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.annotation.Nullable;
 
 import org.lwjgl.opengl.GL14;
@@ -21,15 +24,21 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.InputEvent;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
+import team.creative.littletiles.client.tool.mode.BuildingModeTopBar;
 
 public abstract class LittleTool {
     
     public static final PoseStack EMPTY = new PoseStack();
     
     public ItemStack stack;
+    private boolean buildingMode;
+    private List<BuildingModeFeature> features;
     
     public LittleTool(ItemStack stack) {
         this.stack = stack;
@@ -39,9 +48,51 @@ public abstract class LittleTool {
     
     public abstract void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines);
     
-    public abstract boolean keyPressed(Level level, Player player, KeyMapping key);
+    protected void disableBuildingMode() {
+        for (BuildingModeFeature feature : features)
+            feature.remove(LittleTilesClient.OVERLAY_RENDERER.gui());
+        buildingMode = false;
+    }
     
-    public abstract void removed();
+    public void keyPressed(InputEvent.Key key) {
+        if (buildingMode)
+            for (BuildingModeFeature feature : features)
+                feature.keyPressed(key);
+    }
+    
+    public boolean toolKeyPressed(Level level, Player player, KeyMapping key) {
+        if (key == LittleTilesClient.KEY_BUILDING_MODE) {
+            if (buildingMode)
+                disableBuildingMode();
+            else if (hasBuildingMode()) {
+                features = buildingFeatures();
+                if (buildingMode = features != null) {
+                    var gui = LittleTilesClient.OVERLAY_RENDERER.gui();
+                    for (BuildingModeFeature feature : features)
+                        feature.create(gui, this, features);
+                    gui.reflow();
+                    
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+    
+    public boolean hasBuildingMode() {
+        return true;
+    }
+    
+    public List<BuildingModeFeature> buildingFeatures() {
+        List<BuildingModeFeature> features = new ArrayList<>();
+        features.add(new BuildingModeTopBar());
+        return features;
+    }
+    
+    public void remove() {
+        if (buildingMode)
+            disableBuildingMode();
+    }
     
     protected void setupPreviewRenderer(boolean lines) {
         if (lines) {

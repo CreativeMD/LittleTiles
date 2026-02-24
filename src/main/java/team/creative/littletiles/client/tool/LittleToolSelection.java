@@ -7,7 +7,6 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 
-import net.minecraft.client.KeyMapping;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -125,12 +124,8 @@ public class LittleToolSelection extends LittleTool {
     }
     
     @Override
-    public boolean keyPressed(Level level, Player player, KeyMapping key) {
-        return false;
-    }
-    
-    @Override
-    public void removed() {
+    public void remove() {
+        super.remove();
         if (lineCache != null)
             lineCache.close();
         lineCache = null;

@@ -1,6 +1,7 @@
 package team.creative.littletiles.client.render.overlay;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 import com.google.common.base.Strings;
 
@@ -19,6 +20,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.common.gui.GuiControl;
 import team.creative.creativecore.common.gui.GuiControlRect;
 import team.creative.creativecore.common.gui.GuiLayer;
+import team.creative.creativecore.common.gui.GuiParent;
 import team.creative.creativecore.common.gui.integration.IGuiIntegratedParent;
 import team.creative.creativecore.common.gui.integration.ScreenEventListener;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
@@ -37,49 +39,9 @@ import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler {
     
     private static final Minecraft MC = Minecraft.getInstance();
-    private final GuiActionDisplay actionDisplay = new GuiActionDisplay("action").setMessageCount(1);
+    
     private boolean doneInit = false;
-    private final GuiLayer transparentLayer = new GuiLayer("overlay") {
-        
-        private TupleList<GuiControl, OverlayPosition> positions = new TupleList<>();
-        
-        @Override
-        public void create() {
-            addOverlayControl(actionDisplay, OverlayPosition.ACTION_BAR);
-        }
-        
-        public void addOverlayControl(GuiControl control, OverlayPosition position) {
-            super.add(control);
-            positions.add(control, position);
-        }
-        
-        @Override
-        public ControlFormatting getControlFormatting() {
-            return ControlFormatting.TRANSPARENT;
-        }
-        
-        @Override
-        public boolean hasGrayBackground() {
-            return false;
-        }
-        
-        @Override
-        public void flowY(int width, int height, int preferred) {
-            super.flowY(width, height, preferred);
-            for (Tuple<GuiControl, OverlayPosition> tuple : positions)
-                tuple.value.positionControl(tuple.key.rect, width, height);
-        }
-        
-        @Override
-        public boolean isExpandableX() {
-            return true;
-        }
-        
-        @Override
-        public boolean isExpandableY() {
-            return true;
-        }
-    };
+    private final OverlayGuiLayer transparentLayer = new OverlayGuiLayer("overlay");
     
     private final SingletonList<GuiLayer> layers = new SingletonList<>(transparentLayer);
     private final Screen screen = new Screen(Component.literal("overlay")) {};
@@ -92,8 +54,12 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         NeoForge.EVENT_BUS.addListener(this::renderBlockOverlay);
     }
     
+    public OverlayGuiLayer gui() {
+        return this.transparentLayer;
+    }
+    
     public void displayActionMessage(List<Component> message) {
-        actionDisplay.addMessage(message);
+        transparentLayer.addMessage(message);
     }
     
     public void renderBlockOverlay(RenderBlockScreenEffectEvent event) {
@@ -189,7 +155,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     
     @Override
     public void unload() {
-        actionDisplay.clearMessages();
+        transparentLayer.clearMessages();
     }
     
     @Override
@@ -197,7 +163,113 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         return MC.level.registryAccess();
     }
     
+    public static class OverlayGuiLayer extends GuiLayer {
+        
+        private final GuiActionDisplay actionDisplay = new GuiActionDisplay("action").setMessageCount(1);
+        
+        public OverlayGuiLayer(String name) {
+            super(name);
+        }
+        
+        private TupleList<GuiControl, OverlayPosition> positions = new TupleList<>();
+        
+        @Override
+        public void create() {
+            addOverlayControl(actionDisplay, OverlayPosition.ACTION_BAR);
+        }
+        
+        public void addOverlayControl(GuiControl control, OverlayPosition position) {
+            super.add(control);
+            positions.add(control, position);
+        }
+        
+        @Override
+        public boolean hasMinimumOuterSpacing() {
+            return false;
+        }
+        
+        @Override
+        @Deprecated
+        public GuiParent add(boolean conditional, Supplier<GuiControl> controlSupplier) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        @Deprecated
+        public GuiParent add(GuiControl control) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        @Deprecated
+        public GuiParent add(GuiControl... controls) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        @Deprecated
+        public GuiParent addHover(boolean conditional, Supplier<GuiControl> controlSupplier) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        @Deprecated
+        public GuiParent addHover(GuiControl control) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        @Deprecated
+        public GuiParent addHover(GuiControl... controls) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public ControlFormatting getControlFormatting() {
+            return ControlFormatting.TRANSPARENT;
+        }
+        
+        @Override
+        public boolean hasGrayBackground() {
+            return false;
+        }
+        
+        @Override
+        public void flowY(int width, int height, int preferred) {
+            super.flowY(width, height, preferred);
+            for (Tuple<GuiControl, OverlayPosition> tuple : positions)
+                tuple.value.positionControl(tuple.key.rect, width, height);
+        }
+        
+        @Override
+        public boolean isExpandableX() {
+            return true;
+        }
+        
+        @Override
+        public boolean isExpandableY() {
+            return true;
+        }
+        
+        public void clearMessages() {
+            actionDisplay.clearMessages();
+        }
+        
+        public void addMessage(List<Component> message) {
+            actionDisplay.addMessage(message);
+        }
+    }
+    
     public static enum OverlayPosition {
+        
+        TOP_STRETCH {
+            @Override
+            protected void positionControl(GuiControlRect control, int width, int height) {
+                control.setX(0);
+                control.setWidth(width, 0);
+                control.setY(0);
+            }
+        },
         
         CENTER {
             @Override
