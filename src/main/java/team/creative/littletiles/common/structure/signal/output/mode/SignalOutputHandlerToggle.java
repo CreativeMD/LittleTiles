@@ -64,8 +64,11 @@ public class SignalOutputHandlerToggle extends SignalOutputHandler {
     @Override
     public void write(boolean preview, CompoundTag nbt) {
         if (stateBefore != null) {
-            nbt.put("before", stateBefore.save());
-            nbt.put("result", result.save());
+            try {
+                nbt.putInt("bandwidth", component.getBandwidth());
+                nbt.put("before", stateBefore.save());
+                nbt.put("result", result.save());
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
         if (preview)
             return;
