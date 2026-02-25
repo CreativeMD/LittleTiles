@@ -18,7 +18,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.transformation.Rotation;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -135,9 +135,10 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             pos.y += (bb.minY + bb.maxY) / 2;
             pos.z += (bb.minZ + bb.maxZ) / 2;
             
-            if (level instanceof IOrientatedLevel) {
-                ((IOrientatedLevel) level).getOrigin().transformPointToWorld(pos);
-                ((IOrientatedLevel) level).getOrigin().onlyRotateWithoutCenter(speed);
+            if (level instanceof ISubLevel s) {
+                s.getOrigin().transformPointToWorld(pos);
+                s.getOrigin().onlyRotateWithoutCenter(speed);
+                level = s.getRealLevel();
             }
             
             mc.particleEngine.add(new LittleParticle((ClientLevel) level, pos, speed, settings));
