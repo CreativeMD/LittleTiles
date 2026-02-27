@@ -30,7 +30,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
-import team.creative.littletiles.client.tool.mode.BuildingModeTopBar;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 
 public abstract class LittleTool {
     
@@ -85,7 +85,8 @@ public abstract class LittleTool {
     
     public List<BuildingModeFeature> buildingFeatures() {
         List<BuildingModeFeature> features = new ArrayList<>();
-        features.add(new BuildingModeTopBar());
+        features.add(BuildingModeFeatures.TOP_BAR);
+        features.add(BuildingModeFeatures.ZOOM);
         return features;
     }
     
