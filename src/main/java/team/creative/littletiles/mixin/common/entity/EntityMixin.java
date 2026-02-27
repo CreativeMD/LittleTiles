@@ -23,6 +23,7 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
+import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -62,9 +63,14 @@ public class EntityMixin {
     
     @Inject(method = "setOldPosAndRot()V", require = 1, cancellable = true, at = @At("HEAD"))
     public final void setOldPosAndRotHead(CallbackInfo info) {
+        if (asEntity() instanceof RemotePlayer && pushedByAnimationDelta != null) {
+            pushedByAnimationDelta = null;
+            info.cancel();
+            return;
+        }
         if (pushedByAnimationDelta != null)
             info.cancel();
-        if (asEntity() instanceof LittleEntity e && e.tickedAlready)
+        else if (asEntity() instanceof LittleEntity e && e.tickedAlready)
             info.cancel();
     }
     
