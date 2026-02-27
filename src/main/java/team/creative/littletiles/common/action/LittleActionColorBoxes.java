@@ -16,6 +16,7 @@ import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.exception.NotAllowedToPlaceColorException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
@@ -244,6 +245,12 @@ public class LittleActionColorBoxes extends LittleActionBoxes {
     @Override
     public boolean canBeReverted() {
         return true;
+    }
+    
+    @Override
+    public void cancel(ActionCancelContext context) throws LittleActionException {
+        for (var entry : revertList.values())
+            context.mark(entry);
     }
     
     @Override

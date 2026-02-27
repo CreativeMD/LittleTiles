@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.action;
 
 import team.creative.creativecore.common.util.math.base.Axis;
+import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
@@ -35,13 +36,31 @@ public class LittleActions extends LittleAction<Boolean> {
     }
     
     @Override
+    public void cancel(ActionCancelContext context) throws LittleActionException {
+        for (int i = 0; i < actions.length; i++)
+            if (actions[i] != null)
+                actions[i].cancel(context);
+    }
+    
+    @Override
     public Boolean action(LittleActionSource source) throws LittleActionException {
         if (actions.length == 0)
             return true;
         boolean success = false;
         for (int i = 0; i < actions.length; i++) {
-            if (actions[i] != null && actions[i].wasSuccessful(actions[i].action(source)))
-                success = true;
+            try {
+                if (actions[i] != null && actions[i].wasSuccessful(actions[i].action(source)))
+                    success = true;
+            } catch (LittleActionException e) {
+                // Make sure all actions that have run before are cancelled
+                if (!e.hasCancelContext())
+                    e.setCancelContext(new ActionCancelContext(actions[i]));
+                var context = e.getCancelContext();
+                for (int j = 0; j < i; j++)
+                    if (actions[j] != null)
+                        actions[j].cancel(context);
+                throw e;
+            }
         }
         return success;
     }
@@ -50,7 +69,8 @@ public class LittleActions extends LittleAction<Boolean> {
     public LittleAction mirror(Axis axis, LittleBoxAbsolute box) {
         LittleAction[] newActions = new LittleAction[actions.length];
         for (int i = 0; i < actions.length; i++)
-            newActions[i] = actions[i].mirror(axis, box);
+            if (actions[i] != null)
+                newActions[i] = actions[i].mirror(axis, box);
         return new LittleActions(newActions);
     }
     

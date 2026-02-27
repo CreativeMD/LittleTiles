@@ -60,4 +60,7 @@ public abstract class LittleActionSourceStructure<T extends LittleStructure> imp
     @Override
     public void sendText(Component translatable) {}
     
+    @Override
+    public void requestInventoryUpdate() {}
+    
 }

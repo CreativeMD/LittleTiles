@@ -10,8 +10,10 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import team.creative.creativecore.common.util.mc.LevelUtils;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.ingredient.LittleInventory;
+import team.creative.littletiles.common.packet.action.RequestInventoryResetPacket;
 
 @Mixin(Player.class)
 public class PlayerMixin implements LittleActionSource {
@@ -74,5 +76,10 @@ public class PlayerMixin implements LittleActionSource {
     @Override
     public void sendText(Component translatable) {
         asPlayer().sendSystemMessage(translatable);
+    }
+    
+    @Override
+    public void requestInventoryUpdate() {
+        LittleTiles.NETWORK.sendToServer(new RequestInventoryResetPacket());
     }
 }

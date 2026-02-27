@@ -6,6 +6,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
+import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -66,6 +67,12 @@ public class LittleActionPlace extends LittleAction<Boolean> {
     @Override
     public Boolean failed() {
         return false;
+    }
+    
+    @Override
+    public void cancel(ActionCancelContext context) throws LittleActionException {
+        if (result != null)
+            context.markBE(result.blocks);
     }
     
     @Override

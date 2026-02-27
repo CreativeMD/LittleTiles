@@ -85,6 +85,7 @@ import team.creative.littletiles.common.packet.action.ChangedElementPacket;
 import team.creative.littletiles.common.packet.action.ChangedPosPacket;
 import team.creative.littletiles.common.packet.action.LittleInteractionPacket;
 import team.creative.littletiles.common.packet.action.PlacementPlayerSettingPacket;
+import team.creative.littletiles.common.packet.action.RequestInventoryResetPacket;
 import team.creative.littletiles.common.packet.entity.EntityOriginChanged;
 import team.creative.littletiles.common.packet.entity.LittleEntityPhysicPacket;
 import team.creative.littletiles.common.packet.entity.LittleEntityTransitionPacket;
@@ -165,6 +166,7 @@ public class LittleTiles {
         NETWORK.registerType(ChangedElementPacket.class, ChangedElementPacket::new);
         NETWORK.registerType(ChangedColorPacket.class, ChangedColorPacket::new);
         NETWORK.registerType(ChangedPosPacket.class, ChangedPosPacket::new);
+        NETWORK.registerType(RequestInventoryResetPacket.class, RequestInventoryResetPacket::new);
         
         NETWORK.registerType(PlacerMatrixPacket.class, PlacerMatrixPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);

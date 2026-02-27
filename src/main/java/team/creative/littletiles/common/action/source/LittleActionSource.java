@@ -38,4 +38,6 @@ public interface LittleActionSource {
     public boolean isClient();
     
     public void sendText(Component translatable);
+    
+    public void requestInventoryUpdate();
 }

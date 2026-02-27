@@ -52,6 +52,7 @@ import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.ingredient.ILittleIngredientInventory;
 import team.creative.littletiles.client.level.BlockStatePredictionHandlerExtender;
 import team.creative.littletiles.client.level.ClientLevelExtender;
+import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 import team.creative.littletiles.common.action.exception.GridTooHighException;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.exception.NotAllowedToConvertBlockException;
@@ -105,6 +106,10 @@ public abstract class LittleAction<T> extends CreativePacket {
     public abstract boolean wasSuccessful(T result);
     
     public abstract T failed();
+    
+    /** called when the action failed or in case of combined action, if one failed. This method should make sure everything returns to its default state.
+     * Important: Only called on client side. Changes on server side cannot be cancelled. */
+    public abstract void cancel(ActionCancelContext context) throws LittleActionException;
     
     @Override
     public final void executeClient(Player player) {}

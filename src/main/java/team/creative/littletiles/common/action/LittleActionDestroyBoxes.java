@@ -14,6 +14,7 @@ import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.common.action.LittleActionDestroy.StructurePreview;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
+import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -192,6 +193,13 @@ public class LittleActionDestroyBoxes extends LittleActionBoxes {
             if (!doneSomething)
                 be.convertBlockToVanilla();
         }
+    }
+    
+    @Override
+    public void cancel(ActionCancelContext context) throws LittleActionException {
+        context.mark(destroyed);
+        for (StructurePreview preview : destroyedStructures)
+            context.mark(preview.previews);
     }
     
     @Override

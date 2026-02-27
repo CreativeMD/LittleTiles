@@ -9,6 +9,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.mc.LevelUtils;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
+import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -98,6 +99,14 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
                 .getSound().getPitch() * 0.8F);
         
         return true;
+    }
+    
+    @Override
+    public void cancel(ActionCancelContext context) throws LittleActionException {
+        if (destroyedTiles != null)
+            context.mark(destroyedTiles);
+        if (structurePreview != null)
+            context.mark(structurePreview.previews);
     }
     
     @Override

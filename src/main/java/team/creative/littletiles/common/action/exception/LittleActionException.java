@@ -4,8 +4,11 @@ import java.util.List;
 
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.gui.GuiControl;
+import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 
 public class LittleActionException extends Exception {
+    
+    private ActionCancelContext cancelContext;
     
     public LittleActionException(String msg) {
         super(msg);
@@ -30,6 +33,18 @@ public class LittleActionException extends Exception {
     
     public boolean isHidden() {
         return false;
+    }
+    
+    public void setCancelContext(ActionCancelContext context) {
+        this.cancelContext = context;
+    }
+    
+    public ActionCancelContext getCancelContext() {
+        return cancelContext;
+    }
+    
+    public boolean hasCancelContext() {
+        return cancelContext != null;
     }
     
     public static class LittleActionExceptionHidden extends LittleActionException {

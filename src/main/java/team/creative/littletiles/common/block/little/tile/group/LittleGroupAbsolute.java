@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.block.little.tile.group;
 
+import java.util.Set;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -121,6 +123,10 @@ public class LittleGroupAbsolute implements IGridBased {
             
         tile.move(new LittleVec(group.getGrid(), parent.getPos().subtract(pos)));
         group.addTile(group.getGrid(), tile);
+    }
+    
+    public Set<BlockPos> getPositions() {
+        return group.getPositions(pos);
     }
     
 }

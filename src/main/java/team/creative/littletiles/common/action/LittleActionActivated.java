@@ -9,6 +9,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -26,6 +27,9 @@ public class LittleActionActivated extends LittleActionInteract<InteractionResul
     }
     
     public LittleActionActivated() {}
+    
+    @Override
+    public void cancel(ActionCancelContext context) throws LittleActionException {}
     
     @Override
     protected InteractionResult action(Level level, BETiles be, LittleTileContext context, ItemStack stack, LittleActionSource source, BlockHitResult hit, BlockPos pos,
