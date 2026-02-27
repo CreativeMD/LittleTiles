@@ -19,6 +19,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -52,8 +53,6 @@ import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PreviewMode;
-import team.creative.littletiles.common.placement.mark.IMarkMode;
-import team.creative.littletiles.common.placement.mark.MarkMode;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.placement.second.InsideFixedHandler;
 import team.creative.littletiles.common.structure.LittleStructureType;
@@ -62,7 +61,7 @@ public class LittleToolPlacer extends LittleTool {
     
     private final ILittlePlacer placer;
     
-    private IMarkMode marked;
+    private PlacementPosition marked = null;
     
     private boolean markedFixed;
     
@@ -170,7 +169,7 @@ public class LittleToolPlacer extends LittleTool {
         if (blockHit == null)
             return;
         var grid = placer.getPositionGrid(player, stack);
-        var pos = marked != null ? marked.getPosition() : PlacementHelper.getPosition(level, blockHit, grid);
+        var pos = marked != null ? marked.copy() : PlacementHelper.getPosition(level, blockHit, grid);
         var mode = placer.getPlacementMode(stack);
         var matrix = placer.getMatrix(stack);
         var hasTiles = placer.hasTiles(stack);
@@ -210,40 +209,45 @@ public class LittleToolPlacer extends LittleTool {
                 if (markedFixed)
                     pos.setVecContext(new LittleVecGrid(new LittleVec(0, 0, 0), lastGrid));
                 
-                marked = onMark(player, pos);
+                marked = pos.copy();
             } else {
                 markedFixed = false;
-                marked.done();
                 marked = null;
             }
             return true;
         } else if (key == LittleTilesClient.KEY_UP) {
             if (marked != null)
-                marked.move(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.UP : Facing.EAST);
+                moveMarked(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.UP : Facing.EAST);
             else
                 processTransform(player, key, stack);
             return true;
         } else if (key == LittleTilesClient.KEY_DOWN) {
             if (marked != null)
-                marked.move(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.DOWN : Facing.WEST);
+                moveMarked(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.DOWN : Facing.WEST);
             else
                 processTransform(player, key, stack);
             return true;
         } else if (key == LittleTilesClient.KEY_RIGHT) {
             if (marked != null)
-                marked.move(lastGrid, Facing.SOUTH);
+                moveMarked(lastGrid, Facing.SOUTH);
             else
                 processTransform(player, key, stack);
             return true;
         } else if (key == LittleTilesClient.KEY_LEFT) {
             if (marked != null)
-                marked.move(lastGrid, Facing.NORTH);
+                moveMarked(lastGrid, Facing.NORTH);
             else
                 processTransform(player, key, stack);
             return true;
         } else if (key == LittleTilesClient.KEY_MIRROR)
             processTransform(player, key, stack);
         return false;
+    }
+    
+    private void moveMarked(LittleGrid positionGrid, Facing facing) {
+        LittleVec vec = new LittleVec(facing.opposite());
+        vec.scale(Screen.hasControlDown() ? positionGrid.count : 1);
+        marked.sub(new LittleVecGrid(vec, positionGrid));
     }
     
     protected void processTransform(Player player, KeyMapping key, ItemStack stack) {
@@ -314,7 +318,7 @@ public class LittleToolPlacer extends LittleTool {
         pose.translate(-cam.x, -cam.y, -cam.z);
         
         if (marked != null)
-            marked.render(placer.getPositionGrid(player, stack), pose);
+            marked.render(pose, true, placer.getPositionGrid(player, stack));
         
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
@@ -371,7 +375,7 @@ public class LittleToolPlacer extends LittleTool {
         boolean fixed = isFixed();
         boolean isMarked = marked != null;
         LittleVecGrid size = builtSize.copy();
-        PlacementPosition pos = isMarked ? marked.getPosition() : aimedPosition.copy();
+        PlacementPosition pos = isMarked ? marked.copy() : aimedPosition.copy();
         
         if (group != null)
             group.forceSameGrid(pos, size);
@@ -417,10 +421,6 @@ public class LittleToolPlacer extends LittleTool {
         offset.convertTo(grid);
         return offset;
         
-    }
-    
-    public IMarkMode onMark(Player player, PlacementPosition position) {
-        return new MarkMode(player, position);
     }
     
     @Override
