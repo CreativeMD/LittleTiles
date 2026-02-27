@@ -61,7 +61,7 @@ public class BuildingModeToggle extends BuildingModeFeature implements BuildingM
     
     @Override
     public void keyPressed(Key key) {
-        if (this.key.matches(key))
+        if (this.key.matchesPress(key))
             toggle();
         else
             super.keyPressed(key);

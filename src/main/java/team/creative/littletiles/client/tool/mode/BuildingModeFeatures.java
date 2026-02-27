@@ -15,5 +15,7 @@ public class BuildingModeFeatures {
     public static final BuildingModeToggle TOGGLE_PROPORTIONAL_SCALING = REGISTRY.register("proportional",
         new BuildingModeToggle("building.toggle.proportional", InputConstants.KEY_G, KeyModifier.NONE, false));
     public static final BuildingModeZoom ZOOM = REGISTRY.register("zoom", new BuildingModeZoom());
+    public static final BuildingModeGridScroll GRID = REGISTRY.register("grid", new BuildingModeGridScroll());
+    
     public static final BuildingModeTopBar TOP_BAR = REGISTRY.register("top_bar", new BuildingModeTopBar());
 }

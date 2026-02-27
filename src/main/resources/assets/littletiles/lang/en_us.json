@@ -453,5 +453,8 @@
     "shape.config.simple": "simple",
     "shape.config.hollow": "hollow",
     
-    "building.toggle.proportional": "Proportional"
+    "building.toggle.proportional": "Proportional",
+    "building.zoom.message": "%sx",
+    "building.grid.message": "grid: %s",
+    "building.grid.info": "%s + Scroll (grid: %s)"
 }

@@ -89,7 +89,7 @@ public class BuildingModeZoom extends BuildingModeFeature {
     
     @SubscribeEvent
     public void scroll(InputEvent.MouseScrollingEvent event) {
-        if (!active())
+        if (!active() || BuildingModeFeatures.GRID.isKeyDown())
             return;
         
         scrollPosition = Math.clamp(scrollPosition + event.getScrollDeltaY() * scrollSpeed, 0, levels.size());
@@ -98,7 +98,7 @@ public class BuildingModeZoom extends BuildingModeFeature {
         
         if (levelBefore != level) {
             this.zoom.set(zoomLevel());
-            MC.player.displayClientMessage(Component.literal(zoomLevel() + "x"), true);
+            MC.player.displayClientMessage(Component.translatable("building.zoom.message", zoomLevel()), true);
         }
         event.setCanceled(true);
     }

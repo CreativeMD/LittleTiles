@@ -87,6 +87,7 @@ public abstract class LittleTool {
         List<BuildingModeFeature> features = new ArrayList<>();
         features.add(BuildingModeFeatures.TOP_BAR);
         features.add(BuildingModeFeatures.ZOOM);
+        features.add(BuildingModeFeatures.GRID);
         return features;
     }
     
