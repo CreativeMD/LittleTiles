@@ -140,7 +140,7 @@ public abstract class LittleTool {
     
     protected void buildBox(PoseStack pose, RenderBox box, BufferBuilder builder, int colorAlpha, boolean lines) {
         if (lines)
-            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.002);
+            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.001);
         else
             box.renderPreview(pose, builder, colorAlpha);
     }
