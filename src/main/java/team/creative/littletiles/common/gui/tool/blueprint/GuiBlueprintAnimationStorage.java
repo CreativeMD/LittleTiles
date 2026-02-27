@@ -147,7 +147,7 @@ public class GuiBlueprintAnimationStorage implements Iterable<Entry<GuiTreeItemS
         GuiTreeItemStructure selected = (GuiTreeItemStructure) tree.selected();
         
         if (highlightSelected && selected != null) {
-            LittleVecGrid offset = selected.getOffset();
+            LittleVecGrid offset = selected.getOverallOffest();
             double x = 0;
             double y = 0;
             double z = 0;
