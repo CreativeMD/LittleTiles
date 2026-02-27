@@ -64,7 +64,7 @@ public class GuiBlueprintMove extends GuiLayer {
         GuiParent sidebar = new GuiParent(GuiFlow.STACK_Y);
         upper.add(sidebar.setDim(new GuiSizeRatioRules().widthRatio(0.3F).maxWidth(100)).setExpandableY());
         
-        tree = new GuiTree("tree").setRootVisibility(false);
+        tree = new GuiTree("tree").setKeepOrder(true).setRootVisibility(false);
         sidebar.add(tree.setExpandable());
         
         for (GuiTreeItem item : blueprint.tree.root().items()) {
