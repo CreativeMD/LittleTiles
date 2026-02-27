@@ -1,3 +1,7 @@
+1.6.0-pre210
+Removed ability to change hierarchy of blueprint inside move screen
+Decreased preview line grow to 0.001
+
 1.6.0-pre209
 Added system to properly handle failed multi actions
 Added grid building mode feature
