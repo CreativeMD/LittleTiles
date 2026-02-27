@@ -1,3 +1,13 @@
+1.6.0-pre209
+Added system to properly handle failed multi actions
+Added grid building mode feature
+Added zoom building mode feature
+Reverted "Fixed animation preview incorrectly respecting chunk offset causing it to be outside screen" because it might cause the trouble it tried to fix
+Fixed highlight selected in blueprint being offset when moving parent structure
+Fixed other players glitching out visually when walking on animation
+Fixed crash when reading invalid property of a block (creating a warning instead)
+Fixed particle emitter not working on animations
+
 1.6.0-pre208
 Added Building Mode
 Added proportional configuration for shaper
