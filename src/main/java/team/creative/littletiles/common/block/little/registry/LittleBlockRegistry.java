@@ -19,6 +19,7 @@ import net.minecraft.world.level.block.state.properties.Property;
 import team.creative.creativecore.common.util.filter.Filter;
 import team.creative.creativecore.common.util.type.list.Pair;
 import team.creative.creativecore.common.util.type.list.PairList;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.block.LittleBlock;
 import team.creative.littletiles.common.convertion.OldLittleTilesDataParser;
@@ -107,6 +108,10 @@ public class LittleBlockRegistry {
             if (data.length != 2)
                 throw new IllegalArgumentException(name);
             Property<? extends Comparable> property = block.getStateDefinition().getProperty(data[0]);
+            if (property == null) {
+                LittleTiles.LOGGER.warn("Could not load block property {} data: {}", data[0], name);
+                continue;
+            }
             Optional value = property.getValue(data[1]);
             if (value.isPresent())
                 state = setValue(state, property, value.get());
