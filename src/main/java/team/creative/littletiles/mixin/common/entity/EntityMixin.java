@@ -23,7 +23,6 @@ import it.unimi.dsi.fastutil.floats.FloatSet;
 import net.minecraft.CrashReport;
 import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
-import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.util.Mth;
@@ -47,6 +46,7 @@ import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.common.entity.LittleEntity;
+import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 import team.creative.littletiles.mixin.common.collision.ShapesAccessor;
 
@@ -63,7 +63,7 @@ public class EntityMixin {
     
     @Inject(method = "setOldPosAndRot()V", require = 1, cancellable = true, at = @At("HEAD"))
     public final void setOldPosAndRotHead(CallbackInfo info) {
-        if (asEntity() instanceof RemotePlayer && pushedByAnimationDelta != null) {
+        if (LittleAnimationHandler.isRemotePlayer(asEntity()) && pushedByAnimationDelta != null) {
             pushedByAnimationDelta = null;
             info.cancel();
             return;

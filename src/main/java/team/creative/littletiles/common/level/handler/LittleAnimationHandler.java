@@ -9,6 +9,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
 
 import javax.annotation.Nullable;
 
+import net.minecraft.client.player.RemotePlayer;
 import net.minecraft.core.SectionPos;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
@@ -16,6 +17,8 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.box.ABB;
@@ -25,6 +28,17 @@ import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
 
 public abstract class LittleAnimationHandler extends LevelHandler {
+    
+    public static boolean isRemotePlayer(Entity entity) {
+        if (entity.level().isClientSide)
+            return isRemotePlayerClient(entity);
+        return false;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    private static boolean isRemotePlayerClient(Entity entity) {
+        return entity instanceof RemotePlayer;
+    }
     
     public Set<LittleEntity> entities = new CopyOnWriteArraySet<>();
     
