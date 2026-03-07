@@ -36,6 +36,7 @@
         "server.network.ServerGamePacketListenerImplMixin"
     ],
     "client": [
+        "client.KeyboardHandlerMixin",
         "client.MinecraftMixin",
         "client.MultiPlayerGameModeAccessor",
         "client.level.ClientLevelMixin",

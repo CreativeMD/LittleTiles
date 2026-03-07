@@ -19,12 +19,12 @@ import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.GameRenderer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import net.neoforged.neoforge.client.event.InputEvent;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
@@ -54,10 +54,12 @@ public abstract class LittleTool {
         buildingMode = false;
     }
     
-    public void keyPressed(InputEvent.Key key) {
+    public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
         if (buildingMode)
             for (BuildingModeFeature feature : features)
-                feature.keyPressed(key);
+                if (feature.keyPressed(keyCode, scanCode, action, modifiers))
+                    return true;
+        return false;
     }
     
     public boolean toolKeyPressed(Level level, Player player, KeyMapping key) {
@@ -155,6 +157,16 @@ public abstract class LittleTool {
     
     public boolean onMouseWheelClickBlock(Level level, Player player, BlockHitResult result) {
         return false;
+    }
+    
+    public Component tooltip() {
+        if (buildingMode)
+            for (BuildingModeFeature feature : features) {
+                var tooltip = feature.tooltip();
+                if (tooltip != null)
+                    return tooltip;
+            }
+        return null;
     }
     
 }

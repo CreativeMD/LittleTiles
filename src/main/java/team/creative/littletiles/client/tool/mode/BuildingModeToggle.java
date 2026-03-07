@@ -5,7 +5,6 @@ import java.util.List;
 import javax.annotation.Nullable;
 
 import net.minecraft.network.chat.Component;
-import net.neoforged.neoforge.client.event.InputEvent.Key;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.config.premade.KeyConfig;
@@ -60,11 +59,12 @@ public class BuildingModeToggle extends BuildingModeFeature implements BuildingM
     }
     
     @Override
-    public void keyPressed(Key key) {
-        if (this.key.matchesPress(key))
+    public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
+        if (this.key.matchesPress(keyCode, action)) {
             toggle();
-        else
-            super.keyPressed(key);
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, action, modifiers);
     }
     
     @Override

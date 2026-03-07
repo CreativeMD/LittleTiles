@@ -8,7 +8,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.network.chat.Component;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
-import net.neoforged.neoforge.client.event.InputEvent.Key;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.Side;
@@ -61,12 +60,15 @@ public class BuildingModeGridScroll extends BuildingModeFeature implements ICrea
     }
     
     @Override
-    public void keyPressed(Key key) {
-        if (this.key.matches(key))
-            if (key.getAction() == InputConstants.PRESS)
+    public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
+        if (this.key.matches(keyCode)) {
+            if (action == InputConstants.PRESS)
                 keyDown = true;
-            else if (key.getAction() == InputConstants.RELEASE)
+            else if (action == InputConstants.RELEASE)
                 keyDown = false;
+            return true;
+        }
+        return false;
     }
     
     public boolean isKeyDown() {

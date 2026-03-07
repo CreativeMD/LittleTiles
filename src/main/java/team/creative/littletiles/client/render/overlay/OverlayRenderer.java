@@ -31,6 +31,7 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.list.TupleList;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.level.LevelAwareHandler;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.gui.control.GuiActionDisplay;
@@ -52,6 +53,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     public OverlayRenderer() {
         NeoForge.EVENT_BUS.addListener(this::renderPost);
         NeoForge.EVENT_BUS.addListener(this::renderBlockOverlay);
+        transparentLayer.setParent(this);
     }
     
     public OverlayGuiLayer gui() {
@@ -88,25 +90,32 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
             
             render(graphics, screen, listener, 0, 0);
             
-            if (LittleTiles.CONFIG.rendering.showTooltip && player.getMainHandItem().getItem() instanceof IItemTooltip item) {
+            Component tooltip = null;
+            if (LittleTilesClient.PREVIEW_RENDERER.tool() != null)
+                tooltip = LittleTilesClient.PREVIEW_RENDERER.tool().tooltip();
+            
+            if (tooltip == null && LittleTiles.CONFIG.rendering.showTooltip && player.getMainHandItem().getItem() instanceof IItemTooltip item) {
                 ItemStack stack = player.getMainHandItem();
                 String tooltipKey = stack.getItem().builtInRegistryHolder().key().location().getNamespace() + "." + stack.getItem().builtInRegistryHolder().key().location()
                         .getPath() + ".tooltip";
                 tooltipKey = item.tooltipTranslateKey(stack, tooltipKey);
-                if (LanguageUtils.can(tooltipKey)) {
-                    String[] lines = Component.translatable(tooltipKey, item.tooltipData(stack)).getString().split("\\n");
+                if (LanguageUtils.can(tooltipKey))
+                    tooltip = Component.translatable(tooltipKey, item.tooltipData(stack));
+            }
+            
+            if (tooltip != null) {
+                String[] lines = tooltip.getString().split("\\n");
+                
+                int y = MC.getWindow().getGuiScaledHeight() - 2;
+                for (int i = lines.length - 1; i >= 0; i--) {
+                    String s = lines[i];
                     
-                    int y = MC.getWindow().getGuiScaledHeight() - 2;
-                    for (int i = lines.length - 1; i >= 0; i--) {
-                        String s = lines[i];
-                        
-                        if (!Strings.isNullOrEmpty(s)) {
-                            y -= font.lineHeight;
-                            int k = font.width(s);
-                            int i1 = 2 + y;
-                            graphics.fill(1, i1 - 1, 2 + k + 1, i1 + font.lineHeight - 1, -1873784752);
-                            graphics.drawString(font, s, 2, i1, 14737632);
-                        }
+                    if (!Strings.isNullOrEmpty(s)) {
+                        y -= font.lineHeight;
+                        int k = font.width(s);
+                        int i1 = 2 + y;
+                        graphics.fill(1, i1 - 1, 2 + k + 1, i1 + font.lineHeight - 1, -1873784752);
+                        graphics.drawString(font, s, 2, i1, 14737632);
                     }
                 }
             }
@@ -203,24 +212,6 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         @Override
         @Deprecated
         public GuiParent add(GuiControl... controls) {
-            throw new UnsupportedOperationException();
-        }
-        
-        @Override
-        @Deprecated
-        public GuiParent addHover(boolean conditional, Supplier<GuiControl> controlSupplier) {
-            throw new UnsupportedOperationException();
-        }
-        
-        @Override
-        @Deprecated
-        public GuiParent addHover(GuiControl control) {
-            throw new UnsupportedOperationException();
-        }
-        
-        @Override
-        @Deprecated
-        public GuiParent addHover(GuiControl... controls) {
             throw new UnsupportedOperationException();
         }
         

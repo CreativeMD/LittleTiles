@@ -23,7 +23,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -226,10 +225,10 @@ public class PreviewRenderer implements LevelAwareHandler {
         RenderSystem.enableCull();
     }
     
-    @SubscribeEvent
-    public void keyPressed(InputEvent.Key key) {
+    public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
         if (tool != null)
-            tool.keyPressed(key);
+            return tool.keyPressed(keyCode, scanCode, action, modifiers);
+        return false;
     }
     
     public BlockHitResult blockHit() {
