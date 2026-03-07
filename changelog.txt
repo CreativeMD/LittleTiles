@@ -1,3 +1,7 @@
+1.6.0-pre211
+Changed how building features can consume key strokes
+Fixed crash on server side
+
 1.6.0-pre210
 Removed ability to change hierarchy of blueprint inside move screen
 Decreased preview line grow to 0.001
