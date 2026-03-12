@@ -134,6 +134,12 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     }
     
     @Override
+    public void include(LittleBoxes boxes) {}
+    
+    @Override
+    public void exclude(LittleBoxes boxes) {}
+    
+    @Override
     public Boolean failed() {
         return false;
     }

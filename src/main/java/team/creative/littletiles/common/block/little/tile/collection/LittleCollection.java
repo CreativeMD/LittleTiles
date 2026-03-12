@@ -293,4 +293,27 @@ public class LittleCollection implements Iterable<LittleTile> {
         return nbt;
     }
     
+    public void include(LittleGrid grid, List<LittleBox> cutter) {
+        Collection<LittleTile> newContent = createInternalCollection();
+        for (Iterator<LittleTile> iterator = content.iterator(); iterator.hasNext();) {
+            List<LittleBox> cutout = new ArrayList<>();
+            LittleTile tile = iterator.next();
+            tile.cutOut(grid, cutter, cutout, null);
+            if (!cutout.isEmpty()) {
+                newContent.add(tile.copy(cutout));
+            }
+        }
+        content = newContent;
+    }
+    
+    public void exclude(LittleGrid grid, List<LittleBox> cutter) {
+        List<LittleBox> cutout = new ArrayList<>();
+        for (Iterator<LittleTile> iterator = content.iterator(); iterator.hasNext();) {
+            LittleTile tile = iterator.next();
+            tile.cutOut(grid, cutter, cutout, null);
+            if (tile.isEmpty())
+                iterator.remove();
+        }
+    }
+    
 }

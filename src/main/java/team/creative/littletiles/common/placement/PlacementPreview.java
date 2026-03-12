@@ -18,6 +18,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsol
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
 import team.creative.littletiles.common.structure.exception.MissingAnimationException;
@@ -106,6 +107,20 @@ public class PlacementPreview {
     
     public PlacementPreview copy() {
         return new PlacementPreview(levelUUID, previews.copy(), mode, position.copy());
+    }
+    
+    public void include(LittleBoxes boxes) {
+        boxes.sameGrids(() -> {
+            var cutter = boxes.copyWithOrigin(position);
+            previews.include(cutter);
+        }, previews, position);
+    }
+    
+    public void exclude(LittleBoxes boxes) {
+        boxes.sameGrids(() -> {
+            var cutter = boxes.copyWithOrigin(position);
+            previews.exclude(cutter);
+        }, previews, position);
     }
     
     public void mirror(Axis axis, LittleBoxAbsolute box) {

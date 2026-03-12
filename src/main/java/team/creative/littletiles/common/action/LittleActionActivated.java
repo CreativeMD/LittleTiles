@@ -15,6 +15,7 @@ import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 
 public class LittleActionActivated extends LittleActionInteract<InteractionResult> {
     
@@ -65,6 +66,12 @@ public class LittleActionActivated extends LittleActionInteract<InteractionResul
     public LittleAction mirror(Axis axis, LittleBoxAbsolute box) {
         return null;
     }
+    
+    @Override
+    public void include(LittleBoxes boxes) {}
+    
+    @Override
+    public void exclude(LittleBoxes boxes) {}
     
     @Override
     protected boolean requiresBreakEvent() {

@@ -766,4 +766,20 @@ public class LittleGroup implements Bunch<LittleTile>, IGridBased {
         return getVolumes().equals(previews.getVolumes());
     }
     
+    public void include(List<LittleBox> cutter) {
+        if (!hasStructure())
+            content.include(grid, cutter);
+        
+        for (LittleGroup child : children.all())
+            child.include(cutter);
+    }
+    
+    public void exclude(List<LittleBox> cutter) {
+        if (!hasStructure())
+            content.exclude(grid, cutter);
+        
+        for (LittleGroup child : children.all())
+            child.exclude(cutter);
+    }
+    
 }

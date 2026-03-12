@@ -135,6 +135,16 @@ public abstract class LittleActionBoxes extends LittleAction<Boolean> {
     }
     
     @Override
+    public void include(LittleBoxes boxes) {
+        this.boxes.include(boxes);
+    }
+    
+    @Override
+    public void exclude(LittleBoxes boxes) {
+        this.boxes.exclude(boxes);
+    }
+    
+    @Override
     public boolean wasSuccessful(Boolean result) {
         return result;
     }

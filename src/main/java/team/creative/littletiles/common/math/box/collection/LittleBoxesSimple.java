@@ -127,6 +127,29 @@ public final class LittleBoxesSimple extends LittleBoxes implements IGridBased, 
     }
     
     @Override
+    public void include(LittleBoxes boxes) {
+        sameGrid(boxes, () -> {
+            List<LittleBox> cutter = boxes.copyWithOrigin(pos);
+            List<LittleBox> remaining = new ArrayList<>();
+            for (LittleBox box : this.boxes)
+                box.cutOut(grid, cutter, remaining, null);
+            this.boxes = remaining;
+        });
+    }
+    
+    @Override
+    public void exclude(LittleBoxes boxes) {
+        sameGrid(boxes, () -> {
+            List<LittleBox> cutter = boxes.copyWithOrigin(pos);
+            List<LittleBox> remaining = new ArrayList<>();
+            List<LittleBox> cutted = new ArrayList<>();
+            for (LittleBox box : this.boxes)
+                remaining.addAll(box.cutOut(grid, cutter, cutted, null));
+            this.boxes = remaining;
+        });
+    }
+    
+    @Override
     public void combineBoxesBlocks() {
         HashMapList<BlockPos, LittleBox> chunked = new HashMapList<>();
         for (int i = 0; i < boxes.size(); i++)

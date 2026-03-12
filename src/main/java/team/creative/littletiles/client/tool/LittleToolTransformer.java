@@ -13,20 +13,18 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
-import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittleTransformer;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -60,12 +58,14 @@ public class LittleToolTransformer extends LittleTool {
     }
     
     @Override
-    public void tick(Level level, Player player, @Nullable BlockHitResult blockHit) {
+    protected void tickInternal(PreviewRenderer renderer) {
+        var blockHit = renderer.blockHit();
         if (blockHit == null)
             return;
         
-        last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, transformer.getPositionGrid(player, stack)), blockHit, false, transformer.previewInside(
-            player, stack));
+        var player = renderer.player();
+        last = new ShapePosition(player, PlacementHelper.getPosition(renderer.level(), blockHit, transformer.getPositionGrid(player, stack)), blockHit, false, transformer
+                .previewInside(player, stack));
     }
     
     protected LittleBoxAbsolute getSelectionBox() {
@@ -129,13 +129,13 @@ public class LittleToolTransformer extends LittleTool {
     }
     
     @Override
-    public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {
-        if ((transformer.previewMode(player, stack) == PreviewMode.LINES) != lines)
+    protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
+        if ((transformer.previewMode(renderer.player(), stack) == PreviewMode.LINES) != lines)
             return;
         
         MeshData mesh;
         BlockPos pos;
-        var builder = createTesselatorBuilder(lines);
+        var builder = renderer.createTesselatorBuilder(lines);
         if (box != null) {
             pose.pushPose();
             pose.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
@@ -143,7 +143,7 @@ public class LittleToolTransformer extends LittleTool {
                 corners[i].render(pose, marked == i);
             pose.popPose();
             
-            buildBox(pose, box.getRenderingBoxWithoutOffset(), builder, 255, lines);
+            renderer.buildBox(pose, box.getRenderingBoxWithoutOffset(), builder, 255, lines);
             mesh = builder.build();
             pos = box.pos;
         } else {
@@ -151,7 +151,7 @@ public class LittleToolTransformer extends LittleTool {
                 return;
             
             LittleBoxAbsolute selectionBox = getSelectionBox();
-            buildBox(pose, selectionBox.getRenderingBoxWithoutOffset(), builder, 255, lines);
+            renderer.buildBox(pose, selectionBox.getRenderingBoxWithoutOffset(), builder, 255, lines);
             pos = selectionBox.pos;
             mesh = builder.build();
         }
@@ -162,7 +162,7 @@ public class LittleToolTransformer extends LittleTool {
             matrix.translate((float) (pos.getX() - cam.x), (float) (pos.getY() - cam.y), (float) (pos.getZ() - cam.z));
             
             RenderSystem.applyModelViewMatrix();
-            setupPreviewRenderer(lines);
+            renderer.setupPreviewRenderer(lines);
             
             BufferUploader.drawWithShader(mesh);
             matrix.popMatrix();
@@ -174,13 +174,13 @@ public class LittleToolTransformer extends LittleTool {
     }
     
     @Override
-    public boolean onMouseWheelClickBlock(Level level, Player player, BlockHitResult result) {
-        BlockState state = level.getBlockState(result.getBlockPos());
+    public boolean onMouseWheelClickBlock(PreviewRenderer renderer, BlockHitResult result) {
+        BlockState state = renderer.level().getBlockState(result.getBlockPos());
         if (LittleAction.isBlockValid(state)) {
             LittleTiles.NETWORK.sendToServer(new ChangedElementPacket(new LittleElement(state, ColorUtils.WHITE)));
             return true;
         } else if (state.getBlock() instanceof BlockTile) {
-            LittleTileContext context = LittleTileContext.selectFocused(level, result.getBlockPos(), player);
+            LittleTileContext context = renderer.selectFocused(result);
             if (context.isComplete())
                 LittleTiles.NETWORK.sendToServer(new ChangedElementPacket(context.tile));
             return true;
@@ -189,7 +189,7 @@ public class LittleToolTransformer extends LittleTool {
     }
     
     @Override
-    public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult result) {
+    public boolean onRightClick(PreviewRenderer renderer, @Nullable BlockHitResult result) {
         if (LittleActionHandlerClient.isUsingSecondMode()) {
             first = null;
             box = null;
@@ -227,18 +227,19 @@ public class LittleToolTransformer extends LittleTool {
             return true;
         }
         
-        transformer.boxFinished(level, player, stack, box);
+        transformer.boxFinished(renderer.level(), renderer.player(), stack, box);
         box = null;
         Arrays.fill(corners, null);
         return true;
     }
     
     @Override
-    public boolean onLeftClick(Level level, Player player, BlockHitResult hit) {
+    public boolean onLeftClick(PreviewRenderer renderer, BlockHitResult hit) {
         if (box != null) {
             int index = -1;
             double distance = Double.MAX_VALUE;
-            float partialTickTime = TickUtils.getFrameTime(player.level());
+            var player = renderer.player();
+            float partialTickTime = renderer.partialTickTime();
             Vec3 pos = player.getEyePosition(partialTickTime);
             double reach = PlayerUtils.getReach(player);
             Vec3 view = player.getViewVector(partialTickTime);
@@ -260,14 +261,14 @@ public class LittleToolTransformer extends LittleTool {
     }
     
     @Override
-    public boolean toolKeyPressed(Level level, Player player, KeyMapping key) {
-        if (super.toolKeyPressed(level, player, key))
+    public boolean toolKeyPressed(PreviewRenderer renderer, KeyMapping key) {
+        if (super.toolKeyPressed(renderer, key))
             return true;
         
         if (box != null && marked > -1) {
-            var facing = LittleTilesClient.facingFromKeybind(player, key);
+            var facing = LittleTilesClient.facingFromKeybind(renderer.player(), key);
             if (facing != null) {
-                LittleGrid grid = transformer.getPositionGrid(player, stack);
+                LittleGrid grid = transformer.getPositionGrid(renderer.player(), stack);
                 LittleVec vec = new LittleVec(facing);
                 vec.scale(Screen.hasControlDown() ? grid.count : 1);
                 corners[marked].add(new LittleVecAbsolute(BlockPos.ZERO, grid, vec));

@@ -16,6 +16,7 @@ import team.creative.littletiles.common.ingredient.LittleIngredient;
 import team.creative.littletiles.common.ingredient.LittleIngredients;
 import team.creative.littletiles.common.ingredient.LittleInventory;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.Placement;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.PlacementResult;
@@ -183,6 +184,16 @@ public class LittleActionPlace extends LittleAction<Boolean> {
         LittleIngredients ingredients = LittleIngredient.extractStructureOnly(source.getActionRegistry(), previews);
         ingredients.add(getIngredients(source.getActionRegistry(), placedTiles.placedPreviews));
         take(source, inventory, ingredients);
+    }
+    
+    @Override
+    public void include(LittleBoxes boxes) {
+        this.preview.include(boxes);
+    }
+    
+    @Override
+    public void exclude(LittleBoxes boxes) {
+        this.preview.exclude(boxes);
     }
     
     @Override

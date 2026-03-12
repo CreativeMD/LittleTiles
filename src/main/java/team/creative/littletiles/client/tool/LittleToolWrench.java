@@ -11,13 +11,12 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -26,6 +25,7 @@ import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.mc.BlockTile;
@@ -83,16 +83,16 @@ public class LittleToolWrench extends LittleTool {
     }
     
     @Override
-    public void tick(Level level, Player player, BlockHitResult blockHit) {
+    protected void tickInternal(PreviewRenderer renderer) {
         if (tickTime <= System.currentTimeMillis() && received) {
             MutableBlockPos pos = new MutableBlockPos();
-            BlockPos origin = player.blockPosition();
+            BlockPos origin = renderer.player().blockPosition();
             pos.set(origin);
             
             requestingStructures = new ArrayList<>();
             
             int range = LittleTiles.CONFIG.rendering.wrenchInfoRange;
-            scanLevel(level, pos, origin, range);
+            scanLevel(renderer.level(), pos, origin, range);
             
             AABB bb = new AABB(origin.getX() - range, origin.getY() - range, origin.getZ() - range, origin.getX() + 1 + range, origin.getY() + 1 + range, origin
                     .getZ() + 1 + range);
@@ -110,7 +110,7 @@ public class LittleToolWrench extends LittleTool {
     }
     
     @Override
-    public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {
+    protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
         if (lines || receivedStructures == null || receivedStructures.isEmpty())
             return;
         
@@ -120,10 +120,11 @@ public class LittleToolWrench extends LittleTool {
         
         boolean focus = false;
         LittleStructure focusedStructure = null;
-        if (player.isShiftKeyDown()) {
+        if (Screen.hasShiftDown()) {
             focus = true;
-            if (mc.hitResult.getType() == Type.BLOCK && mc.hitResult instanceof BlockHitResult b && level.getBlockState(b.getBlockPos()).getBlock() instanceof BlockTile) {
-                LittleTileContext tileContext = LittleTileContext.selectFocused(level, b.getBlockPos(), mc.player);
+            if (mc.hitResult.getType() == Type.BLOCK && mc.hitResult instanceof BlockHitResult b && renderer.level().getBlockState(b.getBlockPos())
+                    .getBlock() instanceof BlockTile) {
+                LittleTileContext tileContext = renderer.selectFocused(b);
                 if (tileContext.isComplete() && tileContext.parent.isStructure())
                     try {
                         focusedStructure = tileContext.parent.getStructure();
@@ -143,11 +144,6 @@ public class LittleToolWrench extends LittleTool {
         RenderSystem.disableDepthTest();
         buffer.endBatch();
         RenderSystem.enableDepthTest();
-    }
-    
-    @Override
-    public boolean onRightClick(Level level, Player player, BlockHitResult result) {
-        return false;
     }
     
     public static class StructureTooltip {

@@ -24,6 +24,7 @@ import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
@@ -84,13 +85,13 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
         return new LittleTool(stack) {
             
             @Override
-            public void tick(Level level, Player player, BlockHitResult blockHit) {}
+            protected void tickInternal(PreviewRenderer renderer) {}
             
             @Override
-            public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {}
+            protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {}
             
             @Override
-            public boolean onRightClick(Level level, Player player, @Nullable BlockHitResult result) {
+            public boolean onRightClick(PreviewRenderer renderer, @Nullable BlockHitResult result) {
                 if (result == null)
                     return false;
                 LittleTiles.NETWORK.sendToServer(new ChangedPosPacket(true, result.getBlockPos()));
@@ -98,7 +99,7 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
             }
             
             @Override
-            public boolean onLeftClick(Level level, Player player, @Nullable BlockHitResult result) {
+            public boolean onLeftClick(PreviewRenderer renderer, @Nullable BlockHitResult result) {
                 if (result == null)
                     return false;
                 LittleTiles.NETWORK.sendToServer(new ChangedPosPacket(false, result.getBlockPos()));

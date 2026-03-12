@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.math.box.collection;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
@@ -66,6 +67,48 @@ public final class LittleBoxesNoOverlap extends LittleBoxes {
                 blockMap.add(entry.getKey(), existingBoxes);
         }
         tempMap.clear();
+    }
+    
+    @Override
+    public void include(LittleBoxes boxes) {
+        sameGrid(boxes, () -> {
+            var blockMap = boxes.copy().generateBlockWise();
+            HashMapList<BlockPos, LittleBox> newMap = new HashMapList<>();
+            for (Entry<BlockPos, ArrayList<LittleBox>> entry : blockMap.entrySet()) {
+                var replaced = cutOut(entry.getKey(), entry.getValue(), true);
+                if (!replaced.isEmpty())
+                    newMap.add(entry.getKey(), replaced);
+            }
+            this.blockMap = newMap;
+        });
+    }
+    
+    @Override
+    public void exclude(LittleBoxes boxes) {
+        sameGrid(boxes, () -> {
+            var blockMap = boxes.copy().generateBlockWise();
+            HashMapList<BlockPos, LittleBox> newMap = new HashMapList<>();
+            for (Entry<BlockPos, ArrayList<LittleBox>> entry : blockMap.entrySet()) {
+                var replaced = cutOut(entry.getKey(), entry.getValue(), false);
+                if (!replaced.isEmpty())
+                    newMap.add(entry.getKey(), replaced);
+            }
+            this.blockMap = newMap;
+        });
+    }
+    
+    protected List<LittleBox> cutOut(BlockPos pos, List<LittleBox> boxes, boolean include) {
+        if (!blockMap.containsKey(pos))
+            return Collections.EMPTY_LIST;
+        
+        List<LittleBox> remaining = new ArrayList<>();
+        List<LittleBox> cutted = new ArrayList<>();
+        for (LittleBox box : blockMap.get(pos))
+            remaining.addAll(box.cutOut(grid, boxes, cutted, null));
+        
+        if (include)
+            return cutted;
+        return remaining;
     }
     
     public void cutOut(LittleGrid grid, BlockPos pos, LittleBox box) {

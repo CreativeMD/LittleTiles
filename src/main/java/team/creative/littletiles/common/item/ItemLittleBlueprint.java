@@ -23,6 +23,7 @@ import team.creative.littletiles.api.common.tool.ILittleSelector;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.LittleToolPlacer;
 import team.creative.littletiles.client.tool.LittleToolSelection;
@@ -165,12 +166,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, ILittleS
         }
         
         @Override
-        public boolean onMouseWheelClickBlock(Level world, Player player, BlockHitResult result) {
-            BlockState state = world.getBlockState(result.getBlockPos());
+        public boolean onMouseWheelClickBlock(PreviewRenderer renderer, BlockHitResult result) {
+            BlockState state = renderer.level().getBlockState(result.getBlockPos());
             if (state.getBlock() instanceof BlockTile) {
                 CompoundTag nbt = new CompoundTag();
                 nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode());
-                LittleTiles.NETWORK.sendToServer(new BlockPacket(world, result.getBlockPos(), player, BlockPacketAction.BLUEPRINT, nbt));
+                LittleTiles.NETWORK.sendToServer(new BlockPacket(renderer.level(), result.getBlockPos(), renderer.player(), BlockPacketAction.BLUEPRINT, nbt));
                 return true;
             }
             return true;

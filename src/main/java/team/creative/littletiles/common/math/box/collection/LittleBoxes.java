@@ -1,5 +1,6 @@
 package team.creative.littletiles.common.math.box.collection;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import net.minecraft.core.BlockPos;
@@ -16,6 +17,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 
 public abstract class LittleBoxes implements IGridBased {
     
@@ -109,8 +111,34 @@ public abstract class LittleBoxes implements IGridBased {
     
     public abstract int littleVolume();
     
+    public abstract void include(LittleBoxes boxes);
+    
+    public abstract void exclude(LittleBoxes boxes);
+    
     public double volume() {
         return grid.pixelVolume * littleVolume();
     }
     
+    public List<LittleBox> copyWithOrigin(BlockPos pos) {
+        List<LittleBox> result = new ArrayList<>();
+        LittleVec offset = new LittleVec(grid, this.pos.subtract(pos));
+        for (LittleBox box : all()) {
+            box = box.copy();
+            box.add(offset);
+            result.add(box);
+        }
+        return result;
+    }
+    
+    public List<LittleBox> copyWithOrigin(LittleVecAbsolute pos) {
+        List<LittleBox> result = new ArrayList<>();
+        LittleVec offset = new LittleVec(grid, this.pos.subtract(pos.getPos()));
+        offset.sub(pos.getVec());
+        for (LittleBox box : all()) {
+            box = box.copy();
+            box.add(offset);
+            result.add(box);
+        }
+        return result;
+    }
 }

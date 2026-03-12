@@ -61,7 +61,7 @@ public class BuildingModeGridScroll extends BuildingModeFeature implements ICrea
     
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
-        if (this.key.matches(keyCode)) {
+        if (active && this.key.matches(keyCode)) {
             if (action == InputConstants.PRESS)
                 keyDown = true;
             else if (action == InputConstants.RELEASE)

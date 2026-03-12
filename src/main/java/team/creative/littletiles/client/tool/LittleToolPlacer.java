@@ -38,6 +38,7 @@ import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.mc.MeshDataExtender;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
@@ -108,7 +109,7 @@ public class LittleToolPlacer extends LittleTool {
         return PlacementPreview.relative(level, builtResult.group, builtMode, placedPosition);
     }
     
-    protected void buildCache(Level level, IntMatrix3c matrix, PlacementMode mode) {
+    protected void buildCache(PreviewRenderer renderer, IntMatrix3c matrix, PlacementMode mode) {
         built = true;
         builtMode = mode;
         builtMatrix = matrix;
@@ -130,16 +131,16 @@ public class LittleToolPlacer extends LittleTool {
         builtHash = stackData != null ? stackData.hashCode() : 0;
         
         worker = CompletableFuture.supplyAsync(() -> {
-            var buffer = createBuffer();
+            var buffer = renderer.createBuffer();
             LittleGroup group = placer.get(stack, false);
             group.transform(matrix, group.getGrid().rotationCenter);
             
-            BufferBuilder builder = createBuilder(buffer, builtLines);
+            BufferBuilder builder = renderer.createBuilder(buffer, builtLines);
             
             int colorAlpha = 255;
             
             for (RenderBox box : group.getPlaceBoxes(LittleVec.ZERO))
-                buildBox(EMPTY, box, builder, colorAlpha, builtLines);
+                renderer.buildBox(PreviewRenderer.EMPTY, box, builder, colorAlpha, builtLines);
             
             var data = builder.build();
             ((MeshDataExtender) data).keepAlive(true);
@@ -165,9 +166,12 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     @Override
-    public void tick(Level level, Player player, @Nullable BlockHitResult blockHit) {
+    protected void tickInternal(PreviewRenderer renderer) {
+        var blockHit = renderer.blockHit();
         if (blockHit == null)
             return;
+        var player = renderer.player();
+        var level = renderer.level();
         var grid = placer.getPositionGrid(player, stack);
         var pos = marked != null ? marked.copy() : PlacementHelper.getPosition(level, blockHit, grid);
         var mode = placer.getPlacementMode(stack);
@@ -180,7 +184,7 @@ public class LittleToolPlacer extends LittleTool {
         
         if (!built) {
             if (hasTiles)
-                buildCache(level, matrix, mode);
+                buildCache(renderer, matrix, mode);
             else {
                 builtEmpty = true;
                 if (builtResult != null || worker != null)
@@ -199,8 +203,8 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     @Override
-    public boolean toolKeyPressed(Level level, Player player, KeyMapping key) {
-        if (super.toolKeyPressed(level, player, key))
+    public boolean toolKeyPressed(PreviewRenderer renderer, KeyMapping key) {
+        if (super.toolKeyPressed(renderer, key))
             return true;
         if (key == LittleTilesClient.KEY_MARK) {
             if (marked == null) {
@@ -219,28 +223,28 @@ public class LittleToolPlacer extends LittleTool {
             if (marked != null)
                 moveMarked(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.UP : Facing.EAST);
             else
-                processTransform(player, key, stack);
+                processTransform(renderer.player(), key, stack);
             return true;
         } else if (key == LittleTilesClient.KEY_DOWN) {
             if (marked != null)
                 moveMarked(lastGrid, LittleActionHandlerClient.isUsingSecondMode() ? Facing.DOWN : Facing.WEST);
             else
-                processTransform(player, key, stack);
+                processTransform(renderer.player(), key, stack);
             return true;
         } else if (key == LittleTilesClient.KEY_RIGHT) {
             if (marked != null)
                 moveMarked(lastGrid, Facing.SOUTH);
             else
-                processTransform(player, key, stack);
+                processTransform(renderer.player(), key, stack);
             return true;
         } else if (key == LittleTilesClient.KEY_LEFT) {
             if (marked != null)
                 moveMarked(lastGrid, Facing.NORTH);
             else
-                processTransform(player, key, stack);
+                processTransform(renderer.player(), key, stack);
             return true;
         } else if (key == LittleTilesClient.KEY_MIRROR)
-            processTransform(player, key, stack);
+            processTransform(renderer.player(), key, stack);
         return false;
     }
     
@@ -292,25 +296,25 @@ public class LittleToolPlacer extends LittleTool {
         
     }
     
-    public MeshData getMeshData(boolean lines) {
+    public MeshData getMeshData(PreviewRenderer renderer, boolean lines) {
         if (checkForWorker())
             return builtResult.data;
         
         if (!checkForGroupLow())
             return null;
         
-        var builder = createTesselatorBuilder(lines);
+        var builder = renderer.createTesselatorBuilder(lines);
         for (RenderBox box : builtLowGroup.getPlaceBoxes(LittleVec.ZERO))
-            buildBox(EMPTY, box, builder, 255, lines);
+            renderer.buildBox(PreviewRenderer.EMPTY, box, builder, 255, lines);
         return builder.build();
     }
     
     @Override
-    public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {
+    protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
         if (this.builtLines != lines)
             return;
         
-        var mesh = getMeshData(lines);
+        var mesh = getMeshData(renderer, lines);
         if (mesh == null || placedPosition == null)
             return;
         
@@ -318,11 +322,11 @@ public class LittleToolPlacer extends LittleTool {
         pose.translate(-cam.x, -cam.y, -cam.z);
         
         if (marked != null)
-            marked.render(pose, true, placer.getPositionGrid(player, stack));
+            marked.render(pose, true, placer.getPositionGrid(renderer.player(), stack));
         
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
-        setupPreviewRenderer(lines);
+        renderer.setupPreviewRenderer(lines);
         matrix.translate((float) (placedPosition.getPosX() - cam.x), (float) (placedPosition.getPosY() - cam.y), (float) (placedPosition.getPosZ() - cam.z));
         RenderSystem.applyModelViewMatrix();
         BufferUploader.drawWithShader(mesh);
@@ -332,11 +336,11 @@ public class LittleToolPlacer extends LittleTool {
         if (builtResult != null) {
             int colorAlpha = 255;
             if (LittleActionHandlerClient.isUsingSecondMode() != placer.snapToGridByDefault(stack)) {
-                List<RenderBox> cubes = getPositingCubes(level, aimedPosition.getPos());
-                BufferBuilder builder = createTesselatorBuilder(lines);
+                List<RenderBox> cubes = getPositingCubes(renderer.level(), aimedPosition.getPos());
+                BufferBuilder builder = renderer.createTesselatorBuilder(lines);
                 if (cubes != null)
                     for (RenderBox cube : cubes)
-                        buildBox(pose, cube, builder, colorAlpha, lines);
+                        renderer.buildBox(pose, cube, builder, colorAlpha, lines);
                 var data = builder.build();
                 if (data != null)
                     BufferUploader.drawWithShader(data);
@@ -424,7 +428,7 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     @Override
-    public boolean onRightClick(Level level, Player player, BlockHitResult result) {
+    public boolean onRightClick(PreviewRenderer renderer, BlockHitResult result) {
         if (!placer.hasTiles(stack))
             return false;
         
@@ -437,7 +441,7 @@ public class LittleToolPlacer extends LittleTool {
             builtResult = worker.join();
         }
         if (LittleTilesClient.INTERACTION.start(true)) {
-            PlacementPreview preview = getPlacement(level);
+            PlacementPreview preview = getPlacement(renderer.level());
             if (preview == null)
                 return true;
             LittleTilesClient.ACTION_HANDLER.execute(new LittleActionPlace(PlaceAction.PLACER, preview));

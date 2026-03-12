@@ -77,7 +77,7 @@ import team.creative.littletiles.client.render.item.LittleModelItemTilesBig;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
-import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.render.overlay.PreviewManager;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.common.block.little.element.LittleElement;
@@ -116,7 +116,7 @@ public class LittleTilesClient {
     public static LittleAnimationHandlerClient ANIMATION_HANDLER;
     public static LittleVanillaInteractionHandlerClient INTERACTION_HANDLER;
     public static LittleInteractionHandlerClient INTERACTION;
-    public static PreviewRenderer PREVIEW_RENDERER;
+    public static PreviewManager PREVIEW_RENDERER;
     public static ItemRenderCache ITEM_RENDER_CACHE;
     public static LittleClientPlayerConnection PLAYER_CONNECTION;
     public static OverlayRenderer OVERLAY_RENDERER;
@@ -159,6 +159,13 @@ public class LittleTilesClient {
     
     public static void displayActionMessage(List<Component> message) {
         OVERLAY_RENDERER.displayActionMessage(message);
+    }
+    
+    public static Facing facingFromKeybind(Player player, int keyCode, int scanCode) {
+        for (int i = 0; i < TOOL_KEYS.length; i++)
+            if (TOOL_KEYS[i].matches(keyCode, scanCode))
+                return facingFromKeybind(player, TOOL_KEYS[i]);
+        return null;
     }
     
     public static Facing facingFromKeybind(Player player, KeyMapping key) {
@@ -249,7 +256,7 @@ public class LittleTilesClient {
         LEVEL_HANDLERS.register(LittleActionHandlerClient::new, x -> ACTION_HANDLER = x);
         LEVEL_HANDLERS.register(LittleVanillaInteractionHandlerClient::new, x -> INTERACTION_HANDLER = x);
         LEVEL_HANDLERS.register(LittleTiles.ANIMATION_HANDLERS::get, x -> ANIMATION_HANDLER = (LittleAnimationHandlerClient) x);
-        LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewRenderer());
+        LEVEL_HANDLERS.register(PREVIEW_RENDERER = new PreviewManager());
         LEVEL_HANDLERS.register(ITEM_RENDER_CACHE = new ItemRenderCache());
         LEVEL_HANDLERS.register(PLAYER_CONNECTION = new LittleClientPlayerConnection());
         LEVEL_HANDLERS.register(INTERACTION = new LittleInteractionHandlerClient());

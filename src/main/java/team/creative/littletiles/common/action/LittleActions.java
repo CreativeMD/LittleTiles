@@ -5,6 +5,7 @@ import team.creative.littletiles.common.action.cancel.ActionCancelContext;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 
 public class LittleActions extends LittleAction<Boolean> {
     
@@ -72,6 +73,20 @@ public class LittleActions extends LittleAction<Boolean> {
             if (actions[i] != null)
                 newActions[i] = actions[i].mirror(axis, box);
         return new LittleActions(newActions);
+    }
+    
+    @Override
+    public void include(LittleBoxes boxes) {
+        for (int i = 0; i < actions.length; i++)
+            if (actions[i] != null)
+                actions[i].include(boxes);
+    }
+    
+    @Override
+    public void exclude(LittleBoxes boxes) {
+        for (int i = 0; i < actions.length; i++)
+            if (actions[i] != null)
+                actions[i].exclude(boxes);
     }
     
     @Override

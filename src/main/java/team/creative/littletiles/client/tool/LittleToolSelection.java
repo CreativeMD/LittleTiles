@@ -8,9 +8,7 @@ import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -19,10 +17,9 @@ import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittleSelector;
-import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.mc.MeshDataExtender;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.source.LittleActionSource;
-import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 
@@ -39,7 +36,7 @@ public class LittleToolSelection extends LittleTool {
         this.selector = (ILittleSelector) stack.getItem();
     }
     
-    private void build(Level level) {
+    private void build(PreviewRenderer renderer) {
         if (!selector.hasSelection(stack))
             return;
         
@@ -48,41 +45,41 @@ public class LittleToolSelection extends LittleTool {
             return;
         
         cachedSelection = selection;
-        SelectionRenderQueue queue = new SelectionRenderQueue();
-        cachedSelection.mode.buildRender(level, stack, selector.getSelection(stack), queue);
+        SelectionRenderQueue queue = new SelectionRenderQueue(renderer);
+        cachedSelection.mode.buildRender(renderer.level(), stack, selector.getSelection(stack), queue);
         cacheOrigin = queue.origin;
         lineCache = queue.build(true);
         boxCache = queue.build(false);
     }
     
     @Override
-    public boolean onRightClick(Level level, Player player, BlockHitResult result) {
+    public boolean onRightClick(PreviewRenderer renderer, BlockHitResult result) {
         if (result == null)
             return false;
         
-        var packet = new SelectionModePacket(result, LittleTileContext.selectFocused(level, result.getBlockPos(), player), LittleActionHandlerClient.isUsingSecondMode(), true);
-        packet.execute(player);
+        var packet = new SelectionModePacket(result, renderer.selectFocused(result), renderer.isUsingSecondMode(), true);
+        packet.execute(renderer.player());
         LittleTiles.NETWORK.sendToServer(packet);
         return true;
     }
     
     @Override
-    public boolean onLeftClick(Level level, Player player, BlockHitResult result) {
+    public boolean onLeftClick(PreviewRenderer renderer, BlockHitResult result) {
         if (result == null)
             return false;
         
-        var packet = new SelectionModePacket(result, LittleTileContext.selectFocused(level, result.getBlockPos(), player), LittleActionHandlerClient.isUsingSecondMode(), false);
-        packet.execute(player);
+        var packet = new SelectionModePacket(result, renderer.selectFocused(result), renderer.isUsingSecondMode(), false);
+        packet.execute(renderer.player());
         LittleTiles.NETWORK.sendToServer(packet);
         return true;
     }
     
     @Override
-    public void tick(Level level, Player player, BlockHitResult blockHit) {
+    protected void tickInternal(PreviewRenderer renderer) {
         if (cachedSelection == null)
             return;
         
-        cachedSelection.mode.tick((LittleActionSource) player, level, stack, cachedSelection, this);
+        cachedSelection.mode.tick((LittleActionSource) renderer.player(), renderer.level(), stack, cachedSelection, this);
     }
     
     public SelectionRenderResult getRenderResult(boolean lines) {
@@ -90,12 +87,12 @@ public class LittleToolSelection extends LittleTool {
     }
     
     @Override
-    public void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines) {
+    protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
         if (!selector.hasSelection(stack))
             return;
         var sel = selector.getSelection(stack);
         if (cachedSelection == null || !cachedSelection.equals(sel))
-            build(level);
+            build(renderer);
         
         if (cachedSelection == null)
             return;
@@ -106,7 +103,7 @@ public class LittleToolSelection extends LittleTool {
         
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
-        setupPreviewRenderer(lines);
+        renderer.setupPreviewRenderer(lines);
         matrix.translate((float) (cacheOrigin.getX() - cam.x), (float) (cacheOrigin.getY() - cam.y), (float) (cacheOrigin.getZ() - cam.z));
         RenderSystem.applyModelViewMatrix();
         BufferUploader.drawWithShader(result.data);
@@ -116,7 +113,7 @@ public class LittleToolSelection extends LittleTool {
         if (cachedSelection.mode.hasRenderTick(stack, cachedSelection)) {
             pose.pushPose();
             pose.translate(-cam.x, -cam.y, -cam.z);
-            cachedSelection.mode.renderTick((LittleActionSource) player, level, stack, cachedSelection, pose, lines);
+            cachedSelection.mode.renderTick((LittleActionSource) renderer.player(), renderer.level(), stack, cachedSelection, pose, lines);
             pose.popPose();
         }
         
@@ -146,6 +143,12 @@ public class LittleToolSelection extends LittleTool {
         
         private BlockPos origin = BlockPos.ZERO;
         
+        public final PreviewRenderer renderer;
+        
+        public SelectionRenderQueue(PreviewRenderer renderer) {
+            this.renderer = renderer;
+        }
+        
         protected void checkOrigin() {
             if (origin == null)
                 throw new RuntimeException("First origin needs to be set");
@@ -158,15 +161,15 @@ public class LittleToolSelection extends LittleTool {
         public BufferBuilder getBuilder(boolean line) {
             if (line) {
                 if (lineBuffer == null) {
-                    lineBuffer = createBuffer();
-                    lineBuilder = createBuilder(lineBuffer, line);
+                    lineBuffer = renderer.createBuffer();
+                    lineBuilder = renderer.createBuilder(lineBuffer, line);
                 }
                 return lineBuilder;
             }
             
             if (boxBuffer == null) {
-                boxBuffer = createBuffer();
-                boxBuilder = createBuilder(boxBuffer, line);
+                boxBuffer = renderer.createBuffer();
+                boxBuilder = renderer.createBuilder(boxBuffer, line);
             }
             return boxBuilder;
         }
@@ -177,7 +180,7 @@ public class LittleToolSelection extends LittleTool {
         
         public void addBox(RenderBox box, boolean line, int alpha) {
             checkOrigin();
-            buildBox(EMPTY, box, getBuilder(line), alpha, line);
+            renderer.buildBox(PreviewRenderer.EMPTY, box, getBuilder(line), alpha, line);
         }
         
         public void addLine(Vec3 start, Vec3 end, int color) {
@@ -189,10 +192,10 @@ public class LittleToolSelection extends LittleTool {
             Vec3f normal = new Vec3f();
             var builder = getBuilder(true);
             VectorFan.setLineNormal(normal, (float) start.x, (float) start.y, (float) start.z, (float) end.x, (float) end.y, (float) end.z);
-            builder.addVertex(EMPTY.last().pose(), (float) start.x, (float) start.y, (float) start.z).setColor(red, green, blue, alpha).setNormal(EMPTY.last(), normal.x, normal.y,
-                normal.z);
-            builder.addVertex(EMPTY.last().pose(), (float) end.x, (float) end.y, (float) end.z).setColor(red, green, blue, alpha).setNormal(EMPTY.last(), normal.x, normal.y,
-                normal.z);
+            builder.addVertex(PreviewRenderer.EMPTY.last().pose(), (float) start.x, (float) start.y, (float) start.z).setColor(red, green, blue, alpha).setNormal(
+                PreviewRenderer.EMPTY.last(), normal.x, normal.y, normal.z);
+            builder.addVertex(PreviewRenderer.EMPTY.last().pose(), (float) end.x, (float) end.y, (float) end.z).setColor(red, green, blue, alpha).setNormal(PreviewRenderer.EMPTY
+                    .last(), normal.x, normal.y, normal.z);
         }
         
         public SelectionRenderResult build(boolean lines) {

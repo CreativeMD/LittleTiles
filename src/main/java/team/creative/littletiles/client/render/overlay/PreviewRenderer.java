@@ -1,58 +1,47 @@
 package team.creative.littletiles.client.render.overlay;
 
+import java.util.List;
+import java.util.Optional;
+
+import javax.annotation.Nullable;
+
+import org.lwjgl.opengl.GL14;
+
+import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.BufferUploader;
+import com.mojang.blaze3d.vertex.ByteBufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 
-import net.minecraft.client.KeyMapping;
+import it.unimi.dsi.fastutil.ints.Int2BooleanFunction;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.neoforged.bus.api.SubscribeEvent;
-import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
-import net.neoforged.neoforge.client.event.RenderHighlightEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
-import net.neoforged.neoforge.client.event.RenderLevelStageEvent.Stage;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.util.TriState;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickBlock.Action;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.LeftClickEmpty;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickBlock;
-import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
-import team.creative.creativecore.common.gui.IGuiParent;
-import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.util.mc.PlayerUtils;
+import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.LittleTiles;
-import team.creative.littletiles.LittleTilesGuiRegistry;
-import team.creative.littletiles.api.common.tool.ILittleTool;
-import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
-import team.creative.littletiles.client.level.LevelAwareHandler;
-import team.creative.littletiles.client.tool.LittleTool;
-import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.action.exception.LittleActionException;
-import team.creative.littletiles.common.block.mc.BlockTile;
-import team.creative.littletiles.common.gui.tool.GuiConfigure;
-import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.client.render.mc.MeshDataExtender;
+import team.creative.littletiles.client.render.tile.LittleRenderBox;
+import team.creative.littletiles.client.tool.shaper.ShapePosition;
+import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 
-public class PreviewRenderer implements LevelAwareHandler {
-    
-    public static final ResourceLocation WHITE_TEXTURE = ResourceLocation.tryBuild(LittleTiles.MODID, "textures/preview.png");
-    public static final Minecraft mc = Minecraft.getInstance();
+public class PreviewRenderer {
     
     public static void renderShape(PoseStack pose, VertexConsumer consumer, VoxelShape shape, double x, double y, double z, float red, float green, float blue, float alpha) {
         PoseStack.Pose posestack$pose = pose.last();
@@ -69,224 +58,163 @@ public class PreviewRenderer implements LevelAwareHandler {
         });
     }
     
-    private ItemStack lastHeld = ItemStack.EMPTY;
-    private LittleTool tool;
+    public static final PoseStack EMPTY = new PoseStack();
     
-    public PreviewRenderer() {
-        NeoForge.EVENT_BUS.register(this);
+    public final PreviewManager manager;
+    
+    public PreviewRenderer(PreviewManager manager) {
+        this.manager = manager;
     }
     
-    public LittleTool tool() {
-        return tool;
+    public Player player() {
+        return manager.player();
     }
     
-    public void clearToolPreviews() {
-        lastHeld = ItemStack.EMPTY;
-        if (tool != null)
-            tool.remove();
-        tool = null;
-    }
-    
-    @Override
-    public void unload() {
-        clearToolPreviews();
-    }
-    
-    @SubscribeEvent
-    public void tick(RenderLevelStageEvent event) {
-        if (event.getStage() != Stage.AFTER_WEATHER)
-            return;
-        if (mc.player == null || mc.screen instanceof IGuiParent)
-            return;
-        
-        Level level = mc.level;
-        Player player = mc.player;
-        ItemStack stack = player.getMainHandItem();
-        PoseStack pose = new PoseStack();
-        
-        if (!ItemStack.isSameItem(stack, lastHeld) || (stack.getItem() instanceof ILittleTool tool && !tool.isCorrectTool(stack, this.tool))) {
-            clearToolPreviews();
-            if (stack.getItem() instanceof ILittleTool tool)
-                this.tool = tool.tool(stack);
-            else
-                this.tool = null;
-            lastHeld = stack.copy();
-        }
-        
-        if (!LittleAction.canPlace(player) || mc.options.hideGui) {
-            processKeys(level, player, stack, false); // Make sure the actions are not queued and performed once things can be placed
-            return;
-        }
-        
-        if (tool != null) {
-            BlockHitResult blockHit = blockHit();
-            tool.stack = stack;
-            tool.tick(level, player, blockHit);
-        }
-        
-        processKeys(level, player, stack, true);
-        
-        if (tool != null) {
-            Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
-            RenderSystem.enableBlend();
-            
-            tool.render(level, player, pose, cam, false);
-            
-            RenderSystem.depthMask(true);
-            RenderSystem.disableBlend();
-            RenderSystem.defaultBlendFunc();
-        }
-    }
-    
-    private void processKeys(Level level, Player player, ItemStack stack, boolean execute) {
-        while (LittleTilesClient.KEY_UNDO.consumeClick()) {
-            try {
-                if (execute && LittleActionHandlerClient.canUseUndoOrRedo())
-                    LittleTilesClient.ACTION_HANDLER.undo();
-            } catch (LittleActionException e) {
-                LittleActionHandlerClient.handleException(e);
-            }
-        }
-        
-        while (LittleTilesClient.KEY_REDO.consumeClick()) {
-            try {
-                if (execute && LittleActionHandlerClient.canUseUndoOrRedo())
-                    LittleTilesClient.ACTION_HANDLER.redo();
-            } catch (LittleActionException e) {
-                LittleActionHandlerClient.handleException(e);
-            }
-        }
-        
-        while (LittleTilesClient.KEY_CONFIGURE.consumeClick())
-            if (stack.getItem() instanceof ILittleTool t) {
-                GuiConfigure gui = t.getConfigure(mc.player, ContainerSlotView.mainHand(mc.player), false);
-                if (gui != null)
-                    LittleTilesGuiRegistry.OPEN_CONFIG.open(mc.player);
-            }
-        
-        while (LittleTilesClient.KEY_CONFIGURE_SECONDARY.consumeClick())
-            if (stack.getItem() instanceof ILittleTool t) {
-                GuiConfigure gui = t.getConfigure(mc.player, ContainerSlotView.mainHand(mc.player), true);
-                if (gui != null) {
-                    CompoundTag nbt = new CompoundTag();
-                    nbt.putBoolean("second", true);
-                    LittleTilesGuiRegistry.OPEN_CONFIG.open(nbt, mc.player);
-                }
-            }
-        
-        for (KeyMapping key : LittleTilesClient.TOOL_KEYS)
-            while (key.consumeClick())
-                if (execute && tool != null)
-                    if (tool.toolKeyPressed(level, player, key))
-                        break;
-    }
-    
-    @SubscribeEvent
-    public void drawNonHighlight(RenderLevelStageEvent event) {
-        if (event.getStage() != Stage.AFTER_BLOCK_ENTITIES)
-            return;
-        if (mc.getCameraEntity() instanceof Player && !mc.options.hideGui && mc.hitResult != null && mc.hitResult.getType() == Type.MISS && tool != null) {
-            Player player = mc.player;
-            Level level = player.level();
-            Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
-            
-            tool.render(level, player, event.getPoseStack(), cam, true);
-        }
-    }
-    
-    @SubscribeEvent
-    public void drawHighlight(RenderHighlightEvent.Block event) {
-        Player player = mc.player;
-        Level level = player.level();
-        
-        if (!LittleAction.canPlace(player))
-            return;
-        
-        Vec3 cam = mc.gameRenderer.getMainCamera().getPosition();
-        
-        PoseStack pose = event.getPoseStack();
-        if (tool != null)
-            tool.render(level, player, pose, cam, true);
-        
-        if (!event.isCanceled() && level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder().isWithinBounds(event.getTarget()
-                .getBlockPos())) {
-            BlockPos pos = event.getTarget().getBlockPos();
-            BlockState state = level.getBlockState(pos);
-            VoxelShape shape;
-            if (state.getBlock() instanceof BlockTile block)
-                shape = block.getSelectionShape(level, pos);
-            else
-                shape = state.getShape(level, pos, CollisionContext.of(player));
-            renderShape(pose, event.getMultiBufferSource().getBuffer(RenderType.lines()), shape, pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z, 0.0F, 0.0F, 0.0F,
-                0.4F);
-            event.setCanceled(true);
-        }
-        
-        RenderSystem.enableCull();
-    }
-    
-    public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
-        if (tool != null)
-            return tool.keyPressed(keyCode, scanCode, action, modifiers);
-        return false;
+    public Level level() {
+        return manager.level();
     }
     
     public BlockHitResult blockHit() {
-        if (mc.hitResult instanceof BlockHitResult b)
-            return b;
-        if (mc.hitResult instanceof LittleHitResult result && result.isBlock())
-            return result.asBlockHit();
-        return null;
+        return manager.blockHit();
     }
     
-    @SubscribeEvent
-    public void onMouseWheelClick(InteractionKeyMappingTriggered event) {
-        if (!event.isPickBlock() || tool == null)
-            return;
-        BlockHitResult hit = blockHit();
+    public boolean isUsingSecondMode() {
+        return LittleActionHandlerClient.isUsingSecondMode();
+    }
+    
+    public LittleTileContext selectFocused(BlockHitResult result) {
+        return LittleTileContext.selectFocused(level(), result.getBlockPos(), player());
+    }
+    
+    public float partialTickTime() {
+        return TickUtils.getFrameTime(level());
+    }
+    
+    public int select(List<ShapePosition> positions) {
+        int index = -1;
+        double distance = Double.MAX_VALUE;
+        var player = player();
+        float partialTickTime = partialTickTime();
+        Vec3 pos = player.getEyePosition(partialTickTime);
+        double reach = PlayerUtils.getReach(player);
+        Vec3 view = player.getViewVector(partialTickTime);
+        Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
+        for (int i = 0; i < positions.size(); i++) {
+            Optional<Vec3> result = positions.get(i).getBox().clip(pos, look);
+            if (result.isPresent()) {
+                double tempDistance = pos.distanceToSqr(result.get());
+                if (tempDistance < distance) {
+                    index = i;
+                    distance = tempDistance;
+                }
+            }
+        }
+        return index;
+    }
+    
+    public void setupPreviewRendererLines(float red, float green, float blue, float alpha, float lineWidth) {
+        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+        RenderSystem.lineWidth(lineWidth);
         
-        if (tool.onMouseWheelClickBlock(mc.level, mc.player, hit)) {
-            event.setCanceled(true);
+        RenderSystem.setShaderColor(red, green, blue, alpha);
+        RenderSystem.enableDepthTest();
+    }
+    
+    public void setupPreviewRenderer(boolean lines) {
+        if (lines) {
+            setupPreviewRendererLines(0, 0, 0, 0.4F, (float) LittleTiles.CONFIG.rendering.previewLineThickness);
             return;
         }
-    }
-    
-    @SubscribeEvent
-    public void onLeftClickAir(LeftClickEmpty event) {
-        if (!event.getLevel().isClientSide || tool == null)
-            return;
+        if (LittleTiles.CONFIG.rendering.darkerPreviewBoxShading) {
+            GL14.glBlendColor(0.25F, 0.25F, 0.25F, 0.25F);
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.CONSTANT_COLOR, GlStateManager.DestFactor.ONE_MINUS_DST_COLOR, GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ZERO);
+        } else
+            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+                GlStateManager.DestFactor.ZERO);
         
-        var hit = blockHit();
-        tool.onLeftClick(event.getLevel(), event.getEntity(), hit);
-    }
-    
-    @SubscribeEvent
-    public void onLeftClickBlock(LeftClickBlock event) {
-        if (!event.getLevel().isClientSide || tool == null || event.getAction() != Action.START)
-            return;
+        double alpha = (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5);
+        RenderSystem.setShaderColor(1, 1, 1, (float) alpha);
         
-        var hit = blockHit();
-        if (tool.onLeftClick(event.getLevel(), event.getEntity(), hit))
-            event.setUseItem(TriState.TRUE);
+        RenderSystem.setShaderTexture(0, PreviewManager.WHITE_TEXTURE);
+        RenderSystem.setShader(GameRenderer::getPositionColorShader);
+        RenderSystem.depthMask(Minecraft.useShaderTransparency());
+        RenderSystem.enableCull();
     }
     
-    @SubscribeEvent
-    public void onRightClickAir(RightClickEmpty event) {
-        if (!event.getLevel().isClientSide || tool == null)
-            return;
-        var hit = blockHit();
-        tool.onRightClick(event.getLevel(), event.getEntity(), hit);
+    public ByteBufferBuilder createBuffer() {
+        return new ByteBufferBuilder(86432);
     }
     
-    @SubscribeEvent
-    public void onRightClickBlock(RightClickBlock event) {
-        if (event.getHand() != InteractionHand.MAIN_HAND || !event.getLevel().isClientSide || tool == null)
-            return;
+    public BufferBuilder createBuilder(ByteBufferBuilder buffer, boolean lines) {
+        if (lines)
+            return new BufferBuilder(buffer, VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        return new BufferBuilder(buffer, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+    }
+    
+    public BufferBuilder createTesselatorBuilder(boolean lines) {
+        if (lines)
+            return Tesselator.getInstance().begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        return Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
+    }
+    
+    public void buildBox(PoseStack pose, RenderBox box, BufferBuilder builder, int colorAlpha, boolean lines) {
+        if (lines)
+            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.001);
+        else
+            box.renderPreview(pose, builder, colorAlpha);
+    }
+    
+    public void renderBoxes(Vec3 cam, BlockPos pos, boolean lines, MeshData data) {
+        renderBoxes(cam, pos, lines, data, null);
+    }
+    
+    public void renderBoxes(Vec3 cam, BlockPos pos, boolean lines, MeshData data, @Nullable Runnable adjustGL) {
+        var matrix = RenderSystem.getModelViewStack();
+        matrix.pushMatrix();
+        matrix.translate((float) (pos.getX() - cam.x), (float) (pos.getY() - cam.y), (float) (pos.getZ() - cam.z));
         
-        var hit = blockHit();
-        if (tool.onRightClick(mc.level, mc.player, hit)) {
-            event.setCancellationResult(InteractionResult.CONSUME);
-            event.setCanceled(true);
+        RenderSystem.applyModelViewMatrix();
+        setupPreviewRenderer(lines);
+        
+        if (adjustGL != null)
+            adjustGL.run();
+        
+        BufferUploader.drawWithShader(data);
+        matrix.popMatrix();
+    }
+    
+    public BoxRenderResult buildBoxes(PoseStack pose, LittleBoxes boxes, boolean lines) {
+        ByteBufferBuilder buffer = createBuffer();
+        var builder = createBuilder(buffer, lines);
+        for (LittleBox box : boxes.all()) {
+            LittleRenderBox cube = box.getRenderingBox(boxes.getGrid());
+            if (cube != null)
+                buildBox(pose, cube, builder, 255, lines);
+        }
+        var mesh = builder.build();
+        if (mesh instanceof MeshDataExtender m)
+            m.keepAlive(true);
+        return new BoxRenderResult(boxes, boxes.pos, buffer, mesh);
+    }
+    
+    public void renderPositions(PoseStack pose, Vec3 cam, List<ShapePosition> positions, @Nullable Int2BooleanFunction marked) {
+        pose.pushPose();
+        pose.translate(-cam.x, -cam.y, -cam.z);
+        for (int i = 0; i < positions.size(); i++)
+            positions.get(i).render(pose, marked != null && marked.get(i));
+        pose.popPose();
+    }
+    
+    public static record BoxRenderResult(LittleBoxes boxes, BlockPos pos, ByteBufferBuilder buffer, MeshData data) {
+        
+        public void close() {
+            if (data instanceof MeshDataExtender m) {
+                m.keepAlive(false);
+                data.close();
+            }
+            if (buffer != null)
+                buffer.close();
         }
     }
     

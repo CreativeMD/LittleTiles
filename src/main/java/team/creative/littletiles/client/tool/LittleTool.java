@@ -3,38 +3,20 @@ package team.creative.littletiles.client.tool;
 import java.util.ArrayList;
 import java.util.List;
 
-import javax.annotation.Nullable;
-
-import org.lwjgl.opengl.GL14;
-
-import com.mojang.blaze3d.platform.GlStateManager;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.GameRenderer;
 import net.minecraft.network.chat.Component;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
+import team.creative.littletiles.common.action.LittleAction;
 
 public abstract class LittleTool {
-    
-    public static final PoseStack EMPTY = new PoseStack();
     
     public ItemStack stack;
     private boolean buildingMode;
@@ -44,9 +26,25 @@ public abstract class LittleTool {
         this.stack = stack;
     }
     
-    public abstract void tick(Level level, Player player, @Nullable BlockHitResult blockHit);
+    public final void tick(PreviewRenderer renderer) {
+        if (buildingMode)
+            for (BuildingModeFeature feature : features)
+                feature.tick(renderer);
+        tickInternal(renderer);
+    }
     
-    public abstract void render(Level level, Player player, PoseStack pose, Vec3 cam, boolean lines);
+    public final void render(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
+        boolean rendered = false;
+        if (buildingMode)
+            for (BuildingModeFeature feature : features)
+                rendered |= feature.render(renderer, pose, cam, lines);
+        if (!rendered)
+            renderInternal(renderer, pose, cam, lines);
+    }
+    
+    protected abstract void tickInternal(PreviewRenderer renderer);
+    
+    protected abstract void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines);
     
     protected void disableBuildingMode() {
         for (BuildingModeFeature feature : features)
@@ -54,7 +52,7 @@ public abstract class LittleTool {
         buildingMode = false;
     }
     
-    public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
+    public boolean keyPressed(PreviewRenderer renderer, int keyCode, int scanCode, int action, int modifiers) {
         if (buildingMode)
             for (BuildingModeFeature feature : features)
                 if (feature.keyPressed(keyCode, scanCode, action, modifiers))
@@ -62,7 +60,7 @@ public abstract class LittleTool {
         return false;
     }
     
-    public boolean toolKeyPressed(Level level, Player player, KeyMapping key) {
+    public boolean toolKeyPressed(PreviewRenderer renderer, KeyMapping key) {
         if (key == LittleTilesClient.KEY_BUILDING_MODE) {
             if (buildingMode)
                 disableBuildingMode();
@@ -90,6 +88,9 @@ public abstract class LittleTool {
         features.add(BuildingModeFeatures.TOP_BAR);
         features.add(BuildingModeFeatures.ZOOM);
         features.add(BuildingModeFeatures.GRID);
+        features.add(BuildingModeFeatures.RULES);
+        features.add(BuildingModeFeatures.INCLUDE);
+        features.add(BuildingModeFeatures.EXCLUDE);
         return features;
     }
     
@@ -98,65 +99,23 @@ public abstract class LittleTool {
             disableBuildingMode();
     }
     
-    protected void setupPreviewRenderer(boolean lines) {
-        if (lines) {
-            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-            RenderSystem.lineWidth((float) LittleTiles.CONFIG.rendering.previewLineThickness);
-            
-            RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 0.4F);
-            RenderSystem.enableDepthTest();
-            return;
-        }
-        if (LittleTiles.CONFIG.rendering.darkerPreviewBoxShading) {
-            GL14.glBlendColor(0.25F, 0.25F, 0.25F, 0.25F);
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.CONSTANT_COLOR, GlStateManager.DestFactor.ONE_MINUS_DST_COLOR, GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO);
-        } else
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO);
-        
-        double alpha = (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5);
-        RenderSystem.setShaderColor(1, 1, 1, (float) alpha);
-        
-        RenderSystem.setShaderTexture(0, PreviewRenderer.WHITE_TEXTURE);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.depthMask(Minecraft.useShaderTransparency());
-        RenderSystem.enableCull();
-    }
-    
-    protected ByteBufferBuilder createBuffer() {
-        return new ByteBufferBuilder(86432);
-    }
-    
-    protected BufferBuilder createBuilder(ByteBufferBuilder buffer, boolean lines) {
-        if (lines)
-            return new BufferBuilder(buffer, VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        return new BufferBuilder(buffer, VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-    }
-    
-    protected BufferBuilder createTesselatorBuilder(boolean lines) {
-        if (lines)
-            return Tesselator.getInstance().begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        return Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_COLOR);
-    }
-    
-    protected void buildBox(PoseStack pose, RenderBox box, BufferBuilder builder, int colorAlpha, boolean lines) {
-        if (lines)
-            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.001);
-        else
-            box.renderPreview(pose, builder, colorAlpha);
-    }
-    
-    public boolean onRightClick(Level level, Player player, BlockHitResult result) {
+    public boolean onRightClick(PreviewRenderer renderer, BlockHitResult result) {
         return true;
     }
     
-    public boolean onLeftClick(Level level, Player player, BlockHitResult result) {
+    public boolean onLeftClick(PreviewRenderer renderer, BlockHitResult result) {
         return false;
     }
     
-    public boolean onMouseWheelClickBlock(Level level, Player player, BlockHitResult result) {
+    public boolean onMouseWheelClickBlock(PreviewRenderer renderer, BlockHitResult result) {
         return false;
+    }
+    
+    public LittleAction prepareAction(LittleAction action) {
+        if (buildingMode)
+            for (BuildingModeFeature feature : features)
+                action = feature.prepareAction(action);
+        return action;
     }
     
     public Component tooltip() {

@@ -20,6 +20,7 @@ import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittleShaper;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.shaper.LittleToolShaper;
 import team.creative.littletiles.client.tool.shaper.ShapeSelection;
@@ -114,13 +115,13 @@ public class ItemLittleChisel extends Item implements ILittleShaper, IItemToolti
         return new LittleToolShaper(stack) {
             
             @Override
-            public boolean onMouseWheelClickBlock(Level level, Player player, BlockHitResult result) {
-                BlockState state = level.getBlockState(result.getBlockPos());
+            public boolean onMouseWheelClickBlock(PreviewRenderer renderer, BlockHitResult result) {
+                BlockState state = renderer.level().getBlockState(result.getBlockPos());
                 if (LittleAction.isBlockValid(state)) {
                     LittleTiles.NETWORK.sendToServer(new ChangedElementPacket(new LittleElement(state, ColorUtils.WHITE)));
                     return true;
                 } else if (state.getBlock() instanceof BlockTile) {
-                    LittleTileContext context = LittleTileContext.selectFocused(level, result.getBlockPos(), player);
+                    LittleTileContext context = renderer.selectFocused(result);
                     if (context.isComplete())
                         LittleTiles.NETWORK.sendToServer(new ChangedElementPacket(context.tile));
                     return true;

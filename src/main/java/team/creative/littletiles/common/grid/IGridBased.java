@@ -28,6 +28,23 @@ public interface IGridBased {
                 others[i].convertTo(grid);
     }
     
+    public default void sameGrids(Runnable runnable, IGridBased... others) {
+        LittleGrid grid = getGrid();
+        for (int i = 0; i < others.length; i++)
+            grid = LittleGrid.max(grid, others[i].getGrid());
+        if (grid != getGrid())
+            convertTo(grid);
+        for (int i = 0; i < others.length; i++)
+            if (others[i].getGrid() != grid)
+                others[i].convertTo(grid);
+            
+        runnable.run();
+        
+        convertToSmallest();
+        for (IGridBased other : others)
+            other.convertToSmallest();
+    }
+    
     public default void sameGrid(IGridBased other, Runnable runnable) {
         if (getGrid() != other.getGrid()) {
             if (getGrid().count > other.getGrid().count)

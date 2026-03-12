@@ -18,4 +18,8 @@ public class BuildingModeFeatures {
     public static final BuildingModeGridScroll GRID = REGISTRY.register("grid", new BuildingModeGridScroll());
     
     public static final BuildingModeTopBar TOP_BAR = REGISTRY.register("top_bar", new BuildingModeTopBar());
+    
+    public static final BuildingModeRules RULES = REGISTRY.register("rules", new BuildingModeRules());
+    public static final BuildingModeAreaRule INCLUDE = REGISTRY.register("include", new BuildingModeAreaRule(false));
+    public static final BuildingModeAreaRule EXCLUDE = REGISTRY.register("exclude", new BuildingModeAreaRule(true));
 }

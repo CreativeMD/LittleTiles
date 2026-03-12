@@ -79,6 +79,7 @@ import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
+import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 import team.creative.littletiles.common.packet.update.BlockUpdate;
 import team.creative.littletiles.common.packet.update.BlocksUpdate;
@@ -124,6 +125,10 @@ public abstract class LittleAction<T> extends CreativePacket {
     }
     
     public abstract LittleAction mirror(Axis axis, LittleBoxAbsolute box);
+    
+    public abstract void include(LittleBoxes boxes);
+    
+    public abstract void exclude(LittleBoxes boxes);
     
     public static boolean canConvertBlock(LittleActionSource source, Level level, BlockPos pos, BlockState state, int affected) throws LittleActionException {
         if (!source.isPlayer())
