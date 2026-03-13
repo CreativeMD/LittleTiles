@@ -60,20 +60,23 @@ public abstract class LittleTool {
         return false;
     }
     
+    public void startBuildingMode() {
+        features = buildingFeatures();
+        if (buildingMode = features != null) {
+            var gui = LittleTilesClient.OVERLAY_RENDERER.gui();
+            for (BuildingModeFeature feature : features)
+                feature.create(gui, this, features);
+            gui.reflow();
+            
+        }
+    }
+    
     public boolean toolKeyPressed(PreviewRenderer renderer, KeyMapping key) {
         if (key == LittleTilesClient.KEY_BUILDING_MODE) {
             if (buildingMode)
                 disableBuildingMode();
-            else if (hasBuildingMode()) {
-                features = buildingFeatures();
-                if (buildingMode = features != null) {
-                    var gui = LittleTilesClient.OVERLAY_RENDERER.gui();
-                    for (BuildingModeFeature feature : features)
-                        feature.create(gui, this, features);
-                    gui.reflow();
-                    
-                }
-            }
+            else if (hasBuildingMode())
+                startBuildingMode();
             return true;
         }
         return false;
@@ -81,6 +84,10 @@ public abstract class LittleTool {
     
     public boolean hasBuildingMode() {
         return true;
+    }
+    
+    public boolean buildingMode() {
+        return buildingMode;
     }
     
     public List<BuildingModeFeature> buildingFeatures() {
