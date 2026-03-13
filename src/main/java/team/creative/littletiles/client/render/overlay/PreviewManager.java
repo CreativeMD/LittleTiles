@@ -92,7 +92,7 @@ public class PreviewManager implements LevelAwareHandler {
         PoseStack pose = new PoseStack();
         
         if (!ItemStack.isSameItem(stack, lastHeld) || (stack.getItem() instanceof ILittleTool tool && !tool.isCorrectTool(stack, this.tool))) {
-            boolean buildingMode = tool.buildingMode();
+            boolean buildingMode = tool != null && tool.buildingMode();
             clearToolPreviews();
             if (stack.getItem() instanceof ILittleTool tool)
                 this.tool = tool.tool(stack);

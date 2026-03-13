@@ -98,6 +98,7 @@ public abstract class LittleTool {
         features.add(BuildingModeFeatures.RULES);
         features.add(BuildingModeFeatures.INCLUDE);
         features.add(BuildingModeFeatures.EXCLUDE);
+        features.add(BuildingModeFeatures.MIRRORS);
         return features;
     }
     

@@ -61,7 +61,7 @@ public class PlacementPosition extends LittleVecAbsolute {
     }
     
     public void mirror(Axis axis, LittleBoxAbsolute box) {
-        box.sameGrid(gridVec, () -> {
+        box.sameGrid(this, () -> {
             LittleVec doubledCenter = box.getDoubledCenter(pos);
             long temp = gridVec.getVec().get(axis) * 2 - doubledCenter.get(axis);
             gridVec.getVec().set(axis, (int) ((doubledCenter.get(axis) - temp) / 2));

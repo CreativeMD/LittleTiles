@@ -66,6 +66,10 @@ public abstract class LittleBoxes implements IGridBased {
             addBox(grid, pos, box.copy());
     }
     
+    public LittleBox addBox(LittleBoxAbsolute box) {
+        return addBox(box.grid, box.pos, box.box.copy());
+    }
+    
     public LittleBox addBox(LittleGrid grid, BlockPos pos, LittleBox box) {
         if (this.grid != grid) {
             if (this.grid.count > grid.count) {

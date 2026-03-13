@@ -113,6 +113,11 @@ public class LittleBox {
         return new ABB(grid.toVanillaGrid(minX), grid.toVanillaGrid(minY), grid.toVanillaGrid(minZ), grid.toVanillaGrid(maxX), grid.toVanillaGrid(maxY), grid.toVanillaGrid(maxZ));
     }
     
+    public ABB getABB(LittleGrid grid, BlockPos pos) {
+        return new ABB(grid.toVanillaGrid(minX) + pos.getX(), grid.toVanillaGrid(minY) + pos.getY(), grid.toVanillaGrid(minZ) + pos.getZ(), grid.toVanillaGrid(maxX) + pos
+                .getX(), grid.toVanillaGrid(maxY) + pos.getY(), grid.toVanillaGrid(maxZ) + pos.getZ());
+    }
+    
     public AABB getSelectionBB(LittleGrid grid, BlockPos pos) {
         return getBB(grid, pos);
     }

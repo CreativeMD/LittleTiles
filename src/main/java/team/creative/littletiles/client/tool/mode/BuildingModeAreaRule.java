@@ -8,7 +8,6 @@ import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -21,7 +20,6 @@ import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.gui.integration.ScreenEventListener;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.tree.NamedTree;
-import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer.OverlayGuiLayer;
@@ -79,7 +77,8 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
             });
         
         tree.add(name + ".clear", () -> {
-            boxes = null;
+            reset();
+            end();
             return true;
         });
     }
@@ -89,12 +88,15 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
     }
     
     public void end() {
-        MC.player.displayClientMessage(Component.literal(""), true);
+        if (active)
+            MC.player.displayClientMessage(Component.literal(""), true);
         active = false;
     }
     
     @Override
     public void reset() {
+        positions.clear();
+        first = null;
         boxes = null;
     }
     
@@ -114,21 +116,6 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         super.tick(renderer);
     }
     
-    protected void renderBoxes(PreviewRenderer renderer, Vec3 cam, boolean lines, BoxRenderResult result) {
-        renderer.renderBoxes(cam, result.pos(), lines, result.data(), () -> {
-            RenderSystem.enableDepthTest();
-            RenderSystem.setShaderColor(0, 0, 0, 0.4F);
-            RenderSystem.lineWidth(4);
-        });
-        renderer.renderBoxes(cam, result.pos(), lines, result.data(), () -> {
-            RenderSystem.disableDepthTest();
-            RenderSystem.setShaderColor(ColorUtils.redF(color), ColorUtils.greenF(color), ColorUtils.blueF(color), 0.4F);
-            RenderSystem.lineWidth(2);
-        });
-        
-        RenderSystem.enableDepthTest();
-    }
-    
     @Override
     public boolean render(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
         if (!lines)
@@ -137,14 +124,14 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         var blockHit = renderer.blockHit();
         var player = renderer.player();
         var level = renderer.level();
-        var stack = renderer.manager.tool().stack;
         
         if (active) {
+            var grid = positionGrid();
             if (first != null)
                 positions.add(first);
             if (last != null)
                 positions.add(last);
-            renderer.renderPositions(pose, cam, positions, x -> markedPosition == x);
+            renderer.renderPositions(pose, cam, positions, grid, x -> markedPosition == x);
             if (first != null)
                 positions.removeLast();
             if (last != null)
@@ -158,27 +145,26 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
                     box.growToIncludePixel(last.getRelative(boxes.pos));
                     boxes.add(box);
                     var result = renderer.buildBoxes(pose, boxes, lines);
-                    renderBoxes(renderer, cam, lines, result);
+                    renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color);
                     result.close();
                 });
             }
         }
         
         if (blockHit != null)
-            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, ((ILittleTool) stack.getItem()).getPositionGrid(player,
-                stack)), blockHit, false, inside());
+            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, positionGrid()), blockHit, false, inside());
         
         if (result == null && boxes != null && !boxes.isEmpty())
             result = renderer.buildBoxes(pose, boxes, lines);
         
         if (boxes != null && result != null)
-            renderBoxes(renderer, cam, lines, result);
+            renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color);
         
         return active; // Disable standard rendering during selection mode.
     }
     
-    protected void ensurePositionsGrid() {
-        int smallest = LittleGrid.MIN.count;
+    protected void ensurePositionsGrid(PreviewRenderer renderer) {
+        int smallest = positionGrid().count;
         for (int i = 0; i < positions.size(); i++)
             smallest = Math.max(smallest, positions.get(i).getGrid().count);
         
@@ -202,7 +188,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
             return;
         }
         
-        ensurePositionsGrid();
+        ensurePositionsGrid(LittleTilesClient.PREVIEW_RENDERER.renderer);
         
         boxes = new LittleBoxesSimple(positions.getFirst().getPos(), positions.getFirst().getGrid());
         for (int i = 0; i < positions.size(); i += 2) {
@@ -223,16 +209,16 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         lastMouseClicked = Blaze3D.getTime();
         if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_LEFT) {
             if (LittleActionHandlerClient.isUsingSecondMode())
-                if (doubleClick) {
-                    positions.clear();
-                    first = null;
-                } else {
+                if (doubleClick)
+                    reset();
+                else {
                     int index = LittleTilesClient.PREVIEW_RENDERER.renderer.select(positions);
                     if (index >= 0) {
                         index /= 2;
                         index *= 2;
                         positions.remove(index);
                         positions.remove(index);
+                        markedPosition = -1;
                     }
                 }
             else

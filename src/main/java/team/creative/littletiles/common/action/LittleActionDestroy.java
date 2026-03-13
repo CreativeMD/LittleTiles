@@ -116,21 +116,23 @@ public class LittleActionDestroy extends LittleActionInteract<Boolean> {
     
     @Override
     public LittleAction mirror(Axis axis, LittleBoxAbsolute box) {
-        LittleBoxes boxes;
-        if (structurePreview != null) {
-            boxes = new LittleBoxesSimple(structurePreview.previews.pos, structurePreview.previews.getGrid());
-            for (LittleBox destroyedBox : structurePreview.previews.group.allBoxes())
-                boxes.add(destroyedBox);
-        } else if (destroyedTiles != null) {
-            destroyedTiles.convertToSmallest();
-            boxes = new LittleBoxesSimple(destroyedTiles.pos, destroyedTiles.getGrid());
-            for (LittleBox destroyedBox : destroyedTiles.group.allBoxes())
-                boxes.add(destroyedBox);
-        } else
-            return null;
-        
-        boxes.mirror(axis, box);
-        return new LittleActionDestroyBoxes(uuid, boxes);
+        return new LittleActionWrapper<>(() -> { // Does only work after it has been executed. Therefore the mirror action always has to be executed afterwards.
+            LittleBoxes boxes;
+            if (structurePreview != null) {
+                boxes = new LittleBoxesSimple(structurePreview.previews.pos, structurePreview.previews.getGrid());
+                for (LittleBox destroyedBox : structurePreview.previews.group.allBoxes())
+                    boxes.add(destroyedBox);
+            } else if (destroyedTiles != null) {
+                destroyedTiles.convertToSmallest();
+                boxes = new LittleBoxesSimple(destroyedTiles.pos, destroyedTiles.getGrid());
+                for (LittleBox destroyedBox : destroyedTiles.group.allBoxes())
+                    boxes.add(destroyedBox);
+            } else
+                return null;
+            
+            boxes.mirror(axis, box);
+            return new LittleActionDestroyBoxes(uuid, boxes);
+        });
     }
     
     @Override

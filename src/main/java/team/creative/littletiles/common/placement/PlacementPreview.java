@@ -124,8 +124,7 @@ public class PlacementPreview {
     }
     
     public void mirror(Axis axis, LittleBoxAbsolute box) {
-        position.mirror(axis, box);
-        previews.transform(axis.getMatrix(), box.getDoubledCenter(position.getPos()));
+        previews.sameGrid(box, () -> previews.transform(axis.getMatrix(), box.getDoubledCenter(position.getPos())));
     }
     
     public LittleIngredients getBeforePlaceIngredients(HolderLookup.Provider provider) {

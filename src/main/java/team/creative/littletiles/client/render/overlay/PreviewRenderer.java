@@ -30,6 +30,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.LittleTiles;
@@ -38,6 +39,7 @@ import team.creative.littletiles.client.render.mc.MeshDataExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 
@@ -182,6 +184,7 @@ public class PreviewRenderer {
         
         BufferUploader.drawWithShader(data);
         matrix.popMatrix();
+        RenderSystem.applyModelViewMatrix();
     }
     
     public BoxRenderResult buildBoxes(PoseStack pose, LittleBoxes boxes, boolean lines) {
@@ -204,6 +207,29 @@ public class PreviewRenderer {
         for (int i = 0; i < positions.size(); i++)
             positions.get(i).render(pose, marked != null && marked.get(i));
         pose.popPose();
+    }
+    
+    public void renderPositions(PoseStack pose, Vec3 cam, List<ShapePosition> positions, LittleGrid grid, @Nullable Int2BooleanFunction marked) {
+        pose.pushPose();
+        pose.translate(-cam.x, -cam.y, -cam.z);
+        for (int i = 0; i < positions.size(); i++)
+            positions.get(i).render(pose, marked != null && marked.get(i), grid);
+        pose.popPose();
+    }
+    
+    public void renderSeethroughLines(Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color) {
+        renderBoxes(cam, pos, lines, data, () -> {
+            RenderSystem.enableDepthTest();
+            RenderSystem.setShaderColor(0, 0, 0, 0.4F);
+            RenderSystem.lineWidth(4);
+        });
+        renderBoxes(cam, pos, lines, data, () -> {
+            RenderSystem.disableDepthTest();
+            RenderSystem.setShaderColor(ColorUtils.redF(color), ColorUtils.greenF(color), ColorUtils.blueF(color), 0.4F);
+            RenderSystem.lineWidth(2);
+        });
+        
+        RenderSystem.enableDepthTest();
     }
     
     public static record BoxRenderResult(LittleBoxes boxes, BlockPos pos, ByteBufferBuilder buffer, MeshData data) {

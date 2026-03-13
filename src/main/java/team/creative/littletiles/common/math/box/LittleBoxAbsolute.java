@@ -8,6 +8,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.type.map.HashMapList;
@@ -249,6 +250,10 @@ public class LittleBoxAbsolute implements IGridBased {
     @OnlyIn(Dist.CLIENT)
     public LittleRenderBox getRenderingBoxWithoutOffset() {
         return box.getRenderingBox(grid);
+    }
+    
+    public ABB toABB() {
+        return box.getABB(grid, pos);
     }
     
     public AABB toAABB() {

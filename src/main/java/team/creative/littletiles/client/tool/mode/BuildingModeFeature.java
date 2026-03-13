@@ -6,12 +6,22 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
+import team.creative.littletiles.api.common.tool.ILittleTool;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer.OverlayGuiLayer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.grid.LittleGrid;
 
 public abstract class BuildingModeFeature {
+    
+    public LittleGrid positionGrid() {
+        var renderer = LittleTilesClient.PREVIEW_RENDERER.renderer;
+        var player = renderer.player();
+        var stack = renderer.manager.tool().stack;
+        return ((ILittleTool) stack.getItem()).getPositionGrid(player, stack);
+    }
     
     public abstract void create(OverlayGuiLayer gui, LittleTool tool, List<BuildingModeFeature> allFeatures);
     
