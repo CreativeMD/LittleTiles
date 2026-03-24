@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.KeyMapping;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
@@ -54,12 +55,14 @@ public class LittleToolSelection extends LittleTool {
     
     @Override
     public boolean onRightClick(PreviewRenderer renderer, BlockHitResult result) {
-        if (result == null)
+        if (result == null || !selector.hasSelection(stack))
             return false;
         
-        var packet = new SelectionModePacket(result, renderer.selectFocused(result), renderer.isUsingSecondMode(), true);
-        packet.execute(renderer.player());
-        LittleTiles.NETWORK.sendToServer(packet);
+        var selection = selector.getSelection(stack);
+        var component = selection.mode.rightClick((LittleActionSource) renderer.player(), stack, selection, selector.getSelectorGrid(renderer.player(), stack), result, renderer
+                .selectFocused(result), renderer.isUsingSecondMode());
+        if (component != null)
+            LittleTiles.NETWORK.sendToServer(new SelectionModePacket(component));
         return true;
     }
     
@@ -68,10 +71,24 @@ public class LittleToolSelection extends LittleTool {
         if (result == null)
             return false;
         
-        var packet = new SelectionModePacket(result, renderer.selectFocused(result), renderer.isUsingSecondMode(), false);
-        packet.execute(renderer.player());
-        LittleTiles.NETWORK.sendToServer(packet);
+        var selection = selector.getSelection(stack);
+        var component = selection.mode.leftClick((LittleActionSource) renderer.player(), stack, selection, selector.getSelectorGrid(renderer.player(), stack), result, renderer
+                .selectFocused(result), renderer.isUsingSecondMode());
+        if (component != null)
+            LittleTiles.NETWORK.sendToServer(new SelectionModePacket(component));
         return true;
+    }
+    
+    @Override
+    public boolean toolKeyPressed(PreviewRenderer renderer, KeyMapping key) {
+        var selection = selector.getSelection(stack);
+        var component = selection.mode.keyPressed((LittleActionSource) renderer.player(), stack, selection, selector.getSelectorGrid(renderer.player(), stack), renderer
+                .isUsingSecondMode(), key);
+        if (component != null) {
+            LittleTiles.NETWORK.sendToServer(new SelectionModePacket(component));
+            return true;
+        }
+        return false;
     }
     
     @Override
@@ -103,7 +120,10 @@ public class LittleToolSelection extends LittleTool {
         
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
-        renderer.setupPreviewRenderer(lines);
+        if (lines)
+            renderer.setupPreviewRendererLines(1, 1, 1, 0.4F, (float) LittleTiles.CONFIG.rendering.previewLineThickness);
+        else
+            renderer.setupPreviewRenderer(lines);
         matrix.translate((float) (cacheOrigin.getX() - cam.x), (float) (cacheOrigin.getY() - cam.y), (float) (cacheOrigin.getZ() - cam.z));
         RenderSystem.applyModelViewMatrix();
         BufferUploader.drawWithShader(result.data);
@@ -113,7 +133,7 @@ public class LittleToolSelection extends LittleTool {
         if (cachedSelection.mode.hasRenderTick(stack, cachedSelection)) {
             pose.pushPose();
             pose.translate(-cam.x, -cam.y, -cam.z);
-            cachedSelection.mode.renderTick((LittleActionSource) renderer.player(), renderer.level(), stack, cachedSelection, pose, lines);
+            cachedSelection.mode.renderTick(renderer, (LittleActionSource) renderer.player(), renderer.level(), stack, cachedSelection, pose, lines);
             pose.popPose();
         }
         

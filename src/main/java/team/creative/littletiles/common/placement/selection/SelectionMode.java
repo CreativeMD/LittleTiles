@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.client.KeyMapping;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -11,6 +12,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
+import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.LittleToolSelection;
 import team.creative.littletiles.client.tool.LittleToolSelection.SelectionRenderQueue;
 import team.creative.littletiles.common.action.exception.LittleActionException;
@@ -42,14 +44,24 @@ public abstract class SelectionMode {
     
     public abstract SelectionScanResult scan(Level level, ItemStack stack, SelectionComponent config);
     
+    public abstract LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack,
+            SelectionComponent config) throws LittleActionException;
+    
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
     public abstract SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
             @Nullable LittleTileContext context, boolean secondMode);
     
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
     public abstract SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
             @Nullable LittleTileContext context, boolean secondMode);
     
-    public abstract LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack,
-            SelectionComponent config) throws LittleActionException;
+    @Nullable
+    @OnlyIn(Dist.CLIENT)
+    public SelectionComponent keyPressed(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, boolean secondMode, KeyMapping key) {
+        return null;
+    }
     
     @OnlyIn(Dist.CLIENT)
     public void buildRender(Level level, ItemStack stack, SelectionComponent config, SelectionRenderQueue queue) {}
@@ -63,6 +75,6 @@ public abstract class SelectionMode {
     }
     
     @OnlyIn(Dist.CLIENT)
-    public void renderTick(LittleActionSource source, Level level, ItemStack stack, SelectionComponent config, PoseStack pose, boolean lines) {}
+    public void renderTick(PreviewRenderer renderer, LittleActionSource source, Level level, ItemStack stack, SelectionComponent config, PoseStack pose, boolean lines) {}
     
 }

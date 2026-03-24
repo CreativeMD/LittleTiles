@@ -55,6 +55,7 @@ public class TileSelectionMode extends SelectionMode {
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
             @Nullable LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
@@ -77,6 +78,7 @@ public class TileSelectionMode extends SelectionMode {
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
             @Nullable LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
