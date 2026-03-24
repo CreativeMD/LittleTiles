@@ -24,6 +24,7 @@ import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -31,6 +32,8 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.math.location.StructureLocation;
+import team.creative.littletiles.common.packet.action.BlockPacket;
+import team.creative.littletiles.common.packet.action.BlockPacket.BlockPacketAction;
 import team.creative.littletiles.common.packet.item.WrenchRequestInfoPacket;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -144,6 +147,23 @@ public class LittleToolWrench extends LittleTool {
         RenderSystem.disableDepthTest();
         buffer.endBatch();
         RenderSystem.enableDepthTest();
+    }
+    
+    @Override
+    public boolean onRightClick(PreviewRenderer renderer, BlockHitResult result) {
+        LittleTileContext context = renderer.selectFocused(result);
+        if (renderer.isUsingSecondMode()) {
+            try {
+                if (context.isComplete() && context.parent.isStructure())
+                    if (context.parent.getStructure().wrenchInteract(renderer.player()))
+                        LittleTiles.NETWORK.sendToServer(new BlockPacket(renderer.level(), result.getBlockPos(), renderer.player(), BlockPacketAction.WRENCH_INFO));
+                    else
+                        LittleTilesGuiRegistry.STRUCTURE_SIGNAL.open(renderer.player(), context.parent.getStructure());
+                else
+                    LittleTiles.NETWORK.sendToServer(new BlockPacket(renderer.level(), result.getBlockPos(), renderer.player(), BlockPacketAction.WRENCH));
+            } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+        }
+        return true;
     }
     
     public static class StructureTooltip {
