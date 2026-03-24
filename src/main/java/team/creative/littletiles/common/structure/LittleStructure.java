@@ -674,6 +674,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleStructureRelationCache cache = new LittleStructureRelationCache(this);
         
         LittleAnimationEntity entity = getAnimationEntity();
+        var previous = entity.getStructure();
         Level level = entity.level();
         
         BlockPos pos = getStructurePos();
@@ -700,7 +701,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         entity.setRemoved(RemovalReason.KILLED);
         
-        cache.forEachSameLevel(entity.getStructure(), (old, current) -> {
+        cache.forEachSameLevel(previous, (old, current) -> {
             if (old.isQueuedForNextTick())
                 current.queueForNextTick();
         });
