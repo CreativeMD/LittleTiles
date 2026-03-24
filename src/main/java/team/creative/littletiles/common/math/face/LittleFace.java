@@ -71,13 +71,24 @@ public non-sealed class LittleFace implements ILittleFace {
     @Override
     /** converting a face to another grid will remove all the filled in information */
     public void convertTo(LittleGrid to) {
-        int ratio = to.count / this.grid.count;
-        this.minOne *= ratio;
-        this.minTwo *= ratio;
-        this.maxOne *= ratio;
-        this.maxTwo *= ratio;
-        this.origin *= ratio;
-        this.oldOrigin *= ratio;
+        if (this.grid.count > to.count) {
+            int ratio = this.grid.count / to.count;
+            this.minOne /= ratio;
+            this.minTwo /= ratio;
+            this.maxOne /= ratio;
+            this.maxTwo /= ratio;
+            this.origin /= ratio;
+            this.oldOrigin /= ratio;
+        } else {
+            int ratio = to.count / this.grid.count;
+            this.minOne *= ratio;
+            this.minTwo *= ratio;
+            this.maxOne *= ratio;
+            this.maxTwo *= ratio;
+            this.origin *= ratio;
+            this.oldOrigin *= ratio;
+        }
+        
         box = box.copy(); // Make sure the original one will not be modified
         box.convertTo(this.grid, to);
         this.grid = to;
@@ -87,14 +98,14 @@ public non-sealed class LittleFace implements ILittleFace {
             List<VectorFan> newFans = new ArrayList<>(faceFans.size());
             for (VectorFan fan : faceFans) {
                 fan = fan.copy();
-                fan.scale(ratio);
+                fan.scale(to.count / (float) this.grid.count);
                 newFans.add(fan);
             }
             if (tiltedFans != null) {
                 List<VectorFan> tiledFansNew = new ArrayList<>();
                 for (VectorFan fan : tiltedFans) {
                     fan = fan.copy();
-                    fan.scale(ratio);
+                    fan.scale(to.count / (float) this.grid.count);
                     tiledFansNew.add(fan);
                 }
                 this.tiltedFans = tiledFansNew;

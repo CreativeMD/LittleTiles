@@ -122,13 +122,23 @@ public non-sealed class LittleServerFace implements ILittleFace {
     
     @Override
     public void convertTo(LittleGrid to) {
-        int ratio = to.count / this.grid.count;
-        this.minOne *= ratio;
-        this.minTwo *= ratio;
-        this.maxOne *= ratio;
-        this.maxTwo *= ratio;
-        this.origin *= ratio;
-        this.oldOrigin *= ratio;
+        if (this.grid.count > to.count) {
+            int ratio = this.grid.count / to.count;
+            this.minOne /= ratio;
+            this.minTwo /= ratio;
+            this.maxOne /= ratio;
+            this.maxTwo /= ratio;
+            this.origin /= ratio;
+            this.oldOrigin /= ratio;
+        } else {
+            int ratio = to.count / this.grid.count;
+            this.minOne *= ratio;
+            this.minTwo *= ratio;
+            this.maxOne *= ratio;
+            this.maxTwo *= ratio;
+            this.origin *= ratio;
+            this.oldOrigin *= ratio;
+        }
         box = box.copy(); // Make sure the original one will not be modified
         box.convertTo(this.grid, to);
         this.grid = to;
