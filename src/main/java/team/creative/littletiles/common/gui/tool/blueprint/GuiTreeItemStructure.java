@@ -397,7 +397,9 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
             if (offset == null)
                 return p.getOverallOffest();
             LittleVecGrid vec = offset.copy();
-            vec.add(p.getOverallOffest());
+            var parent = p.getOverallOffest();
+            if (parent != null)
+                vec.add(parent);
             return vec;
         }
         return offset;
