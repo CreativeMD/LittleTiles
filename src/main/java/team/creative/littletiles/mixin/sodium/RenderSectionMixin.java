@@ -329,7 +329,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                 
                 BuiltSectionMeshParts mesh = new BuiltSectionMeshParts(uploader.buffer(), uploader.ranges());
                 var oldData = ((RenderSection) (Object) this).getTranslucentData();
-                var data = uploader.getTranslucentCollector().getTranslucentData(oldData, mesh, cam);
+                var data = uploader.getTranslucentCollector().getTranslucentData(null, mesh, cam);
                 
                 if (oldData != null)
                     storage.removeIndexData(sectionIndex);
