@@ -84,7 +84,7 @@ public class LittleActionHandlerClient extends LevelHandler {
         Player player = Minecraft.getInstance().player;
         
         try {
-            action = LittleTilesClient.PREVIEW_RENDERER.tool().prepareAction(action);
+            action = LittleTilesClient.PREVIEW_RENDERER.tool() != null ? LittleTilesClient.PREVIEW_RENDERER.tool().prepareAction(action) : action;
             
             T result = action.action((LittleActionSource) player);
             if (action.wasSuccessful(result)) {
