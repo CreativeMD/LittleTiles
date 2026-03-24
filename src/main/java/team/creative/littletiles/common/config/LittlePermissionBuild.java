@@ -83,14 +83,14 @@ public class LittlePermissionBuild {
     }
     
     public LittleGrid getOrDefault(int grid) {
-        LittleGrid littleGrid = LittleGrid.get(grid);
+        LittleGrid littleGrid = LittleGrid.tryGet(grid);
         if (littleGrid != null)
             return littleGrid;
         return defaultGrid();
     }
     
     public LittleGrid defaultGrid() {
-        LittleGrid grid = LittleGrid.get(defaultGrid);
+        LittleGrid grid = LittleGrid.tryGet(defaultGrid);
         if (grid != null)
             return grid;
         return LittleGrid.overallDefault();

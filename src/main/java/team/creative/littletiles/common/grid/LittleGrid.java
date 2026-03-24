@@ -93,8 +93,15 @@ public class LittleGrid {
         return GRID_DEFAULT;
     }
     
-    public static LittleGrid get(int grid) {
+    public static LittleGrid tryGet(int grid) {
         return GRID_MAP.get(grid);
+    }
+    
+    public static LittleGrid get(int grid) {
+        var g = GRID_MAP.get(grid);
+        if (g != null)
+            return g;
+        throw new LittleGridException(grid);
     }
     
     public static LittleGrid getMax() {
