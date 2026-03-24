@@ -1,3 +1,18 @@
+1.6.0-pre212
+Added mark mode to exact area selection
+Added mirror rule to building mode
+Added keeping building mode enabled when switching tools
+Added exclusive and inclusive rule to building mode
+Only made sounds play in blueprint when playing the animation
+Fixed faces not working properly with grids no way to convert back to smaller grids
+Fixed possible crash when reusing old translucent data from sodium
+Fixed wrench right click not working
+Fixed exception when changing structure from entity to block form
+Fixed not throwing grid exception when importing structure
+Fixed crash when performing action with no tool active
+Fixed crash when moving structures in blueprint
+Fixed move selected in blueprint not doing what is expected
+
 1.6.0-pre211
 Changed how building features can consume key strokes
 Fixed crash on server side
