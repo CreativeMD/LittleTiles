@@ -15,7 +15,7 @@ import team.creative.creativecore.common.gui.flow.GuiFlow;
 import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRatioRules;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
-import team.creative.creativecore.common.util.type.itr.FunctionIterator;
+import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.gui.control.GuiDistanceControl;
@@ -146,7 +146,7 @@ public class GuiBlueprintMove extends GuiLayer {
         CHECKBOX(true) {
             @Override
             public Iterable<GuiBlueprintMoveItem> iterator(GuiTree tree) {
-                return new FunctionIterator<>(tree.itemsChecked(), x -> (GuiBlueprintMoveItem) x);
+                return new FilterIterator<>(tree.allItems(), x -> x instanceof GuiBlueprintMoveItem && x.isChecked());
             }
         };
         
