@@ -120,10 +120,11 @@ public class AnimationTimeline {
         }
     }
     
-    public void setStateAtTick(int tick, PhysicalState state, AnimationContext context) {
+    public void setStateAtTick(int tick, PhysicalState state, AnimationContext context, boolean playing) {
         tickState(tick, state);
-        for (AnimationEventEntry entry : events.allIgnoreMark())
-            entry.setAtTick(tick, context);
+        if (playing)
+            for (AnimationEventEntry entry : events.allIgnoreMark())
+                entry.setAtTick(tick, context);
     }
     
     public boolean tick(PhysicalState state, AnimationContext context) {

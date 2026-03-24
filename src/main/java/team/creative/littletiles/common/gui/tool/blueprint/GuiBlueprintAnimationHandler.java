@@ -63,6 +63,7 @@ public class GuiBlueprintAnimationHandler implements GuiAnimationHandler {
     @Override
     public void play() {
         playing = true;
+        updateState();
     }
     
     @Override
@@ -114,7 +115,7 @@ public class GuiBlueprintAnimationHandler implements GuiAnimationHandler {
     }
     
     protected void updateState() {
-        timeline.setStateAtTick(tick, current.physicalState, current);
+        timeline.setStateAtTick(tick, current.physicalState, current, playing);
         for (Entry<GuiTreeItemStructure, ChildAnimationTimeline> entry : childTimelines.entrySet())
             entry.getValue().setTick(entry.getKey(), tick);
         lastTick = tick;
@@ -177,7 +178,7 @@ public class GuiBlueprintAnimationHandler implements GuiAnimationHandler {
                     break;
                 last = entry;
             }
-            last.set(item, tick - last.start);
+            last.set(item, tick - last.start, playing);
         }
     }
     
@@ -189,7 +190,7 @@ public class GuiBlueprintAnimationHandler implements GuiAnimationHandler {
             this.start = start;
         }
         
-        public abstract void set(GuiTreeItemStructure item, int tick);
+        public abstract void set(GuiTreeItemStructure item, int tick, boolean playing);
         
     }
     
@@ -205,7 +206,7 @@ public class GuiBlueprintAnimationHandler implements GuiAnimationHandler {
         }
         
         @Override
-        public void set(GuiTreeItemStructure item, int tick) {
+        public void set(GuiTreeItemStructure item, int tick, boolean playing) {
             item.physicalState.set(state);
         }
     }
@@ -221,8 +222,8 @@ public class GuiBlueprintAnimationHandler implements GuiAnimationHandler {
         }
         
         @Override
-        public void set(GuiTreeItemStructure item, int tick) {
-            timeline.setStateAtTick(tick, item.physicalState, item);
+        public void set(GuiTreeItemStructure item, int tick, boolean playing) {
+            timeline.setStateAtTick(tick, item.physicalState, item, playing);
         }
         
     }
