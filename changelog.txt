@@ -1,3 +1,9 @@
+1.6.0-pre213
+Added width and height configuratio to pillar
+Fixed several issues related to pillar and wall shapes
+Fixed placement position not working correctly when being further out on one axis
+Fixed startup crash (happens in combination with other mods)
+
 1.6.0-pre212
 Added mark mode to exact area selection
 Added mirror rule to building mode
