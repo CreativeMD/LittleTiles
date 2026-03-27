@@ -86,7 +86,7 @@ public class PlacementHelper {
     
     public static boolean canBePlacedInside(Level level, BlockPos pos, Vec3 hitVec, Facing side) {
         if (canBlockBeUsed(level, pos))
-            return !Maths.equals((int) Maths.round(side.axis.get(hitVec)), side.axis.get(hitVec), 0.00001);
+            return !Maths.equals((int) Math.round(side.axis.get(hitVec)), side.axis.get(hitVec), 0.00001);
         return false;
     }
     
