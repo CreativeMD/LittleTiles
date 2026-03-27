@@ -31,41 +31,29 @@ public class LittleShapeWall extends LittleShape<AxisThicknessShapeConfig> {
         Axis toIgnore = config.axis;
         Axis oneIgnore = toIgnore.one();
         Axis twoIgnore = toIgnore.two();
-        Axis axis = box.getSize(oneIgnore) > box.getSize(twoIgnore) ? oneIgnore : twoIgnore;
+        Axis longest = box.getSize(oneIgnore) > box.getSize(twoIgnore) ? oneIgnore : twoIgnore;
         
         LittleVec originalMinVec = originalMin.getRelative(boxes.pos);
         LittleVec originalMaxVec = originalMax.getRelative(boxes.pos);
-        boolean facingPositive = originalMinVec.get(axis) > originalMaxVec.get(axis);
         
         Facing startFacing = originalMin.facing;
-        if (startFacing == null)
-            startFacing = axis.facing(facingPositive);
+        if (startFacing == null || startFacing.axis == toIgnore || box.getSize(startFacing.axis) == 1)
+            startFacing = longest.facing(originalMinVec.get(longest) > originalMaxVec.get(longest));
+        
+        if ((originalMinVec.get(startFacing.axis) > originalMaxVec.get(startFacing.axis)) != startFacing.positive)
+            startFacing = startFacing.opposite();
+        
         Facing endFacing = originalMax.facing;
-        if (endFacing == null)
-            endFacing = axis.facing(!facingPositive);
+        if (endFacing == null || endFacing == startFacing || endFacing.axis == toIgnore || box.getSize(endFacing.axis) == 1)
+            endFacing = startFacing.opposite();
+        
+        if ((originalMinVec.get(endFacing.axis) > originalMaxVec.get(endFacing.axis)) == endFacing.positive)
+            endFacing = endFacing.opposite();
         
         int thickness = Math.max(0, config.thickness - 1);
         
-        Facing minFacing = startFacing;
-        Facing maxFacing = endFacing;
-        
-        if (minFacing.axis == toIgnore || box.getSize(minFacing.axis) == 1)
-            minFacing = null;
-        if (maxFacing.axis == toIgnore || box.getSize(maxFacing.axis) == 1)
-            maxFacing = null;
-        
-        if (minFacing != null && minFacing.axis != axis)
-            axis = minFacing.axis;
-        
-        CornerCache cache = box.new CornerCache(false);
-        
         LittleBox minBox = new LittleBox(originalMinVec);
         LittleBox maxBox = new LittleBox(originalMaxVec);
-        
-        if (minFacing != null && minFacing == maxFacing) {
-            minFacing = Facing.get(axis, originalMinVec.get(axis) > originalMaxVec.get(axis));
-            maxFacing = minFacing.opposite();
-        }
         
         minBox.growAway(thickness, startFacing);
         maxBox.growAway(thickness, endFacing);
@@ -78,7 +66,9 @@ public class LittleShapeWall extends LittleShape<AxisThicknessShapeConfig> {
         minBox.setMax(toIgnore, box.getMax(toIgnore));
         maxBox.setMax(toIgnore, box.getMax(toIgnore));
         
-        LittleShapePillar.setStartAndEndBox(cache, axis.facing(facingPositive), minFacing, maxFacing, minBox, maxBox, selection.inside);
+        CornerCache cache = box.new CornerCache(false);
+        
+        LittleShapePillar.setStartAndEndBox(cache, startFacing, endFacing, minBox, maxBox, selection.inside);
         
         box.setData(cache.getData());
         

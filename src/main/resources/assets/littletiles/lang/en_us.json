@@ -449,6 +449,8 @@
     
     "shape.config.size": "size",
     "shape.config.thickness": "thickness",
+    "shape.config.width": "width",
+    "shape.config.height": "height",
     "shape.config.second_type": "second-type",
     "shape.config.simple": "simple",
     "shape.config.hollow": "hollow",
