@@ -504,7 +504,12 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     protected void saveAdditional(CompoundTag nbt, Provider provider) {
         super.saveAdditional(nbt, provider);
         grid.set(nbt);
-        nbt.put("content", tiles.save(new LittleServerFace(this), provider));
+        //add null value when tiles is null,this will cause NPE in some hybrid server
+        if (tiles == null) {
+            nbt.put("content", new CompoundTag());
+        } else {
+            nbt.put("content", tiles.save(new LittleServerFace(this), provider));
+        }
         sideCache.write(nbt);
     }
     
