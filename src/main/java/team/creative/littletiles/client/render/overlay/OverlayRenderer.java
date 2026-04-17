@@ -1,9 +1,13 @@
 package team.creative.littletiles.client.render.overlay;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Supplier;
 
+import org.joml.Vector3f;
+
 import com.google.common.base.Strings;
+import com.mojang.blaze3d.systems.RenderSystem;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -13,6 +17,7 @@ import net.minecraft.core.HolderLookup.Provider;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent;
 import net.neoforged.neoforge.client.event.RenderBlockScreenEffectEvent.OverlayType;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
@@ -26,6 +31,8 @@ import team.creative.creativecore.common.gui.integration.ScreenEventListener;
 import team.creative.creativecore.common.gui.style.ControlFormatting;
 import team.creative.creativecore.common.gui.style.GuiStyle;
 import team.creative.creativecore.common.network.CreativePacket;
+import team.creative.creativecore.common.util.math.vec.Vec2d;
+import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.mc.LanguageUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
@@ -49,6 +56,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     private final ScreenEventListener listener = new ScreenEventListener(this, screen);
     private int lastWidth = -1;
     private int lastHeight = -1;
+    private List<OverlayText> scheduled = new ArrayList<>();
     
     public OverlayRenderer() {
         NeoForge.EVENT_BUS.addListener(this::renderPost);
@@ -67,6 +75,23 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     public void renderBlockOverlay(RenderBlockScreenEffectEvent event) {
         if (event.getBlockState().getBlock() instanceof BlockTile && event.getOverlayType() == OverlayType.BLOCK)
             event.setCanceled(true);
+    }
+    
+    private Vec2d projectToScreen(Vec3 cam, Vec3d pos) {
+        Vector3f vec = new Vector3f((float) pos.x, (float) pos.y, (float) pos.z);
+        vec.sub((float) cam.x, (float) cam.y, (float) cam.z);
+        RenderSystem.getModelViewMatrix().transformPosition(vec);
+        RenderSystem.getProjectionMatrix().transformPosition(vec);
+        vec.x /= vec.z;
+        vec.y /= vec.z;
+        vec.x = (vec.x + 1) * MC.getWindow().getGuiScaledWidth() / 2;
+        vec.y = (1 - (vec.y)) * MC.getWindow().getGuiScaledHeight() / 2;
+        return new Vec2d(vec.x, vec.y);
+    }
+    
+    public void renderLabel(Vec3 cam, Vec3d vec, Component component, int color) {
+        scheduled.add(new OverlayText(projectToScreen(cam, vec), component, color));
+        
     }
     
     public void renderPost(RenderGuiEvent.Post event) {
@@ -89,6 +114,10 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
             }
             
             render(graphics, screen, listener, 0, 0);
+            
+            for (OverlayText text : scheduled)
+                graphics.drawString(MC.font, text.component, (int) text.pos.x, (int) text.pos.y, text.color);
+            scheduled.clear();
             
             Component tooltip = null;
             if (LittleTilesClient.PREVIEW_RENDERER.tool() != null)
@@ -280,5 +309,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
         
         protected abstract void positionControl(GuiControlRect control, int width, int height);
     }
+    
+    public static record OverlayText(Vec2d pos, Component component, int color) {}
     
 }

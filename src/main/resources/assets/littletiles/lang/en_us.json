@@ -227,6 +227,7 @@
     "item.littletiles.hammer": "Little Hammer",
     "item.littletiles.multi_tiles": "Little Structure",
     "item.littletiles.saw": "Little Saw",
+    "item.littletiles.measure_tape": "Little Measure Tape",
     "item.littletiles.bag": "Little Bag",
     "item.littletiles.wrench": "Little Wrench",
     "item.littletiles.chisel": "Little Chisel",
@@ -459,6 +460,9 @@
     "building.zoom.message": "%sx",
     "building.grid.message": "grid: %s",
     "building.grid.info": "%s + Scroll (grid: %s)",
+    "building.measurement.cycle": "Mode: %s (%s)",
+    "building.measurement.box": "Box",
+    "building.measurement.line": "Line",
     
     "building.rules": "Extra Building Rules",
     "building.reset": "Reset All",

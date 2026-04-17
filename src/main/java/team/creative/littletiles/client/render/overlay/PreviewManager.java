@@ -16,11 +16,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import net.neoforged.bus.api.SubscribeEvent;
+import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.InputEvent.InteractionKeyMappingTriggered;
 import net.neoforged.neoforge.client.event.RenderHighlightEvent;
 import net.neoforged.neoforge.client.event.RenderLevelStageEvent;
@@ -174,8 +174,10 @@ public class PreviewManager implements LevelAwareHandler {
     protected void drawNonHighlight(RenderLevelStageEvent event) {
         if (event.getStage() != Stage.AFTER_BLOCK_ENTITIES)
             return;
-        if (MC.getCameraEntity() instanceof Player && !MC.options.hideGui && MC.hitResult != null && MC.hitResult.getType() == Type.MISS && tool != null)
+        if (MC.getCameraEntity() instanceof Player && !MC.options.hideGui && tool != null) {
             tool.render(renderer, event.getPoseStack(), MC.gameRenderer.getMainCamera().getPosition(), true);
+            tool.renderGui(renderer, LittleTilesClient.OVERLAY_RENDERER, MC.gameRenderer.getMainCamera().getPosition());
+        }
     }
     
     @SubscribeEvent
@@ -282,4 +284,11 @@ public class PreviewManager implements LevelAwareHandler {
         }
     }
     
+    @SubscribeEvent
+    protected void mouseInput(InputEvent.MouseButton.Pre event) {
+        if (tool == null)
+            return;
+        
+        tool.mouseInput(event);
+    }
 }

@@ -322,7 +322,7 @@ public class LittleToolPlacer extends LittleTool {
         pose.translate(-cam.x, -cam.y, -cam.z);
         
         if (marked != null)
-            marked.render(pose, true, placer.getPositionGrid(renderer.player(), stack));
+            renderer.renderLineBox(pose, marked.getBB(placer.getPositionGrid(renderer.player(), stack)), true);
         
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();

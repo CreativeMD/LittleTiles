@@ -140,7 +140,7 @@ public class LittleToolTransformer extends LittleTool {
             pose.pushPose();
             pose.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
             for (int i = 0; i < corners.length; i++)
-                corners[i].render(pose, marked == i);
+                renderer.renderLineBox(pose, corners[i].getBB(), marked == i);
             pose.popPose();
             
             renderer.buildBox(pose, box.getRenderingBoxWithoutOffset(), builder, 255, lines);

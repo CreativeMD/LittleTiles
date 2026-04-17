@@ -30,6 +30,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
@@ -41,6 +42,7 @@ import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 
 public class PreviewRenderer {
@@ -103,6 +105,28 @@ public class PreviewRenderer {
         Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
         for (int i = 0; i < positions.size(); i++) {
             Optional<Vec3> result = positions.get(i).getBox().clip(pos, look);
+            if (result.isPresent()) {
+                double tempDistance = pos.distanceToSqr(result.get());
+                if (tempDistance < distance) {
+                    index = i;
+                    distance = tempDistance;
+                }
+            }
+        }
+        return index;
+    }
+    
+    public int selectBox(List<LittleBoxAbsolute> positions) {
+        int index = -1;
+        double distance = Double.MAX_VALUE;
+        var player = player();
+        float partialTickTime = partialTickTime();
+        Vec3 pos = player.getEyePosition(partialTickTime);
+        double reach = PlayerUtils.getReach(player);
+        Vec3 view = player.getViewVector(partialTickTime);
+        Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
+        for (int i = 0; i < positions.size(); i++) {
+            Optional<Vec3> result = positions.get(i).toAABB().clip(pos, look);
             if (result.isPresent()) {
                 double tempDistance = pos.distanceToSqr(result.get());
                 if (tempDistance < distance) {
@@ -205,7 +229,15 @@ public class PreviewRenderer {
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
         for (int i = 0; i < positions.size(); i++)
-            positions.get(i).render(pose, marked != null && marked.get(i));
+            renderLineBox(pose, positions.get(i).getBB(), marked != null && marked.get(i));
+        pose.popPose();
+    }
+    
+    public void renderBoxes(PoseStack pose, Vec3 cam, List<LittleBoxAbsolute> boxes, @Nullable Int2BooleanFunction marked) {
+        pose.pushPose();
+        pose.translate(-cam.x, -cam.y, -cam.z);
+        for (int i = 0; i < boxes.size(); i++)
+            renderLineBox(pose, boxes.get(i).toABB(), marked != null && marked.get(i));
         pose.popPose();
     }
     
@@ -213,7 +245,7 @@ public class PreviewRenderer {
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
         for (int i = 0; i < positions.size(); i++)
-            positions.get(i).render(pose, marked != null && marked.get(i), grid);
+            renderLineBox(pose, positions.get(i).getBB(grid), marked != null && marked.get(i));
         pose.popPose();
     }
     
@@ -230,6 +262,37 @@ public class PreviewRenderer {
         });
         
         RenderSystem.enableDepthTest();
+    }
+    
+    public void renderLineBox(PoseStack pose, ABB box, boolean selected) {
+        Tesselator tesselator = Tesselator.getInstance();
+        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+        
+        RenderSystem.depthMask(true);
+        RenderSystem.disableCull();
+        RenderSystem.enableBlend();
+        RenderSystem.defaultBlendFunc();
+        RenderSystem.enableDepthTest();
+        
+        box.inflate(0.002);
+        
+        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+        
+        RenderSystem.lineWidth(4.0F);
+        box.renderLines(pose, bufferbuilder, 0, 0, 0, 1F);
+        
+        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        
+        RenderSystem.disableDepthTest();
+        if (selected) {
+            bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
+            RenderSystem.lineWidth(1.0F);
+            box.renderLines(pose, bufferbuilder, 1F, 0.3F, 0.0F, 1F);
+            BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
+        }
+        
+        RenderSystem.enableDepthTest();
+        RenderSystem.enableCull();
     }
     
     public static record BoxRenderResult(LittleBoxes boxes, BlockPos pos, ByteBufferBuilder buffer, MeshData data) {

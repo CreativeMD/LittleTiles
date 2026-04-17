@@ -166,9 +166,9 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
         if (first != null)
-            first.render(pose, false, grid);
+            renderer.renderLineBox(pose, first.getBB(grid), false);
         if (last != null)
-            last.render(pose, false, grid);
+            renderer.renderLineBox(pose, last.getBB(grid), false);
         pose.popPose();
         
         if (first != null && last != null) {

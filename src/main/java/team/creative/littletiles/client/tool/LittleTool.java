@@ -10,11 +10,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.neoforge.client.event.InputEvent;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.math.measure.LittleMeasurement;
 
 public abstract class LittleTool {
     
@@ -45,6 +48,8 @@ public abstract class LittleTool {
     protected abstract void tickInternal(PreviewRenderer renderer);
     
     protected abstract void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines);
+    
+    public void renderGui(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {}
     
     protected void disableBuildingMode() {
         for (BuildingModeFeature feature : features)
@@ -107,6 +112,8 @@ public abstract class LittleTool {
             disableBuildingMode();
     }
     
+    public void mouseInput(InputEvent.MouseButton.Pre event) {}
+    
     public boolean onRightClick(PreviewRenderer renderer, BlockHitResult result) {
         return true;
     }
@@ -133,6 +140,10 @@ public abstract class LittleTool {
                 if (tooltip != null)
                     return tooltip;
             }
+        return null;
+    }
+    
+    public Iterable<LittleMeasurement> measurements() {
         return null;
     }
     

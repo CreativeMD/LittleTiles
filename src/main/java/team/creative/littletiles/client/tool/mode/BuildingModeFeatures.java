@@ -6,6 +6,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
+import team.creative.littletiles.common.math.measure.LittleMeasurementType;
 
 @OnlyIn(Dist.CLIENT)
 public class BuildingModeFeatures {
@@ -18,6 +19,9 @@ public class BuildingModeFeatures {
     public static final BuildingModeGridScroll GRID = REGISTRY.register("grid", new BuildingModeGridScroll());
     
     public static final BuildingModeTopBar TOP_BAR = REGISTRY.register("top_bar", new BuildingModeTopBar());
+    public static final BuildingModeMeasures MEASURES = REGISTRY.register("measures", new BuildingModeMeasures());
+    public static final BuildingModeCycle<LittleMeasurementType> CYCLE_MEASURES = REGISTRY.register("cycle_measures",
+        new BuildingModeCycle<LittleMeasurementType>("building.measurement.cycle", "line", LittleMeasurementType.REGISTRY, LittleMeasurementType::translatable, InputConstants.KEY_G, KeyModifier.NONE));
     
     public static final BuildingModeRules RULES = REGISTRY.register("rules", new BuildingModeRules());
     public static final BuildingModeAreaRule INCLUDE = REGISTRY.register("include", new BuildingModeAreaRule(false));

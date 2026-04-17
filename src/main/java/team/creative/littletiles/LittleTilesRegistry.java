@@ -64,6 +64,7 @@ import team.creative.littletiles.common.item.ItemLittleBlueprint;
 import team.creative.littletiles.common.item.ItemLittleChisel;
 import team.creative.littletiles.common.item.ItemLittleGlove;
 import team.creative.littletiles.common.item.ItemLittleHammer;
+import team.creative.littletiles.common.item.ItemLittleMeasureTape;
 import team.creative.littletiles.common.item.ItemLittlePaintBrush;
 import team.creative.littletiles.common.item.ItemLittleSaw;
 import team.creative.littletiles.common.item.ItemLittleScrewdriver;
@@ -71,6 +72,7 @@ import team.creative.littletiles.common.item.ItemLittleWrench;
 import team.creative.littletiles.common.item.ItemMultiTiles;
 import team.creative.littletiles.common.item.ItemPremadeStructure;
 import team.creative.littletiles.common.item.component.MatrixDataComponent;
+import team.creative.littletiles.common.item.component.MeasurementsComponent;
 import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.item.component.TileFilterComponent;
 import team.creative.littletiles.common.placement.shape.LittleShapeInstance;
@@ -96,6 +98,7 @@ public class LittleTilesRegistry {
     public static final Holder<Item> PAINT_BRUSH = ITEMS.register("paint_brush", () -> new ItemLittlePaintBrush());
     public static final Holder<Item> GLOVE = ITEMS.register("glove", () -> new ItemLittleGlove());
     public static final Holder<Item> PREMADE = ITEMS.register("premade", () -> new ItemPremadeStructure());
+    public static final Holder<Item> MEASURE_TAPE = ITEMS.register("measure_tape", () -> new ItemLittleMeasureTape());
     
     public static final Holder<Item> BLOCK_INGREDIENT = ITEMS.register("blockingredient", () -> new ItemBlockIngredient());
     
@@ -135,6 +138,8 @@ public class LittleTilesRegistry {
             .<TileFilterComponent>builder().persistent(TileFilterComponent.CODEC).networkSynchronized(TileFilterComponent.STREAM_CODEC).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<SelectionComponent>> SELECTION = DATA_COMPONENTS.register("selection", x -> DataComponentType
             .<SelectionComponent>builder().persistent(SelectionComponent.CODEC).networkSynchronized(SelectionComponent.STREAM_CODEC).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<MeasurementsComponent>> MEASUREMENTS = DATA_COMPONENTS.register("measurements",
+        x -> DataComponentType.<MeasurementsComponent>builder().persistent(MeasurementsComponent.CODEC).networkSynchronized(MeasurementsComponent.STREAM_CODEC).build());
     
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockPos>> FIRST_POS = DATA_COMPONENTS.register("pos1", x -> DataComponentType.<BlockPos>builder()
             .persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC).build());
@@ -264,7 +269,7 @@ public class LittleTilesRegistry {
                 output.accept(LittleTilesRegistry.GLOVE.value());
                 
                 output.accept(LittleTilesRegistry.PAINT_BRUSH.value());
-                output.accept(LittleTilesRegistry.SAW.value());
+                output.accept(LittleTilesRegistry.MEASURE_TAPE.value());
                 output.accept(LittleTilesRegistry.SCREWDRIVER.value());
                 output.accept(LittleTilesRegistry.WRENCH.value());
                 
