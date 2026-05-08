@@ -26,6 +26,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
@@ -92,6 +93,10 @@ public class PreviewRenderer {
     
     public float partialTickTime() {
         return TickUtils.getFrameTime(level());
+    }
+    
+    public boolean isVisible(AABB bb) {
+        return Minecraft.getInstance().levelRenderer.getFrustum().isVisible(bb);
     }
     
     public int select(List<ShapePosition> positions) {
