@@ -2,6 +2,7 @@ package team.creative.littletiles.api.common.tool;
 
 import java.util.function.Consumer;
 
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -21,13 +22,19 @@ public interface ILittleTool {
         var data = stack.get(LittleTilesRegistry.DATA.value());
         if (data != null)
             return !data.getUnsafe().isEmpty();
-        return false;
+        return stack.get(DataComponents.CUSTOM_DATA) != null;
     }
     
     public static CompoundTag getData(ItemStack stack) {
         var data = stack.get(LittleTilesRegistry.DATA.value());
         if (data != null)
             return data.copyTag();
+        else if (stack.has(DataComponents.CUSTOM_DATA)) {
+            var oldData = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+            stack.remove(DataComponents.CUSTOM_DATA);
+            setData(stack, oldData);
+            return oldData;
+        }
         return new CompoundTag();
     }
     
@@ -36,6 +43,12 @@ public interface ILittleTool {
         var data = stack.get(LittleTilesRegistry.DATA.value());
         if (data != null)
             consumer.accept(data.getUnsafe());
+        else if (stack.has(DataComponents.CUSTOM_DATA)) {
+            var oldData = stack.get(DataComponents.CUSTOM_DATA).copyTag();
+            stack.remove(DataComponents.CUSTOM_DATA);
+            setData(stack, oldData);
+            consumer.accept(oldData);
+        }
     }
     
     public static void setData(ItemStack stack, CompoundTag nbt) {
