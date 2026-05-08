@@ -1,6 +1,7 @@
 package team.creative.littletiles.common.placement.selection;
 
 import net.minecraft.client.KeyMapping;
+import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
@@ -87,6 +88,7 @@ public class ExactAreaSelectionMode extends SelectionMode {
             if (facing != null) {
                 var box = LittleBoxAbsolute.of(nbt.getIntArray("pos" + marked));
                 LittleVecGrid vec = new LittleVecGrid(new LittleVec(facing), positionGrid);
+                vec.getVec().scale(Screen.hasControlDown() ? positionGrid.count : 1);
                 box.sameGrid(vec, () -> box.box.add(vec.getVec()));
                 nbt.putIntArray("pos" + marked, box.toArray());
                 return config.withConfig(nbt);
