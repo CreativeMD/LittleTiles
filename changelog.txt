@@ -1,3 +1,10 @@
+1.6.0-pre214
+Added measurement tape
+Fixed exact area mark mode not supporting ctrl
+Fixed play in blueprint causing crash if there is no structure configured
+fix hybrid server error due to empty value of BETiles.tiles (thanks to Deepseasaltyfish)
+Added backwards compatibility with 1.20.1 blueprints loosing their data
+
 1.6.0-pre213
 Added width and height configuratio to pillar
 Fixed several issues related to pillar and wall shapes
