@@ -172,7 +172,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
             throw new RemovedStructureException();
         
         for (StructureBlockConnector block : blocks)
-            block.connect();
+            block.checkConnection();
         
         try {
             if (hasParent())
@@ -183,7 +183,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         for (StructureChildConnection child : children.all())
             try {
-                child.getStructure().checkConnections();
+                child.getStructureUncached().checkConnections();
             } catch (CorruptedConnectionException e) {
                 throw new MissingChildException(child, e);
             }
@@ -537,9 +537,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         }
         mainBlock.getBE().updateTilesSecretly((x) -> x.removeStructure(getIndex()));
     }
-    
-    public void removeStructureSameLevel(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
-        checkConnections();
+
+    public void removeStructureSameLevelWithoutCheck(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
+        //checkConnections();
         structureDestroyed();
         
         for (StructureChildConnection child : children.all())
@@ -585,6 +585,10 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     public StructureAbsolute createAnimationCenter(BlockPos pos, LittleGrid grid) {
         return null;
     }
+
+    public boolean playSoundWhenChangingState() {
+        return true;
+    }
     
     /** Called before structure is removed. New structure already exists. Can be used to transfer information, that are not saved or loaded.
      *
@@ -604,7 +608,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleAnimationLevel subLevel = new LittleAnimationLevel(level);
         
         BlockPos pos = getStructurePos();
-        Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
+        Placement placement = new Placement(null, subLevel, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST)).setPlaySounds(playSoundWhenChangingState());
         LittleUpdateCollector collector = new LittleUpdateCollector();
         
         LittleAnimationEntity entity = new LittleAnimationEntity(level, subLevel, createAnimationCenter(mainBlock.getPos(), mainBlock.getGrid()), placement);
@@ -614,8 +618,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleTiles.NETWORK.sendToClientTracking(new StructureBlockToEntityPacket(location, entity), entity);
         
         transferOverFormChange(entity.getStructure());
-        
-        removeStructureSameLevel(collector);
+
+        removeStructureSameLevelWithoutCheck(collector);
         entity.getStructure().transferChildrenToAnimation(entity);
         
         collector.process();
@@ -644,7 +648,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         Level level = entity.level();
         
         BlockPos pos = getStructurePos();
-        Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST));
+        Placement placement = new Placement(null, level, PlacementPreview.load(null, PlacementMode.ALL, getAbsolutePreviewsSameLevelOnly(pos), Facing.EAST)).setPlaySounds(playSoundWhenChangingState());
         LittleUpdateCollector collector = new LittleUpdateCollector();
         PlacementResult result = placement.place();
         
@@ -657,8 +661,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         LittleTiles.NETWORK.sendToClientTracking(new StructureEntityToBlockPacket(entity), entity);
         
         transferOverFormChange(result.parentStructure);
-        
-        removeStructureSameLevel(collector);
+
+        removeStructureSameLevelWithoutCheck(collector);
         collector.process();
         
         entity.setRemoved(RemovalReason.KILLED);
@@ -819,6 +823,8 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public SignalExternalOutputHandler getExternalOutput(int index) {
+        if (externalHandler == null)
+            return null;
         return externalHandler.get(index);
     }
     

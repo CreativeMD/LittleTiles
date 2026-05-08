@@ -26,6 +26,7 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     private List<ISignalSchedulable> signalChanged = new ArrayList<>();
     private boolean processingChanged = false;
     private List<ISignalSchedulable> signalChangedSchedule = new ArrayList<>();
+    private final boolean client;
     
     public int tick = Integer.MIN_VALUE;
     public int latest = Integer.MIN_VALUE;
@@ -36,6 +37,7 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     public LittleTicker(Level level) {
         super(level);
         MinecraftForge.EVENT_BUS.register(this);
+        this.client = level.isClientSide;
     }
     
     protected LittleTickTicket pollUnused() {
@@ -48,7 +50,7 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     }
     
     public void markUpdate(LittleStructure structure, boolean notifyNeighbours) {
-        if (structure.isClient())
+        if (client)
             return;
         synchronized (updateStructures) {
             if (notifyNeighbours)
@@ -68,6 +70,8 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     }
     
     public void markSignalChanged(ISignalSchedulable schedulable) {
+        if (client)
+            return;
         synchronized (signalChanged) {
             if (processingChanged)
                 signalChangedSchedule.add(schedulable);
@@ -77,6 +81,8 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     }
     
     public void schedule(int delay, Runnable run) {
+        if (client)
+            return;
         synchronized (this) {
             if (delay < 0)
                 run.run();
@@ -107,18 +113,21 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
     }
     
     public void tick() {
-        synchronized (this) {
-            while (next != null && next.tickTime <= tick) {
-                next.run();
-                if (next == last)
-                    last = null;
-                LittleTickTicket temp = next;
-                next = temp.next;
-                if (unused != null) // store tickets as unused to prevent unnecessary creation of new tickets. This might cause usage of ram which is not required anymore.
-                    temp.next = unused;
-                else
-                    temp.next = null;
-                unused = temp;
+        if (!client) {
+            synchronized (this) {
+                while (next != null && next.tickTime <= tick) {
+                    next.run();
+                    if (next == last)
+                        last = null;
+                    LittleTickTicket temp = next;
+                    next = temp.next;
+                    if (unused != null) // store tickets as unused to prevent unnecessary creation of new tickets. This might cause usage of ram which is not required anymore.
+                        temp.next = unused;
+                    else
+                        temp.next = null;
+                    unused = temp;
+                }
+                tick++;
             }
             tick++;
         }
@@ -139,31 +148,33 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
             }
             ticking = false;
         }
-        
-        if (!updateStructures.isEmpty()) {
-            synchronized (updateStructures) {
-                for (Entry<LittleStructure> entry : updateStructures.object2BooleanEntrySet()) {
-                    LittleStructure structure = entry.getKey();
-                    if (structure.mainBlock.isRemoved())
-                        continue;
-                    LittleTiles.NETWORK.sendToClient(structure.generateUpdatePacket(entry.getBooleanValue()), structure.getStructureLevel(), structure.getStructurePos());
+
+        if (!client) {
+            if (!updateStructures.isEmpty()) {
+                synchronized (updateStructures) {
+                    for (Entry<LittleStructure> entry : updateStructures.object2BooleanEntrySet()) {
+                        LittleStructure structure = entry.getKey();
+                        if (structure.mainBlock.isRemoved())
+                            continue;
+                        LittleTiles.NETWORK.sendToClient(structure.generateUpdatePacket(entry.getBooleanValue()), structure.getStructureLevel(), structure.getStructurePos());
+                    }
+
+                    updateStructures.clear();
                 }
-                
-                updateStructures.clear();
             }
-        }
-        
-        if (!signalChanged.isEmpty()) {
-            synchronized (signalChanged) {
-                processingChanged = true;
-                for (ISignalSchedulable signal : signalChanged)
-                    try {
-                        signal.updateSignaling();
-                    } catch (CorruptedConnectionException | NotYetConnectedException e) {}
-                signalChanged.clear();
-                processingChanged = false;
-                signalChanged.addAll(signalChangedSchedule);
-                signalChangedSchedule.clear();
+
+            if (!signalChanged.isEmpty()) {
+                synchronized (signalChanged) {
+                    processingChanged = true;
+                    for (ISignalSchedulable signal : signalChanged)
+                        try {
+                            signal.updateSignaling();
+                        } catch (CorruptedConnectionException | NotYetConnectedException e) {}
+                    signalChanged.clear();
+                    processingChanged = false;
+                    signalChanged.addAll(signalChangedSchedule);
+                    signalChangedSchedule.clear();
+                }
             }
         }
     }

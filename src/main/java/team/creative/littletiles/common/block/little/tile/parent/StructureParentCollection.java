@@ -116,7 +116,14 @@ public class StructureParentCollection extends ParentCollection implements IStru
         }
         return (LittleStructure) cache;
     }
-    
+
+    @Override
+    public LittleStructure getStructureUncached() throws CorruptedConnectionException, NotYetConnectedException {
+        if (!isMain()) // Make sure not to remove the structure
+            cache = null;
+        return getStructure();
+    }
+
     @Override
     public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException {
         if (isMain())

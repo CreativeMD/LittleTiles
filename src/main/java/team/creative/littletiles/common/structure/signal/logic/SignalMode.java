@@ -6,6 +6,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.gui.GuiParent;
@@ -607,7 +608,10 @@ public enum SignalMode {
         public abstract GuiSignalModeConfiguration copy();
         
         public abstract SignalOutputHandler getHandler(ISignalComponent component, LittleStructure structure);
-        
+
+        public MutableComponent description(int configuredDelay) {
+            return Component.translatable(getMode().translateKey).append(" ").append(Component.translatable("gui.delay")).append(": " + configuredDelay);
+        }
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -702,7 +706,11 @@ public enum SignalMode {
             nbt.putInt("length", length);
             return getMode().create(component, delay, nbt, false);
         }
-        
+
+        @Override
+        public MutableComponent description(int configuredDelay) {
+            return super.description(configuredDelay).append(" ").append(Component.translatable("gui.signal.length").append(": " + length));
+        }
     }
     
     @OnlyIn(Dist.CLIENT)
@@ -737,7 +745,12 @@ public enum SignalMode {
             nbt.putInt("length", length);
             return getMode().create(component, delay, nbt, false);
         }
-        
+
+        @Override
+        public MutableComponent description(int configuredDelay) {
+            return super.description(configuredDelay).append(" ").append(Component.translatable("gui.signal.length").append(": " + length));
+        }
+
     }
     
     @OnlyIn(Dist.CLIENT)

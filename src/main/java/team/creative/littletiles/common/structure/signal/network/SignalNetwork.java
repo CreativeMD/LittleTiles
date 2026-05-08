@@ -43,7 +43,7 @@ public class SignalNetwork implements ISignalSchedulable {
     public void notifyChange() {
         if (!forceUpdate) {
             SignalState oldState = SignalState.copy(state);
-            state.reset();
+            state = state.reset();
             
             for (int i = 0; i < outputs.size(); i++)
                 try {

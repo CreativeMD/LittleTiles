@@ -17,6 +17,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraftforge.registries.ForgeRegistries;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.vec.Vec1d;
@@ -78,7 +79,34 @@ public class OldLittleTilesDataParser {
         int color = -1;
         if (nbt.contains("color"))
             color = nbt.getInt("color");
-        return new LittleTile(BLOCK_MAP.getOrDefault(name, name), color, Collections.EMPTY_LIST);
+
+        String newId = resolveBlockState(name);
+        return new LittleTile(newId, color, Collections.EMPTY_LIST);
+    }
+
+    private static String resolveBlockState(String name) {
+        String mapped = BLOCK_MAP.get(name);
+        if (mapped != null) return mapped;
+
+        LittleTiles.LOGGER.warn("Block not in 1.12.2.txt, trying to extract name: {}", name);
+        String base = extractBaseId(name);        // minecraft:bone_block:1:1:1 → minecraft:bone_block
+        ResourceLocation loc = ResourceLocation.tryParse(base);
+        if (loc != null && ForgeRegistries.BLOCKS.containsKey(loc)) {
+            return loc.toString();                // block ID, no meta data
+        }
+
+        // missing
+        LittleTiles.LOGGER.warn("fail to extract name, will use missing/magenta texture: {}", name);
+        return name;
+    }
+
+    //ignore data after the second ":"
+    private static String extractBaseId(String name) {
+        LittleTiles.LOGGER.warn("converting:"+name);
+        int cut = name.indexOf(':');
+        if (cut == -1) return name;
+        int next = name.indexOf(':', cut + 1);
+        return next == -1 ? name : name.substring(0, next);
     }
     
     public static LittleGroup load(CompoundTag nbt) throws LittleConvertException {
@@ -126,8 +154,10 @@ public class OldLittleTilesDataParser {
     
     private static void convertDoorBaseData(CompoundTag oldData, CompoundTag newData) {
         convertStructureDataBase(oldData, newData);
-        
-        newData.put("state", oldData.get("state"));
+
+        var state = oldData.get("state");
+        if (state != null)
+            newData.put("state", state);
         
         newData.putBoolean("actP", oldData.getBoolean("activateParent"));
         newData.putBoolean("hand", !oldData.getBoolean("disableRightClick"));
@@ -393,10 +423,18 @@ public class OldLittleTilesDataParser {
                 converted.putString("id", "door");
                 yield converted;
             }
-            default -> throw new LittleConvertException("Cannot convert " + nbt.getString("id") + " yet");
+            default -> throw new LittleMissingStructureException("Cannot convert " + nbt.getString("id") + " yet");
         };
     }
-    
+
+    public static class LittleMissingStructureException extends LittleConvertException {
+
+        public LittleMissingStructureException(String name) {
+            super(name);
+        }
+
+    }
+
     public static CompoundTag convert(CompoundTag nbt) throws LittleConvertException {
         return LittleGroup.save(load(nbt));
     }

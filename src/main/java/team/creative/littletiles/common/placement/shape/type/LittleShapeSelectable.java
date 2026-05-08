@@ -48,7 +48,7 @@ public abstract class LittleShapeSelectable extends LittleShape {
         
         if (inside)
             boxes.addBox(grid, pos, box);
-        else {
+        else if (facing != null) {
             if (facing.positive)
                 box.setMax(facing.axis, 1);
             else

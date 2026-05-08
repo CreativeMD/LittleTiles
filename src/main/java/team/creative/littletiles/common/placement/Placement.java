@@ -193,14 +193,14 @@ public class Placement {
             List<BlockSnapshot> snaps = new ArrayList<>();
             for (BlockPos snapPos : blocks.keySet())
                 snaps.add(BlockSnapshot.create(level.dimension(), level, snapPos));
-            
+
             EntityMultiPlaceEvent event = new BlockEvent.EntityMultiPlaceEvent(snaps, level.getBlockState(preview.position.facing == null ? preview.position
                     .getPos() : preview.position.getPos().relative(preview.position.facing.toVanilla())), player);
             MinecraftForge.EVENT_BUS.post(event);
             if (event.isCanceled()) {
                 for (BlockPos snapPos : blocks.keySet())
                     LittleAction.sendBlockResetToClient(level, player, snapPos);
-                return null;
+                throw new LittleTilesConfig.AreaProtected();
             }
         }
         try {
@@ -538,6 +538,7 @@ public class Placement {
                                             if (preview.mode.placeTile(context, structure.getStructure(), tile) && playSounds && !soundsToBePlayed.contains(tile.getSound()))
                                                 soundsToBePlayed.add(tile.getSound());
                                         } catch (LittleActionException e) {
+                                            LittleTiles.LOGGER.catching(e);
                                             throw new RuntimeException(e);
                                         }
                                     }
@@ -545,9 +546,10 @@ public class Placement {
                             });
                         });
                     } catch (RuntimeException e) {
-                        if (e.getCause() instanceof LittleActionException)
+                        if (e.getCause() instanceof LittleActionException) {
+                            LittleTiles.LOGGER.catching(e);
                             throw (LittleActionException) e.getCause();
-                        else
+                        } else
                             throw e;
                     }
                 }

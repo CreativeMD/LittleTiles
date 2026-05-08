@@ -185,16 +185,17 @@ public abstract class LittleAction<T> extends CreativePacket {
             return b;
         return null;
     }
-    
-    public static void fireBlockBreakEvent(Level level, BlockPos pos, Player player) throws AreaProtected {
+
+    public static boolean fireBlockBreakEvent(Level level, BlockPos pos, Player player) {
         if (level.isClientSide)
-            return;
+            return true;
         BreakEvent event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player);
         MinecraftForge.EVENT_BUS.post(event);
         if (event.isCanceled()) {
             sendBlockResetToClient(level, player, pos);
-            throw new AreaProtected();
+            return false;
         }
+        return true;
     }
     
     private static Method loadWorldEditEvent() {
@@ -435,24 +436,23 @@ public abstract class LittleAction<T> extends CreativePacket {
     }
     
     private static boolean isBlockValid(Block block) {
-        if (block instanceof EntityBlock || block instanceof SlabBlock)
-            return false;
         if (LittleBlockRegistry.isSpecialBlock(block))
             return true;
         return block instanceof GlassBlock || block instanceof StainedGlassBlock || block instanceof HalfTransparentBlock || block instanceof LeavesBlock;
     }
     
     private static boolean isBlockInvalid(Block block) {
+        if (block instanceof EntityBlock || block instanceof SlabBlock)
+            return true;
         var location = block.builtInRegistryHolder().unwrapKey().get().location();
         return location.getNamespace().equals("framedblocks");
     }
     
     public static boolean isBlockValid(BlockState state) {
-        if (isBlockValid(state.getBlock()))
-            return true;
         if (isBlockInvalid(state.getBlock()))
             return false;
-        
+        if (isBlockValid(state.getBlock()))
+            return true;
         if (state.isSolid() && state.isCollisionShapeFullBlock(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
             return true;
         if (ChiselsAndBitsManager.isChiselsAndBitsStructure(state))

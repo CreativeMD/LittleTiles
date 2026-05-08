@@ -24,6 +24,7 @@ import team.creative.littletiles.common.gui.signal.GeneratePatternException;
 import team.creative.littletiles.common.gui.signal.GuiSignalComponent;
 import team.creative.littletiles.common.gui.signal.GuiSignalController;
 import team.creative.littletiles.common.gui.signal.IConditionConfiguration;
+import team.creative.littletiles.common.structure.signal.component.SignalComponentType;
 import team.creative.littletiles.common.structure.signal.input.SignalInputCondition;
 import team.creative.littletiles.common.structure.signal.logic.SignalLogicOperator;
 import team.creative.littletiles.common.structure.signal.logic.SignalMode;
@@ -35,7 +36,7 @@ public class GuiDialogSignal extends GuiLayer {
     public List<GuiSignalComponent> inputs;
     
     public GuiDialogSignal() {
-        super("gui.dialog.signal", 320, 200);
+        super("gui.dialog.signal", 420, 300);
         flow = GuiFlow.STACK_Y;
         registerEventChanged(this::changed);
     }
@@ -137,7 +138,7 @@ public class GuiDialogSignal extends GuiLayer {
         for (GuiSignalComponent component : inputs)
             if (component.name().equals(target.writeBase()))
                 return component;
-        throw new ParseException("input not found", 0);
+        return new GuiSignalComponent("lost?", target.write(), 1, SignalComponentType.INVALID, false, 0);
     }
     
     public void modeChanged() {

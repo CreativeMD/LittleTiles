@@ -81,7 +81,14 @@ public class StructureConnection implements IStructureConnection {
         } else
             throw new NotYetConnectedException();
     }
-    
+
+    @Override
+    public LittleStructure getStructureUncached() throws CorruptedConnectionException, NotYetConnectedException {
+        cachedBE = null;
+        return getStructure();
+    }
+
+
     @Override
     public LittleStructure getStructure() throws CorruptedConnectionException, NotYetConnectedException {
         BETiles be = getBlockEntity();

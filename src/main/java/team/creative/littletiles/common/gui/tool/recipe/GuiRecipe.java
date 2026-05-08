@@ -224,13 +224,13 @@ public class GuiRecipe extends GuiConfigure {
         sidebar.add(sidebarButtons.setAlign(Align.CENTER));
         
         sidebarButtons.add(new GuiButton("add", x -> OPEN_ADD.open(new CompoundTag()).init(this)).setTranslate("gui.plus").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(
-            12, 12).setTooltip(new TextBuilder().translate("gui.recipe.add").build()));
+            15, 15).setTooltip(new TextBuilder().translate("gui.recipe.add").build()));
         sidebarButtons.add(new GuiButtonIcon("duplicate", Icon.DUPLICATE, x -> {
             if (tree.selected() == null)
                 return;
             tree.selected().getParentItem().addItem(((GuiTreeItemStructure) tree.selected()).duplicate());
             tree.updateTree();
-        }).setTooltip(new TextBuilder().translate("gui.recipe.duplicate").build()));
+        }).setDim(15, 15).setTooltip(new TextBuilder().translate("gui.recipe.duplicate").build()));
         sidebarButtons.add(new GuiButton("del", x -> {
             if (tree.selected() == null)
                 return;
@@ -239,14 +239,15 @@ public class GuiRecipe extends GuiConfigure {
                         if (b == DialogButton.YES)
                             removeItem((GuiTreeItemStructure) tree.selected());
                     }, DialogButton.NO, DialogButton.YES);
-        }).setTranslate("gui.del").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(12, 12).setTooltip(new TextBuilder().translate("gui.recipe.delete").build()));
-        sidebarButtons.add(new GuiButtonIcon("up", Icon.ARROW_UP, x -> tree.moveUp()).setTooltip(new TextBuilder().translate("gui.recipe.moveup").build()));
-        sidebarButtons.add(new GuiButtonIcon("down", Icon.ARROW_DOWN, x -> tree.moveDown()).setTooltip(new TextBuilder().translate("gui.recipe.movedown").build()));
-        
-        sidebarButtons.add(new GuiButtonIcon("move", Icon.MOVE, x -> OPEN_MOVE.open(new CompoundTag()).init(this)).setTooltip(new TextBuilder().translate("gui.recipe.move")
-                .build()));
-        sidebarButtons.add(new GuiButtonIcon("merge", Icon.MERGE, x -> OPEN_MERGE.open(new CompoundTag()).init(this)).setTooltip(new TextBuilder().translate("gui.recipe.merge")
-                .build()));
+        }).setTranslate("gui.del").setAlign(Align.CENTER).setVAlign(VAlign.CENTER).setDim(15, 15).setTooltip(new TextBuilder().translate("gui.recipe.delete").build()));
+
+        sidebarButtons.add(new GuiButtonIcon("move", Icon.MOVE, x -> OPEN_MOVE.open(new CompoundTag()).init(this)).setDim(15, 15).setTooltip(new TextBuilder().translate(
+                "gui.recipe.move").build()));
+
+        sidebarButtons.add(new GuiButtonIcon("up", Icon.ARROW_UP, x -> tree.moveUp()).setDim(15, 15).setTooltip(new TextBuilder().translate("gui.recipe.moveup").build()));
+        sidebarButtons.add(new GuiButtonIcon("down", Icon.ARROW_DOWN, x -> tree.moveDown()).setDim(15, 15).setTooltip(new TextBuilder().translate("gui.recipe.movedown").build()));
+        sidebarButtons.add(new GuiButtonIcon("merge", Icon.MERGE, x -> OPEN_MERGE.open(new CompoundTag()).init(this)).setDim(15, 15).setTooltip(new TextBuilder().translate(
+                "gui.recipe.merge").build()));
         
         GuiParent topCenter = new GuiParent(GuiFlow.STACK_Y).setAlign(Align.STRETCH);
         top.add(topCenter.setDim(new GuiSizeRatioRules().widthRatio(0.4F).maxWidth(400)).setExpandableY());

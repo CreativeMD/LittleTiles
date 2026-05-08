@@ -94,16 +94,16 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
         
         try {
             LittleStateStructure structure = this;
-            if ((!states.get(end).isAligned() || !states.get(start).equals(states.get(end))) && !isAnimated())
+            if ((!states.get(end).isAligned() || !states.get(start).equals(states.get(end)) || !timeline.isAligned()) && !isAnimated())
                 structure = (LittleStateStructure) changeToEntityForm().getStructure();
             
             structure.aimedState = end;
             structure.timeline = timeline;
             structure.timeline.start(states.get(start), states.get(end), this::createEmptyCurve);
             structure.physical = new PhysicalState();
-            
-            LittleTiles.NETWORK.sendToClient(new StructureStartAnimationPacket(structure.getStructureLocation(), structure.timeline), structure.getStructureLevel(), structure
-                    .getStructurePos());
+
+            LittleTiles.NETWORK.sendToClient(new StructureStartAnimationPacket(structure.getStructureLocation(), structure.timeline.copy()), structure.getStructureLevel(),
+                    structure.getStructurePos()); // Needs to send a copy, because before the packet is send the timeline might have ticked already, causing skipped ticks on client side
             
             structure.queueForNextTick();
             return true;
@@ -309,7 +309,11 @@ public abstract class LittleStateStructure<T extends AnimationState> extends Lit
     
     @OnlyIn(Dist.CLIENT)
     private void playClient(SoundEvent event, float volume, float pitch) {
-        GuiControl.playSound(new EntitySound(event, getAnimationEntity(), volume, pitch, SoundSource.BLOCKS));
+        var entity = getAnimationEntity();
+        if (entity != null)
+            GuiControl.playSound(new EntitySound(event, getAnimationEntity(), volume, pitch, SoundSource.BLOCKS));
+        else
+            getStructureLevel().playLocalSound(getStructurePos(), event, SoundSource.BLOCKS, volume, pitch, false);
     }
     
     @Override

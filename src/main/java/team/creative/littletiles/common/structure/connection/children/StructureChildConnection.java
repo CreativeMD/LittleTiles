@@ -81,13 +81,20 @@ public class StructureChildConnection implements IStructureConnection {
     
     public void destroyStructureSameLevel(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
         if (!isChild())
-            getStructure().removeStructureSameLevel(neighbor);
+            getStructure().removeStructureSameLevelWithoutCheck(neighbor);
     }
     
     public LittleEntity getAnimation() {
         return null;
     }
-    
+
+    @Override
+    public LittleStructure getStructureUncached() throws CorruptedConnectionException, NotYetConnectedException {
+        cachedBE = null;
+        return getStructure();
+    }
+
+
     @Override
     public BlockPos getStructurePosition() {
         return relativePos.offset(parent.getStructurePos());
