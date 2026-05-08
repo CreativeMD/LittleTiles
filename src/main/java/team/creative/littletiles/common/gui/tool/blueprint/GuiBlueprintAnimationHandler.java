@@ -115,9 +115,11 @@ public class GuiBlueprintAnimationHandler implements GuiAnimationHandler {
     }
     
     protected void updateState() {
-        timeline.setStateAtTick(tick, current.physicalState, current, playing);
-        for (Entry<GuiTreeItemStructure, ChildAnimationTimeline> entry : childTimelines.entrySet())
-            entry.getValue().setTick(entry.getKey(), tick);
+        if (current != null) {
+            timeline.setStateAtTick(tick, current.physicalState, current, playing);
+            for (Entry<GuiTreeItemStructure, ChildAnimationTimeline> entry : childTimelines.entrySet())
+                entry.getValue().setTick(entry.getKey(), tick);
+        }
         lastTick = tick;
     }
     
