@@ -5,6 +5,7 @@ import java.util.List;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -21,6 +22,10 @@ import team.creative.littletiles.common.math.measure.LittleMeasurement.LittleMea
 public class LittleMeasurementBox extends LittleMeasurementSimple {
     
     private LittleBoxAbsolute box;
+    
+    public LittleMeasurementBox(CompoundTag nbt) {
+        super(nbt);
+    }
     
     public LittleMeasurementBox(List<LittleBoxAbsolute> positions) {
         super(positions);

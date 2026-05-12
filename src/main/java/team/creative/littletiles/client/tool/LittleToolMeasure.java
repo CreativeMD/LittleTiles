@@ -20,6 +20,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.InputEvent.MouseButton.Pre;
 import team.creative.creativecore.common.gui.integration.ScreenEventListener;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittleMeasure;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
@@ -30,10 +32,12 @@ import team.creative.littletiles.client.render.overlay.PreviewRenderer.BoxRender
 import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
+import team.creative.littletiles.common.item.component.MeasurementsComponent;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.packet.item.MeasurementPacket;
 import team.creative.littletiles.common.placement.PlacementHelper;
 
 public class LittleToolMeasure extends LittleTool {
@@ -42,6 +46,7 @@ public class LittleToolMeasure extends LittleTool {
     
     public final ILittleMeasure measure;
     private List<LittleMeasurement> measurements = new ArrayList<>();
+    private MeasurementsComponent component;
     
     private LittleBoxAbsolute last;
     private List<LittleBoxAbsolute> selected = new ArrayList<>();
@@ -67,7 +72,14 @@ public class LittleToolMeasure extends LittleTool {
     }
     
     @Override
-    protected void tickInternal(PreviewRenderer renderer) {}
+    protected void tickInternal(PreviewRenderer renderer) {
+        if (stack.get(LittleTilesRegistry.MEASUREMENTS) != component) {
+            component = stack.get(LittleTilesRegistry.MEASUREMENTS);
+            reset();
+            measurements.addAll(component.value());
+            buildBoxes(renderer);
+        }
+    }
     
     @Override
     protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
@@ -163,6 +175,13 @@ public class LittleToolMeasure extends LittleTool {
         result = new BoxRenderResult(null, pos, buffer, mesh);
     }
     
+    private void updateMeasurements() {
+        component = MeasurementsComponent.of(measurements);
+        var packet = new MeasurementPacket(component);
+        packet.execute(MC.player);
+        LittleTiles.NETWORK.sendToServer(packet);
+    }
+    
     @Override
     public void mouseInput(Pre event) {
         if (event.getAction() != InputConstants.PRESS || MC.player == null || MC.screen != null)
@@ -192,8 +211,10 @@ public class LittleToolMeasure extends LittleTool {
                     int index = renderer.selectBox(temp);
                     if (index >= 0) {
                         var measurement = map.get(temp.get(index));
-                        if (measurement != null)
+                        if (measurement != null) {
                             measurements.remove(measurement);
+                            updateMeasurements();
+                        }
                     }
                     marked = -1;
                     markedPosition = null;
@@ -214,6 +235,7 @@ public class LittleToolMeasure extends LittleTool {
             if (type.points().apply(selected.size())) {
                 measurements.add(type.factory().apply(new ArrayList<>(selected)));
                 selected.clear();
+                updateMeasurements();
             }
         }
         

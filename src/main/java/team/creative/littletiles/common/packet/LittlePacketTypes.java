@@ -26,6 +26,7 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupHolder;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.item.component.MeasurementsComponent;
 import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
@@ -520,5 +521,6 @@ public class LittlePacketTypes {
         }, PlacementPlayerSetting.class);
         
         NetworkFieldTypes.register(SelectionComponent.STREAM_CODEC, SelectionComponent.class);
+        NetworkFieldTypes.register(MeasurementsComponent.STREAM_CODEC, MeasurementsComponent.class);
     }
 }

@@ -94,6 +94,7 @@ import team.creative.littletiles.common.packet.entity.LittleVanillaPackets;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationInitPacket;
 import team.creative.littletiles.common.packet.entity.level.LittleLevelInitPacket;
+import team.creative.littletiles.common.packet.item.MeasurementPacket;
 import team.creative.littletiles.common.packet.item.PlacerMatrixPacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.packet.item.ShapeConfigPacket;
@@ -168,6 +169,7 @@ public class LittleTiles {
         NETWORK.registerType(ChangedPosPacket.class, ChangedPosPacket::new);
         NETWORK.registerType(RequestInventoryResetPacket.class, RequestInventoryResetPacket::new);
         
+        NETWORK.registerType(MeasurementPacket.class, MeasurementPacket::new);
         NETWORK.registerType(PlacerMatrixPacket.class, PlacerMatrixPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
         NETWORK.registerType(ShapeConfigPacket.class, ShapeConfigPacket::new);
