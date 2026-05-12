@@ -91,27 +91,29 @@ public non-sealed class LittleFace implements ILittleFace {
         
         box = box.copy(); // Make sure the original one will not be modified
         box.convertTo(this.grid, to);
-        this.grid = to;
         
         filled = new boolean[maxOne - minOne][maxTwo - minTwo];
         if (faceFans != null) {
+            float ratio = to.count / (float) this.grid.count;
             List<VectorFan> newFans = new ArrayList<>(faceFans.size());
             for (VectorFan fan : faceFans) {
                 fan = fan.copy();
-                fan.scale(to.count / (float) this.grid.count);
+                fan.scale(ratio);
                 newFans.add(fan);
             }
             if (tiltedFans != null) {
                 List<VectorFan> tiledFansNew = new ArrayList<>();
                 for (VectorFan fan : tiltedFans) {
                     fan = fan.copy();
-                    fan.scale(to.count / (float) this.grid.count);
+                    fan.scale(ratio);
                     tiledFansNew.add(fan);
                 }
                 this.tiltedFans = tiledFansNew;
             }
             faceFans = newFans;
         }
+        
+        this.grid = to;
     }
     
     @Override
