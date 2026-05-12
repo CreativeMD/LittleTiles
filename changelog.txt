@@ -1,3 +1,8 @@
+1.6.0-pre215
+Added gui for measurement tape to configure color
+Fixed issue with translucent face culling when neighbour has different grid size
+Update and fix some entries in lang files (Thanks to Deepseasaltyfish)
+
 1.6.0-pre214
 Added measurement tape
 Fixed exact area mark mode not supporting ctrl
