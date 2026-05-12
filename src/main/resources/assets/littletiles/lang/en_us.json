@@ -475,12 +475,12 @@
     "building.exclude.clear": "Clear",
     "building.exclude.configure": "Configure",
     "building.exclude.end": "End",
-    "building.exclude.tooltip": "Excluse selection mode. Press 'ESC' to exit.",
-    "building.area.mode": "%s to draw boxes\n%s to select or deselect corner (moveable by arrows)\nSHIFT + %s delete box\nSHIFT + DOUBLE %s remove all",
+    "building.exclude.tooltip": "Exclude selection mode. Press 'ESC' to exit.",
+    "building.area.mode": "%s to draw boxes\n%s to select or deselect corner (movable by arrows)\nSHIFT + %s delete box\nSHIFT + DOUBLE %s remove all",
     "building.mirror": "Mirror",
     "building.mirror.clear": "Clear",
     "building.mirror.configure": "Configure",
     "building.mirror.end": "End",
     "building.mirror.tooltip": "Mirror selection mode. Press 'ESC' to exit.",
-    "building.mirror.mode": "%s to draw boxes\n%s on side of a box to enable mirror\n%s to select or deselect box (moveable by arrows)\nSHIFT + %s delete box\nSHIFT + DOUBLE %s remove all"
+    "building.mirror.mode": "%s to draw boxes\n%s on side of a box to enable mirror\n%s to select or deselect box (movable by arrows)\nSHIFT + %s delete box\nSHIFT + DOUBLE %s remove all"
 }
