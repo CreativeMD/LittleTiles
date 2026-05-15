@@ -1,3 +1,10 @@
+1.6.0-pre216
+Made measurements visible and toggable for other tools
+Added crafting recipe for measurement tape
+Added tooltip for measurement tape
+Added area and volume measurement types
+Added remember measurement type
+
 1.6.0-pre215
 Added gui for measurement tape to configure color
 Fixed issue with translucent face culling when neighbour has different grid size
