@@ -463,6 +463,8 @@
     "building.measurement.cycle": "Mode: %s (%s)",
     "building.measurement.box": "Box",
     "building.measurement.line": "Line",
+    "building.measurement.area": "Area",
+    "building.measurement.volume": "Volume",
     
     "building.rules": "Extra Building Rules",
     "building.reset": "Reset All",

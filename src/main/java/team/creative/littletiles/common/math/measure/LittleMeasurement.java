@@ -31,6 +31,8 @@ public abstract class LittleMeasurement {
     static {
         REGISTRY.register("line", LittleMeasurementLine.class);
         REGISTRY.register("box", LittleMeasurementBox.class);
+        REGISTRY.register("area", LittleMeasurementArea.class);
+        REGISTRY.register("volume", LittleMeasurementVolume.class);
     }
     
     public int color;

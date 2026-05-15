@@ -21,7 +21,7 @@ import team.creative.littletiles.common.math.measure.LittleMeasurement.LittleMea
 
 public class LittleMeasurementBox extends LittleMeasurementSimple {
     
-    private LittleBoxAbsolute box;
+    protected LittleBoxAbsolute box;
     
     public LittleMeasurementBox(CompoundTag nbt) {
         super(nbt);

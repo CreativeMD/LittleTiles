@@ -17,6 +17,8 @@ public record LittleMeasurementType(Int2BooleanFunction points, Function<List<Li
     static {
         REGISTRY.register("line", new LittleMeasurementType(TWO_POINTS, LittleMeasurementLine::new));
         REGISTRY.registerDefault("box", new LittleMeasurementType(TWO_POINTS, LittleMeasurementBox::new));
+        REGISTRY.register("area", new LittleMeasurementType(TWO_POINTS, LittleMeasurementArea::new));
+        REGISTRY.register("volume", new LittleMeasurementType(TWO_POINTS, LittleMeasurementVolume::new));
     }
     
     public Component translatable() {
