@@ -8,6 +8,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer.OverlayGuiLayer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.tool.LittleTool;
@@ -33,6 +34,8 @@ public abstract class BuildingModeFeature {
     public boolean render(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
         return false;
     }
+    
+    public void renderGui(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {}
     
     public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
         return false;

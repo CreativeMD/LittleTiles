@@ -45,11 +45,19 @@ public abstract class LittleTool {
             renderInternal(renderer, pose, cam, lines);
     }
     
+    public final void renderGui(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {
+        if (buildingMode)
+            for (BuildingModeFeature feature : features)
+                feature.renderGui(renderer, overlay, cam);
+            
+        renderGuiInternal(renderer, overlay, cam);
+    }
+    
     protected abstract void tickInternal(PreviewRenderer renderer);
     
     protected abstract void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines);
     
-    public void renderGui(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {}
+    protected void renderGuiInternal(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {}
     
     protected void disableBuildingMode() {
         for (BuildingModeFeature feature : features)
@@ -104,6 +112,7 @@ public abstract class LittleTool {
         features.add(BuildingModeFeatures.INCLUDE);
         features.add(BuildingModeFeatures.EXCLUDE);
         features.add(BuildingModeFeatures.MIRRORS);
+        features.add(BuildingModeFeatures.MEASURES);
         return features;
     }
     
@@ -143,7 +152,7 @@ public abstract class LittleTool {
         return null;
     }
     
-    public Iterable<LittleMeasurement> measurements() {
+    public List<LittleMeasurement> measurements() {
         return null;
     }
     

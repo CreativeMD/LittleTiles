@@ -115,8 +115,8 @@ public class LittleToolMeasure extends LittleTool {
     }
     
     @Override
-    public void renderGui(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {
-        super.renderGui(renderer, overlay, cam);
+    protected void renderGuiInternal(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {
+        super.renderGuiInternal(renderer, overlay, cam);
         for (LittleMeasurement measurement : measurements)
             measurement.overlay(renderer, overlay, cam);
     }
