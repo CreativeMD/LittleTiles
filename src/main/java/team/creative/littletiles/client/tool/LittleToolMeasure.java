@@ -35,6 +35,7 @@ import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.item.component.MeasurementsComponent;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
+import team.creative.littletiles.common.math.measure.LittleMeasurementType;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.item.MeasurementPacket;
@@ -205,9 +206,10 @@ public class LittleToolMeasure extends LittleTool {
             temp.addAll(selected);
             
             if (LittleActionHandlerClient.isUsingSecondMode())
-                if (doubleClick)
+                if (doubleClick) {
                     reset();
-                else {
+                    updateMeasurements();
+                } else {
                     int index = renderer.selectBox(temp);
                     if (index >= 0) {
                         var measurement = map.get(temp.get(index));
@@ -231,7 +233,7 @@ public class LittleToolMeasure extends LittleTool {
             }
         } else if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             selected.add(last.copy());
-            var type = BuildingModeFeatures.CYCLE_MEASURES.selected();
+            var type = stack.has(LittleTilesRegistry.MEASUREMENT_TYPE) ? stack.get(LittleTilesRegistry.MEASUREMENT_TYPE).type : LittleMeasurementType.REGISTRY.getDefault();
             if (type.points().apply(selected.size())) {
                 measurements.add(type.factory().apply(new ArrayList<>(selected)));
                 selected.clear();
