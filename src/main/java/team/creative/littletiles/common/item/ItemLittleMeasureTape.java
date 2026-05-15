@@ -2,6 +2,7 @@ package team.creative.littletiles.common.item;
 
 import java.util.List;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -22,6 +23,8 @@ import team.creative.littletiles.common.item.tooltip.IItemTooltip;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
 
 public class ItemLittleMeasureTape extends Item implements ILittleMeasure, IItemTooltip {
+    
+    private static final Minecraft MC = Minecraft.getInstance();
     
     public ItemLittleMeasureTape() {
         super(new Item.Properties().stacksTo(1));
@@ -55,8 +58,8 @@ public class ItemLittleMeasureTape extends Item implements ILittleMeasure, IItem
     @Override
     @OnlyIn(Dist.CLIENT)
     public Object[] tooltipData(ItemStack stack) {
-        // TODO Auto-generated method stub
-        return null;
+        return new Object[] { MC.options.keyUse.getTranslatedKeyMessage(), MC.options.keyAttack.getTranslatedKeyMessage(), MC.options.keyAttack
+                .getTranslatedKeyMessage(), MC.options.keyAttack.getTranslatedKeyMessage() };
     }
     
     @Override

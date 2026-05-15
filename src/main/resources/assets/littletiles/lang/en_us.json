@@ -251,6 +251,7 @@
     "littletiles.saw.tooltip": "'%s' extend tile\n'%s' shrink tile\nHold 'CTRL' to go further",
     "littletiles.screwdriver.tooltip": "'%s' first position\n'%s' second position\n'%s' modify selected area",
     "littletiles.wrench.tooltip": "'%s' rebuilds blocks cache\n'SHIFT + %s' to edit signals of structures\nDisplays signals and disables particle emitters when in hand",
+    "littletiles.measure_tape.tooltip": "%s to draw measurements\n%s to select or deselect corner (movable by arrows)\nSHIFT + %s delete box\nSHIFT + DOUBLE %s remove all",
     "block.littletiles.colored_clean": "Dyeable Clean",
     "block.littletiles.colored_floor": "Dyeable Floor",
     "block.littletiles.colored_grainy_big": "Dyeable Grainy Big",
