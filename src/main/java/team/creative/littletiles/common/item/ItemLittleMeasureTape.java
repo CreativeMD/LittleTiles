@@ -24,8 +24,6 @@ import team.creative.littletiles.common.math.measure.LittleMeasurement;
 
 public class ItemLittleMeasureTape extends Item implements ILittleMeasure, IItemTooltip {
     
-    private static final Minecraft MC = Minecraft.getInstance();
-    
     public ItemLittleMeasureTape() {
         super(new Item.Properties().stacksTo(1));
     }
@@ -58,6 +56,7 @@ public class ItemLittleMeasureTape extends Item implements ILittleMeasure, IItem
     @Override
     @OnlyIn(Dist.CLIENT)
     public Object[] tooltipData(ItemStack stack) {
+        var MC = Minecraft.getInstance();
         return new Object[] { MC.options.keyUse.getTranslatedKeyMessage(), MC.options.keyAttack.getTranslatedKeyMessage(), MC.options.keyAttack
                 .getTranslatedKeyMessage(), MC.options.keyAttack.getTranslatedKeyMessage() };
     }
