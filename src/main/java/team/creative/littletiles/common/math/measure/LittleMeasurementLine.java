@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.util.Mth;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
@@ -39,7 +38,7 @@ public class LittleMeasurementLine extends LittleMeasurementSimple {
     public void overlay(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {
         if (!renderer.isVisible(bb))
             return;
-        overlay.renderLabel(cam, center, Component.literal(length + ""), ColorUtils.WHITE);
+        overlay.renderLabel(cam, center, displayLength(length), ColorUtils.WHITE);
     }
     
     @Override

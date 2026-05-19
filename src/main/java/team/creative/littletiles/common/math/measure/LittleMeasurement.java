@@ -8,14 +8,50 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.Vec3;
+import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.creativecore.common.util.registry.NamedTypeRegistry;
 import team.creative.creativecore.common.util.registry.exception.RegistryException;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 
 public abstract class LittleMeasurement {
+    
+    public static Component displayLength(double length) {
+        int blocks = (int) length;
+        double pixels = (length - blocks) / LittleGrid.overallDefault().pixelLength;
+        var text = Component.empty();
+        if (blocks > 0)
+            text.append(blocks + "").append(Component.translatable("volume.unit.big.short"));
+        if (pixels > 0)
+            text.append((blocks > 0 ? " " : "") + TooltipUtils.print(pixels) + "").append(Component.translatable("volume.unit.small.short"));
+        return text;
+    }
+    
+    public static Component displayArea(double area) {
+        int blocks = (int) area;
+        double pixels = (area - blocks) / LittleGrid.overallDefault().pixelArea;
+        var text = Component.empty();
+        if (blocks > 0)
+            text.append(blocks + "").append(Component.translatable("volume.unit.big.short"));
+        if (pixels > 0)
+            text.append((blocks > 0 ? " " : "") + TooltipUtils.print(pixels) + "").append(Component.translatable("volume.unit.small.short"));
+        return text;
+    }
+    
+    public static Component displayVolume(double volume) {
+        int blocks = (int) volume;
+        double pixels = (volume - blocks) / LittleGrid.overallDefault().pixelVolume;
+        var text = Component.empty();
+        if (blocks > 0)
+            text.append(blocks + "").append(Component.translatable("volume.unit.big.short"));
+        if (pixels > 0)
+            text.append((blocks > 0 ? " " : "") + TooltipUtils.print(pixels) + "").append(Component.translatable("volume.unit.small.short"));
+        return text;
+    }
     
     public static final NamedTypeRegistry<LittleMeasurement> REGISTRY = new NamedTypeRegistry<LittleMeasurement>().addConstructorPattern(CompoundTag.class);
     

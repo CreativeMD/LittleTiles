@@ -3,7 +3,6 @@ package team.creative.littletiles.common.math.measure;
 import java.util.List;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -51,7 +50,7 @@ public class LittleMeasurementArea extends LittleMeasurementBox {
         Vec3d vec = new Vec3d(center);
         vec.set(facing.axis, facing.get(bb));
         double area = facing.axis == Axis.X ? bb.getYsize() * bb.getZsize() : (facing.axis == Axis.Y ? bb.getXsize() * bb.getZsize() : bb.getXsize() * bb.getYsize());
-        overlay.renderLabel(cam, vec, Component.literal(area + ""), ColorUtils.WHITE);
+        overlay.renderLabel(cam, vec, displayArea(area), ColorUtils.WHITE);
     }
     
 }

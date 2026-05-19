@@ -6,7 +6,6 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.base.Axis;
@@ -94,7 +93,7 @@ public class LittleMeasurementBox extends LittleMeasurementSimple {
     private void displayLine(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam, Vec3d start, Vec3d end) {
         var center = new Vec3d((start.x + end.x) * 0.5, (start.y + end.y) * 0.5, (start.z + end.z) * 0.5);
         var length = start.distance(end);
-        overlay.renderLabel(cam, center, Component.literal(length + ""), ColorUtils.WHITE);
+        overlay.renderLabel(cam, center, displayLength(length), ColorUtils.WHITE);
     }
     
 }
