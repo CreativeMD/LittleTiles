@@ -9,6 +9,7 @@ import net.minecraft.util.Mth;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.CalculatePlayerTurnEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RenderFrameEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent.ComputeFov;
 import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.common.config.api.CreativeConfig;
@@ -66,6 +67,11 @@ public class BuildingModeZoom extends BuildingModeFeature {
     
     private double zoom() {
         return zoom.current();
+    }
+    
+    @SubscribeEvent
+    public void onRenderTick(RenderFrameEvent.Pre event) {
+        RENDERING_HAND = true;
     }
     
     @SubscribeEvent
