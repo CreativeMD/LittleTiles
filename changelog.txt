@@ -1,3 +1,8 @@
+1.6.0-pre217
+Added better display of length, area and volume for measurements
+Fixed zoom not working properly with shaders enabled
+Fixed crash on server side due to measurement tape
+
 1.6.0-pre216
 Made measurements visible and toggable for other tools
 Added crafting recipe for measurement tape
