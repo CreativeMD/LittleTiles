@@ -174,7 +174,7 @@ public class PreviewManager implements LevelAwareHandler {
     protected void drawNonHighlight(RenderLevelStageEvent event) {
         if (event.getStage() != Stage.AFTER_BLOCK_ENTITIES)
             return;
-        if (MC.getCameraEntity() instanceof Player && !MC.options.hideGui && tool != null) {
+        if (MC.getCameraEntity() instanceof Player && !MC.options.hideGui && tool != null && tool.stack.getItem() instanceof ILittleTool) {
             tool.render(renderer, event.getPoseStack(), MC.gameRenderer.getMainCamera().getPosition(), true);
             tool.renderGui(renderer, LittleTilesClient.OVERLAY_RENDERER, MC.gameRenderer.getMainCamera().getPosition());
         }
@@ -191,7 +191,7 @@ public class PreviewManager implements LevelAwareHandler {
         Vec3 cam = MC.gameRenderer.getMainCamera().getPosition();
         
         PoseStack pose = event.getPoseStack();
-        if (tool != null)
+        if (tool != null && tool.stack.getItem() instanceof ILittleTool)
             tool.render(renderer, pose, cam, true);
         
         if (!event.isCanceled() && level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder().isWithinBounds(event.getTarget()
