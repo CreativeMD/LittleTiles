@@ -81,7 +81,7 @@ public class BuildingModeZoom extends BuildingModeFeature {
         
         if (RENDERING_HAND) {
             zoom.tick();
-            event.setFOV(Math.toDegrees(Math.atan(Math.tan(Math.toRadians(event.getFOV())) / zoom())));
+            event.setFOV(Math.toDegrees(2 * Math.atan(Math.tan(Math.toRadians(event.getFOV() / 2)) / zoom())));
         }
         RENDERING_HAND = !RENDERING_HAND;
     }
