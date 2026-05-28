@@ -284,6 +284,7 @@
     "key.rotateup": "Rotate up",
     "key.little.redo": "Redo",
     "key.little.undo": "Undo",
+    "key.little.building_mode": "Toggle building mode",
     "action.tile.notthere": "Tile is missing",
     "action.tile.notfound": "Tile not found",
     "action.blockentity.notfound": "BlockEntity not found",
