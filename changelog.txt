@@ -1,3 +1,8 @@
+1.6.0-pre218
+Added translation for building mode key
+Fixed crash when dropping tool in building mode
+Fixed flipping screen when using buidling mode
+
 1.6.0-pre217
 Added better display of length, area and volume for measurements
 Fixed zoom not working properly with shaders enabled
