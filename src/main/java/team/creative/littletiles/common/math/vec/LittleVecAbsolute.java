@@ -12,6 +12,7 @@ import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBox;
 
 public class LittleVecAbsolute implements IGridBased {
     
@@ -76,6 +77,15 @@ public class LittleVecAbsolute implements IGridBased {
         LittleVec newVec = new LittleVec(getGrid(), this.pos.subtract(pos));
         newVec.add(this.gridVec.vec);
         return newVec;
+    }
+    
+    public LittleBox getRelative(BlockPos pos, LittleGrid target) {
+        LittleVec newVec = new LittleVec(getGrid(), this.pos.subtract(pos));
+        newVec.add(this.gridVec.vec);
+        LittleBox box = new LittleBox(newVec.x, newVec.y, newVec.z, newVec.x + 1, newVec.y + 1, newVec.z + 1);
+        if (target != getGrid())
+            box.convertTo(getGrid(), target);
+        return box;
     }
     
     public LittleVecGrid getRelative(LittleVecAbsolute pos) {

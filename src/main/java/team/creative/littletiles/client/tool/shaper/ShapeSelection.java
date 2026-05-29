@@ -32,13 +32,13 @@ public class ShapeSelection implements Iterable<ShapePosition> {
         this.inside = inside;
         this.positions = positions;
         this.pos = positions.getFirst().getPos();
-        this.overallBox = LittleBox.ofNothing();
-        for (ShapePosition p : positions)
-            this.overallBox.growToIncludePixel(p.getRelative(pos));
         int smallest = grid.count;
         for (int i = 0; i < positions.size(); i++)
             smallest = Math.max(smallest, positions.get(i).getSmallest());
         this.grid = LittleGrid.get(smallest);
+        this.overallBox = LittleBox.ofNothing();
+        for (ShapePosition p : positions)
+            this.overallBox.growToInclude(p.getRelative(pos, this.grid));
         for (int i = 0; i < positions.size(); i++)
             positions.get(i).convertTo(this.grid);
     }
