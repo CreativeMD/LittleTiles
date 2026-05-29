@@ -29,7 +29,7 @@ public class BuildingModeMeasures extends BuildingModeToggle implements Building
     private List<LittleMeasurement> toolMeasurements;
     
     public BuildingModeMeasures() {
-        super("building.toggle.measurements", InputConstants.KEY_M, KeyModifier.NONE, false);
+        super("building.toggle.measurements", InputConstants.KEY_N, KeyModifier.NONE, false);
     }
     
     public void updateMeasureTapes(PreviewRenderer renderer) {
