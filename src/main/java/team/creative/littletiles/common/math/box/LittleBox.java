@@ -1229,6 +1229,16 @@ public class LittleBox {
         return new LittleBox(minX, minY, minZ, maxX, maxY, maxZ);
     }
     
+    public LittleBox intersectionExact(LittleGrid grid, LittleBox other, @Nullable LittleBoxReturnedVolume volume) {
+        int minX = Math.max(this.minX, other.minX);
+        int minY = Math.max(this.minY, other.minY);
+        int minZ = Math.max(this.minZ, other.minZ);
+        int maxX = Math.min(this.maxX, other.maxX);
+        int maxY = Math.min(this.maxY, other.maxY);
+        int maxZ = Math.min(this.maxZ, other.maxZ);
+        return extractBox(grid, minX, minY, minZ, maxX, maxY, maxZ, volume);
+    }
+    
     public boolean isFaceSolid(Facing facing) {
         return true;
     }

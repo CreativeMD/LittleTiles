@@ -91,7 +91,7 @@ public class SelectionBuilder {
                                                 for (LittleBox tileBox : tile) {
                                                     if (!LittleBox.intersectsWith(tileBox, intersect))
                                                         continue;
-                                                    var overlap = tileBox.intersection(intersect);
+                                                    var overlap = tileBox.intersectionExact(parent.getGrid(), intersect, null);
                                                     if (overlap != null)
                                                         intersecting.add(overlap);
                                                 }
