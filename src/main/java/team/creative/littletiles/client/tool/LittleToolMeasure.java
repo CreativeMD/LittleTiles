@@ -130,7 +130,7 @@ public class LittleToolMeasure extends LittleTool {
     
     @Override
     public boolean keyPressed(PreviewRenderer renderer, int keyCode, int scanCode, int action, int modifiers) {
-        if (action != InputConstants.PRESS)
+        if (action == InputConstants.RELEASE)
             return false;
         
         var facing = LittleTilesClient.facingFromKeybind(MC.player, keyCode, scanCode);

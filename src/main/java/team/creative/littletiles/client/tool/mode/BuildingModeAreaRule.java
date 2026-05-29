@@ -239,7 +239,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
     
     @Override
     public boolean keyPressed(int keyCode, int scanCode, int action, int modifiers) {
-        if (!active || action != InputConstants.PRESS)
+        if (!active || action == InputConstants.RELEASE)
             return false;
         
         if (keyCode == InputConstants.KEY_ESCAPE) {
