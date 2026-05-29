@@ -393,9 +393,16 @@ public class LittleToolPlacer extends LittleTool {
         
         //this works for both single and group
         if (fixed || (isMarked && markedFixed))
-            if (LittleAction.canPlaceInside(level, pos.getPos(), builtMode.placeInside))
-                return new PlacementPosition(pos.getPos(), grid, isMarked ? pos.getVec() : new LittleVec(0, 0, 0), pos.facing); // Return
-                
+            if (LittleAction.canPlaceInside(level, pos.getPos(), builtMode.placeInside)) {
+                var offset = new PlacementPosition(pos.getPos(), grid, isMarked ? pos.getVec() : new LittleVec(0, 0, 0), pos.facing);
+                if (singleMode) {
+                    LittleVecGrid internalOffset = this.builtInternalOffset.copy();
+                    internalOffset.invert();
+                    offset.add(internalOffset);
+                }
+                return offset;
+            }
+        
         PlacementPosition offset = new PlacementPosition(pos.getPos(), grid, box.getMinVec(), pos.facing);
         LittleVecGrid internalOffset = this.builtInternalOffset.copy();
         internalOffset.invert();
