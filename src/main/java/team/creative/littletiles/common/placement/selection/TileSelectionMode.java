@@ -72,7 +72,7 @@ public class TileSelectionMode extends SelectionMode {
                     boxes.addBoxes(pair.key, pair.value);
             }
         } else
-            boxes.addBox(context.parent.getGrid(), hit.getBlockPos(), context.box);
+            boxes.addBox(context.parent.getGrid(), hit.getBlockPos(), context.box.copy());
         nbt.put("boxes", boxes.save(new CompoundTag()));
         return config.withConfig(nbt);
     }
@@ -93,7 +93,7 @@ public class TileSelectionMode extends SelectionMode {
         else if (secondMode)
             boxes.cutOut(LittleGrid.MIN, hit.getBlockPos(), LittleGrid.MIN.box());
         else
-            boxes.cutOut(context.parent.getGrid(), hit.getBlockPos(), context.box);
+            boxes.cutOut(context.parent.getGrid(), hit.getBlockPos(), context.box.copy());
         nbt.put("boxes", boxes.save(new CompoundTag()));
         return config.withConfig(nbt);
     }
