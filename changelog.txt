@@ -1,3 +1,12 @@
+1.6.0-pre219
+Changed toggle measurements default keybind from m to n
+Fixed offset when placing signal component with mark mode
+Fixed tile selection mode causing ghost tiles
+Fixed measurement tape suppressing key release
+Fixed mark mode issue for shaper when switching grid
+Fixed measurement tape, inclusive and exclusive are mark mode not working with holding down arrow keys
+Fixed exact area not capturing transformable boxes correctly
+
 1.6.0-pre218
 Added translation for building mode key
 Fixed crash when dropping tool in building mode
