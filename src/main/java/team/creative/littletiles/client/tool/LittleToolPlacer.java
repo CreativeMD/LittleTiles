@@ -1,5 +1,6 @@
 package team.creative.littletiles.client.tool;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -46,7 +47,10 @@ import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.LittleBoxGrid;
+import team.creative.littletiles.common.math.measure.LittleMeasurement;
+import team.creative.littletiles.common.math.measure.LittleMeasurementSimpleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.item.PlacerMatrixPacket;
@@ -456,6 +460,15 @@ public class LittleToolPlacer extends LittleTool {
         }
         removeCache();
         return true;
+    }
+    
+    @Override
+    public List<LittleMeasurement> measurements() {
+        if (!built)
+            return null;
+        var absoluteBox = new LittleBoxAbsolute(placedPosition.getPos(), builtBox.getBox().copy(), builtBox.getGrid());
+        absoluteBox.sameGrid(placedPosition, () -> absoluteBox.box.add(placedPosition.getVec()));
+        return Arrays.asList(new LittleMeasurementSimpleBox(absoluteBox));
     }
     
     public static record LittleGroupResult(LittleGroup group, ByteBufferBuilder buffer, MeshData data) {

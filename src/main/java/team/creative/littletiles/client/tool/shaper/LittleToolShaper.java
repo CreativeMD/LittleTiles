@@ -1,6 +1,7 @@
 package team.creative.littletiles.client.tool.shaper;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -30,7 +31,10 @@ import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
+import team.creative.littletiles.common.math.measure.LittleMeasurement;
+import team.creative.littletiles.common.math.measure.LittleMeasurementSimpleBox;
 import team.creative.littletiles.common.packet.item.ShapeConfigPacket;
 import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PreviewMode;
@@ -295,6 +299,12 @@ public class LittleToolShaper extends LittleTool {
         }
         
         return false;
+    }
+    
+    @Override
+    public List<LittleMeasurement> measurements() {
+        var selection = builtSelection;
+        return Arrays.asList(new LittleMeasurementSimpleBox(new LittleBoxAbsolute(selection.pos, selection.overallBox, selection.grid)));
     }
     
     @Override

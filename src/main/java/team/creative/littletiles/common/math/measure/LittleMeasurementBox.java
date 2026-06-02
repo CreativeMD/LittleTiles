@@ -65,7 +65,7 @@ public class LittleMeasurementBox extends LittleMeasurementSimple {
         renderer.buildBox(pose, renderBox, builder, 255, true);
     }
     
-    private void displayLine(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam, AABB bb, Facing x, Facing y, Facing z) {
+    public static void displayLine(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam, AABB bb, Facing x, Facing y, Facing z) {
         if (x == null) {
             displayLine(renderer, overlay, cam, bb, Facing.WEST, y, z);
             displayLine(renderer, overlay, cam, bb, Facing.EAST, y, z);
@@ -90,7 +90,7 @@ public class LittleMeasurementBox extends LittleMeasurementSimple {
         displayLine(renderer, overlay, cam, corner.get(bb), corner.mirror(Axis.Z).get(bb));
     }
     
-    private void displayLine(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam, Vec3d start, Vec3d end) {
+    private static void displayLine(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam, Vec3d start, Vec3d end) {
         var center = new Vec3d((start.x + end.x) * 0.5, (start.y + end.y) * 0.5, (start.z + end.z) * 0.5);
         var length = start.distance(end);
         overlay.renderLabel(cam, center, displayLength(length), ColorUtils.WHITE);

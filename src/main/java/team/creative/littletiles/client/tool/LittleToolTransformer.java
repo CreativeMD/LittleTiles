@@ -1,6 +1,7 @@
 package team.creative.littletiles.client.tool;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import javax.annotation.Nullable;
@@ -35,6 +36,8 @@ import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.CornerCache;
+import team.creative.littletiles.common.math.measure.LittleMeasurement;
+import team.creative.littletiles.common.math.measure.LittleMeasurementSimpleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.packet.action.ChangedElementPacket;
@@ -280,6 +283,13 @@ public class LittleToolTransformer extends LittleTool {
         }
         
         return false;
+    }
+    
+    @Override
+    public List<LittleMeasurement> measurements() {
+        if (box == null)
+            return null;
+        return Arrays.asList(new LittleMeasurementSimpleBox(box.copy()));
     }
     
 }
