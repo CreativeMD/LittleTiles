@@ -1,3 +1,12 @@
+1.6.0-pre220
+Added color option to area modes
+Added measurements for placer, shaper and transformer tools
+Added default colors for measurement tape
+Fixed being able to select multiple area modes at the same time
+Fixed area modes glitches when switching grid
+Fixed not rendering area modes with color
+Fixed selected corner flickering
+
 1.6.0-pre219
 Changed toggle measurements default keybind from m to n
 Fixed offset when placing signal component with mark mode
