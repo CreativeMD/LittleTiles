@@ -234,7 +234,9 @@ public class LittleToolMeasure extends LittleTool {
             selected.add(last.copy());
             var type = stack.has(LittleTilesRegistry.MEASUREMENT_TYPE) ? stack.get(LittleTilesRegistry.MEASUREMENT_TYPE).type : LittleMeasurementType.REGISTRY.getDefault();
             if (type.points().apply(selected.size())) {
-                measurements.add(type.factory().apply(new ArrayList<>(selected)));
+                var m = type.factory().apply(new ArrayList<>(selected));
+                m.color = BuildingModeFeatures.MEASURES.colorFromIndex(measurements.size());
+                measurements.add(m);
                 selected.clear();
                 updateMeasurements();
             }

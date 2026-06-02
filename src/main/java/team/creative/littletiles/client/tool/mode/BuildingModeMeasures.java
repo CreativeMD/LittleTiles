@@ -1,6 +1,7 @@
 package team.creative.littletiles.client.tool.mode;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.InputConstants;
@@ -12,6 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.settings.KeyModifier;
+import team.creative.creativecore.common.config.api.CreativeConfig;
+import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.api.common.tool.ILittleMeasure;
 import team.creative.littletiles.client.render.mc.MeshDataExtender;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
@@ -28,8 +32,18 @@ public class BuildingModeMeasures extends BuildingModeToggle implements Building
     
     private List<LittleMeasurement> toolMeasurements;
     
+    @CreativeConfig
+    public List<Color> measureTapeColors = Arrays.asList(new Color(252, 186, 3), new Color(205, 144, 0), new Color(177, 102, 0), new Color(159, 73, 0), new Color(129, 59, 0),
+        new Color(98, 40, 0));
+    
     public BuildingModeMeasures() {
         super("building.toggle.measurements", InputConstants.KEY_N, KeyModifier.NONE, false);
+    }
+    
+    public int colorFromIndex(int index) {
+        if (measureTapeColors.isEmpty())
+            return ColorUtils.WHITE;
+        return measureTapeColors.get(index % measureTapeColors.size()).toInt();
     }
     
     public void updateMeasureTapes(PreviewRenderer renderer) {
