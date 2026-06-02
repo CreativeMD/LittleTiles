@@ -190,8 +190,12 @@ public class PreviewRenderer {
     }
     
     public void buildBox(PoseStack pose, RenderBox box, BufferBuilder builder, int colorAlpha, boolean lines) {
+        buildBox(pose, box, builder, colorAlpha, lines, false);
+    }
+    
+    public void buildBox(PoseStack pose, RenderBox box, BufferBuilder builder, int colorAlpha, boolean lines, boolean forceWhite) {
         if (lines)
-            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.001);
+            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.001, forceWhite);
         else
             box.renderPreview(pose, builder, colorAlpha);
     }
@@ -217,12 +221,16 @@ public class PreviewRenderer {
     }
     
     public BoxRenderResult buildBoxes(PoseStack pose, LittleBoxes boxes, boolean lines) {
+        return buildBoxes(pose, boxes, lines, false);
+    }
+    
+    public BoxRenderResult buildBoxes(PoseStack pose, LittleBoxes boxes, boolean lines, boolean forceWhite) {
         ByteBufferBuilder buffer = createBuffer();
         var builder = createBuilder(buffer, lines);
         for (LittleBox box : boxes.all()) {
             LittleRenderBox cube = box.getRenderingBox(boxes.getGrid());
             if (cube != null)
-                buildBox(pose, cube, builder, 255, lines);
+                buildBox(pose, cube, builder, 255, lines, forceWhite);
         }
         var mesh = builder.build();
         if (mesh instanceof MeshDataExtender m)
@@ -255,14 +263,18 @@ public class PreviewRenderer {
     }
     
     public void renderSeethroughLines(Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color) {
+        renderSeethroughLines(cam, lines, pos, data, color, 0.4F);
+    }
+    
+    public void renderSeethroughLines(Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color, float alpha) {
         renderBoxes(cam, pos, lines, data, () -> {
             RenderSystem.enableDepthTest();
-            RenderSystem.setShaderColor(0, 0, 0, 0.4F);
+            RenderSystem.setShaderColor(0, 0, 0, alpha);
             RenderSystem.lineWidth(4);
         });
         renderBoxes(cam, pos, lines, data, () -> {
             RenderSystem.disableDepthTest();
-            RenderSystem.setShaderColor(ColorUtils.redF(color), ColorUtils.greenF(color), ColorUtils.blueF(color), 0.4F);
+            RenderSystem.setShaderColor(ColorUtils.redF(color), ColorUtils.greenF(color), ColorUtils.blueF(color), alpha);
             RenderSystem.lineWidth(2);
         });
         

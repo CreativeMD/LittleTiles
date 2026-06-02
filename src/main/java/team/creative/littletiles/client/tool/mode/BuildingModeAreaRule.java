@@ -8,6 +8,7 @@ import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
@@ -19,6 +20,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.common.config.api.CreativeConfig;
 import team.creative.creativecore.common.gui.integration.ScreenEventListener;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.type.Color;
 import team.creative.creativecore.common.util.type.tree.NamedTree;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
@@ -29,13 +31,14 @@ import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.mode.BuildingModeRules.BuildingModeRule;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.action.LittleAction;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
 import team.creative.littletiles.common.placement.PlacementHelper;
 
 public class BuildingModeAreaRule extends BuildingModeFeature implements BuildingModeRule {
+    
+    private static BuildingModeAreaRule ACTIVATED = null;
     
     private static final Minecraft MC = Minecraft.getInstance();
     private final boolean exclude;
@@ -53,11 +56,11 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
     private double lastMouseClicked;
     
     @CreativeConfig
-    private int color;
+    public Color color;
     
     public BuildingModeAreaRule(boolean exclude) {
         this.exclude = exclude;
-        this.color = exclude ? ColorUtils.RED : ColorUtils.GREEN;
+        this.color = new Color(exclude ? ColorUtils.RED : ColorUtils.GREEN);
         NeoForge.EVENT_BUS.register(this);
     }
     
@@ -73,6 +76,9 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         else
             tree.add(name + ".configure", () -> {
                 active = true;
+                if (ACTIVATED != null)
+                    ACTIVATED.end();
+                ACTIVATED = this;
                 return true;
             });
         
@@ -91,6 +97,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         if (active)
             MC.player.displayClientMessage(Component.literal(""), true);
         active = false;
+        ACTIVATED = null;
     }
     
     @Override
@@ -106,6 +113,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
     @Override
     public void remove(OverlayGuiLayer gui) {
         active = false;
+        ACTIVATED = null;
     }
     
     @Override
@@ -126,51 +134,41 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         var level = renderer.level();
         
         if (active) {
-            var grid = positionGrid();
             if (first != null)
                 positions.add(first);
             if (last != null)
                 positions.add(last);
-            renderer.renderPositions(pose, cam, positions, grid, x -> markedPosition == x);
+            renderer.renderPositions(pose, cam, positions, x -> markedPosition == x);
             if (first != null)
                 positions.removeLast();
             if (last != null)
                 positions.removeLast();
             
             if (first != null && last != null) {
-                first.sameGrid(last, () -> {
-                    var boxes = new LittleBoxesSimple(first.getPos(), first.getGrid());
-                    LittleBox box = LittleBox.ofNothing();
-                    box.growToIncludePixel(first.getRelative(boxes.pos));
-                    box.growToIncludePixel(last.getRelative(boxes.pos));
-                    boxes.add(box);
-                    var result = renderer.buildBoxes(pose, boxes, lines);
-                    renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color);
-                    result.close();
-                });
+                var boxes = new LittleBoxesSimple(first.getPos(), first.getGrid());
+                boxes.minGrid(last);
+                LittleBox box = LittleBox.ofNothing();
+                box.growToInclude(first.getRelative(boxes.pos, boxes.grid));
+                box.growToInclude(last.getRelative(boxes.pos, boxes.grid));
+                boxes.add(box);
+                var result = renderer.buildBoxes(pose, boxes, lines, true);
+                renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color.toInt(), 1);
+                result.close();
             }
         }
+        
+        RenderSystem.enableBlend();
         
         if (blockHit != null)
             last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, positionGrid()), blockHit, false, inside());
         
         if (result == null && boxes != null && !boxes.isEmpty())
-            result = renderer.buildBoxes(pose, boxes, lines);
+            result = renderer.buildBoxes(pose, boxes, lines, true);
         
         if (boxes != null && result != null)
-            renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color);
-        
+            renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color.toInt(), 1);
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         return active; // Disable standard rendering during selection mode.
-    }
-    
-    protected void ensurePositionsGrid(PreviewRenderer renderer) {
-        int smallest = positionGrid().count;
-        for (int i = 0; i < positions.size(); i++)
-            smallest = Math.max(smallest, positions.get(i).getGrid().count);
-        
-        LittleGrid grid = LittleGrid.get(smallest);
-        for (int i = 0; i < positions.size(); i++)
-            positions.get(i).convertTo(grid);
     }
     
     private void removeCache() {
@@ -188,13 +186,13 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
             return;
         }
         
-        ensurePositionsGrid(LittleTilesClient.PREVIEW_RENDERER.renderer);
-        
-        boxes = new LittleBoxesSimple(positions.getFirst().getPos(), positions.getFirst().getGrid());
+        boxes = new LittleBoxesSimple(positions.getFirst().getPos(), positionGrid());
         for (int i = 0; i < positions.size(); i += 2) {
+            boxes.minGrid(positions.get(i));
+            boxes.minGrid(positions.get(i + 1));
             LittleBox box = LittleBox.ofNothing();
-            box.growToIncludePixel(positions.get(i).getRelative(boxes.pos));
-            box.growToIncludePixel(positions.get(i + 1).getRelative(boxes.pos));
+            box.growToInclude(positions.get(i).getRelative(boxes.pos, boxes.grid));
+            box.growToInclude(positions.get(i + 1).getRelative(boxes.pos, boxes.grid));
             boxes.add(box);
         }
     }
