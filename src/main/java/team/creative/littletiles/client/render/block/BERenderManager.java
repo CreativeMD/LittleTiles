@@ -83,7 +83,6 @@ public class BERenderManager {
             }
             
             hasLightChanged = false;
-            neighbourChanged = false;
             
             if (doesNeedUpdate)
                 queue(eraseBoxCache, true, pos);
