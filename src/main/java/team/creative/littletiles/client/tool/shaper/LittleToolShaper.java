@@ -304,7 +304,7 @@ public class LittleToolShaper extends LittleTool {
     @Override
     public List<LittleMeasurement> measurements() {
         var selection = builtSelection;
-        return Arrays.asList(new LittleMeasurementSimpleBox(new LittleBoxAbsolute(selection.pos, selection.overallBox, selection.grid)));
+        return Arrays.asList(new LittleMeasurementSimpleBox(new LittleBoxAbsolute(selection.pos, selection.getOverallBox(), selection.grid)));
     }
     
     @Override

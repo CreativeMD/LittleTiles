@@ -19,6 +19,7 @@ import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.api.common.tool.ILittleMeasure;
 import team.creative.littletiles.client.render.mc.MeshDataExtender;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
+import team.creative.littletiles.client.render.overlay.OverlayRenderer.OverlayGuiLayer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer.BoxRenderResult;
 import team.creative.littletiles.client.tool.mode.BuildingModeTopBar.BuildingModeInfo;
@@ -29,6 +30,7 @@ public class BuildingModeMeasures extends BuildingModeToggle implements Building
     private BoxRenderResult result;
     private List<LittleMeasurement> tapes = new ArrayList<>();
     private int inventoryChanged;
+    private boolean builtCache = false;
     
     private List<LittleMeasurement> toolMeasurements;
     
@@ -47,12 +49,14 @@ public class BuildingModeMeasures extends BuildingModeToggle implements Building
     }
     
     public void updateMeasureTapes(PreviewRenderer renderer) {
+        removeCache();
         inventoryChanged = renderer.player().getInventory().getTimesChanged();
         tapes.clear();
         for (ItemStack stack : renderer.player().getInventory().items)
             if (stack.getItem() instanceof ILittleMeasure m)
                 tapes.addAll(m.getMeasurements(stack));
         result = buildTapes(renderer, tapes);
+        builtCache = true;
     }
     
     private void removeCache() {
@@ -60,12 +64,13 @@ public class BuildingModeMeasures extends BuildingModeToggle implements Building
             result.close();
             result = null;
         }
+        builtCache = false;
     }
     
     @Override
     public void tick(PreviewRenderer renderer) {
         super.tick(renderer);
-        if (renderer.player().getInventory().getTimesChanged() != inventoryChanged)
+        if (renderer.player().getInventory().getTimesChanged() != inventoryChanged || !builtCache)
             updateMeasureTapes(renderer);
     }
     
@@ -110,12 +115,8 @@ public class BuildingModeMeasures extends BuildingModeToggle implements Building
     }
     
     private BoxRenderResult buildTapes(PreviewRenderer renderer, List<LittleMeasurement> measurements) {
-        removeCache();
-        
-        if (measurements.isEmpty()) {
-            result = null;
+        if (measurements.isEmpty())
             return null;
-        }
         
         ByteBufferBuilder buffer = renderer.createBuffer();
         var builder = renderer.createBuilder(buffer, true);
@@ -132,6 +133,18 @@ public class BuildingModeMeasures extends BuildingModeToggle implements Building
         if (mesh instanceof MeshDataExtender m)
             m.keepAlive(true);
         return new BoxRenderResult(null, pos, buffer, mesh);
+    }
+    
+    @Override
+    protected void changed() {
+        super.changed();
+        if (!enabled())
+            removeCache();
+    }
+    
+    @Override
+    public void remove(OverlayGuiLayer gui) {
+        removeCache();
     }
     
     @Override
