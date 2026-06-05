@@ -91,18 +91,18 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         
         if (active)
             tree.add(name + ".end", () -> {
-                end();
+                endFocus();
                 return true;
             });
         else
             tree.add(name + ".configure", () -> {
-                active = true;
+                startFocus();
                 return true;
             });
         
         tree.add(name + ".clear", () -> {
             reset();
-            end();
+            endFocus();
             return true;
         });
     }
@@ -111,7 +111,15 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         return false;
     }
     
-    public void end() {
+    @Override
+    public void startFocus() {
+        super.startFocus();
+        active = true;
+    }
+    
+    @Override
+    public void endFocus() {
+        super.endFocus();
         if (active)
             MC.player.displayClientMessage(Component.literal(""), true);
         active = false;
@@ -129,7 +137,8 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
     
     @Override
     public void remove(OverlayGuiLayer gui) {
-        active = false;
+        if (active)
+            endFocus();
     }
     
     @Override
@@ -292,7 +301,7 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
             return false;
         
         if (keyCode == InputConstants.KEY_ESCAPE) {
-            end();
+            endFocus();
             return true;
         }
         
@@ -342,7 +351,8 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         mirrorOrigins.clear();
         first = null;
         last = null;
-        active = false;
+        if (active)
+            endFocus();
         removeCache();
     }
     

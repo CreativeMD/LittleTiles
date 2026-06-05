@@ -38,8 +38,6 @@ import team.creative.littletiles.common.placement.PlacementHelper;
 
 public class BuildingModeAreaRule extends BuildingModeFeature implements BuildingModeRule {
     
-    private static BuildingModeAreaRule ACTIVATED = null;
-    
     private static final Minecraft MC = Minecraft.getInstance();
     private final boolean exclude;
     
@@ -70,21 +68,18 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         
         if (active)
             tree.add(name + ".end", () -> {
-                end();
+                endFocus();
                 return true;
             });
         else
             tree.add(name + ".configure", () -> {
-                active = true;
-                if (ACTIVATED != null)
-                    ACTIVATED.end();
-                ACTIVATED = this;
+                startFocus();
                 return true;
             });
         
         tree.add(name + ".clear", () -> {
             reset();
-            end();
+            endFocus();
             return true;
         });
     }
@@ -93,11 +88,18 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         return exclude;
     }
     
-    public void end() {
+    @Override
+    public void startFocus() {
+        super.startFocus();
+        active = true;
+    }
+    
+    @Override
+    public void endFocus() {
+        super.endFocus();
         if (active)
             MC.player.displayClientMessage(Component.literal(""), true);
         active = false;
-        ACTIVATED = null;
     }
     
     @Override
@@ -112,8 +114,8 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
     
     @Override
     public void remove(OverlayGuiLayer gui) {
-        active = false;
-        ACTIVATED = null;
+        if (active)
+            endFocus();
     }
     
     @Override
@@ -241,7 +243,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
             return false;
         
         if (keyCode == InputConstants.KEY_ESCAPE) {
-            end();
+            endFocus();
             return true;
         }
         
@@ -280,7 +282,8 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         boxes = null;
         first = null;
         last = null;
-        active = false;
+        if (active)
+            endFocus();
         removeCache();
     }
     

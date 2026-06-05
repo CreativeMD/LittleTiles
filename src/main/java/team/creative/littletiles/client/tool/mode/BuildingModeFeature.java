@@ -17,6 +17,8 @@ import team.creative.littletiles.common.grid.LittleGrid;
 
 public abstract class BuildingModeFeature {
     
+    private static BuildingModeFeature FOCUSED = null;
+    
     public LittleGrid positionGrid() {
         var renderer = LittleTilesClient.PREVIEW_RENDERER.renderer;
         var player = renderer.player();
@@ -50,4 +52,16 @@ public abstract class BuildingModeFeature {
     }
     
     public void unloadLevel() {}
+    
+    public void startFocus() {
+        var temp = FOCUSED;
+        FOCUSED = this;
+        if (temp != null)
+            temp.endFocus();
+    }
+    
+    public void endFocus() {
+        if (FOCUSED == this)
+            FOCUSED = null;
+    }
 }
