@@ -62,7 +62,12 @@ public class BuildingModeRules extends BuildingModeFeature implements BuildingMo
     }
     
     protected GuiMenuRoot<BooleanSupplier> createBox(GuiExtensionCreator<GuiLabel, GuiMenuRoot<BooleanSupplier>> creator) {
-        return new GuiMenuRoot<BooleanSupplier>(data, creator, x -> Component.translatable("building." + x), (key, supplier) -> {
+        return new GuiMenuRoot<BooleanSupplier>(data, creator, x -> {
+            if (x.equals("info"))
+                return Component.translatable("building." + x, MC.options.keyUp.getTranslatedKeyMessage(), MC.options.keyLeft.getTranslatedKeyMessage(), MC.options.keyDown
+                        .getTranslatedKeyMessage(), MC.options.keyRight.getTranslatedKeyMessage(), MC.options.keyJump.getTranslatedKeyMessage());
+            return Component.translatable("building." + x);
+        }, (key, supplier) -> {
             if (supplier.getAsBoolean())
                 close();
         });
@@ -185,6 +190,8 @@ public class BuildingModeRules extends BuildingModeFeature implements BuildingMo
                 });
                 for (BuildingModeRule rule : rules)
                     rule.populate(data);
+                
+                data.add("info", () -> false);
                 
                 selected = data.firstKey();
             }

@@ -471,6 +471,7 @@
     
     "building.rules": "Extra Building Rules",
     "building.reset": "Reset All",
+    "building.info": "Use %s,%s,%s,%s to navigate and %s  to confirm",
     "building.include": "Include",
     "building.include.clear": "Clear",
     "building.include.configure": "Configure",
