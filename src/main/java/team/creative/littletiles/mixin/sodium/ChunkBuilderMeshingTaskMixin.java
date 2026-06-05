@@ -92,9 +92,9 @@ public abstract class ChunkBuilderMeshingTaskMixin extends ChunkBuilderTask<Chun
     @Redirect(
             method = "execute(Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lnet/caffeinemc/mods/sodium/client/util/task/CancellationToken;)Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
             remap = false, at = @At(value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers;createMesh(Lnet/caffeinemc/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;Z)Lnet/caffeinemc/mods/sodium/client/render/chunk/data/BuiltSectionMeshParts;"))
-    public BuiltSectionMeshParts createMesh(ChunkBuildBuffers buffers, TerrainRenderPass pass, boolean forceUnassigned) {
-        BuiltSectionMeshParts parts = buffers.createMesh(pass, forceUnassigned);
+                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers;createMesh(Lnet/caffeinemc/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;IZZ)Lnet/caffeinemc/mods/sodium/client/render/chunk/data/BuiltSectionMeshParts;"))
+    public BuiltSectionMeshParts createMesh(ChunkBuildBuffers buffers, TerrainRenderPass pass, int visibleSlices, boolean forceUnassigned, boolean sliceReordering) {
+        BuiltSectionMeshParts parts = buffers.createMesh(pass, visibleSlices, forceUnassigned, sliceReordering);
         if (parts != null && caches != null)
             ((BuiltSectionMeshPartsExtender) parts).setBuffers(caches.get(((TerrainRenderPassAccessor) pass).getRenderType()));
         return parts;
@@ -113,9 +113,10 @@ public abstract class ChunkBuilderMeshingTaskMixin extends ChunkBuilderTask<Chun
     @WrapOperation(
             method = "execute(Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lnet/caffeinemc/mods/sodium/client/util/task/CancellationToken;)Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;",
             require = 1, at = @At(value = "INVOKE",
-                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers;createMesh(Lnet/caffeinemc/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;Z)Lnet/caffeinemc/mods/sodium/client/render/chunk/data/BuiltSectionMeshParts;"))
-    public BuiltSectionMeshParts redirectCreateMesh(ChunkBuildBuffers instance, TerrainRenderPass pass, boolean forceUnassigned, Operation<BuiltSectionMeshParts> operation) {
-        var result = instance.createMesh(pass, forceUnassigned);
+                    target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildBuffers;createMesh(Lnet/caffeinemc/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;IZZ)Lnet/caffeinemc/mods/sodium/client/render/chunk/data/BuiltSectionMeshParts;"))
+    public BuiltSectionMeshParts redirectCreateMesh(ChunkBuildBuffers instance, TerrainRenderPass pass, int visibleSlices, boolean forceUnassigned, boolean sliceReordering,
+            Operation<BuiltSectionMeshParts> operation) {
+        var result = instance.createMesh(pass, visibleSlices, forceUnassigned, sliceReordering);
         if (caches != null) {
             var collection = caches.get(RenderType.translucent());
             if (collection != null)

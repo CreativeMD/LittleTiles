@@ -23,11 +23,10 @@ import net.caffeinemc.mods.sodium.client.gl.device.CommandList;
 import net.caffeinemc.mods.sodium.client.gl.device.RenderDevice;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.SodiumWorldRenderer;
-import net.caffeinemc.mods.sodium.client.render.chunk.ChunkUpdateType;
+import net.caffeinemc.mods.sodium.client.render.chunk.ChunkUpdateTypes;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionFlags;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
-import net.caffeinemc.mods.sodium.client.render.chunk.data.BuiltSectionMeshParts;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataStorage;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
@@ -131,7 +130,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
     public void markReadyForUpdate(boolean playerChanged) {
         Minecraft.getInstance().submit(() -> {
             if (!((RenderSection) (Object) this).isBuilt())
-                ((RenderSection) (Object) this).setPendingUpdate(ChunkUpdateType.REBUILD);
+                ((RenderSection) (Object) this).setPendingUpdate(ChunkUpdateTypes.REBUILD, System.nanoTime());
             else { // Sometimes update is called before chunk is built for the first time, in that case Sodium discards the update. This is a hack to get around this.
                 SodiumWorldRenderer.instance().scheduleRebuildForChunk(chunkX, chunkY, chunkZ, playerChanged);
                 RenderSectionManager manager = ((SodiumWorldRendererAccessor) SodiumWorldRenderer.instance()).getRenderSectionManager();
@@ -287,7 +286,8 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                 
             uploader.set(storage.getDataPointer(sectionIndex), format, segment.getOffset(), vanillaBuffer, size, extraLengthFacing, null);
             if (layer == RenderType.translucent()) {
-                uploader.setTranslucentCollector(new TranslucentGeometryCollector(((RenderSection) (Object) this).getPosition()));
+                uploader.setTranslucentCollector(new TranslucentGeometryCollector(((RenderSection) (Object) this).getPosition(), ((RenderSectionManagerAccessor) manager)
+                        .getSortBehavior()));
                 if (vanillaBuffer != null)
                     uploader.appendVanillaTranslucentData(vanillaBuffer);
             }
@@ -311,7 +311,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             
             RenderRegion.DeviceResources resources = region.createResources(commandList);
             
-            if (resources.getGeometryArena().upload(commandList, Stream.of(upload)))
+            if (resources.getGeometryArena().upload(commandList, Stream.of(upload), region.getFillFractionInv()))
                 region.refreshTesselation(commandList);
             
             storage.setVertexData(sectionIndex, upload.getResult(), uploader.ranges());
@@ -327,9 +327,8 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                 // For now this is a crapy hack to force the anysort type to be used, which works totally fine.
                 ((TranslucentGeometryCollectorAccessor) uploader.getTranslucentCollector()).setSortType(SortType.NONE);
                 
-                BuiltSectionMeshParts mesh = new BuiltSectionMeshParts(uploader.buffer(), uploader.ranges());
                 var oldData = ((RenderSection) (Object) this).getTranslucentData();
-                var data = uploader.getTranslucentCollector().getTranslucentData(null, mesh, cam);
+                var data = uploader.getTranslucentCollector().getTranslucentData(null, cam);
                 
                 if (oldData != null)
                     storage.removeIndexData(sectionIndex);
@@ -338,7 +337,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                     sorter.writeIndexBuffer(cam, true);
                     PendingUpload indexUpload = new PendingUpload(sorter.getIndexBuffer());
                     
-                    if (resources.getIndexArena().upload(commandList, Stream.of(indexUpload)))
+                    if (resources.getIndexArena().upload(commandList, Stream.of(indexUpload), region.getFillFractionInv()))
                         region.refreshIndexedTesselation(commandList);
                     
                     storage.setIndexData(sectionIndex, indexUpload.getResult());
