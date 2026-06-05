@@ -1,3 +1,10 @@
+1.6.0-pre221
+Added info in rules navigation
+Added focus system for building mode (to fix multiple modes being in configure mode at the same time)
+Fixed section update removing neighbor check causing faces to not update properly
+Fixed incorrect measurements when using proportional configuration
+Fixed not rendering measurements from tape for other tools
+
 1.6.0-pre220
 Added color option to area modes
 Added measurements for placer, shaper and transformer tools
