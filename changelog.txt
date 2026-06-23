@@ -1,3 +1,6 @@
+1.6.0-pre222
+Added support for sodium 0.8
+
 1.6.0-pre221
 Added info in rules navigation
 Added focus system for building mode (to fix multiple modes being in configure mode at the same time)
