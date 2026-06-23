@@ -61,7 +61,7 @@ dependencies {
     
     implementation project(':CreativeCore')
     
-    implementation("net.caffeinemc:sodium-neoforge-mod:0.8.12-alpha.4+mc1.21.1")
+    implementation("net.caffeinemc:sodium-neoforge-mod:0.8.12-beta.1+mc1.21.1")
 }
 
 modDependencies = [
@@ -75,7 +75,7 @@ modProperties = [
     '    "mixin.entity.collisions" = false'
 ]
 modImplemented = [
-    [ name: "maven.modrinth:iris:t3ruzodq", disabled: true ],
+    [ name: "maven.modrinth:iris:KduFYu4t", disabled: true ],
     [ name: "curse.maven:theoneprobe-245211:5502323", disabled: true ],
     [ name: "net.fabricmc:fabric-loader:${project.fabric_version}", disabled: true ],
     [ name: "org.sinytra.forgified-fabric-api:fabric-api-base:0.4.42+d1308ded19" , disabled: true ],
