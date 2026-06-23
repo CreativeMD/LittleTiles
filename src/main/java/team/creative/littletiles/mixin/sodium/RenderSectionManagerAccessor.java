@@ -8,10 +8,14 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegionManager;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortBehavior;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.trigger.SortTriggering;
 
 @Mixin(RenderSectionManager.class)
 public interface RenderSectionManagerAccessor {
+    
+    @Accessor(remap = false)
+    public SortBehavior getSortBehavior();
     
     @Invoker(remap = false)
     public RenderSection callGetRenderSection(int x, int y, int z);

@@ -10,6 +10,7 @@ import net.caffeinemc.mods.sodium.client.services.PlatformLevelAccess;
 import net.caffeinemc.mods.sodium.client.services.PlatformModelAccess;
 import net.caffeinemc.mods.sodium.client.services.SodiumModelData;
 import net.caffeinemc.mods.sodium.client.world.LevelSlice;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.SectionPos;
@@ -103,5 +104,11 @@ public class LevelSliceMixin implements LittleLevelSliceExtender {
             var blockEntity = ((LevelSlice) (Object) this).getBlockEntity(pos);
             info.setReturnValue(PlatformLevelAccess.getInstance().getBlockEntityData(blockEntity));
         }
+    }
+    
+    @Inject(at = @At("HEAD"), method = "hasBiomeBlend()Z", cancellable = true, require = 1)
+    public void hasBiomeBlend(CallbackInfoReturnable<Boolean> info) {
+        if (overwrite != null)
+            info.setReturnValue(Minecraft.getInstance().options.biomeBlendRadius().get() > 0);
     }
 }

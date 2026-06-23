@@ -204,7 +204,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                                     if (colorizer == null)
                                         colorizer = colorProvider.getColorProvider(state.getBlock());
                                     
-                                    colorizer.getColors(slice, pos, scratchColorPos, state, editorQuad, colors);
+                                    colorizer.getColors(slice, pos, scratchColorPos, state, editorQuad, colors, slice.hasBiomeBlend());
                                     hasColor = true;
                                 } else
                                     Arrays.fill(colors, -1);

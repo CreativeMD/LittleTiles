@@ -21,7 +21,7 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
     
     private ByteBuffer[] buffers = new ByteBuffer[ModelQuadFacing.COUNT];
     private NativeBuffer buffer;
-    private int[] ranges = new int[ModelQuadFacing.COUNT];
+    private int[] ranges = new int[ModelQuadFacing.COUNT << 1];
     private List<TextureAtlasSprite> sprites;
     private TranslucentGeometryCollector collector;
     
@@ -32,9 +32,11 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
         ByteBuffer buffer = this.buffer.getDirectBuffer();
         
         int currentOffset = 0;
+        long pointerOffset = SectionRenderDataUnsafe.getBaseVertex(data);
         for (int i = 0; i < buffers.length; i++) {
-            int originalStart = (int) ((SectionRenderDataUnsafe.getVertexOffset(data, i) - offset) * format.getStride());
-            int originalLength = (int) (SectionRenderDataUnsafe.getElementCount(data, i) / 6 * 4 * format.getStride());
+            long dataCount = SectionRenderDataUnsafe.getVertexCount(data, i);
+            int originalStart = (int) ((pointerOffset - offset) * format.getStride());
+            int originalLength = (int) (dataCount / 6 * 4 * format.getStride());
             
             int newStart = originalStart + currentOffset;
             int newLength = originalLength + extraLengthFacing[i];
@@ -45,7 +47,10 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
             buffers[i].position(originalLength);
             
             currentOffset += extraLengthFacing[i];
-            ranges[i] = newLength / format.getStride();
+            ranges[i << 1] = newLength / format.getStride();
+            ranges[(i << 1) + 1] = i;
+            
+            pointerOffset += dataCount;
         }
         
         if (existing != null) {
@@ -121,7 +126,7 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
         
         while (ptr < end) {
             quad.readVertices(ptr, 0, stride, facing);
-            collector.appendQuad(quad.getPackedNormal(), quad.getVertices(), quad.quadFacing());
+            collector.appendQuad(quad.getVertices(), quad.quadFacing(), quad.getPackedNormal());
             ptr += stride * 4;
         }
     }

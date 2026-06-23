@@ -214,7 +214,7 @@ public class SodiumBufferCache implements BufferCache {
                     
                     while (ptr < end) {
                         quad.readVertices(ptr, 0, stride, facing);
-                        collector.appendQuad(quad.getPackedNormal(), quad.getVertices(), facing);
+                        collector.appendQuad(quad.getVertices(), facing, quad.getPackedNormal());
                         ptr += stride * 4;
                     }
                 }
