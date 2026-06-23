@@ -21,7 +21,7 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
     
     private ByteBuffer[] buffers = new ByteBuffer[ModelQuadFacing.COUNT];
     private NativeBuffer buffer;
-    private int[] ranges = new int[ModelQuadFacing.COUNT];
+    private int[] ranges = new int[ModelQuadFacing.COUNT << 1];
     private List<TextureAtlasSprite> sprites;
     private TranslucentGeometryCollector collector;
     
@@ -32,7 +32,7 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
         ByteBuffer buffer = this.buffer.getDirectBuffer();
         
         int currentOffset = 0;
-        long pointerOffset = SectionRenderDataUnsafe.getBaseElement(data);
+        long pointerOffset = SectionRenderDataUnsafe.getBaseVertex(data);
         for (int i = 0; i < buffers.length; i++) {
             long dataCount = SectionRenderDataUnsafe.getVertexCount(data, i);
             int originalStart = (int) ((pointerOffset - offset) * format.getStride());
@@ -47,7 +47,8 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
             buffers[i].position(originalLength);
             
             currentOffset += extraLengthFacing[i];
-            ranges[i] = newLength / format.getStride();
+            ranges[i << 1] = newLength / format.getStride();
+            ranges[(i << 1) + 1] = i;
             
             pointerOffset += dataCount;
         }

@@ -44,9 +44,9 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
     
     @Inject(at = @At(value = "INVOKE",
             target = "Lnet/caffeinemc/mods/sodium/client/render/chunk/ShaderChunkRenderer;end(Lnet/caffeinemc/mods/sodium/client/render/chunk/terrain/TerrainRenderPass;)V",
-            remap = false), method = "render", remap = false)
+            remap = false), method = "render", remap = false, require = 1)
     public void render(ChunkRenderMatrices matrices, CommandList commandList, ChunkRenderListIterable renderLists, TerrainRenderPass renderPass, CameraTransform camera,
-            CallbackInfo info) {
+            boolean indexedRenderingEnabled, CallbackInfo info) {
         var bindings = vertexFormat.getShaderBindings();
         PoseStack pose = new PoseStack();
         pose.last().pose().set(matrices.modelView());
