@@ -23,7 +23,25 @@ repositories {
         name "CaffeineMC"
         url "https://maven.caffeinemc.net/releases" // or /snapshots
     }
+    exclusiveContent { // Sable
+        forRepository {
+            maven {
+                url = "https://maven.ryanhcode.dev/releases"
+                name = "RyanHCode Maven"
+            }
+        }
+        filter {
+            includeGroup("dev.ryanhcode.sable")
+            includeGroup("dev.ryanhcode.sable-companion")
+        }
+    }
+    maven {
+        name = 'BlameJared Maven (CrT / Bookshelf)'
+        url = 'https://maven.blamejared.com'
+    }
+    maven { url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/" }
 }
+
 
 group= "team.creative" + project.mod_id
 
@@ -64,6 +82,8 @@ dependencies {
     implementation("net.caffeinemc:sodium-neoforge-mod:0.8.12-beta.1+mc1.21.1")
     implementation("net.caffeinemc:sodium-neoforge-api:0.8.12-beta.1+mc1.21.1")
     implementation("net.caffeinemc:sodium-neoforge:0.8.12-beta.1+mc1.21.1")
+    
+    implementation "dev.ryanhcode.sable:sable-common-1.21.1:2.0.3"
 }
 
 modDependencies = [

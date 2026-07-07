@@ -8,6 +8,14 @@
         {
             "id": "create:stationary_contraption",
             "required": false
+        },
+        {
+            "id": "create:super_glue",
+            "required": false
+        },
+        {
+            "id": "simulated:honey_glue",
+            "required": false
         }
     ]
 }

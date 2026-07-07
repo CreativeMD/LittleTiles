@@ -24,6 +24,8 @@ import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.entity.LittleEntity;
+import team.creative.littletiles.common.mod.sable.ISableContext;
+import team.creative.littletiles.common.mod.sable.SableManager;
 
 public abstract class LittleActionInteract<T> extends LittleAction<T> {
     
@@ -49,8 +51,8 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
         Vec3 look = player.getViewVector(TickUtils.getFrameTime(level));
         this.look = pos.add(look.x * reach, look.y * reach, look.z * reach);
         this.secondMode = LittleActionHandlerClient.isUsingSecondMode();
-        if (level instanceof ISubLevel)
-            uuid = ((ISubLevel) level).getHolder().getUUID();
+        if (level instanceof ISubLevel sub)
+            uuid = sub.getHolder().getUUID();
     }
     
     public LittleActionInteract(Level level, BlockPos blockPos, Vec3 pos, Vec3 look, boolean secondMode) {
@@ -59,8 +61,8 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
         this.pos = pos;
         this.look = look;
         this.secondMode = secondMode;
-        if (level instanceof ISubLevel)
-            uuid = ((ISubLevel) level).getHolder().getUUID();
+        if (level instanceof ISubLevel sub)
+            uuid = sub.getHolder().getUUID();
     }
     
     public LittleActionInteract() {
@@ -98,6 +100,13 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
             if (!transformedCoordinates) {
                 transformedPos = animation.getOrigin().transformPointToFakeWorld(transformedPos);
                 transformedLook = animation.getOrigin().transformPointToFakeWorld(transformedLook);
+                
+                ISableContext sable = SableManager.context(level, blockPos);
+                if (sable != null) {
+                    pos = sable.toLocal(pos);
+                    look = sable.toLocal(look);
+                }
+                
                 transformedCoordinates = true;
             }
         }
