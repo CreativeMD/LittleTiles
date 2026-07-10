@@ -17,7 +17,6 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 
 public abstract class LittleBoxes implements IGridBased {
     
@@ -134,14 +133,14 @@ public abstract class LittleBoxes implements IGridBased {
         return result;
     }
     
-    public List<LittleBox> copyWithOrigin(LittleVecAbsolute pos) {
+    public List<LittleBox> copyWithOrigin(LittleBoxAbsolute box) {
         List<LittleBox> result = new ArrayList<>();
-        LittleVec offset = new LittleVec(grid, this.pos.subtract(pos.getPos()));
-        offset.sub(pos.getVec());
-        for (LittleBox box : all()) {
-            box = box.copy();
-            box.add(offset);
-            result.add(box);
+        LittleVec offset = new LittleVec(grid, this.pos.subtract(box.pos));
+        offset.sub(box.box.getMinVec());
+        for (LittleBox b : all()) {
+            b = b.copy();
+            b.add(offset);
+            result.add(b);
         }
         return result;
     }

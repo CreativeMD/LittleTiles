@@ -59,7 +59,7 @@ public class ExactAreaSelectionMode extends SelectionMode {
             LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
         var pos = PlacementHelper.getPositionInside(source.getActionLevel(), hit, positionGrid);
-        nbt.putIntArray("pos1", pos.toAbsoluteBox().toArray());
+        nbt.putIntArray("pos1", pos.box().toArray());
         return config.withConfig(nbt);
     }
     
@@ -69,7 +69,7 @@ public class ExactAreaSelectionMode extends SelectionMode {
             LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
         var pos = PlacementHelper.getPositionInside(source.getActionLevel(), hit, positionGrid);
-        nbt.putIntArray("pos2", pos.toAbsoluteBox().toArray());
+        nbt.putIntArray("pos2", pos.box().toArray());
         return config.withConfig(nbt);
     }
     

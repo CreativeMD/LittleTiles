@@ -99,12 +99,6 @@ public class LittleVecAbsolute implements IGridBased {
         return newVec;
     }
     
-    @Override
-    public void convertToSmallest() {
-        removeInternalBlockOffset();
-        IGridBased.super.convertToSmallest();
-    }
-    
     public void add(LittleVecAbsolute pos) {
         this.pos = this.pos.offset(pos.pos);
         sameGrid(pos, () -> this.gridVec.vec.add(pos.gridVec.vec));
@@ -129,43 +123,6 @@ public class LittleVecAbsolute implements IGridBased {
     
     public void sub(LittleVecGrid vec) {
         gridVec.sub(vec);
-    }
-    
-    public void removeInternalBlockOffset() {
-        LittleGrid context = getGrid();
-        // Larger
-        if (gridVec.vec.x >= context.count) {
-            int amount = gridVec.vec.x / context.count;
-            gridVec.vec.x -= amount * context.count;
-            pos = pos.offset(amount, 0, 0);
-        }
-        if (gridVec.vec.y >= context.count) {
-            int amount = gridVec.vec.y / context.count;
-            gridVec.vec.y -= amount * context.count;
-            pos = pos.offset(0, amount, 0);
-        }
-        if (gridVec.vec.z >= context.count) {
-            int amount = gridVec.vec.z / context.count;
-            gridVec.vec.z -= amount * context.count;
-            pos = pos.offset(0, 0, amount);
-        }
-        
-        // Smaller
-        if (gridVec.vec.x < 0) {
-            int amount = (int) Math.ceil(Math.abs(gridVec.vec.x / (double) context.count));
-            gridVec.vec.x += amount * context.count;
-            pos = pos.offset(-amount, 0, 0);
-        }
-        if (gridVec.vec.y < 0) {
-            int amount = (int) Math.ceil(Math.abs(gridVec.vec.y / (double) context.count));
-            gridVec.vec.y += amount * context.count;
-            pos = pos.offset(0, -amount, 0);
-        }
-        if (gridVec.vec.z < 0) {
-            int amount = (int) Math.ceil(Math.abs(gridVec.vec.z / (double) context.count));
-            gridVec.vec.z += amount * context.count;
-            pos = pos.offset(0, 0, -amount);
-        }
     }
     
     public LittleVecAbsolute copy() {

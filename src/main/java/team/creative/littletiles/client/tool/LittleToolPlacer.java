@@ -20,7 +20,6 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.Util;
 import net.minecraft.client.KeyMapping;
-import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -214,9 +213,11 @@ public class LittleToolPlacer extends LittleTool {
             if (marked == null) {
                 markedFixed = LittleActionHandlerClient.isUsingSecondMode();
                 PlacementPosition pos = aimedPosition.copy();
-                if (markedFixed)
-                    pos.setVecContext(new LittleVecGrid(new LittleVec(0, 0, 0), lastGrid));
-                
+                if (markedFixed) {
+                    var offset = pos.getMin();
+                    offset.invert();
+                    pos.move(offset);
+                }
                 marked = pos.copy();
             } else {
                 markedFixed = false;
@@ -253,9 +254,7 @@ public class LittleToolPlacer extends LittleTool {
     }
     
     private void moveMarked(LittleGrid positionGrid, Facing facing) {
-        LittleVec vec = new LittleVec(facing.opposite());
-        vec.scale(Screen.hasControlDown() ? positionGrid.count : 1);
-        marked.sub(new LittleVecGrid(vec, positionGrid));
+        marked.move(positionGrid, facing);
     }
     
     protected void processTransform(Player player, KeyMapping key, ItemStack stack) {
@@ -326,12 +325,12 @@ public class LittleToolPlacer extends LittleTool {
         pose.translate(-cam.x, -cam.y, -cam.z);
         
         if (marked != null)
-            renderer.renderLineBox(pose, marked.getBB(placer.getPositionGrid(renderer.player(), stack)), true);
+            renderer.renderLineBox(pose, marked.getBB(), true);
         
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
         renderer.setupPreviewRenderer(lines);
-        matrix.translate((float) (placedPosition.getPosX() - cam.x), (float) (placedPosition.getPosY() - cam.y), (float) (placedPosition.getPosZ() - cam.z));
+        matrix.translate((float) (placedPosition.getMinPosX() - cam.x), (float) (placedPosition.getMinPosY() - cam.y), (float) (placedPosition.getMinPosZ() - cam.z));
         RenderSystem.applyModelViewMatrix();
         BufferUploader.drawWithShader(mesh);
         matrix.popMatrix();
@@ -398,11 +397,11 @@ public class LittleToolPlacer extends LittleTool {
         //this works for both single and group
         if (fixed || (isMarked && markedFixed))
             if (LittleAction.canPlaceInside(level, pos.getPos(), builtMode.placeInside)) {
-                var offset = new PlacementPosition(pos.getPos(), grid, isMarked ? pos.getVec() : new LittleVec(0, 0, 0), pos.facing);
+                var offset = new PlacementPosition(pos.getPos(), isMarked ? pos.getMin() : new LittleVecGrid(), pos.facing);
                 if (singleMode) {
                     LittleVecGrid internalOffset = this.builtInternalOffset.copy();
                     internalOffset.invert();
-                    offset.add(internalOffset);
+                    offset.move(internalOffset);
                 }
                 return offset;
             }
@@ -410,7 +409,7 @@ public class LittleToolPlacer extends LittleTool {
         PlacementPosition offset = new PlacementPosition(pos.getPos(), grid, box.getMinVec(), pos.facing);
         LittleVecGrid internalOffset = this.builtInternalOffset.copy();
         internalOffset.invert();
-        offset.add(internalOffset);
+        offset.move(internalOffset);
         return offset;
     }
     
@@ -421,7 +420,7 @@ public class LittleToolPlacer extends LittleTool {
         PlacementPosition offset = new PlacementPosition(pos.getPos(), grid, box.getMinVec(), pos.facing);
         LittleVecGrid internalOffset = this.builtInternalOffset.copy();
         internalOffset.invert();
-        offset.add(internalOffset);
+        offset.move(internalOffset);
         
         offset.convertTo(grid);
         return offset;
@@ -431,7 +430,7 @@ public class LittleToolPlacer extends LittleTool {
         PlacementPosition offset = new PlacementPosition(pos.getPos(), grid, box.getMinVec(), pos.facing);
         LittleVecGrid internalOffset = this.builtInternalOffset.copy();
         internalOffset.invert();
-        offset.add(internalOffset);
+        offset.move(internalOffset);
         
         offset.convertTo(grid);
         return offset;
@@ -467,7 +466,7 @@ public class LittleToolPlacer extends LittleTool {
         if (!built)
             return null;
         var absoluteBox = new LittleBoxAbsolute(placedPosition.getPos(), builtBox.getBox().copy(), builtBox.getGrid());
-        absoluteBox.sameGrid(placedPosition, () -> absoluteBox.box.add(placedPosition.getVec()));
+        absoluteBox.sameGrid(placedPosition, () -> absoluteBox.box.add(placedPosition.box().box.getMinVec()));
         return Arrays.asList(new LittleMeasurementSimpleBox(absoluteBox));
     }
     

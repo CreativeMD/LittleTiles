@@ -28,7 +28,7 @@ public class LittleShapeCurve extends LittleShape<InterpolationThicknessConfig> 
         List<Vec3d> points = new ArrayList<>();
         double halfPixelSize = selection.grid.halfPixelLength;
         for (ShapePosition pos : selection)
-            points.add(new Vec3d(pos.getPosX() + halfPixelSize, pos.getPosY() + halfPixelSize, pos.getPosZ() + halfPixelSize));
+            points.add(new Vec3d(pos.getMinPosX() + halfPixelSize, pos.getMinPosY() + halfPixelSize, pos.getMinPosZ() + halfPixelSize));
         
         int thickness = Math.max(0, config.thickness - 1);
         

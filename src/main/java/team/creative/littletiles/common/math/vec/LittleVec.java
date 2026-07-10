@@ -62,27 +62,13 @@ public class LittleVec {
     
     public LittleVec(Facing facing) {
         switch (facing) {
-            case EAST:
-                set(1, 0, 0);
-                break;
-            case WEST:
-                set(-1, 0, 0);
-                break;
-            case UP:
-                set(0, 1, 0);
-                break;
-            case DOWN:
-                set(0, -1, 0);
-                break;
-            case SOUTH:
-                set(0, 0, 1);
-                break;
-            case NORTH:
-                set(0, 0, -1);
-                break;
-            default:
-                set(0, 0, 0);
-                break;
+            case EAST -> set(1, 0, 0);
+            case WEST -> set(-1, 0, 0);
+            case UP -> set(0, 1, 0);
+            case DOWN -> set(0, -1, 0);
+            case SOUTH -> set(0, 0, 1);
+            case NORTH -> set(0, 0, -1);
+            default -> set(0, 0, 0);
         }
     }
     

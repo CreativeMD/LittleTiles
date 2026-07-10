@@ -171,13 +171,12 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         if (!active)
             return false;
         
-        var grid = positionGrid();
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
         if (first != null)
-            renderer.renderLineBox(pose, first.getBB(grid), false);
+            renderer.renderLineBox(pose, first.getBB(), false);
         if (last != null)
-            renderer.renderLineBox(pose, last.getBB(grid), false);
+            renderer.renderLineBox(pose, last.getBB(), false);
         pose.popPose();
         
         if (first != null && last != null) {

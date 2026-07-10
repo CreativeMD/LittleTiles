@@ -13,6 +13,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.mod.chiselsandbits.ChiselsAndBitsManager;
 
 /** This class does all calculate on where to place a block. Used for rendering
@@ -23,7 +24,7 @@ public class PlacementHelper {
         var pos = getPosition(level, hit, grid);
         if (pos.facing != null)
             if (pos.facing.positive && grid.isAtEdge(pos.facing.axis.get(hit.getLocation())))
-                pos.getVec().sub(pos.facing);
+                pos.box.move(new LittleVecGrid(new LittleVec(pos.facing.opposite()), grid));
         return pos;
     }
     
@@ -64,7 +65,7 @@ public class PlacementHelper {
     }
     
     public static LittleBox getTilesBox(PlacementPosition pos, LittleVec size, boolean centered, boolean placeInside) {
-        LittleVec temp = pos.getVec().copy();
+        LittleVec temp = pos.box.box.getMinVec();
         if (centered && pos.facing != null) {
             Facing facing = pos.facing;
             if (placeInside)

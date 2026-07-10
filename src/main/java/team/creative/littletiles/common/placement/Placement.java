@@ -75,6 +75,9 @@ public class Placement {
     public final LittleGroup unplaceableTiles;
     public final List<SoundType> soundsToBePlayed = new ArrayList<>();
     
+    protected final BlockPos blockOffset;
+    protected final LittleVec insideBlockOffset;
+    
     protected MutableInt affectedBlocks = new MutableInt();
     protected ItemStack stack;
     protected boolean ignoreWorldBoundaries = true;
@@ -90,13 +93,16 @@ public class Placement {
         else
             this.origin = createStructureTree(null, preview.previews, null);
         
+        this.blockOffset = preview.position.getPos();
+        this.insideBlockOffset = preview.position.getMin().getVec();
+        
         this.removedIngredients = new LittleIngredients();
-        this.removedTiles = new LittleGroupAbsolute(preview.position.getPos());
+        this.removedTiles = new LittleGroupAbsolute(blockOffset);
         this.unplaceableTiles = new LittleGroup();
         
         preview.position.forceSameGrid(preview.previews);
         
-        createPreviews(origin, preview.position.getVec());
+        createPreviews(origin, insideBlockOffset);
         
         for (PlacementBlock block : blocks.values())
             block.convertToSmallest();
@@ -152,7 +158,7 @@ public class Placement {
             }
         }
         
-        List<BlockPos> coordsToCheck = preview.mode.getCoordsToCheck(blocks.keySet(), preview.position.getPos());
+        List<BlockPos> coordsToCheck = preview.mode.getCoordsToCheck(blocks.keySet(), blockOffset);
         if (coordsToCheck != null) {
             for (BlockPos pos : coordsToCheck) {
                 PlacementBlock block = blocks.get(pos);
@@ -196,8 +202,7 @@ public class Placement {
                     }
                 
                 boolean cancelled = false;
-                BlockState against = level.getBlockState(preview.position.facing == null ? preview.position.getPos() : preview.position.getPos().relative(preview.position.facing
-                        .toVanilla()));
+                BlockState against = level.getBlockState(preview.position.facing == null ? blockOffset : blockOffset.relative(preview.position.facing.toVanilla()));
                 for (BlockPos snapPos : blocks.keySet())
                     if (NeoForge.EVENT_BUS.post(new BlockEvent.EntityPlaceEvent(BlockSnapshot.create(level.dimension(), level, snapPos), against, player)).isCanceled()) {
                         cancelled = true;
@@ -231,7 +236,7 @@ public class Placement {
     }
     
     protected PlacementResult placeTiles() throws LittleActionException {
-        PlacementResult result = new PlacementResult(preview.position.getPos());
+        PlacementResult result = new PlacementResult(blockOffset);
         
         for (PlacementBlock block : blocks.values())
             block.place(result);
@@ -265,7 +270,7 @@ public class Placement {
         
         if (playSounds)
             for (int i = 0; i < soundsToBePlayed.size(); i++)
-                level.playSound(null, preview.position.getPos(), soundsToBePlayed.get(i).getPlaceSound(), SoundSource.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F,
+                level.playSound(null, blockOffset, soundsToBePlayed.get(i).getPlaceSound(), SoundSource.BLOCKS, (soundsToBePlayed.get(i).getVolume() + 1.0F) / 2.0F,
                     soundsToBePlayed.get(i).getPitch() * 0.8F);
             
         removedTiles.convertToSmallest();
@@ -334,7 +339,7 @@ public class Placement {
     
     private void createPreviews(PlacementStructurePreview current, LittleVec inBlockOffset) {
         if (current.previews != null) {
-            LittleBlockCollection collection = new LittleBlockCollection(preview.position.getPos(), preview.previews.getGrid());
+            LittleBlockCollection collection = new LittleBlockCollection(blockOffset, preview.previews.getGrid());
             
             collection.add(current.previews, inBlockOffset);
             
@@ -652,8 +657,8 @@ public class Placement {
         public void place() throws LittleActionException {
             if (isStructure())
                 for (LittlePlaceBox box : previews.getSpecialBoxes()) {
-                    box.add(preview.position.getVec());
-                    box.place(Placement.this, previews.getGrid(), preview.position.getPos(), getStructure());
+                    box.add(insideBlockOffset);
+                    box.place(Placement.this, previews.getGrid(), blockOffset, getStructure());
                 }
             
             for (PlacementStructurePreview preview : children)

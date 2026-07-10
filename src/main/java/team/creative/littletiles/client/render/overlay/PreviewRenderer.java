@@ -41,7 +41,6 @@ import team.creative.littletiles.client.render.mc.MeshDataExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -251,14 +250,6 @@ public class PreviewRenderer {
         pose.translate(-cam.x, -cam.y, -cam.z);
         for (int i = 0; i < boxes.size(); i++)
             renderLineBox(pose, boxes.get(i).toABB(), marked != null && marked.get(i));
-        pose.popPose();
-    }
-    
-    public void renderPositions(PoseStack pose, Vec3 cam, List<ShapePosition> positions, LittleGrid grid, @Nullable Int2BooleanFunction marked) {
-        pose.pushPose();
-        pose.translate(-cam.x, -cam.y, -cam.z);
-        for (int i = 0; i < positions.size(); i++)
-            renderLineBox(pose, positions.get(i).getBB(grid), marked != null && marked.get(i));
         pose.popPose();
     }
     

@@ -98,7 +98,7 @@ public class LittleToolMeasure extends LittleTool {
         var level = renderer.level();
         
         if (blockHit != null)
-            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, measure.getPositionGrid(player, stack)), blockHit, false, true).toAbsoluteBox();
+            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, measure.getPositionGrid(player, stack)), blockHit, false, true).box().copy();
         
         List<LittleBoxAbsolute> positions = new ArrayList<>();
         for (LittleMeasurement measurement : measurements)

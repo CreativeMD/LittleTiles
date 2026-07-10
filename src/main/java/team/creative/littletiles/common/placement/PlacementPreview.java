@@ -111,14 +111,14 @@ public class PlacementPreview {
     
     public void include(LittleBoxes boxes) {
         boxes.sameGrids(() -> {
-            var cutter = boxes.copyWithOrigin(position);
+            var cutter = boxes.copyWithOrigin(position.box);
             previews.include(cutter);
         }, previews, position);
     }
     
     public void exclude(LittleBoxes boxes) {
         boxes.sameGrids(() -> {
-            var cutter = boxes.copyWithOrigin(position);
+            var cutter = boxes.copyWithOrigin(position.box);
             previews.exclude(cutter);
         }, previews, position);
     }

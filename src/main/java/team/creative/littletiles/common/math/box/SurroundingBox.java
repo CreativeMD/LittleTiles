@@ -186,7 +186,6 @@ public class SurroundingBox {
             }
         }
         
-        pos.removeInternalBlockOffset();
         pos.convertToSmallest();
         return pos;
     }

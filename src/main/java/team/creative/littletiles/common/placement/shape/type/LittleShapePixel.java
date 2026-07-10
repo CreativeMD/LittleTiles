@@ -15,7 +15,7 @@ public class LittleShapePixel extends LittleShape<Void> {
     @Override
     protected void build(LittleBoxes boxes, ShapeSelection selection, Void config) {
         for (ShapePosition pos : selection)
-            boxes.addBox(pos.getGrid(), selection.pos, new LittleBox(pos.getVec()));
+            boxes.addBox(pos.getGrid(), selection.pos, new LittleBox(pos.getMin().getVec()));
     }
     
 }

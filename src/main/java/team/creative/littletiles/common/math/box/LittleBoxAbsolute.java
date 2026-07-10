@@ -142,20 +142,33 @@ public class LittleBoxAbsolute implements IGridBased {
         return boxes;
     }
     
+    public LittleVec insideBlockOffset() {
+        return new LittleVec(box.minX - grid.toBlockOffset(box.minX), box.minY - grid.toBlockOffset(box.minY), box.minZ - grid.toBlockOffset(box.minZ));
+    }
+    
     public LittleVecAbsolute getMin() {
         return new LittleVecAbsolute(pos, grid, box.getMinVec());
     }
     
     public int getMinPos(Axis axis) {
-        switch (axis) {
-            case X:
-                return pos.getX() + grid.toBlockOffset(box.minX);
-            case Y:
-                return pos.getY() + grid.toBlockOffset(box.minY);
-            case Z:
-                return pos.getZ() + grid.toBlockOffset(box.minZ);
-        }
-        return 0;
+        return switch (axis) {
+            case X -> pos.getX() + grid.toBlockOffset(box.minX);
+            case Y -> pos.getY() + grid.toBlockOffset(box.minY);
+            case Z -> pos.getZ() + grid.toBlockOffset(box.minZ);
+            default -> 0;
+        };
+    }
+    
+    public double getMinPosX() {
+        return pos.getX() + grid.toVanillaGrid(box.minX);
+    }
+    
+    public double getMinPosY() {
+        return pos.getY() + grid.toVanillaGrid(box.minY);
+    }
+    
+    public double getMinPosZ() {
+        return pos.getZ() + grid.toVanillaGrid(box.minZ);
     }
     
     public int getMinGridFrom(Axis axis, BlockPos pos) {
@@ -176,15 +189,24 @@ public class LittleBoxAbsolute implements IGridBased {
     }
     
     public int getMaxPos(Axis axis) {
-        switch (axis) {
-            case X:
-                return pos.getX() + grid.toBlockOffset(box.maxX);
-            case Y:
-                return pos.getY() + grid.toBlockOffset(box.maxY);
-            case Z:
-                return pos.getZ() + grid.toBlockOffset(box.maxZ);
-        }
-        return 0;
+        return switch (axis) {
+            case X -> pos.getX() + grid.toBlockOffset(box.maxX);
+            case Y -> pos.getY() + grid.toBlockOffset(box.maxY);
+            case Z -> pos.getZ() + grid.toBlockOffset(box.maxZ);
+            default -> 0;
+        };
+    }
+    
+    public double getMaxPosX() {
+        return pos.getX() + grid.toVanillaGrid(box.maxX);
+    }
+    
+    public double getMaxPosY() {
+        return pos.getY() + grid.toVanillaGrid(box.maxY);
+    }
+    
+    public double getMaxPosZ() {
+        return pos.getZ() + grid.toVanillaGrid(box.maxZ);
     }
     
     public int getMaxGridFrom(Axis axis, BlockPos pos) {
@@ -266,6 +288,72 @@ public class LittleBoxAbsolute implements IGridBased {
         int z = (pos.getZ() - position.getZ()) * grid.count;
         return box.extractBox(grid, Math.max(box.minX + x, 0), Math.max(box.minY + y, 0), Math.max(box.minZ + z, 0), Math.min(box.maxX + x, grid.count), Math.min(box.maxY + y,
             grid.count), Math.min(box.maxZ + z, grid.count), null);
+    }
+    
+    public void move(LittleVecGrid vec) {
+        sameGrid(vec, () -> box.add(vec.getVec()));
+    }
+    
+    @Override
+    public int hashCode() { // Has to be independent on grid and take the absolute position into account. BlockPos can be different and still result in the same box.
+        int max = LittleGrid.getMax().count;
+        int ratio = max / grid.count;
+        long absoluteMinX = box.minX * ratio + pos.getX() * max;
+        long absoluteMinY = box.minY * ratio + pos.getY() * max;
+        long absoluteMinZ = box.minZ * ratio + pos.getZ() * max;
+        return (int) ((absoluteMinY + absoluteMinZ * 31) * 31 + absoluteMinX);
+    }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof LittleBoxAbsolute b) { // prevent objects from changing grid therefore going the long way
+            long minX = box.minX;
+            long minY = box.minY;
+            long minZ = box.minZ;
+            long maxX = box.maxX;
+            long maxY = box.maxY;
+            long maxZ = box.maxZ;
+            long minX2 = b.box.minX;
+            long minY2 = b.box.minY;
+            long minZ2 = b.box.minZ;
+            long maxX2 = b.box.maxX;
+            long maxY2 = b.box.maxY;
+            long maxZ2 = b.box.maxZ;
+            
+            int gridCompare = grid.count;
+            if (grid.count < b.grid.count) {
+                int ratio = b.grid.count / grid.count;
+                minX *= ratio;
+                minY *= ratio;
+                minZ *= ratio;
+                maxX *= ratio;
+                maxY *= ratio;
+                maxZ *= ratio;
+                gridCompare = b.grid.count;
+            } else if (grid.count > b.grid.count) {
+                int ratio = grid.count / b.grid.count;
+                minX2 *= ratio;
+                minY2 *= ratio;
+                minZ2 *= ratio;
+                maxX2 *= ratio;
+                maxY2 *= ratio;
+                maxZ2 *= ratio;
+            }
+            minX += pos.getX() * gridCompare;
+            minY += pos.getY() * gridCompare;
+            minZ += pos.getZ() * gridCompare;
+            maxX += pos.getX() * gridCompare;
+            maxY += pos.getY() * gridCompare;
+            maxZ += pos.getZ() * gridCompare;
+            minX2 += b.pos.getX() * gridCompare;
+            minY2 += b.pos.getY() * gridCompare;
+            minZ2 += b.pos.getZ() * gridCompare;
+            maxX2 += b.pos.getX() * gridCompare;
+            maxY2 += b.pos.getY() * gridCompare;
+            maxZ2 += b.pos.getZ() * gridCompare;
+            return minX == minX2 && minY == minY2 && minZ == minZ2 && maxX == maxX2 && maxY == maxY2 && maxZ == maxZ2;
+        }
+        return false;
     }
     
 }

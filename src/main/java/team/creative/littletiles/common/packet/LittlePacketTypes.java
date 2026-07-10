@@ -305,14 +305,13 @@ public class LittlePacketTypes {
             
             @Override
             protected void writeContent(PlacementPosition content, RegistryFriendlyByteBuf buffer) {
-                buffer.writeBlockPos(content.getPos());
-                NetworkFieldTypes.write(LittleVecGrid.class, content.getVecGrid(), buffer, null);
+                NetworkFieldTypes.write(LittleBoxAbsolute.class, content.box(), buffer, null);
                 buffer.writeInt(content.facing == null ? -1 : content.facing.ordinal());
             }
             
             @Override
             protected PlacementPosition readContent(RegistryFriendlyByteBuf buffer) {
-                return new PlacementPosition(buffer.readBlockPos(), NetworkFieldTypes.read(LittleVecGrid.class, buffer, null), readFacing(buffer.readInt()));
+                return new PlacementPosition(NetworkFieldTypes.read(LittleBoxAbsolute.class, buffer, null), readFacing(buffer.readInt()));
             }
             
             private Facing readFacing(int facing) {

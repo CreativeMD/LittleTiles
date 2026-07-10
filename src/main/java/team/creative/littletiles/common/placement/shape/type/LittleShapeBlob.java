@@ -44,7 +44,7 @@ public class LittleShapeBlob extends LittleShape<BrushSizeShapeConfig> {
             LittleBoxes shape = get(config);
             for (LittleBox box : shape.all()) {
                 LittleBox toAdd = box.copy();
-                toAdd.add(pos.getVec());
+                toAdd.add(pos.getMin().getVec());
                 boxes.addBox(selection.grid, pos.getPos(), toAdd);
             }
         }

@@ -225,7 +225,7 @@ public class LittleToolTransformer extends LittleTool {
         
         if (marked > -1) {
             // Move corner
-            corners[marked] = last;
+            corners[marked] = new LittleVecAbsolute(last.getPos(), last.getMin());
             updateBox();
             return true;
         }

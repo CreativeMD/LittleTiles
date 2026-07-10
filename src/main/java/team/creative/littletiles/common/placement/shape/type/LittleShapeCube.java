@@ -17,7 +17,7 @@ public class LittleShapeCube extends LittleShape<BrushSizeShapeConfig> {
     protected void build(LittleBoxes boxes, ShapeSelection selection, BrushSizeShapeConfig config) {
         for (ShapePosition pos : selection) {
             LittleBox box = new LittleBox(-config.size, -config.size, -config.size, config.size, config.size, config.size);
-            box.add(pos.getVec());
+            box.add(pos.getMin().getVec());
             boxes.addBox(selection.grid, pos.getPos(), box);
         }
     }
