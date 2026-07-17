@@ -191,10 +191,7 @@ public class PreviewManager implements LevelAwareHandler {
             return;
         
         Vec3 cam = MC.gameRenderer.getMainCamera().getPosition();
-        
         PoseStack pose = event.getPoseStack();
-        if (tool != null && tool.stack.getItem() instanceof ILittleTool)
-            tool.render(renderer, pose, cam, true);
         
         if (!event.isCanceled() && level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder().isWithinBounds(event.getTarget()
                 .getBlockPos())) {
