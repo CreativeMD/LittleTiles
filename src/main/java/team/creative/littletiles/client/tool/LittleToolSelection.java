@@ -10,6 +10,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.KeyMapping;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.client.render.box.RenderBox;
@@ -54,7 +55,7 @@ public class LittleToolSelection extends LittleTool {
     }
     
     @Override
-    public boolean onRightClick(PreviewRenderer renderer, BlockHitResult result) {
+    public boolean onRightClick(PreviewRenderer renderer, Level level, BlockHitResult result) {
         if (result == null || !selector.hasSelection(stack))
             return false;
         
@@ -67,7 +68,7 @@ public class LittleToolSelection extends LittleTool {
     }
     
     @Override
-    public boolean onLeftClick(PreviewRenderer renderer, BlockHitResult result) {
+    public boolean onLeftClick(PreviewRenderer renderer, Level level, BlockHitResult result) {
         if (result == null)
             return false;
         

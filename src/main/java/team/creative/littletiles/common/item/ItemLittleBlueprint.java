@@ -166,12 +166,12 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, ILittleS
         }
         
         @Override
-        public boolean onMouseWheelClickBlock(PreviewRenderer renderer, BlockHitResult result) {
-            BlockState state = renderer.level().getBlockState(result.getBlockPos());
+        public boolean onMouseWheelClickBlock(PreviewRenderer renderer, Level level, BlockHitResult result) {
+            BlockState state = level.getBlockState(result.getBlockPos());
             if (state.getBlock() instanceof BlockTile) {
                 CompoundTag nbt = new CompoundTag();
                 nbt.putBoolean("secondMode", LittleActionHandlerClient.isUsingSecondMode());
-                LittleTiles.NETWORK.sendToServer(new BlockPacket(renderer.level(), result.getBlockPos(), renderer.player(), BlockPacketAction.BLUEPRINT, nbt));
+                LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), renderer.player(), BlockPacketAction.BLUEPRINT, nbt));
                 return true;
             }
             return true;

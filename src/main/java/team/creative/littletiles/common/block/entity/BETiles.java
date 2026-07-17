@@ -54,14 +54,13 @@ import team.creative.littletiles.common.block.little.tile.parent.StructureParent
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.volume.LittleBoxReturnedVolume;
 import team.creative.littletiles.common.math.face.LittleFace;
 import team.creative.littletiles.common.math.face.LittleServerFace;
 import team.creative.littletiles.common.math.transformation.LittleBlockTransformer;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.mod.sable.ISableContext;
-import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.attribute.LittleStructureAttribute;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
@@ -529,15 +528,10 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         Vec3 view = player.getViewVector(TickUtils.getFrameTime(level));
         Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         
-        if (level != player.level() && level instanceof IOrientatedLevel or) {
-            pos = or.getOrigin().transformPointToFakeWorld(pos);
-            look = or.getOrigin().transformPointToFakeWorld(look);
-        }
-        
-        ISableContext sable = SableManager.context(level, worldPosition);
-        if (sable != null) {
-            pos = sable.toLocal(pos);
-            look = sable.toLocal(look);
+        ILittleLevelContext context = ILittleLevelContext.of(level, worldPosition);
+        if (context != null) {
+            pos = context.toRealWorld(pos);
+            look = context.toRealWorld(look);
         }
         
         return rayTrace(pos, look);
@@ -569,15 +563,10 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         Vec3 view = player.getViewVector(partialTickTime);
         Vec3 look = pos.add(view.x * distance, view.y * distance, view.z * distance);
         
-        if (level != player.level() && level instanceof IOrientatedLevel or) {
-            pos = or.getOrigin().transformPointToFakeWorld(pos);
-            look = or.getOrigin().transformPointToFakeWorld(look);
-        }
-        
-        ISableContext sable = SableManager.context(level, worldPosition);
-        if (sable != null) {
-            pos = sable.toLocal(pos);
-            look = sable.toLocal(look);
+        ILittleLevelContext context = ILittleLevelContext.of(level, worldPosition);
+        if (context != null) {
+            pos = context.toRealWorld(pos);
+            look = context.toRealWorld(look);
         }
         
         return getFocusedTile(pos, look);

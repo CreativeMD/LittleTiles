@@ -12,7 +12,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.Minecraft;
+import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -31,6 +34,7 @@ import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.mode.BuildingModeRules.BuildingModeRule;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.action.LittleAction;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.box.collection.LittleBoxesSimple;
@@ -135,12 +139,22 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         var player = renderer.player();
         var level = renderer.level();
         
+        var context = renderer.blockHitContext();
+        if (context.isSubLevel()) {
+            Vec3 newLocation = context.toRealWorld(blockHit.getLocation());
+            BlockPos blockPos = BlockPos.containing(newLocation);
+            if (blockHit.getType() == Type.MISS)
+                blockHit = BlockHitResult.miss(newLocation, blockHit.getDirection(), blockPos);
+            else
+                blockHit = new BlockHitResult(newLocation, blockHit.getDirection(), blockPos, blockHit.isInside());
+        }
+        
         if (active) {
             if (first != null)
                 positions.add(first);
             if (last != null)
                 positions.add(last);
-            renderer.renderPositions(pose, cam, positions, x -> markedPosition == x);
+            renderer.renderPositions(pose, ILittleLevelContext.STANDARD, cam, positions, x -> markedPosition == x);
             if (first != null)
                 positions.removeLast();
             if (last != null)
@@ -162,7 +176,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
         RenderSystem.enableBlend();
         
         if (blockHit != null)
-            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, positionGrid()), blockHit, false, inside());
+            last = new ShapePosition(player, level, PlacementHelper.getPosition(level, blockHit, positionGrid()), blockHit, false, inside());
         
         if (result == null && boxes != null && !boxes.isEmpty())
             result = renderer.buildBoxes(pose, boxes, lines, true);
@@ -212,7 +226,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
                 if (doubleClick)
                     reset();
                 else {
-                    int index = LittleTilesClient.PREVIEW_RENDERER.renderer.select(positions);
+                    int index = LittleTilesClient.PREVIEW_RENDERER.renderer.select(ILittleLevelContext.STANDARD, positions);
                     if (index >= 0) {
                         index /= 2;
                         index *= 2;
@@ -222,7 +236,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
                     }
                 }
             else
-                markedPosition = LittleTilesClient.PREVIEW_RENDERER.renderer.select(positions);
+                markedPosition = LittleTilesClient.PREVIEW_RENDERER.renderer.select(ILittleLevelContext.STANDARD, positions);
         } else if (event.getButton() == GLFW.GLFW_MOUSE_BUTTON_RIGHT) {
             if (first == null)
                 first = last.copy();

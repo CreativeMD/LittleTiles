@@ -6,6 +6,8 @@ import java.util.Optional;
 
 import javax.annotation.Nullable;
 
+import org.spongepowered.include.com.google.common.base.Objects;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.MeshData;
@@ -15,8 +17,10 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -32,6 +36,7 @@ import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
@@ -45,6 +50,9 @@ import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PreviewMode;
 
 public class LittleToolTransformer extends LittleTool {
+    
+    private ILittleLevelContext context;
+    private Level placeLevel;
     
     private ShapePosition first;
     private ShapePosition last;
@@ -66,8 +74,24 @@ public class LittleToolTransformer extends LittleTool {
         if (blockHit == null)
             return;
         
+        if ((first == null && box == null) || placeLevel == null) {
+            context = renderer.blockHitContext();
+            placeLevel = renderer.blockHitLevel();
+        } else {
+            var newContext = renderer.blockHitContext();
+            if (!Objects.equal(context, newContext)) {
+                // Transform block position to existing context
+                Vec3 newLocation = context.toFakeWorld(newContext.toRealWorld(blockHit.getLocation()));
+                BlockPos blockPos = BlockPos.containing(newLocation);
+                if (blockHit.getType() == Type.MISS)
+                    blockHit = BlockHitResult.miss(newLocation, blockHit.getDirection(), blockPos);
+                else
+                    blockHit = new BlockHitResult(newLocation, blockHit.getDirection(), blockPos, blockHit.isInside());
+            }
+        }
+        
         var player = renderer.player();
-        last = new ShapePosition(player, PlacementHelper.getPosition(renderer.level(), blockHit, transformer.getPositionGrid(player, stack)), blockHit, false, transformer
+        last = new ShapePosition(player, placeLevel, PlacementHelper.getPosition(placeLevel, blockHit, transformer.getPositionGrid(player, stack)), blockHit, false, transformer
                 .previewInside(player, stack));
     }
     
@@ -141,7 +165,8 @@ public class LittleToolTransformer extends LittleTool {
         var builder = renderer.createTesselatorBuilder(lines);
         if (box != null) {
             pose.pushPose();
-            pose.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
+            //pose.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
+            context.transformPose(pose, 0, 0, 0, cam, renderer.partialTickTime());
             for (int i = 0; i < corners.length; i++)
                 renderer.renderLineBox(pose, corners[i].getBB(), marked == i);
             pose.popPose();
@@ -162,7 +187,7 @@ public class LittleToolTransformer extends LittleTool {
         if (mesh != null) {
             var matrix = RenderSystem.getModelViewStack();
             matrix.pushMatrix();
-            matrix.translate((float) (pos.getX() - cam.x), (float) (pos.getY() - cam.y), (float) (pos.getZ() - cam.z));
+            context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, renderer.partialTickTime());
             
             RenderSystem.applyModelViewMatrix();
             renderer.setupPreviewRenderer(lines);
@@ -177,8 +202,8 @@ public class LittleToolTransformer extends LittleTool {
     }
     
     @Override
-    public boolean onMouseWheelClickBlock(PreviewRenderer renderer, BlockHitResult result) {
-        BlockState state = renderer.level().getBlockState(result.getBlockPos());
+    public boolean onMouseWheelClickBlock(PreviewRenderer renderer, Level level, BlockHitResult result) {
+        BlockState state = placeLevel.getBlockState(result.getBlockPos());
         if (LittleAction.isBlockValid(state)) {
             LittleTiles.NETWORK.sendToServer(new ChangedElementPacket(new LittleElement(state, ColorUtils.WHITE)));
             return true;
@@ -192,7 +217,7 @@ public class LittleToolTransformer extends LittleTool {
     }
     
     @Override
-    public boolean onRightClick(PreviewRenderer renderer, @Nullable BlockHitResult result) {
+    public boolean onRightClick(PreviewRenderer renderer, Level level, @Nullable BlockHitResult result) {
         if (LittleActionHandlerClient.isUsingSecondMode()) {
             first = null;
             box = null;
@@ -230,14 +255,14 @@ public class LittleToolTransformer extends LittleTool {
             return true;
         }
         
-        transformer.boxFinished(renderer.level(), renderer.player(), stack, box);
+        transformer.boxFinished(placeLevel, renderer.player(), stack, box);
         box = null;
         Arrays.fill(corners, null);
         return true;
     }
     
     @Override
-    public boolean onLeftClick(PreviewRenderer renderer, BlockHitResult hit) {
+    public boolean onLeftClick(PreviewRenderer renderer, Level level, BlockHitResult hit) {
         if (box != null) {
             int index = -1;
             double distance = Double.MAX_VALUE;
@@ -247,6 +272,8 @@ public class LittleToolTransformer extends LittleTool {
             double reach = PlayerUtils.getReach(player);
             Vec3 view = player.getViewVector(partialTickTime);
             Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
+            pos = context.toFakeWorld(pos);
+            look = context.toFakeWorld(look);
             for (int i = 0; i < corners.length; i++) {
                 Optional<Vec3> result = corners[i].getBox().clip(pos, look);
                 if (result.isPresent()) {
@@ -290,6 +317,13 @@ public class LittleToolTransformer extends LittleTool {
         if (box == null)
             return null;
         return Arrays.asList(new LittleMeasurementSimpleBox(box.copy()));
+    }
+    
+    @Override
+    public void remove() {
+        super.remove();
+        placeLevel = null;
+        context = null;
     }
     
 }

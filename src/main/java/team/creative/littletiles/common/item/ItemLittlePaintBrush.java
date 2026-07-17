@@ -105,8 +105,8 @@ public class ItemLittlePaintBrush extends Item implements ILittleShaper, IItemTo
     public LittleTool tool(ItemStack stack) {
         return new LittleToolShaper(stack) {
             @Override
-            public boolean onMouseWheelClickBlock(PreviewRenderer renderer, BlockHitResult result) {
-                BlockState state = renderer.level().getBlockState(result.getBlockPos());
+            public boolean onMouseWheelClickBlock(PreviewRenderer renderer, Level level, BlockHitResult result) {
+                BlockState state = level.getBlockState(result.getBlockPos());
                 
                 if (state.getBlock() instanceof BlockTile) {
                     LittleTileContext context = renderer.selectFocused(result);
@@ -122,7 +122,7 @@ public class ItemLittlePaintBrush extends Item implements ILittleShaper, IItemTo
                     }
                     return true;
                 }
-                return super.onMouseWheelClickBlock(renderer, result);
+                return super.onMouseWheelClickBlock(renderer, level, result);
             }
         };
     }

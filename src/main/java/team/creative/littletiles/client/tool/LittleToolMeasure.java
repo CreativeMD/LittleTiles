@@ -17,6 +17,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.client.event.InputEvent.MouseButton.Pre;
 import team.creative.creativecore.common.gui.integration.ScreenEventListener;
@@ -33,6 +35,7 @@ import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.item.component.MeasurementsComponent;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
 import team.creative.littletiles.common.math.measure.LittleMeasurementType;
@@ -97,8 +100,18 @@ public class LittleToolMeasure extends LittleTool {
         var player = renderer.player();
         var level = renderer.level();
         
+        var context = renderer.blockHitContext();
+        if (context.isSubLevel()) {
+            Vec3 newLocation = context.toRealWorld(blockHit.getLocation());
+            BlockPos blockPos = BlockPos.containing(newLocation);
+            if (blockHit.getType() == Type.MISS)
+                blockHit = BlockHitResult.miss(newLocation, blockHit.getDirection(), blockPos);
+            else
+                blockHit = new BlockHitResult(newLocation, blockHit.getDirection(), blockPos, blockHit.isInside());
+        }
+        
         if (blockHit != null)
-            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, measure.getPositionGrid(player, stack)), blockHit, false, true).box().copy();
+            last = new ShapePosition(player, level, PlacementHelper.getPosition(level, blockHit, measure.getPositionGrid(player, stack)), blockHit, false, true).box().copy();
         
         List<LittleBoxAbsolute> positions = new ArrayList<>();
         for (LittleMeasurement measurement : measurements)
@@ -106,7 +119,7 @@ public class LittleToolMeasure extends LittleTool {
         positions.addAll(selected);
         positions.add(last);
         int markedIndex = positions.indexOf(markedPosition);
-        renderer.renderBoxes(pose, cam, positions, x -> x == markedIndex);
+        renderer.renderBoxes(pose, ILittleLevelContext.STANDARD, cam, positions, x -> x == markedIndex);
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableCull();
@@ -209,7 +222,7 @@ public class LittleToolMeasure extends LittleTool {
                     reset();
                     updateMeasurements();
                 } else {
-                    int index = renderer.selectBox(temp);
+                    int index = renderer.selectBox(ILittleLevelContext.STANDARD, temp);
                     if (index >= 0) {
                         var measurement = map.get(temp.get(index));
                         if (measurement != null) {
@@ -221,7 +234,7 @@ public class LittleToolMeasure extends LittleTool {
                     markedPosition = null;
                 }
             else {
-                int index = renderer.selectBox(temp);
+                int index = renderer.selectBox(ILittleLevelContext.STANDARD, temp);
                 if (index >= 0) {
                     markedPosition = temp.get(index);
                     marked = measurements.indexOf(map.get(temp.get(index)));

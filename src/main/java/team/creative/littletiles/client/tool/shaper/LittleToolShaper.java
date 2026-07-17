@@ -8,6 +8,8 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import org.spongepowered.include.com.google.common.base.Objects;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -17,7 +19,9 @@ import net.minecraft.client.KeyMapping;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.Side;
 import team.creative.littletiles.LittleTiles;
@@ -31,6 +35,7 @@ import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
@@ -45,9 +50,10 @@ import team.creative.littletiles.common.placement.shape.config.LittleShapeConfig
 public class LittleToolShaper extends LittleTool {
     
     public final ILittleShaper shaper;
+    private ILittleLevelContext context;
+    private Level placeLevel;
     private final List<ShapePosition> positions = new ArrayList<>();
     private ShapePosition last;
-    
     private LittleGrid lastGrid;
     
     private boolean marked;
@@ -90,6 +96,8 @@ public class LittleToolShaper extends LittleTool {
     public void clearPositions() {
         marked = false;
         positions.clear();
+        context = null;
+        placeLevel = null;
         removeCache();
     }
     
@@ -113,8 +121,8 @@ public class LittleToolShaper extends LittleTool {
         return list;
     }
     
-    public void buildCache(PreviewRenderer renderer, LittleShape shape, LittleGrid grid, LittleShapeConfig config, boolean lines, boolean inside) {
-        ShapeSelection sel = ShapeSelection.of(renderer.level(), grid, buildPositions(), inside);
+    public void buildCache(PreviewRenderer renderer, Level level, LittleShape shape, LittleGrid grid, LittleShapeConfig config, boolean lines, boolean inside) {
+        ShapeSelection sel = ShapeSelection.of(level, grid, buildPositions(), inside);
         this.builtSelection = sel;
         this.builtLines = lines;
         worker = CompletableFuture.supplyAsync(() -> {
@@ -131,15 +139,30 @@ public class LittleToolShaper extends LittleTool {
         if (blockHit == null)
             return;
         var player = renderer.player();
-        var level = renderer.level();
         var grid = shaper.getPositionGrid(player, stack);
         boolean lines = shaper.previewMode(player, stack) == PreviewMode.LINES;
         var in = shaper.getShape(stack);
         var shapeConfig = in.getConfig(player.registryAccess(), Side.CLIENT);
         var shape = in.shape;
         
+        if (positions.isEmpty() || placeLevel == null) {
+            context = renderer.blockHitContext();
+            placeLevel = renderer.blockHitLevel();
+        } else {
+            var newContext = renderer.blockHitContext();
+            if (!Objects.equal(context, newContext)) {
+                // Transform block position to existing context
+                Vec3 newLocation = context.toFakeWorld(newContext.toRealWorld(blockHit.getLocation()));
+                BlockPos blockPos = BlockPos.containing(newLocation);
+                if (blockHit.getType() == Type.MISS)
+                    blockHit = BlockHitResult.miss(newLocation, blockHit.getDirection(), blockPos);
+                else
+                    blockHit = new BlockHitResult(newLocation, blockHit.getDirection(), blockPos, blockHit.isInside());
+            }
+        }
+        
         if (blockHit != null)
-            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, grid), blockHit, false, shaper.previewInside(player, stack));
+            last = new ShapePosition(player, placeLevel, PlacementHelper.getPosition(placeLevel, blockHit, grid), blockHit, false, shaper.previewInside(player, stack));
         
         if (built && (builtShape != shape || !ShapeRegistry.SHAPE_CONFIG_REGISTRY.equals(builtShapeConfig, shapeConfig,
             Side.CLIENT) || builtLines != lines || lastGrid != grid || hasPositionChanged()))
@@ -149,7 +172,7 @@ public class LittleToolShaper extends LittleTool {
             builtShape = shape;
             builtShapeConfig = shapeConfig;
             if (shaper.hasShape(player, stack) && (last != null || marked))
-                buildCache(renderer, shape, grid, shapeConfig, lines, shaper.previewInside(player, stack));
+                buildCache(renderer, placeLevel, shape, grid, shapeConfig, lines, shaper.previewInside(player, stack));
             else {
                 if (builtResult != null)
                     builtResult.close();
@@ -176,13 +199,12 @@ public class LittleToolShaper extends LittleTool {
         }
     }
     
-    private boolean interact(PreviewRenderer renderer, ItemStack stack, BlockHitResult hit, boolean left) {
+    private boolean interact(PreviewRenderer renderer, ItemStack stack, Level level, BlockHitResult hit, boolean left) {
         var player = renderer.player();
-        var level = renderer.level();
         boolean main = left == shaper.selectLeftClick(player, stack);
         
         if (!main && marked) {
-            int index = renderer.select(positions);
+            int index = renderer.select(context, positions);
             if (index != -1)
                 markedPosition = index;
             return true;
@@ -203,9 +225,9 @@ public class LittleToolShaper extends LittleTool {
                 if (result != null) // If result is already available take it otherwise built it once more
                     boxes = result.boxes();
                 else
-                    boxes = builtShape.build(ShapeSelection.of(level, shaper.getPositionGrid(player, stack), buildPositions(), shaper.previewInside(player, stack)),
+                    boxes = builtShape.build(ShapeSelection.of(placeLevel, shaper.getPositionGrid(player, stack), buildPositions(), shaper.previewInside(player, stack)),
                         builtShapeConfig);
-                shaper.shapeFinished(level, player, stack, builtSelection, boxes);
+                shaper.shapeFinished(placeLevel, player, stack, builtSelection, boxes);
                 clearPositions();
                 return true;
             } else if (hit != null) {
@@ -219,13 +241,13 @@ public class LittleToolShaper extends LittleTool {
     }
     
     @Override
-    public boolean onLeftClick(PreviewRenderer renderer, BlockHitResult hit) {
-        return interact(renderer, stack, hit, true);
+    public boolean onLeftClick(PreviewRenderer renderer, Level level, BlockHitResult hit) {
+        return interact(renderer, stack, level, hit, true);
     }
     
     @Override
-    public boolean onRightClick(PreviewRenderer renderer, BlockHitResult hit) {
-        return interact(renderer, stack, hit, false);
+    public boolean onRightClick(PreviewRenderer renderer, Level level, BlockHitResult hit) {
+        return interact(renderer, stack, level, hit, false);
     }
     
     public BoxRenderResult getShapeResult() {
@@ -245,8 +267,11 @@ public class LittleToolShaper extends LittleTool {
     
     @Override
     protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
-        if (marked)
-            renderer.renderPositions(pose, cam, positions, x -> markedPosition == x);
+        if (marked) {
+            pose.pushPose();
+            renderer.renderPositions(pose, context, cam, positions, x -> markedPosition == x);
+            pose.popPose();
+        }
         
         if (builtLines != lines || !built)
             return;
@@ -267,7 +292,7 @@ public class LittleToolShaper extends LittleTool {
         }
         
         if (mesh != null)
-            renderer.renderBoxes(cam, pos, lines, mesh);
+            renderer.renderBoxes(context, cam, pos, lines, mesh, null);
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.applyModelViewMatrix();

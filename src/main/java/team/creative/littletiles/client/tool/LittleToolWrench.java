@@ -17,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -150,17 +151,17 @@ public class LittleToolWrench extends LittleTool {
     }
     
     @Override
-    public boolean onRightClick(PreviewRenderer renderer, BlockHitResult result) {
+    public boolean onRightClick(PreviewRenderer renderer, Level level, BlockHitResult result) {
         LittleTileContext context = renderer.selectFocused(result);
         if (renderer.isUsingSecondMode()) {
             try {
                 if (context.isComplete() && context.parent.isStructure())
                     if (context.parent.getStructure().wrenchInteract(renderer.player()))
-                        LittleTiles.NETWORK.sendToServer(new BlockPacket(renderer.level(), result.getBlockPos(), renderer.player(), BlockPacketAction.WRENCH_INFO));
+                        LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), renderer.player(), BlockPacketAction.WRENCH_INFO));
                     else
                         LittleTilesGuiRegistry.STRUCTURE_SIGNAL.open(renderer.player(), context.parent.getStructure());
                 else
-                    LittleTiles.NETWORK.sendToServer(new BlockPacket(renderer.level(), result.getBlockPos(), renderer.player(), BlockPacketAction.WRENCH));
+                    LittleTiles.NETWORK.sendToServer(new BlockPacket(level, result.getBlockPos(), renderer.player(), BlockPacketAction.WRENCH));
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}
         }
         return true;

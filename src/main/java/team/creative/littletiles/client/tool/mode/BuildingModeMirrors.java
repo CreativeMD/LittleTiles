@@ -25,6 +25,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Direction.Axis;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
@@ -171,6 +173,16 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         if (!active)
             return false;
         
+        var context = renderer.blockHitContext();
+        if (context.isSubLevel()) {
+            Vec3 newLocation = context.toRealWorld(blockHit.getLocation());
+            BlockPos blockPos = BlockPos.containing(newLocation);
+            if (blockHit.getType() == Type.MISS)
+                blockHit = BlockHitResult.miss(newLocation, blockHit.getDirection(), blockPos);
+            else
+                blockHit = new BlockHitResult(newLocation, blockHit.getDirection(), blockPos, blockHit.isInside());
+        }
+        
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
         if (first != null)
@@ -193,7 +205,7 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         }
         
         if (blockHit != null)
-            last = new ShapePosition(player, PlacementHelper.getPosition(level, blockHit, positionGrid()), blockHit, false, inside());
+            last = new ShapePosition(player, level, PlacementHelper.getPosition(level, blockHit, positionGrid()), blockHit, false, inside());
         
         if (result == null && mirrorOrigins != null && !mirrorOrigins.isEmpty()) {
             LittleBoxes boxes = new LittleBoxesSimple(mirrorOrigins.getFirst().pos(), LittleGrid.MIN);

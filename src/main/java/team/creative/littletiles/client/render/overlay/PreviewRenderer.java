@@ -41,6 +41,7 @@ import team.creative.littletiles.client.render.mc.MeshDataExtender;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -82,6 +83,14 @@ public class PreviewRenderer {
         return manager.blockHit();
     }
     
+    public Level blockHitLevel() {
+        return manager.blockHitLevel();
+    }
+    
+    public ILittleLevelContext blockHitContext() {
+        return manager.blockHitContext();
+    }
+    
     public boolean isUsingSecondMode() {
         return LittleActionHandlerClient.isUsingSecondMode();
     }
@@ -98,7 +107,7 @@ public class PreviewRenderer {
         return Minecraft.getInstance().levelRenderer.getFrustum().isVisible(bb);
     }
     
-    public int select(List<ShapePosition> positions) {
+    public int select(ILittleLevelContext context, List<ShapePosition> positions) {
         int index = -1;
         double distance = Double.MAX_VALUE;
         var player = player();
@@ -107,6 +116,9 @@ public class PreviewRenderer {
         double reach = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
         Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
+        
+        pos = context.toFakeWorld(pos);
+        look = context.toFakeWorld(look);
         for (int i = 0; i < positions.size(); i++) {
             Optional<Vec3> result = positions.get(i).getBox().clip(pos, look);
             if (result.isPresent()) {
@@ -120,7 +132,7 @@ public class PreviewRenderer {
         return index;
     }
     
-    public int selectBox(List<LittleBoxAbsolute> positions) {
+    public int selectBox(ILittleLevelContext context, List<LittleBoxAbsolute> positions) {
         int index = -1;
         double distance = Double.MAX_VALUE;
         var player = player();
@@ -129,6 +141,10 @@ public class PreviewRenderer {
         double reach = PlayerUtils.getReach(player);
         Vec3 view = player.getViewVector(partialTickTime);
         Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
+        
+        pos = context.toFakeWorld(pos);
+        look = context.toFakeWorld(look);
+        
         for (int i = 0; i < positions.size(); i++) {
             Optional<Vec3> result = positions.get(i).toAABB().clip(pos, look);
             if (result.isPresent()) {
@@ -204,11 +220,16 @@ public class PreviewRenderer {
     }
     
     public void renderBoxes(Vec3 cam, BlockPos pos, boolean lines, MeshData data, @Nullable Runnable adjustGL) {
+        renderBoxes(ILittleLevelContext.STANDARD, cam, pos, lines, data, adjustGL);
+    }
+    
+    public void renderBoxes(ILittleLevelContext context, Vec3 cam, BlockPos pos, boolean lines, MeshData data, @Nullable Runnable adjustGL) {
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
-        matrix.translate((float) (pos.getX() - cam.x), (float) (pos.getY() - cam.y), (float) (pos.getZ() - cam.z));
+        context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, 0);
         
         RenderSystem.applyModelViewMatrix();
+        
         setupPreviewRenderer(lines);
         
         if (adjustGL != null)
@@ -237,17 +258,17 @@ public class PreviewRenderer {
         return new BoxRenderResult(boxes, boxes.pos, buffer, mesh);
     }
     
-    public void renderPositions(PoseStack pose, Vec3 cam, List<ShapePosition> positions, @Nullable Int2BooleanFunction marked) {
+    public void renderPositions(PoseStack pose, ILittleLevelContext context, Vec3 cam, List<ShapePosition> positions, @Nullable Int2BooleanFunction marked) {
         pose.pushPose();
-        pose.translate(-cam.x, -cam.y, -cam.z);
+        context.transformPose(pose, 0, 0, 0, cam, partialTickTime());
         for (int i = 0; i < positions.size(); i++)
             renderLineBox(pose, positions.get(i).getBB(), marked != null && marked.get(i));
         pose.popPose();
     }
     
-    public void renderBoxes(PoseStack pose, Vec3 cam, List<LittleBoxAbsolute> boxes, @Nullable Int2BooleanFunction marked) {
+    public void renderBoxes(PoseStack pose, ILittleLevelContext context, Vec3 cam, List<LittleBoxAbsolute> boxes, @Nullable Int2BooleanFunction marked) {
         pose.pushPose();
-        pose.translate(-cam.x, -cam.y, -cam.z);
+        context.transformPose(pose, 0, 0, 0, cam, partialTickTime());
         for (int i = 0; i < boxes.size(); i++)
             renderLineBox(pose, boxes.get(i).toABB(), marked != null && marked.get(i));
         pose.popPose();

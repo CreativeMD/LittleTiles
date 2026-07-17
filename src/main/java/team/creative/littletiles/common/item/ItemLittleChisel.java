@@ -115,8 +115,8 @@ public class ItemLittleChisel extends Item implements ILittleShaper, IItemToolti
         return new LittleToolShaper(stack) {
             
             @Override
-            public boolean onMouseWheelClickBlock(PreviewRenderer renderer, BlockHitResult result) {
-                BlockState state = renderer.level().getBlockState(result.getBlockPos());
+            public boolean onMouseWheelClickBlock(PreviewRenderer renderer, Level level, BlockHitResult result) {
+                BlockState state = level.getBlockState(result.getBlockPos());
                 if (LittleAction.isBlockValid(state)) {
                     LittleTiles.NETWORK.sendToServer(new ChangedElementPacket(new LittleElement(state, ColorUtils.WHITE)));
                     return true;

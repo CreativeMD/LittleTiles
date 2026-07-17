@@ -91,7 +91,7 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
             protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {}
             
             @Override
-            public boolean onRightClick(PreviewRenderer renderer, @Nullable BlockHitResult result) {
+            public boolean onRightClick(PreviewRenderer renderer, Level level, @Nullable BlockHitResult result) {
                 if (result == null)
                     return false;
                 LittleTiles.NETWORK.sendToServer(new ChangedPosPacket(true, result.getBlockPos()));
@@ -99,7 +99,7 @@ public class ItemLittleScrewdriver extends Item implements ILittleTool, IItemToo
             }
             
             @Override
-            public boolean onLeftClick(PreviewRenderer renderer, @Nullable BlockHitResult result) {
+            public boolean onLeftClick(PreviewRenderer renderer, Level level, @Nullable BlockHitResult result) {
                 if (result == null)
                     return false;
                 LittleTiles.NETWORK.sendToServer(new ChangedPosPacket(false, result.getBlockPos()));

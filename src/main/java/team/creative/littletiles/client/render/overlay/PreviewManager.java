@@ -47,7 +47,9 @@ import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.common.mod.sable.SableManager;
 
 public class PreviewManager implements LevelAwareHandler {
     
@@ -233,13 +235,27 @@ public class PreviewManager implements LevelAwareHandler {
         return null;
     }
     
+    public Level blockHitLevel() {
+        if (MC.hitResult instanceof LittleHitResult result && result.isBlock())
+            return (Level) result.level;
+        return MC.level;
+    }
+    
+    public ILittleLevelContext blockHitContext() {
+        if (MC.hitResult instanceof LittleHitResult result && result.isBlock())
+            return result.level;
+        if (MC.hitResult instanceof BlockHitResult b)
+            return SableManager.context(MC.level, b.getBlockPos());
+        return ILittleLevelContext.STANDARD;
+    }
+    
     @SubscribeEvent
     protected void onMouseWheelClick(InteractionKeyMappingTriggered event) {
         if (!event.isPickBlock() || tool == null)
             return;
         BlockHitResult hit = blockHit();
         
-        if (tool.onMouseWheelClickBlock(renderer, hit)) {
+        if (tool.onMouseWheelClickBlock(renderer, blockHitLevel(), hit)) {
             event.setCanceled(true);
             return;
         }
@@ -251,7 +267,7 @@ public class PreviewManager implements LevelAwareHandler {
             return;
         
         var hit = blockHit();
-        tool.onLeftClick(renderer, hit);
+        tool.onLeftClick(renderer, blockHitLevel(), hit);
     }
     
     @SubscribeEvent
@@ -260,7 +276,7 @@ public class PreviewManager implements LevelAwareHandler {
             return;
         
         var hit = blockHit();
-        if (tool.onLeftClick(renderer, hit))
+        if (tool.onLeftClick(renderer, blockHitLevel(), hit))
             event.setUseItem(TriState.TRUE);
     }
     
@@ -269,7 +285,7 @@ public class PreviewManager implements LevelAwareHandler {
         if (!event.getLevel().isClientSide || tool == null)
             return;
         var hit = blockHit();
-        tool.onRightClick(renderer, hit);
+        tool.onRightClick(renderer, blockHitLevel(), hit);
     }
     
     @SubscribeEvent
@@ -278,7 +294,7 @@ public class PreviewManager implements LevelAwareHandler {
             return;
         
         var hit = blockHit();
-        if (tool.onRightClick(renderer, hit)) {
+        if (tool.onRightClick(renderer, blockHitLevel(), hit)) {
             event.setCancellationResult(InteractionResult.CONSUME);
             event.setCanceled(true);
         }
