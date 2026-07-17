@@ -70,12 +70,12 @@ public class SableContext implements ILittleLevelContext {
     
     @Override
     public Vec3 toFakeWorld(Vec3 vec) {
-        return level.logicalPose().transformPosition(vec);
+        return level.logicalPose().transformPositionInverse(vec);
     }
     
     @Override
     public Vec3 toRealWorld(Vec3 vec) {
-        return level.logicalPose().transformPositionInverse(vec);
+        return level.logicalPose().transformPosition(vec);
     }
     
     @Override

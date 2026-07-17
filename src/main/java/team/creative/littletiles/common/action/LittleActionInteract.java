@@ -96,15 +96,14 @@ public abstract class LittleActionInteract<T> extends LittleAction<T> {
                 return failed();
             
             level = (Level) animation.getSubLevel();
-            if (!transformedCoordinates) {
-                ILittleLevelContext context = ILittleLevelContext.of(level, blockPos);
-                if (context != null) {
-                    transformedPos = context.toRealWorld(transformedPos);
-                    transformedLook = context.toRealWorld(transformedLook);
-                }
-                
-                transformedCoordinates = true;
-            }
+        }
+        
+        if (!transformedCoordinates) {
+            ILittleLevelContext context = ILittleLevelContext.of(level, blockPos);
+            transformedPos = context.toFakeWorld(transformedPos);
+            transformedLook = context.toFakeWorld(transformedLook);
+            
+            transformedCoordinates = true;
         }
         
         if (requiresBreakEvent() && !fireBlockBreakEvent(level, blockPos, source))

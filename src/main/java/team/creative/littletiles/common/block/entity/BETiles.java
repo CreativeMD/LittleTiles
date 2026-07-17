@@ -530,8 +530,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         ILittleLevelContext context = ILittleLevelContext.of(level, worldPosition);
         if (context != null) {
-            pos = context.toRealWorld(pos);
-            look = context.toRealWorld(look);
+            pos = context.toFakeWorld(pos);
+            look = context.toFakeWorld(look);
         }
         
         return rayTrace(pos, look);
@@ -565,8 +565,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         
         ILittleLevelContext context = ILittleLevelContext.of(level, worldPosition);
         if (context != null) {
-            pos = context.toRealWorld(pos);
-            look = context.toRealWorld(look);
+            pos = context.toFakeWorld(pos);
+            look = context.toFakeWorld(look);
         }
         
         return getFocusedTile(pos, look);

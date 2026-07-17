@@ -31,7 +31,6 @@ import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
-import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 
@@ -151,14 +150,12 @@ public class BlockPacket extends CreativePacket {
                 return;
             
             level = entity.getSubLevel();
-            pos = entity.getOrigin().transformPointToFakeWorld(pos);
-            look = entity.getOrigin().transformPointToFakeWorld(look);
         }
         
-        ILittleLevelContext sable = SableManager.context(level, blockPos);
+        ILittleLevelContext sable = ILittleLevelContext.of((Level) level, blockPos);
         if (sable != null) {
-            pos = sable.toRealWorld(pos);
-            look = sable.toRealWorld(look);
+            pos = sable.toFakeWorld(pos);
+            look = sable.toFakeWorld(look);
         }
         
         BlockEntity blockEntity = level.getBlockEntity(blockPos);

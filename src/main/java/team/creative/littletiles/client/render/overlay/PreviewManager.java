@@ -206,15 +206,11 @@ public class PreviewManager implements LevelAwareHandler {
             else
                 shape = state.getShape(level, pos, CollisionContext.of(player));
             
-            ILittleLevelContext context = SableManager.context(level, pos);
-            if (context != null) {
-                pose.pushPose();
-                context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, 0);
-                PreviewRenderer.renderShape(pose, event.getMultiBufferSource().getBuffer(RenderType.lines()), shape, 0, 0, 0, 0.0F, 0.0F, 0.0F, 0.4F);
-                pose.popPose();
-            } else
-                PreviewRenderer.renderShape(pose, event.getMultiBufferSource().getBuffer(RenderType.lines()), shape, pos.getX() - cam.x, pos.getY() - cam.y, pos.getZ() - cam.z,
-                    0.0F, 0.0F, 0.0F, 0.4F);
+            ILittleLevelContext context = ILittleLevelContext.of(level, pos);
+            pose.pushPose();
+            context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, 0);
+            PreviewRenderer.renderShape(pose, event.getMultiBufferSource().getBuffer(RenderType.lines()), shape, 0, 0, 0, 0.0F, 0.0F, 0.0F, 0.4F);
+            pose.popPose();
             event.setCanceled(true);
         }
         
