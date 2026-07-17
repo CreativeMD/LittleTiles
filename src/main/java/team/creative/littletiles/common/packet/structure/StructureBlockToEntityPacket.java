@@ -88,8 +88,8 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             requiresClient(player);
             Long2ObjectMap<SectionPos> chunks = new Long2ObjectOpenHashMap<>();
             LittleAnimationEntity ani = (LittleAnimationEntity) LittleTilesClient.ANIMATION_HANDLER.find(uuid);
-            queueStructure(chunks, RenderingLevelHandler.of(ani.getSubLevel()), ani.getSubLevel(), RenderingLevelHandler.of(structure.getStructureLevel()), structure
-                    .getStructureLevel(), structure, ani);
+            queueStructure(chunks, RenderingLevelHandler.of(ani.getSubLevel(), null), ani.getSubLevel(), RenderingLevelHandler.of(structure.getStructureLevel(), structure
+                    .getStructurePos()), structure.getStructureLevel(), structure, ani);
         } catch (LittleActionException | ClassCastException e) {
             e.printStackTrace();
         }

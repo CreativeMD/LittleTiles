@@ -34,6 +34,7 @@ import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.overlay.LittleTilesProfilerOverlay;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.block.entity.BETiles;
+import team.creative.littletiles.common.mod.sable.SableManager;
 
 @OnlyIn(Dist.CLIENT)
 public class RenderingThread extends Thread {
@@ -282,6 +283,7 @@ public class RenderingThread extends Thread {
             LittleTilesProfilerOverlay.chunkUpdates++;
             chunk.markReadyForUpdate(false);
         }
+        SableManager.markDirty(data.be.getLevel(), data.be.getBlockPos());
     }
     
     public boolean finish(RenderingBlockContext data, ChunkLayerMap<BufferCache> buffers, int renderState, boolean force) {

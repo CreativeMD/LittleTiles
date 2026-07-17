@@ -16,6 +16,7 @@ import team.creative.littletiles.client.render.mc.ViewAreaExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.level.little.LittleLevel;
+import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.mixin.client.render.LevelRendererAccessor;
 
 public abstract class RenderingLevelHandler {
@@ -110,15 +111,19 @@ public abstract class RenderingLevelHandler {
         }
     };
     
-    public static RenderingLevelHandler of(Level level) {
+    public static RenderingLevelHandler of(Level level, BlockPos pos) {
         if (SodiumManager.installed())
             if (level instanceof LittleLevel l && l.getRenderManager().isSmall())
                 if (l instanceof ISubLevel s && s.getParent() instanceof FakeClientLevel)
                     return ANIMATION;
                 else
                     return SodiumManager.RENDERING_ANIMATION;
-            else
+            else {
+                if (SableManager.isSubLevel(level, pos))
+                    return VANILLA;
                 return SodiumManager.RENDERING_LEVEL;
+            }
+        
         if (level instanceof LittleLevel l)
             return l.getRenderManager().isSmall() ? ANIMATION : ENTITY;
         return VANILLA;

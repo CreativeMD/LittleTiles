@@ -154,7 +154,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
                 positions.add(first);
             if (last != null)
                 positions.add(last);
-            renderer.renderPositions(pose, ILittleLevelContext.STANDARD, cam, positions, x -> markedPosition == x);
+            renderer.renderPositions(pose, ILittleLevelContext.STANDARD, positions.getFirst().getPos(), cam, positions, x -> markedPosition == x);
             if (first != null)
                 positions.removeLast();
             if (last != null)

@@ -33,9 +33,9 @@ public class RenderAdditional {
     private final Long2ObjectMap<SectionAdditional> sections = new Long2ObjectOpenHashMap<>();
     private int waitTill;
     
-    public RenderAdditional(Level level) {
+    public RenderAdditional(Level level, BlockPos pos) {
         this.targetLevel = level;
-        this.target = RenderingLevelHandler.of(level);
+        this.target = RenderingLevelHandler.of(level, pos);
     }
     
     private SectionAdditional getOrCreateSection(RenderingLevelHandler origin, Level originLevel, BlockPos pos) {
@@ -49,7 +49,7 @@ public class RenderAdditional {
     }
     
     public boolean queue(UUID uuid, Level originLevel, Iterable<BETiles> blocks) {
-        RenderingLevelHandler origin = RenderingLevelHandler.of(originLevel);
+        RenderingLevelHandler origin = RenderingLevelHandler.of(originLevel, null); // BlockPos is null because it is always an animation.
         
         for (BETiles be : blocks)
             getOrCreateSection(origin, originLevel, be.getBlockPos()).queueNew(uuid, origin, originLevel, be);

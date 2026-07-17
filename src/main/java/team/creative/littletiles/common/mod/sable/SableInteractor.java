@@ -1,10 +1,15 @@
 package team.creative.littletiles.common.mod.sable;
 
 import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.sublevel.ClientSubLevel;
+import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
@@ -45,6 +50,19 @@ public class SableInteractor {
     
     public static boolean isSubLevel(Level level, BlockPos pos) {
         return context(level, pos).isSubLevel();
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static void markDirty(Level level, BlockPos pos) {
+        if (level instanceof ISubLevel)
+            return;
+        var c = context(level, pos);
+        if (c instanceof SableContext s) {
+            int sx = SectionPos.blockToSectionCoord(pos.getX());
+            int sy = SectionPos.blockToSectionCoord(pos.getY());
+            int sz = SectionPos.blockToSectionCoord(pos.getZ());
+            Minecraft.getInstance().execute(() -> ((ClientSubLevel) s.level).getRenderData().setDirty(sx, sy, sz, true));
+        }
     }
     
 }

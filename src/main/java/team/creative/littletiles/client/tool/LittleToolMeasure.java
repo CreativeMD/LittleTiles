@@ -119,7 +119,7 @@ public class LittleToolMeasure extends LittleTool {
         positions.addAll(selected);
         positions.add(last);
         int markedIndex = positions.indexOf(markedPosition);
-        renderer.renderBoxes(pose, ILittleLevelContext.STANDARD, cam, positions, x -> x == markedIndex);
+        renderer.renderBoxes(pose, ILittleLevelContext.STANDARD, last.pos, cam, positions, x -> x == markedIndex);
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableCull();

@@ -7,6 +7,8 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
@@ -37,6 +39,12 @@ public class SableManager {
         if (INSTALLED)
             return SableInteractor.isSubLevel((Level) level, pos);
         return false;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static void markDirty(LevelAccessor level, BlockPos pos) {
+        if (INSTALLED)
+            SableInteractor.markDirty((Level) level, pos);
     }
     
 }

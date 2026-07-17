@@ -3,6 +3,7 @@ package team.creative.littletiles.client.render.level;
 import java.util.HashMap;
 import java.util.Iterator;
 
+import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
@@ -14,16 +15,16 @@ public class RenderUploader {
     
     private static final HashMap<Level, RenderAdditional> CACHES = new HashMap<>();
     
-    private static RenderAdditional getOrCreate(Level level) {
+    private static RenderAdditional getOrCreate(Level level, BlockPos pos) {
         RenderAdditional data = CACHES.get(level);
         if (data == null)
-            CACHES.put(level, data = new RenderAdditional(level));
+            CACHES.put(level, data = new RenderAdditional(level, pos));
         return data;
     }
     
     public static void queue(Level targetLevel, LittleAnimationEntity entity) {
         synchronized (CACHES) {
-            if (getOrCreate(targetLevel).queue(entity.getUUID(), entity.getSubLevel(), entity.getSubLevel())) // Delete it if all cache has already been added to the blocks otherwise wait
+            if (getOrCreate(targetLevel, entity.getCenter().baseOffset).queue(entity.getUUID(), entity.getSubLevel(), entity.getSubLevel())) // Delete it if all cache has already been added to the blocks otherwise wait
                 CACHES.remove(entity.getSubLevel());
         }
     }

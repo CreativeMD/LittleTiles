@@ -21,7 +21,7 @@ public class RenderingBlockQueue {
     
     public synchronized void queue(BETiles tiles, boolean hasPos, long pos) {
         var level = tiles.getLevel();
-        var handler = RenderingLevelHandler.of(level);
+        var handler = RenderingLevelHandler.of(level, tiles.getBlockPos());
         
         RenderingBlockContext context = new RenderingBlockContext(tiles, hasPos, pos, handler);
         var sections = levels.computeIfAbsent(level, x -> new Long2IntOpenHashMap());

@@ -258,19 +258,25 @@ public class PreviewRenderer {
         return new BoxRenderResult(boxes, boxes.pos, buffer, mesh);
     }
     
-    public void renderPositions(PoseStack pose, ILittleLevelContext context, Vec3 cam, List<ShapePosition> positions, @Nullable Int2BooleanFunction marked) {
+    public void renderPositions(PoseStack pose, ILittleLevelContext context, BlockPos pos, Vec3 cam, List<ShapePosition> positions, @Nullable Int2BooleanFunction marked) {
         pose.pushPose();
-        context.transformPose(pose, 0, 0, 0, cam, partialTickTime());
-        for (int i = 0; i < positions.size(); i++)
-            renderLineBox(pose, positions.get(i).getBB(), marked != null && marked.get(i));
+        context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
+        for (int i = 0; i < positions.size(); i++) {
+            var box = positions.get(i).getBB();
+            box.move(-pos.getX(), -pos.getY(), -pos.getZ());
+            renderLineBox(pose, box, marked != null && marked.get(i));
+        }
         pose.popPose();
     }
     
-    public void renderBoxes(PoseStack pose, ILittleLevelContext context, Vec3 cam, List<LittleBoxAbsolute> boxes, @Nullable Int2BooleanFunction marked) {
+    public void renderBoxes(PoseStack pose, ILittleLevelContext context, BlockPos pos, Vec3 cam, List<LittleBoxAbsolute> boxes, @Nullable Int2BooleanFunction marked) {
         pose.pushPose();
-        context.transformPose(pose, 0, 0, 0, cam, partialTickTime());
-        for (int i = 0; i < boxes.size(); i++)
-            renderLineBox(pose, boxes.get(i).toABB(), marked != null && marked.get(i));
+        context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
+        for (int i = 0; i < boxes.size(); i++) {
+            var box = boxes.get(i).toABB();
+            box.move(-pos.getX(), -pos.getY(), -pos.getZ());
+            renderLineBox(pose, box, marked != null && marked.get(i));
+        }
         pose.popPose();
     }
     

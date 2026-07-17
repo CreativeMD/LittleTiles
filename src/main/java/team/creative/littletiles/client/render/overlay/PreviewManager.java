@@ -34,6 +34,7 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClick
 import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickEmpty;
 import team.creative.creativecore.common.gui.IGuiParent;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
+import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesGuiRegistry;
 import team.creative.littletiles.api.common.tool.ILittleTool;
@@ -195,6 +196,8 @@ public class PreviewManager implements LevelAwareHandler {
         
         if (!event.isCanceled() && level.getBlockState(event.getTarget().getBlockPos()).getBlock() instanceof BlockTile && level.getWorldBorder().isWithinBounds(event.getTarget()
                 .getBlockPos())) {
+            pose.pushPose();
+            pose.setIdentity();
             BlockPos pos = event.getTarget().getBlockPos();
             BlockState state = level.getBlockState(pos);
             VoxelShape shape;
@@ -204,8 +207,7 @@ public class PreviewManager implements LevelAwareHandler {
                 shape = state.getShape(level, pos, CollisionContext.of(player));
             
             ILittleLevelContext context = ILittleLevelContext.of(level, pos);
-            pose.pushPose();
-            context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, 0);
+            context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, TickUtils.getFrameTime(level()));
             PreviewRenderer.renderShape(pose, event.getMultiBufferSource().getBuffer(RenderType.lines()), shape, 0, 0, 0, 0.0F, 0.0F, 0.0F, 0.4F);
             pose.popPose();
             event.setCanceled(true);

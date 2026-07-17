@@ -267,11 +267,8 @@ public class LittleToolShaper extends LittleTool {
     
     @Override
     protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
-        if (marked) {
-            pose.pushPose();
-            renderer.renderPositions(pose, context, cam, positions, x -> markedPosition == x);
-            pose.popPose();
-        }
+        if (marked && lines)
+            renderer.renderPositions(pose, context, positions.getFirst().getPos(), cam, positions, x -> markedPosition == x);
         
         if (builtLines != lines || !built)
             return;
