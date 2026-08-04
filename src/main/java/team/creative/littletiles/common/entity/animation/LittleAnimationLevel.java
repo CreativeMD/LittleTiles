@@ -50,10 +50,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
-import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.creativecore.common.util.type.itr.NestedFunctionIterator;
@@ -190,10 +187,7 @@ public class LittleAnimationLevel extends Level implements LittleSubLevel, Itera
     
     @Override
     public void setOrigin(Vec3d center) {
-        if (parentLevel instanceof IOrientatedLevel)
-            this.origin = new ChildVecOrigin(((IOrientatedLevel) parentLevel).getOrigin(), center);
-        else
-            this.origin = new VecOrigin(center);
+        this.origin = createOrigin(center);
     }
     
     @Override

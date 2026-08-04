@@ -1,5 +1,7 @@
 package team.creative.littletiles.common.mod.sable;
 
+import javax.annotation.Nullable;
+
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import net.minecraft.client.Minecraft;
@@ -11,6 +13,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.ISubLevel;
+import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
 public class SableInteractor {
@@ -63,6 +66,13 @@ public class SableInteractor {
             int sz = SectionPos.blockToSectionCoord(pos.getZ());
             Minecraft.getInstance().execute(() -> ((ClientSubLevel) s.level).getRenderData().setDirty(sx, sy, sz, true));
         }
+    }
+    
+    public static @Nullable IVecOrigin originWrapper(Level level, Vec3 pos, IVecOrigin origin) {
+        var c = context(level, pos);
+        if (c != null && c.isSubLevel())
+            return new VecOriginSable(origin, (SableContext) c);
+        return origin;
     }
     
 }

@@ -24,10 +24,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.scores.Scoreboard;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.level.IOrientatedLevel;
-import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
 import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.creativecore.common.util.math.matrix.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
@@ -63,10 +60,7 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     
     @Override
     public void setOrigin(Vec3d center) {
-        if (parentLevel instanceof IOrientatedLevel)
-            this.origin = new ChildVecOrigin(((IOrientatedLevel) parentLevel).getOrigin(), center);
-        else
-            this.origin = new VecOrigin(center);
+        this.origin = createOrigin(center);
     }
     
     @Override
@@ -82,7 +76,8 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     }
     
     @Override
-    public void playSeededSound(Player p_262953_, double x, double y, double z, Holder<SoundEvent> p_263359_, SoundSource p_263020_, float p_263055_, float p_262914_, long p_262991_) {
+    public void playSeededSound(Player p_262953_, double x, double y, double z, Holder<SoundEvent> p_263359_, SoundSource p_263020_, float p_263055_, float p_262914_,
+            long p_262991_) {
         if (getOrigin() == null)
             return;
         Vector3d vec = new Vector3d(x, y, z);
@@ -164,7 +159,8 @@ public class SubClientLevel extends LittleClientLevel implements LittleSubLevel 
     }
     
     @Override
-    public void addAlwaysVisibleParticle(ParticleOptions p_217404_1_, boolean p_217404_2_, double x, double y, double z, double p_217404_9_, double p_217404_11_, double p_217404_13_) {
+    public void addAlwaysVisibleParticle(ParticleOptions p_217404_1_, boolean p_217404_2_, double x, double y, double z, double p_217404_9_, double p_217404_11_,
+            double p_217404_13_) {
         if (getOrigin() == null)
             return;
         Vector3d vec = getOrigin().transformPointToWorld(new Vector3d(x, y, z));

@@ -67,7 +67,7 @@ public interface LittleLevel extends IOrientatedLevel, ILittleLevelContext {
     
     @Override
     default Matrix4f transform(double x, double y, double z, Vec3 camera, float partialTick) {
-        Matrix4f matrix = getOrigin().transform(x, y, z, partialTick);;
+        Matrix4f matrix = getOrigin().transform(x, y, z, partialTick);
         matrix.translate((float) (x - camera.x), (float) (y - camera.y), (float) (z - camera.z));
         return matrix;
     }

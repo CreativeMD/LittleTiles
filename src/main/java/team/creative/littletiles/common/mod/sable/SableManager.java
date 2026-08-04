@@ -10,6 +10,7 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
+import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
 public class SableManager {
@@ -45,6 +46,12 @@ public class SableManager {
     public static void markDirty(LevelAccessor level, BlockPos pos) {
         if (INSTALLED)
             SableInteractor.markDirty((Level) level, pos);
+    }
+    
+    public static @Nullable IVecOrigin originWrapper(LevelAccessor level, Vec3 pos, IVecOrigin origin) {
+        if (INSTALLED)
+            return SableInteractor.originWrapper((Level) level, pos, origin);
+        return origin;
     }
     
 }
