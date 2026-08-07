@@ -345,7 +345,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
                 boolean onGround = entity.onGround();
                 
                 Vec3d rotatedVec = new Vec3d(pushVec);
-                coordinator.moved().rotation().transform(rotatedVec);
+                coordinator.moved().onlyRotateWithoutCenter(rotatedVec);
                 
                 double moveX = entityBB.minX - originalBox.minX + rotatedVec.x * scale;
                 double moveY = entityBB.minY - originalBox.minY + rotatedVec.y * scale;
