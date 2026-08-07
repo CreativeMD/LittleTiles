@@ -71,6 +71,7 @@ import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.level.handler.LittleAnimationHandler;
 import team.creative.littletiles.common.math.vec.LittleHitResult;
+import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.mixin.client.render.GameRendererAccessor;
 import team.creative.littletiles.mixin.common.entity.EntityAccessor;
 
@@ -348,8 +349,16 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     public void resortTransparency(RenderType layer, double x, double y, double z) {
         for (LittleEntity animation : entities)
-            if (animation.hasLoaded())
+            if (animation.hasLoaded()) {
+                var context = SableManager.context(animation.getRealLevel(), animation.position());
+                if (context.isSubLevel()) {
+                    Vec3 cam = context.toFakeWorld(new Vec3(x, y, z));
+                    x = cam.x;
+                    y = cam.y;
+                    z = cam.z;
+                }
                 animation.getRenderManager().resortTransparency(layer, x, y, z);
+            }
     }
     
     public void renderBlockEntitiesAndDestruction(PoseStack pose, Frustum frustum, float frameTime) {
@@ -366,7 +375,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
     
     @SubscribeEvent
     public void renderChunkLayer(RenderLevelStageEvent event) {
-        if (SodiumManager.installed())
+        if (SodiumManager.installed() && !SableManager.INSTALLED)
             return;
         
         RenderType layer = null;
@@ -391,6 +400,9 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         pose.pushPose();
         pose.mulPose(event.getModelViewMatrix());
         
+        if (SableManager.INSTALLED)
+            layer.setupRenderState();
+        
         ShaderInstance shaderinstance = RenderSystem.getShader();
         RenderSystem.setupShaderLights(shaderinstance);
         shaderinstance.setDefaultUniforms(VertexFormat.Mode.QUADS, pose.last().pose(), projectionMatrix, mc.getWindow());
@@ -399,18 +411,23 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         Uniform offset = RenderSystem.getShader().CHUNK_OFFSET;
         float partialTicks = mc.getTimer().getGameTimeDeltaPartialTick(false);
         for (LittleEntity animation : this) {
+            if (!animation.getRenderManager().shouldRender(false))
+                continue;
             pose.pushPose();
-            animation.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, partialTicks);
+            var entityCam = animation.getOrigin().setupRendering(pose, cam, partialTicks);
             if (shaderinstance.MODEL_VIEW_MATRIX != null)
                 shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
             shaderinstance.apply();
-            animation.getRenderManager().renderChunkLayer(layer, pose, cam.x, cam.y, cam.z, projectionMatrix, offset);
+            animation.getRenderManager().renderChunkLayer(layer, pose, entityCam.x, entityCam.y, entityCam.z, projectionMatrix, offset);
             pose.popPose();
         }
         
         pose.popPose();
         if (offset != null)
             offset.set(0F, 0F, 0F);
+        
+        if (SableManager.INSTALLED)
+            layer.clearRenderState();
         
         shaderinstance.clear();
         VertexBuffer.unbind();
@@ -475,18 +492,16 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         
         PoseStack pose = event.getPoseStack();
         pose.pushPose();
-        RenderSystem.applyModelViewMatrix();
         BlockPos pos = result.asBlockHit().getBlockPos();
         BlockState state = result.level.getBlockState(pos);
         VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
         LittleEntity entity = result.getHolder();
-        Vec3 position = mc.gameRenderer.getMainCamera().getPosition();
-        entity.getOrigin().setupRendering(event.getPoseStack(), position.x, position.y, position.z, event.getPartialTick().getGameTimeDeltaPartialTick(false));
+        var cam = entity.getOrigin().setupRendering(pose, mc.gameRenderer.getMainCamera().getPosition(), event.getPartialTick().getGameTimeDeltaPartialTick(false));
         RenderSystem.enableDepthTest();
         
-        double x = pos.getX() - position.x();
-        double y = pos.getY() - position.y();
-        double z = pos.getZ() - position.z();
+        double x = pos.getX() - cam.x();
+        double y = pos.getY() - cam.y();
+        double z = pos.getZ() - cam.z();
         
         if (!state.isAir() && this.level.getWorldBorder().isWithinBounds(pos)) {
             PoseStack.Pose posestack$pose = event.getPoseStack().last();
@@ -495,7 +510,6 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
                 shape = block.getSelectionShape(result.level, pos);
             else
                 shape = state.getShape(result.level, pos, CollisionContext.of(mc.cameraEntity));
-            
             shape.forAllEdges((x1, y1, z1, x2, y2, z2) -> {
                 float f = (float) (x2 - x1);
                 float f1 = (float) (y2 - y1);

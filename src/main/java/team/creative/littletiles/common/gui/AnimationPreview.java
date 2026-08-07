@@ -12,6 +12,7 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -72,7 +73,7 @@ public class AnimationPreview {
     
     @OnlyIn(Dist.CLIENT)
     public void setupRendering(PoseStack pose) {
-        animation.getOrigin().setupRendering(pose, 0, 0, 0, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
+        animation.getOrigin().setupRendering(pose, Vec3.ZERO, Minecraft.getInstance().getTimer().getGameTimeDeltaPartialTick(false));
     }
     
     public void unload() {

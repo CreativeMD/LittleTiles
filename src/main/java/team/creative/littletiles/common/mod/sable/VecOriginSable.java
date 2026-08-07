@@ -2,6 +2,7 @@ package team.creative.littletiles.common.mod.sable;
 
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
+import org.joml.Quaternionf;
 import org.joml.Vector3d;
 
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -53,18 +54,21 @@ public class VecOriginSable implements IVecOrigin {
     }
     
     @Override
-    public void setupRenderingInternal(Matrix4fStack matrixStack, double camX, double camY, double camZ, float partialTicks) {
-        context.transformMatrix(matrixStack, 0, 0, 0, new Vec3(camX, camY, camZ), partialTicks);
-        child.setupRenderingInternal(matrixStack, camX, camY, camZ, partialTicks);
+    public Vec3 setupRenderingInternal(Matrix4fStack matrixStack, Vec3 cam, float partialTicks) {
+        var pose = context.level.logicalPose();
+        matrixStack.rotate(new Quaternionf(pose.orientation()));
+        var fakeCam = context.toFakeWorld(cam);
+        fakeCam = child.setupRenderingInternal(matrixStack, fakeCam, partialTicks);
+        return fakeCam;
     }
     
     @Override
-    public void setupRenderingInternal(PoseStack matrixStack, double camX, double camY, double camZ, float partialTicks) {
-        var center = child.center();
-        
-        context.transformPose(matrixStack, 0, 0, 0, new Vec3(camX, camY, camZ), partialTicks);
-        //matrixStack.translate((float) (0 - camX), (float) (0 - camY), (float) (0 - camZ));
-        //child.setupRenderingInternal(matrixStack, camX, camY, camZ, partialTicks);
+    public Vec3 setupRenderingInternal(PoseStack matrixStack, Vec3 cam, float partialTicks) {
+        var pose = context.level.logicalPose();
+        matrixStack.mulPose(new Quaternionf(pose.orientation()));
+        var fakeCam = context.toFakeWorld(cam);
+        fakeCam = child.setupRenderingInternal(matrixStack, fakeCam, partialTicks);
+        return fakeCam;
     }
     
     @Override

@@ -112,20 +112,22 @@ public abstract class RenderingLevelHandler {
     };
     
     public static RenderingLevelHandler of(Level level, BlockPos pos) {
-        if (SodiumManager.installed())
-            if (level instanceof LittleLevel l && l.getRenderManager().isSmall())
-                if (l instanceof ISubLevel s && s.getParent() instanceof FakeClientLevel)
-                    return ANIMATION;
-                else
-                    return SodiumManager.RENDERING_ANIMATION;
-            else {
-                if (SableManager.isSubLevel(level, pos))
-                    return VANILLA;
-                return SodiumManager.RENDERING_LEVEL;
-            }
+        if (SodiumManager.installed()) {
+            if (level instanceof LittleLevel l)
+                if (l.getRenderManager().isSmall()) {
+                    if ((l instanceof ISubLevel s && s.getRealLevel() instanceof FakeClientLevel) || SableManager.isSubLevel(level, pos))
+                        return ANIMATION;
+                    else
+                        return SodiumManager.RENDERING_ANIMATION;
+                } else
+                    return ENTITY;
+            if (SableManager.isSubLevel(level, pos))
+                return VANILLA;
+            return SodiumManager.RENDERING_LEVEL;
+        }
         
         if (level instanceof LittleLevel l)
-            return l.getRenderManager().isSmall() ? ANIMATION : ENTITY;
+            return l.getRenderManager().renderingHandler();
         return VANILLA;
     }
     

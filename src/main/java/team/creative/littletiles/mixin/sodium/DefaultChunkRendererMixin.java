@@ -20,6 +20,7 @@ import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexT
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.mod.sodium.entity.LittleAnimationRenderManagerSodium;
 import team.creative.littletiles.client.mod.sodium.renderer.DefaultChunkRendererExtender;
@@ -56,15 +57,16 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
         if (shader == null)
             shader = this.activeProgram.getInterface();
         float partialTicks = mc.getTimer().getGameTimeDeltaPartialTick(false);
+        Vec3 defaultCamera = new Vec3(camera.x, camera.y, camera.z);
         for (LittleEntity animation : LittleTilesClient.ANIMATION_HANDLER) {
-            if (animation.getRenderManager() instanceof LittleAnimationRenderManagerSodium r) {
+            if (animation.getRenderManager().shouldRender(true) && animation.getRenderManager() instanceof LittleAnimationRenderManagerSodium r) {
                 
                 r.prepare(bindings, vertexFormat);
                 
                 pose.pushPose();
-                animation.getOrigin().setupRendering(pose, camera.x, camera.y, camera.z, partialTicks);
+                var cam = animation.getOrigin().setupRendering(pose, defaultCamera, partialTicks);
                 shader.setModelViewMatrix(pose.last().pose());
-                r.renderChunkLayerSodium(((TerrainRenderPassAccessor) renderPass).getRenderType(), pose, camera.x, camera.y, camera.z, matrices.projection(), shader, camera);
+                r.renderChunkLayerSodium(((TerrainRenderPassAccessor) renderPass).getRenderType(), pose, cam.x, cam.y, cam.z, matrices.projection(), shader, camera);
                 pose.popPose();
                 
             }

@@ -35,6 +35,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import team.creative.littletiles.client.mod.sodium.SodiumManager;
+import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
@@ -240,6 +242,16 @@ public class LittleAnimationRenderManagerSodium extends LittleEntityRenderManage
             return c;
         }
         
+    }
+    
+    @Override
+    public boolean shouldRender(boolean sodiumLayer) {
+        return sodiumLayer;
+    }
+    
+    @Override
+    public RenderingLevelHandler renderingHandler() {
+        return SodiumManager.RENDERING_ANIMATION;
     }
     
 }

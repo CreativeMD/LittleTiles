@@ -99,6 +99,7 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
             return;
         }
         setSubLevel(createLevel(), new Vec3d(extraData.getInt("cX"), extraData.getInt("cY"), extraData.getInt("cZ")));
+        
         ((LittleClientLevel) subLevel).renderManager = new LittleLevelRenderManager(this);
         physic.load(extraData.getCompound("physic"));
     }

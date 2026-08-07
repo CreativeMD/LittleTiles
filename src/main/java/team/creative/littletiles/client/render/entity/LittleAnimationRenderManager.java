@@ -44,20 +44,22 @@ import team.creative.littletiles.client.level.little.FakeClientLevel;
 import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
+import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
+import team.creative.littletiles.common.mod.sable.SableManager;
 
 @OnlyIn(Dist.CLIENT)
 public class LittleAnimationRenderManager extends LittleEntityRenderManager<LittleAnimationEntity> implements RenderChunkExtender {
     
     public static LittleEntityRenderManager of(LittleAnimationEntity entity) {
-        if (SodiumManager.installed() && !(entity.level() instanceof FakeClientLevel))
-            return SodiumManager.createRenderManager(entity);
-        return new LittleAnimationRenderManager(entity);
+        if (entity.getRealLevel() instanceof FakeClientLevel || SableManager.isSubLevel(entity.getRealLevel(), entity.getCenter().baseOffset))
+            return new LittleAnimationRenderManager(entity);
+        return SodiumManager.createRenderManager(entity);
     }
     
     protected final ChunkLayerMap<VertexBuffer> buffers = new ChunkLayerMap<>();
@@ -140,7 +142,10 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             renderableBlockEntities.clear();
             RebuildTask rebuild = new RebuildTask();
             Vec3 cam = camera.getPosition();
-            CompileResults results = rebuild.compile((float) cam.x, (float) cam.y, (float) cam.z, LittleTilesClient.ANIMATION_HANDLER.fixedBuffers);
+            var c = SableManager.context(entity.level(), entity.getCenter().baseOffset);
+            if (c.isSubLevel())
+                cam = c.toFakeWorld(cam);
+            CompileResults results = rebuild.compile(cam.x, cam.y, cam.z, LittleTilesClient.ANIMATION_HANDLER.fixedBuffers);
             globalBlockEntities.clear();
             globalBlockEntities.addAll(results.globalBlockEntities);
             renderableBlockEntities = results.blockEntities;
@@ -224,7 +229,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
                 return;
             if (offset != null) {
                 BlockPos chunkOffset = entity.getCenter().chunkOrigin;
-                offset.set(chunkOffset.getX() - (float) x, chunkOffset.getY() - (float) y, chunkOffset.getZ() - (float) z);
+                offset.set((float) (chunkOffset.getX() - x), (float) (chunkOffset.getY() - y), (float) (chunkOffset.getZ() - z));
                 offset.upload();
             }
             
@@ -285,7 +290,7 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
         private SectionBufferBuilderPack pack;
         private ChunkLayerMap<BufferBuilder> builders;
         
-        private CompileResults compile(float x, float y, float z, SectionBufferBuilderPack pack) {
+        private CompileResults compile(double x, double y, double z, SectionBufferBuilderPack pack) {
             this.pack = pack;
             
             CompileResults results = new CompileResults();
@@ -348,4 +353,13 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
         
     }
     
+    @Override
+    public boolean shouldRender(boolean sodiumLayer) {
+        return !sodiumLayer;
+    }
+    
+    @Override
+    public RenderingLevelHandler renderingHandler() {
+        return RenderingLevelHandler.ANIMATION;
+    }
 }

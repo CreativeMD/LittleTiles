@@ -40,6 +40,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.model.data.ModelDataManager;
 import net.neoforged.neoforge.common.extensions.ILevelExtension;
+import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.LittleEntity;
@@ -72,6 +73,8 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     public abstract RenderChunkExtender getRenderChunk(long pos);
     
     public abstract boolean isSmall();
+    
+    public abstract RenderingLevelHandler renderingHandler();
     
     public void setupRender(Camera camera, @Nullable Frustum frustum, boolean capturedFrustum, boolean spectator) {
         Vec3 cam = camera.getPosition();
@@ -179,7 +182,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     
     public void renderBlockEntitiesAndDestruction(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
         pose.pushPose();
-        entity.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, frameTime);
+        cam = entity.getOrigin().setupRendering(pose, cam, frameTime);
         
         renderAllBlockEntities(pose, frustum, cam, frameTime, bufferSource);
         
@@ -215,7 +218,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
                 return;
             
             pose.pushPose();
-            entity.getOrigin().setupRendering(pose, cam.x, cam.y, cam.z, frameTime);
+            cam = entity.getOrigin().setupRendering(pose, cam, frameTime);
             
             for (BlockEntity blockEntity : globalBlockEntities)
                 renderBlockEntity(blockEntity, pose, frustum, cam, frameTime, bufferSource);
@@ -303,4 +306,6 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     }
     
     protected abstract void setSectionDirty(int x, int y, int z, boolean playerChanged);
+    
+    public abstract boolean shouldRender(boolean sodiumLayer);
 }
