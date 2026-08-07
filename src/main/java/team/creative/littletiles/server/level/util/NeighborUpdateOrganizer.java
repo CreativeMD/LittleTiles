@@ -20,6 +20,7 @@ import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.level.NeighborUpdateCollector;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.common.packet.update.NeighborUpdate;
 
 public class NeighborUpdateOrganizer {
@@ -62,10 +63,14 @@ public class NeighborUpdateOrganizer {
                 
                 for (Player player : level.players()) {
                     List<BlockPos> collected = new ArrayList<>();
-                    for (Entry<ChunkPos, ArrayList<BlockPos>> chunk : chunks.entrySet())
-                        if (checkerboardDistance(chunk.getKey(), (ServerPlayer) player, true) <= player.getServer().getPlayerList().getViewDistance())
+                    for (Entry<ChunkPos, ArrayList<BlockPos>> chunk : chunks.entrySet()) {
+                        boolean collect = false;
+                        if (SableManager.INSTALLED)
+                            collect = SableManager.context(level, chunk.getKey()).isSubLevel();
+                        if (collect || checkerboardDistance(chunk.getKey(), (ServerPlayer) player, true) <= player.getServer().getPlayerList().getViewDistance())
                             collected.addAll(chunk.getValue());
-                        
+                    }
+                    
                     if (!collected.isEmpty())
                         LittleTiles.NETWORK.sendToClient(new NeighborUpdate(level, collected), (ServerPlayer) player);
                 }
