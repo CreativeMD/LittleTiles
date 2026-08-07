@@ -1,3 +1,9 @@
+1.6.0-pre223
+Added support for sable
+Added ability to build on sub levels
+Fixed rendering lines of tool twice
+Made ShapePosition and PlacementPosition a box
+
 1.6.0-pre222
 Added support for sodium 0.8
 
