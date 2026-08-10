@@ -29,6 +29,7 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.mod.iris.IrisManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
@@ -92,29 +93,33 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 
                 for (LittleRenderBox cube : cubes) {
                     BlockState state = cube.state;
-                    
-                    ((CreativeQuadLighter) lighter).setState(state);
-                    ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
-                    
-                    for (int h = 0; h < Facing.VALUES.length; h++) {
-                        Facing facing = Facing.VALUES[h];
-                        Object quadObject = cube.getQuad(facing);
-                        List<BakedQuad> quads = null;
-                        if (quadObject instanceof List q)
-                            quads = q;
-                        else if (quadObject instanceof BakedQuad quad) {
-                            bakedQuadWrapper.setElement(quad);
-                            quads = bakedQuadWrapper;
+                    boolean irisMaterialScope = IrisManager.beginBlock(builder, state, modelOffset);
+                    try {
+                        ((CreativeQuadLighter) lighter).setState(state);
+                        ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
+
+                        for (int h = 0; h < Facing.VALUES.length; h++) {
+                            Facing facing = Facing.VALUES[h];
+                            Object quadObject = cube.getQuad(facing);
+                            List<BakedQuad> quads = null;
+                            if (quadObject instanceof List q)
+                                quads = q;
+                            else if (quadObject instanceof BakedQuad quad) {
+                                bakedQuadWrapper.setElement(quad);
+                                quads = bakedQuadWrapper;
+                            }
+                            if (quads != null && !quads.isEmpty())
+                                if (quads instanceof SingletonList<BakedQuad> single)
+                                    lighter.process(builder, pose.last(), single.get(0), overlay);
+                                else
+                                    for (BakedQuad quad : quads)
+                                        lighter.process(builder, pose.last(), quad, overlay);
                         }
-                        if (quads != null && !quads.isEmpty())
-                            if (quads instanceof SingletonList<BakedQuad> single)
-                                lighter.process(builder, pose.last(), single.get(0), overlay);
-                            else
-                                for (BakedQuad quad : quads)
-                                    lighter.process(builder, pose.last(), quad, overlay);
+                    } finally {
+                        bakedQuadWrapper.setElement(null);
+                        if (irisMaterialScope)
+                            IrisManager.endBlock(builder);
                     }
-                    
-                    bakedQuadWrapper.setElement(null);
                     
                     if (!LittleTiles.CONFIG.rendering.useQuadCache)
                         cube.deleteQuadCache();
@@ -122,7 +127,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 
                 var indexList = indexes.get(tuple.key);
                 indexList.add(entry.getIntKey());
-                indexList.add(((BufferBuilderAccessor) builder).getVertices() * format.getVertexSize());
+                indexList.add(((BufferBuilderAccessor) builder).getVertices() * IrisManager.vertexStride(format));
             }
         }
         

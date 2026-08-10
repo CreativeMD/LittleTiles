@@ -10,6 +10,7 @@ import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.client.mod.sable.render.SableTileMesh;
 import team.creative.littletiles.common.block.entity.BETiles;
 
 public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
@@ -44,9 +45,14 @@ public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
     
     public static void compile(long pos, BETiles be, Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
         be.updateQuadCache(pos);
-        
-        synchronized (be.render) {
-            be.render.buffers().upload(builderSupplier, bufferSupplier);
+
+        SableTileMesh.enterTileUpload();
+        try {
+            synchronized (be.render) {
+                be.render.buffers().upload(builderSupplier, bufferSupplier);
+            }
+        } finally {
+            SableTileMesh.leaveTileUpload();
         }
     }
     

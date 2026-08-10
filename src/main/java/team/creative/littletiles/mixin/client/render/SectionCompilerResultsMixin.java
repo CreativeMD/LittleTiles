@@ -8,6 +8,7 @@ import net.minecraft.client.renderer.chunk.SectionCompiler;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.mc.SectionCompilerResultsExtender;
+import team.creative.littletiles.client.mod.sable.render.SableTileMesh;
 
 @Mixin(SectionCompiler.Results.class)
 public class SectionCompilerResultsMixin implements SectionCompilerResultsExtender {
@@ -17,6 +18,9 @@ public class SectionCompilerResultsMixin implements SectionCompilerResultsExtend
     
     @Override
     public BufferCollection getOrCreate(RenderType layer) {
+        BufferCollection separate = SableTileMesh.collection(layer);
+        if (separate != null)
+            return separate;
         if (caches == null)
             caches = new ChunkLayerMap<>();
         BufferCollection cache = caches.get(layer);
