@@ -1,0 +1,18 @@
+{
+    "result": {
+        "id": "littletiles:premade",
+        "count": 1
+    },
+    "structure": "daylight_sensor",
+    "category": "redstone",
+    "type": "littletiles:crafting_shapeless_premade",
+    "ingredients": [
+        {
+            "item": "minecraft:daylight_detector"
+        },
+        {
+            "type": "littletiles:structure",
+            "structure": "single_output1"
+        }
+    ]
+}

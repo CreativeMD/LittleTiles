@@ -49,4 +49,16 @@ public class StructureIngredient implements ICustomIngredient {
     public IngredientType<?> getType() {
         return LittleTilesRegistry.STRUCTURE_INGREDIENT_TYPE.get();
     }
+    
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof StructureIngredient i)
+            return i.structureType.equals(structureType);
+        return super.equals(obj);
+    }
+    
+    @Override
+    public int hashCode() {
+        return structureType.hashCode();
+    }
 }

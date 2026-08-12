@@ -1,0 +1,18 @@
+{
+    "result": {
+        "id": "littletiles:premade",
+        "count": 4
+    },
+    "structure": "signal_display_1",
+    "pattern": [
+        "C"
+    ],
+    "category": "redstone",
+    "type": "littletiles:crafting_shaped_premade",
+    "key": {
+        "C": {
+            "type": "littletiles:structure",
+            "structure": "signal_display_4"
+        }
+    }
+}

@@ -1,0 +1,19 @@
+{
+    "result": {
+        "id": "littletiles:premade",
+        "count": 1
+    },
+    "structure": "single_output16",
+    "pattern": [
+        "CC",
+        "CC"
+    ],
+    "category": "redstone",
+    "type": "littletiles:crafting_shaped_premade",
+    "key": {
+        "C": {
+            "type": "littletiles:structure",
+            "structure": "single_output4"
+        }
+    }
+}

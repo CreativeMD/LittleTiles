@@ -1,0 +1,18 @@
+{
+    "result": {
+        "id": "littletiles:premade",
+        "count": 4
+    },
+    "structure": "single_cable1",
+    "pattern": [
+        "C"
+    ],
+    "category": "redstone",
+    "type": "littletiles:crafting_shaped_premade",
+    "key": {
+        "C": {
+            "type": "littletiles:structure",
+            "structure": "single_cable4"
+        }
+    }
+}

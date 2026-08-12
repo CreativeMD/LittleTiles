@@ -78,6 +78,7 @@ import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.item.component.TileFilterComponent;
 import team.creative.littletiles.common.placement.shape.LittleShapeInstance;
 import team.creative.littletiles.common.recipe.PremadeShapedRecipeSerializer;
+import team.creative.littletiles.common.recipe.PremadeShapelessRecipeSerializer;
 import team.creative.littletiles.common.recipe.StructureIngredient;
 import team.creative.littletiles.common.structure.registry.premade.LittlePremadeRegistry;
 import team.creative.littletiles.common.structure.type.premade.LittleStructurePremade.LittlePremadeType;
@@ -251,6 +252,8 @@ public class LittleTilesRegistry {
     
     public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends CraftingRecipe>> PREMADE_RECIPES = RECIPE_SERIALIZERS.register("crafting_shaped_premade",
         PremadeShapedRecipeSerializer::new);
+    public static final DeferredHolder<RecipeSerializer<?>, RecipeSerializer<? extends CraftingRecipe>> PREMADE_RECIPES_SHAPELESS = RECIPE_SERIALIZERS.register(
+        "crafting_shapeless_premade", PremadeShapelessRecipeSerializer::new);
     
     // CREATIVE_TAB
     
