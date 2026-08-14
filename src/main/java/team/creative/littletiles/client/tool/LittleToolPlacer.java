@@ -418,6 +418,9 @@ public class LittleToolPlacer extends LittleTool {
         LittleVecGrid internalOffset = this.builtInternalOffset.copy();
         internalOffset.invert();
         offset.move(internalOffset);
+        
+        if (group != null)
+            group.convertToSmallest();
         return offset;
     }
     
