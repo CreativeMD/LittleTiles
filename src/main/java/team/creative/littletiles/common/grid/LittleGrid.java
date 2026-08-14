@@ -171,7 +171,7 @@ public class LittleGrid {
         if (this.count == 1)
             this.minSizes[0] = this.count;
         else {
-            this.minSizes[0] = BASE;
+            this.minSizes[0] = 1;
             for (int i = 1; i < this.minSizes.length; i++) {
                 this.minSizes[i] = this.count / IntMath.gcd(i, this.count);
                 if (this.minSizes[i] < BASE || this.minSizes[i] % BASE != 0)
