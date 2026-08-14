@@ -80,7 +80,8 @@ public class LittleToolMeasure extends LittleTool {
         if (stack.get(LittleTilesRegistry.MEASUREMENTS) != component) {
             component = stack.get(LittleTilesRegistry.MEASUREMENTS);
             reset();
-            measurements.addAll(component.value());
+            if (component != null)
+                measurements.addAll(component.value());
             buildBoxes(renderer);
         }
     }
