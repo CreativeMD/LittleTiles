@@ -1,3 +1,13 @@
+1.6.0-pre224
+Added JEI support
+Adapted blockfilter changes from CreativeCore
+Added missing recipes for clock sensor, day light sensor, cable, input, output and display variants
+Added offset correction when placing with lower grid than structure is
+Fixed crash with measurement tape after rejoining world
+Fixed not returning to smallest grid when changing grid size during placement
+Fixed not returning to grid 1 even if possible
+Fixed exact and tile area selection not handling grid size with vanilla blocks correctly
+
 1.6.0-pre223
 Added support for sable
 Added ability to build on sub levels
