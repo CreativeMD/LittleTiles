@@ -21,6 +21,7 @@ import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
+import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -150,11 +151,20 @@ public class SelectionBuilder {
                     if (selection.includeVanilla()) {
                         BlockState state = level.getBlockState(temp);
                         if (LittleAction.isBlockValid(state)) {
-                            LittleBox blockBox = box != null ? box.extractSimple(temp) : previews.getGrid().box();
+                            LittleGrid blockGrid;
+                            LittleBox blockBox;
+                            if (box != null) {
+                                blockBox = box.extractSimple(temp);
+                                blockGrid = box.getGrid();
+                            } else {
+                                blockBox = previews.getGrid().box();
+                                blockGrid = previews.getGrid();
+                                
+                            }
                             if (blockBox == null)
                                 continue;
-                            blockBox.add((posX - minX) * previews.getGrid().count, (posY - minY) * previews.getGrid().count, (posZ - minZ) * previews.getGrid().count);
-                            previews.add(previews.getGrid(), new LittleElement(state, ColorUtils.WHITE), blockBox);
+                            blockBox.add((posX - minX) * blockGrid.count, (posY - minY) * blockGrid.count, (posZ - minZ) * blockGrid.count);
+                            previews.add(blockGrid, new LittleElement(state, ColorUtils.WHITE), blockBox);
                         }
                     }
                 }
