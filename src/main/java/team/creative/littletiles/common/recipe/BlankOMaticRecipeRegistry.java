@@ -8,8 +8,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import team.creative.creativecore.common.util.filter.Filter;
-import team.creative.creativecore.common.util.filter.premade.BlockFilters;
+import team.creative.creativecore.common.util.filter.BlockFilter;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredient;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientBlock;
 import team.creative.creativecore.common.util.ingredient.CreativeIngredientItem;
@@ -45,6 +44,10 @@ public class BlankOMaticRecipeRegistry {
         return 0;
     }
     
+    public static List<BleachRecipe> all() {
+        return recipes;
+    }
+    
     static {
         registerBleacher(new CreativeIngredientItem(Items.BONE_MEAL), 4);
         registerBleacher(new CreativeIngredientItem(Items.WHITE_DYE), 4);
@@ -59,19 +62,19 @@ public class BlankOMaticRecipeRegistry {
         
         registerBleacher(new CreativeIngredientItem(Items.SUGAR), 1);
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 1, LittleTilesRegistry.GRAINY.value(), LittleTilesRegistry.GRAINY_BIG.value()));
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.COBBLESTONE), 2, LittleTilesRegistry.GRAINY_LOW.value()));
+        registerBleachRecipe(new BleachRecipe(BlockFilter.block(Blocks.COBBLESTONE), 1, LittleTilesRegistry.GRAINY.value(), LittleTilesRegistry.GRAINY_BIG.value()));
+        registerBleachRecipe(new BleachRecipe(BlockFilter.block(Blocks.COBBLESTONE), 2, LittleTilesRegistry.GRAINY_LOW.value()));
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 1, LittleTilesRegistry.GRAVEL.value(), LittleTilesRegistry.SAND.value(), LittleTilesRegistry.STONE
+        registerBleachRecipe(new BleachRecipe(BlockFilter.block(Blocks.STONE), 1, LittleTilesRegistry.GRAVEL.value(), LittleTilesRegistry.SAND.value(), LittleTilesRegistry.STONE
                 .value(), LittleTilesRegistry.CLAY.value()));
-        registerBleachRecipe(new BleachRecipe(BlockFilters.block(Blocks.STONE), 2, LittleTilesRegistry.CORK.value()));
+        registerBleachRecipe(new BleachRecipe(BlockFilter.block(Blocks.STONE), 2, LittleTilesRegistry.CORK.value()));
         
-        Filter<Block> filter = BlockFilters.blocks(Blocks.STONE_BRICKS, Blocks.BRICKS);
+        BlockFilter filter = BlockFilter.blocks(Blocks.STONE_BRICKS, Blocks.BRICKS);
         registerBleachRecipe(new BleachRecipe(filter, 1, LittleTilesRegistry.BRICK.value(), LittleTilesRegistry.BRICK_BIG.value(), LittleTilesRegistry.BROKEN_BRICK_BIG
                 .value(), LittleTilesRegistry.CHISELED.value(), LittleTilesRegistry.STRIPS.value()));
         registerBleachRecipe(new BleachRecipe(filter, 2, LittleTilesRegistry.BORDERED.value(), LittleTilesRegistry.FLOOR.value()));
         
-        registerBleachRecipe(new BleachRecipe(BlockFilters.tag(BlockTags.BASE_STONE_OVERWORLD), 4, LittleTilesRegistry.CLEAN.value()));
+        registerBleachRecipe(new BleachRecipe(BlockFilter.tag(BlockTags.BASE_STONE_OVERWORLD), 4, LittleTilesRegistry.CLEAN.value()));
     }
     
     public static class BleachVolume {
@@ -87,11 +90,11 @@ public class BlankOMaticRecipeRegistry {
     
     public static class BleachRecipe {
         
-        public final Filter<Block> filter;
+        public final BlockFilter filter;
         public final Block[] results;
         public final int needed;
         
-        public BleachRecipe(Filter<Block> filter, int needed, Block... results) {
+        public BleachRecipe(BlockFilter filter, int needed, Block... results) {
             this.filter = filter;
             this.needed = needed;
             this.results = results;

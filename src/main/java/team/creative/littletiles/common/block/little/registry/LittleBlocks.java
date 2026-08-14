@@ -25,7 +25,7 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.util.filter.premade.BlockFilters;
+import team.creative.creativecore.common.util.filter.BlockFilter;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
@@ -39,7 +39,7 @@ import team.creative.littletiles.common.math.vec.LittleVec;
 public class LittleBlocks {
     
     public static void init() {
-        LittleBlockRegistry.register(BlockFilters.block(Blocks.BARRIER), x -> new LittleMCBlock(x) {
+        LittleBlockRegistry.register(BlockFilter.block(Blocks.BARRIER), x -> new LittleMCBlock(x) {
             
             @Override
             @OnlyIn(Dist.CLIENT)
@@ -52,7 +52,7 @@ public class LittleBlocks {
             }
         });
         
-        LittleBlockRegistry.register(BlockFilters.instance(TntBlock.class), x -> new LittleMCBlock(x) {
+        LittleBlockRegistry.register(BlockFilter.instance(TntBlock.class), x -> new LittleMCBlock(x) {
             
             @Override
             public boolean canInteract() {
@@ -101,7 +101,7 @@ public class LittleBlocks {
             
         });
         
-        LittleBlockRegistry.register(BlockFilters.block(Blocks.CRAFTING_TABLE), x -> new LittleMCBlock(x) {
+        LittleBlockRegistry.register(BlockFilter.block(Blocks.CRAFTING_TABLE), x -> new LittleMCBlock(x) {
             
             @Override
             public boolean canInteract() {
@@ -120,7 +120,7 @@ public class LittleBlocks {
             
         });
         
-        LittleBlockRegistry.register(BlockFilters.property(BlockStateProperties.AXIS), x -> new LittleMCBlock(x) {
+        LittleBlockRegistry.register(BlockFilter.AXIS, x -> new LittleMCBlock(x) {
             
             @Override
             public BlockState transform(BlockState state, IntMatrix3c matrix, LittleVec doubledCenter) {
@@ -128,14 +128,14 @@ public class LittleBlocks {
             }
         });
         
-        LittleBlockRegistry.register(BlockFilters.property(BlockStateProperties.FACING), x -> new LittleMCBlock(x) {
+        LittleBlockRegistry.register(BlockFilter.FACING, x -> new LittleMCBlock(x) {
             @Override
             public BlockState transform(BlockState state, IntMatrix3c matrix, LittleVec doubledCenter) {
                 return state.setValue(BlockStateProperties.FACING, Facing.get(state.getValue(BlockStateProperties.FACING)).transform(matrix).toVanilla());
             }
         });
         
-        LittleBlockRegistry.register(BlockFilters.instance(LeavesBlock.class), x -> new LittleMCBlock(x) {
+        LittleBlockRegistry.register(BlockFilter.instance(LeavesBlock.class), x -> new LittleMCBlock(x) {
             
             @Override
             public boolean cullOverEdge() {
