@@ -371,6 +371,7 @@
     "structure.importer": "Little Importer",
     "structure.exporter": "Little Exporter",
     "structure.blankomatic": "Blank-o-matic",
+    "structure.blankomatic.jei": "Bleaching (Blank-o-matic)",
     "structure.single_cable1": "Single Cable (1-bit)",
     "structure.single_cable4": "Single Cable (4-bit)",
     "structure.single_cable16": "Single Cable (16-bit)",

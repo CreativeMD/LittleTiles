@@ -84,6 +84,9 @@ dependencies {
     implementation("net.caffeinemc:sodium-neoforge:0.8.12-beta.1+mc1.21.1")
     
     implementation "dev.ryanhcode.sable:sable-common-1.21.1:2.0.3"
+    
+    compileOnly "mezz.jei:jei-${minecraft_version}-neoforge-api:19.44.0.401"
+    runtimeOnly "mezz.jei:jei-${minecraft_version}-neoforge:19.44.0.401"
 }
 
 modDependencies = [
