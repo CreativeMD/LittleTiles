@@ -392,10 +392,25 @@ public class LittleToolPlacer extends LittleTool {
         LittleVecGrid size = builtSize.copy();
         PlacementPosition pos = isMarked ? marked.copy() : aimedPosition.copy();
         
-        if (group != null)
+        if (group != null) {
+            if (pos.getGrid().count < group.getGrid().count) {
+                LittleVec vec = new LittleVec(1, 1, 1);
+                if (pos.facing != null)
+                    vec.set(pos.facing.axis, 0);
+                LittleVecGrid centerCorrection = new LittleVecGrid(vec.copy(), pos.getGrid());
+                centerCorrection.convertTo(group.getGrid());
+                centerCorrection.getVec().x /= 2;
+                centerCorrection.getVec().y /= 2;
+                centerCorrection.getVec().z /= 2;
+                
+                if (pos.facing != null)
+                    centerCorrection.getVec().set(pos.facing.axis, 0);
+                pos.move(centerCorrection);
+            }
             group.forceSameGrid(pos, size);
-        else
+        } else
             pos.forceSameGrid(size);
+        
         LittleGrid grid = pos.getGrid();
         
         boolean singleMode = group != null && group.totalBoxes() == 1;
