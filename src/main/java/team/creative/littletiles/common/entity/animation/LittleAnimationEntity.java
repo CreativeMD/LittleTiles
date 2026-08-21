@@ -45,7 +45,7 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         level.setBlock(pos, state, 0);
         
         BlockEntity entity = level.getBlockEntity(pos);
-        if (entity instanceof BETiles be)
+        if (entity instanceof BETiles be) {
             if (be.isClient()) {
                 be.handleUpdate(nbt, !update);
                 if (!update)
@@ -55,6 +55,8 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
                 if (update)
                     be.updateTiles(false, true);
             }
+            be.setLevel((Level) level);
+        }
     }
     
     public static CompoundTag saveBE(BETiles tiles) {
