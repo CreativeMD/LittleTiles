@@ -53,7 +53,7 @@ public enum SignalMode {
                     ListTag list = new ListTag();
                     for (int i = 0; i < tickets.size(); i++) {
                         SignalScheduleTicket ticket = tickets.get(i);
-                        list.add(new IntArrayTag(new int[] { ticket.getDelay(), ticket.getState().number() }));
+                        list.add(new IntArrayTag(ticket.toArray()));
                     }
                     if (!list.isEmpty())
                         nbt.put("tickets", list);
@@ -198,7 +198,7 @@ public enum SignalMode {
                 @Override
                 public void write(boolean preview, CompoundTag nbt) {
                     if (!preview && ticket != null)
-                        nbt.putIntArray("ticket", new int[] { ticket.getDelay(), ticket.getState().number() });
+                        nbt.putIntArray("ticket", ticket.toArray());
                 }
             };
             
@@ -258,7 +258,7 @@ public enum SignalMode {
                     if (preview)
                         return;
                     if (ticket != null)
-                        nbt.putIntArray("ticket", new int[] { ticket.getDelay(), ticket.getState().number() });
+                        nbt.putIntArray("ticket", ticket.toArray());
                 }
             };
             

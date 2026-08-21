@@ -62,9 +62,9 @@ public class SignalOutputHandlerPulse extends SignalOutputHandler {
         if (preview)
             return;
         if (pulseStart != null)
-            nbt.putInt("start", pulseStart.getDelay());
+            nbt.putInt("start", pulseStart.timeTillExecution());
         if (pulseEnd != null)
-            nbt.putInt("end", pulseEnd.getDelay());
+            nbt.putInt("end", pulseEnd.timeTillExecution());
     }
     
 }

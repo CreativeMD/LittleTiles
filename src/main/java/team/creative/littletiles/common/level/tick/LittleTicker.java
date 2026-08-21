@@ -15,6 +15,7 @@ import team.creative.littletiles.common.structure.LittleStructure;
 import team.creative.littletiles.common.structure.exception.CorruptedConnectionException;
 import team.creative.littletiles.common.structure.exception.NotYetConnectedException;
 import team.creative.littletiles.common.structure.signal.schedule.ISignalSchedulable;
+import team.creative.littletiles.common.structure.signal.schedule.SignalScheduleTicket;
 
 public class LittleTicker extends LevelHandler implements Iterable<LittleTickTicket> {
     
@@ -78,14 +79,16 @@ public class LittleTicker extends LevelHandler implements Iterable<LittleTickTic
         }
     }
     
-    public void schedule(int delay, Runnable run) {
+    public void schedule(int delay, SignalScheduleTicket run) {
         if (client)
             return;
         synchronized (this) {
-            if (delay < 0)
+            if (delay < 0) {
                 run.run();
+                return;
+            }
             LittleTickTicket result = pollUnused();
-            result.setup(delay + tick, run);
+            result.setup(delay + tick, run, this);
             if (latest < result.tickTime) {
                 if (last != null)
                     last.next = result;

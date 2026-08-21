@@ -76,7 +76,7 @@ public class SignalOutputHandlerToggle extends SignalOutputHandler {
         ListTag list = new ListTag();
         for (int i = 0; i < tickets.size(); i++) {
             SignalScheduleTicket ticket = tickets.get(i);
-            list.add(new IntArrayTag(new int[] { ticket.getDelay(), ticket.getState().number() }));
+            list.add(new IntArrayTag(ticket.toArray()));
         }
         if (!list.isEmpty())
             nbt.put("tickets", list);

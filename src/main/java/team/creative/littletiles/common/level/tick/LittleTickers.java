@@ -68,7 +68,7 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
                 SignalScheduleTicket ticket = iterator.next();
                 Level level = ticket.getLevel();
                 if (level != null) {
-                    LittleTiles.TICKERS.get(level).schedule(ticket.getDelay(), ticket);
+                    LittleTiles.TICKERS.get(level).schedule(ticket.delay, ticket);
                     iterator.remove();
                 }
             }
