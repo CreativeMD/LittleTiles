@@ -5,8 +5,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
 
-import org.jetbrains.annotations.NotNull;
-
 import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.platform.InputConstants.Key;
 import com.mojang.brigadier.Command;
@@ -19,18 +17,15 @@ import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.item.ClampedItemPropertyFunction;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.client.resources.model.ModelResourceLocation;
+import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.bus.api.IEventBus;
@@ -41,14 +36,12 @@ import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterKeyMappingsEvent;
 import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
-import net.neoforged.neoforge.client.model.data.ModelData;
 import net.neoforged.neoforge.client.settings.IKeyConflictContext;
 import net.neoforged.neoforge.client.settings.KeyModifier;
 import net.neoforged.neoforge.common.NeoForge;
 import team.creative.creativecore.client.CreativeCoreClient;
 import team.creative.creativecore.client.render.box.RenderBox;
-import team.creative.creativecore.client.render.model.CreativeBlockModel;
-import team.creative.creativecore.client.render.model.CreativeItemBoxModel;
+import team.creative.creativecore.client.render.model.box.ItemModelBox;
 import team.creative.creativecore.common.config.holder.ConfigHolderDynamic;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
@@ -71,7 +64,6 @@ import team.creative.littletiles.client.render.entity.LittleEntityRenderer;
 import team.creative.littletiles.client.render.entity.LittleSitRenderer;
 import team.creative.littletiles.client.render.entity.RenderSizedTNTPrimed;
 import team.creative.littletiles.client.render.item.ItemRenderCache;
-import team.creative.littletiles.client.render.item.LittleModelItemBackground;
 import team.creative.littletiles.client.render.item.LittleModelItemPreview;
 import team.creative.littletiles.client.render.item.LittleModelItemTilesBig;
 import team.creative.littletiles.client.render.level.LittleClientEventHandler;
@@ -302,31 +294,14 @@ public class LittleTilesClient {
     }
     
     private static void modelLoader(RegisterAdditional event) {
-        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT));
-        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT));
-        event.register(new ModelResourceLocation(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT));
-        
         for (LittlePremadeType type : LittlePremadeRegistry.types())
             if (type.itemTexture)
                 event.register(type.getItemTexture());
     }
     
     private static void modelEvent(RegisterGeometryLoaders event) {
-        CreativeCoreClient.registerBlockModel(ResourceLocation.tryBuild(LittleTiles.MODID, "empty"), new CreativeBlockModel() {
-            
-            @Override
-            public List<? extends RenderBox> getBoxes(BlockState state, ModelData data, RandomSource source) {
-                return Collections.EMPTY_LIST;
-            }
-            
-            @Override
-            public @NotNull ModelData getModelData(@NotNull BlockAndTintGetter level, @NotNull BlockPos pos, @NotNull BlockState state, @NotNull ModelData modelData) {
-                return modelData;
-            }
-        });
-        
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "tiles"), new LittleModelItemTilesBig());
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "premade"), new LittleModelItemTilesBig() {
+        CreativeCoreClient.registerItemBoxModel(ResourceLocation.tryBuild(LittleTiles.MODID, "tiles"), new LittleModelItemTilesBig());
+        CreativeCoreClient.registerItemBoxModel(ResourceLocation.tryBuild(LittleTiles.MODID, "premade"), new LittleModelItemTilesBig() {
             @Override
             public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
                 if (!ILittleTool.getData(stack).contains(LittleGroup.STRUCTURE_KEY))
@@ -346,31 +321,21 @@ public class LittleTilesClient {
                 
                 return cubes;
             }
-        }.setResolver((original, stack, level, entity, light) -> {
-            LittlePremadeType type = ItemPremadeStructure.get(stack);
-            if (type != null && type.itemTexture)
-                return Minecraft.getInstance().getModelManager().getModel(type.getItemTexture());
-            return null;
-        }));
+            
+            @Override
+            public BakedModel resolve(ItemStack stack) {
+                LittlePremadeType type = ItemPremadeStructure.get(stack);
+                if (type != null && type.itemTexture)
+                    return Minecraft.getInstance().getModelManager().getModel(type.getItemTexture());
+                return null;
+            }
+        });
         
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
-            LittleTiles.MODID, "glove_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
+        CreativeCoreClient.registerItemPreviewModel(ResourceLocation.tryBuild(LittleTiles.MODID, "glove"), (LittleModelItemPreview) stack -> LittleElement.getOrDefault(stack));
         
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), new LittleModelItemPreview(new ModelResourceLocation(ResourceLocation.tryBuild(
-            LittleTiles.MODID, "chisel_background"), ModelResourceLocation.STANDALONE_VARIANT), stack -> LittleElement.getOrDefault(stack)));
+        CreativeCoreClient.registerItemPreviewModel(ResourceLocation.tryBuild(LittleTiles.MODID, "chisel"), (LittleModelItemPreview) stack -> LittleElement.getOrDefault(stack));
         
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blueprint"), new LittleModelItemBackground(new ModelResourceLocation(ResourceLocation
-                .tryBuild(LittleTiles.MODID, "blueprint_background"), ModelResourceLocation.STANDALONE_VARIANT), x -> {
-                    CompoundTag contentData = ItemLittleBlueprint.getContent(x);
-                    if (!LittleGroup.shouldRenderInHand(contentData))
-                        return ItemStack.EMPTY;
-                    ItemStack stack = new ItemStack(LittleTilesRegistry.ITEM_TILES.value());
-                    ILittleTool.setData(stack, contentData);
-                    return stack;
-                }));
-        
-        CreativeCoreClient.registerItemModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blockingredient"), new CreativeItemBoxModel(new ModelResourceLocation(ResourceLocation
-                .tryBuild("minecraft", "stone"), ModelResourceLocation.INVENTORY_VARIANT)) {
+        CreativeCoreClient.registerItemBoxModel(ResourceLocation.tryBuild(LittleTiles.MODID, "blockingredient"), new ItemModelBox() {
             
             @Override
             public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {

@@ -1,4 +1,9 @@
 {
-    "loader": "creativecore:rendered",
-    "item": "littletiles:tiles"
+    "loader": "creativecore:layer",
+    "layers": [
+        {
+            "loader": "creativecore:box",
+            "item": "littletiles:tiles"
+        }
+    ]
 }

@@ -73,4 +73,8 @@ public interface ILittlePlacer extends ILittleTool {
         return null;
     }
     
+    public default boolean shouldRenderInHand(ItemStack stack) {
+        return LittleGroup.shouldRenderInHand(ILittleTool.getData(stack));
+    }
+    
 }

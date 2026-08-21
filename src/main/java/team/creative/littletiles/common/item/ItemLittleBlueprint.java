@@ -90,6 +90,11 @@ public class ItemLittleBlueprint extends Item implements ILittlePlacer, ILittleS
     }
     
     @Override
+    public boolean shouldRenderInHand(ItemStack stack) {
+        return LittleGroup.shouldRenderInHand(getContent(stack));
+    }
+    
+    @Override
     public GuiConfigure getConfigure(Player player, ContainerSlotView view, boolean secondary) {
         if (secondary)
             return new GuiBlueprintSecondary(view);

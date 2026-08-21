@@ -1,4 +1,15 @@
 {
-    "loader": "creativecore:rendered",
-    "item": "littletiles:glove"
+    "loader": "creativecore:layer",
+    "layers": [
+        {
+            "parent": "item/handheld",
+            "textures": {
+                "layer0": "littletiles:item/glove"
+            }
+        },
+        {
+            "loader": "creativecore:preview",
+            "item": "littletiles:glove"
+        }
+    ]
 }
