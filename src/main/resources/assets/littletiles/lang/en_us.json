@@ -222,7 +222,7 @@
     "selection.mode.area.pos.first": "First: %s %s %s",
     "selection.mode.area.pos.second": "Second: %s %s %s",
     "selection.clear": "Clear",
-    "gui.noclip.slowness": "Slowness (codweb)",
+    "gui.noclip.slowness": "Slowness (cobweb)",
     "creative_tab.littletiles": "LittleTiles",
     "item.littletiles.hammer": "Little Hammer",
     "item.littletiles.multi_tiles": "Little Structure",
