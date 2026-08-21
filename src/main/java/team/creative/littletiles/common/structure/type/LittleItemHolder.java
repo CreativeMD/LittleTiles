@@ -118,7 +118,7 @@ public class LittleItemHolder extends LittleStructure {
             updateStructure(true);
         } else if (stack.isEmpty()) {
             if (canBeFoundInFilterList(mainStack) == whitelist) {
-                stack = mainStack.copy();
+                stack = mainStack.copyWithCount(1);
                 if (!player.getAbilities().instabuild)
                     mainStack.shrink(1);
                 updateInput();
