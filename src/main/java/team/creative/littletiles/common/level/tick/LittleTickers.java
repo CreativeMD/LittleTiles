@@ -6,7 +6,11 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
 
+import net.minecraft.client.Minecraft;
 import net.minecraft.world.level.Level;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
+import net.neoforged.fml.loading.FMLLoader;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.tick.LevelTickEvent;
@@ -27,7 +31,8 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
     
     public LittleTickers() {
         super();
-        NeoForge.EVENT_BUS.addListener(this::clientTick);
+        if (FMLLoader.getDist() == Dist.CLIENT)
+            NeoForge.EVENT_BUS.addListener(this::clientTick);
         NeoForge.EVENT_BUS.addListener(this::levelTick);
         NeoForge.EVENT_BUS.addListener(this::serverTick);
     }
@@ -49,8 +54,9 @@ public class LittleTickers extends LevelHandlers<LittleTicker> {
             client = null;
     }
     
+    @OnlyIn(Dist.CLIENT)
     public void clientTick(ClientTickEvent.Pre event) {
-        if (client != null)
+        if (client != null && !Minecraft.getInstance().isPaused())
             client.tick();
     }
     
