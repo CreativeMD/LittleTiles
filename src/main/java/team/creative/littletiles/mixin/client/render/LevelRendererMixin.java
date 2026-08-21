@@ -55,7 +55,8 @@ public class LevelRendererMixin {
             if (LittleTilesClient.ITEM_RENDER_CACHE != null)
                 LittleTilesClient.ITEM_RENDER_CACHE.clearCache();
             
-            RenderingThread.initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
+            if (LittleTiles.CONFIG != null)
+                RenderingThread.initThreads(LittleTiles.CONFIG.rendering.renderingThreadCount);
         }
     }
     
