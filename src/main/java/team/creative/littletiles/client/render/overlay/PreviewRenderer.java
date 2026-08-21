@@ -96,7 +96,7 @@ public class PreviewRenderer {
     }
     
     public LittleTileContext selectFocused(BlockHitResult result) {
-        return LittleTileContext.selectFocused(level(), result.getBlockPos(), player());
+        return LittleTileContext.selectFocused(blockHitLevel(), result.getBlockPos(), player());
     }
     
     public float partialTickTime() {
