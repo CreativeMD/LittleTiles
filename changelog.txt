@@ -1,3 +1,14 @@
+1.6.0-pre225
+Reworked item models (now renders with JEI)
+Fixed crash with SuperResolution calling allChanged too early
+Fixed interacting with structure (for example with the wrench) not working properly on animations
+Fixed spelling mistake cobweb
+Fixed item holder duplication (only taking one item, but storing the full stack)
+Fixed ticking structures on client side even when the game is paused
+Fixed not loading scheduled tickets at all
+Fixed signal schedule tickets not getting saved correctly (delay was reset)
+Fixed structure on animation not loading correctly (not scheduling for update)
+
 1.6.0-pre224
 Added JEI support
 Adapted blockfilter changes from CreativeCore
