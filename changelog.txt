@@ -1,3 +1,6 @@
+1.6.0-pre226
+Fixed crash when opening door if sodium is not installed
+
 1.6.0-pre225
 Reworked item models (now renders with JEI)
 Fixed crash with SuperResolution calling allChanged too early
