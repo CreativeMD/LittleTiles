@@ -57,7 +57,7 @@ import team.creative.littletiles.common.mod.sable.SableManager;
 public class LittleAnimationRenderManager extends LittleEntityRenderManager<LittleAnimationEntity> implements RenderChunkExtender {
     
     public static LittleEntityRenderManager of(LittleAnimationEntity entity) {
-        if (entity.getRealLevel() instanceof FakeClientLevel || SableManager.isSubLevel(entity.getRealLevel(), entity.getCenter().baseOffset))
+        if (!SodiumManager.installed() || entity.getRealLevel() instanceof FakeClientLevel || SableManager.isSubLevel(entity.getRealLevel(), entity.getCenter().baseOffset))
             return new LittleAnimationRenderManager(entity);
         return SodiumManager.createRenderManager(entity);
     }
