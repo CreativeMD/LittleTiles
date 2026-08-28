@@ -100,9 +100,10 @@ public class ItemLittleHammer extends Item implements ILittleShaper, IItemToolti
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public Object[] tooltipData(ItemStack stack) {
         return new Object[] { getShape(stack).translatable(), LittleTilesClient.KEY_MARK.getTranslatedKeyMessage(), LittleTilesClient
-                .arrowKeysTooltip(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage() };
+                .arrowKeysTooltip(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.KEY_BUILDING_MODE.getTranslatedKeyMessage() };
     }
     
     @OnlyIn(Dist.CLIENT)

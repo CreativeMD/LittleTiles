@@ -47,9 +47,11 @@ public class ItemLittleGlove extends Item implements ILittleTransformer, IItemTo
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public Object[] tooltipData(ItemStack stack) {
         return new Object[] { Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), Minecraft.getInstance().options.keyUse.getTranslatedKeyMessage(), Minecraft
-                .getInstance().options.keyAttack.getTranslatedKeyMessage(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage() };
+                .getInstance().options.keyAttack.getTranslatedKeyMessage(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.KEY_BUILDING_MODE
+                        .getTranslatedKeyMessage() };
     }
     
     @Override

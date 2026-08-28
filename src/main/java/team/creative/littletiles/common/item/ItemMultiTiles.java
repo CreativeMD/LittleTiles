@@ -170,9 +170,10 @@ public class ItemMultiTiles extends Item implements ILittlePlacer, IItemTooltip 
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public Object[] tooltipData(ItemStack stack) {
-        return new Object[] { LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.KEY_MIRROR
-                .getTranslatedKeyMessage() };
+        return new Object[] { LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.KEY_BUILDING_MODE.getTranslatedKeyMessage(), LittleTilesClient
+                .arrowKeysTooltip(), LittleTilesClient.KEY_MIRROR.getTranslatedKeyMessage() };
     }
     
     @Override

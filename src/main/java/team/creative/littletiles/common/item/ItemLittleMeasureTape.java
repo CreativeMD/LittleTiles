@@ -14,6 +14,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittleMeasure;
+import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.tool.LittleTool;
 import team.creative.littletiles.client.tool.LittleToolMeasure;
 import team.creative.littletiles.common.gui.tool.GuiConfigure;
@@ -58,7 +59,7 @@ public class ItemLittleMeasureTape extends Item implements ILittleMeasure, IItem
     public Object[] tooltipData(ItemStack stack) {
         var MC = Minecraft.getInstance();
         return new Object[] { MC.options.keyUse.getTranslatedKeyMessage(), MC.options.keyAttack.getTranslatedKeyMessage(), MC.options.keyAttack
-                .getTranslatedKeyMessage(), MC.options.keyAttack.getTranslatedKeyMessage() };
+                .getTranslatedKeyMessage(), MC.options.keyAttack.getTranslatedKeyMessage(), LittleTilesClient.KEY_BUILDING_MODE.getTranslatedKeyMessage() };
     }
     
     @Override

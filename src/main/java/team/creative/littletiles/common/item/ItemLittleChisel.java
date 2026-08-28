@@ -104,9 +104,11 @@ public class ItemLittleChisel extends Item implements ILittleShaper, IItemToolti
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public Object[] tooltipData(ItemStack stack) {
         return new Object[] { getShape(stack).translatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.KEY_MARK
-                .getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage() };
+                .getTranslatedKeyMessage(), LittleTilesClient.arrowKeysTooltip(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.KEY_BUILDING_MODE
+                        .getTranslatedKeyMessage() };
     }
     
     @Override

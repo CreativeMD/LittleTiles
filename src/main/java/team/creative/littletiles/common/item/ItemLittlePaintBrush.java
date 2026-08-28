@@ -133,8 +133,9 @@ public class ItemLittlePaintBrush extends Item implements ILittleShaper, IItemTo
     }
     
     @Override
+    @OnlyIn(Dist.CLIENT)
     public Object[] tooltipData(ItemStack stack) {
         return new Object[] { getShape(stack).translatable(), Minecraft.getInstance().options.keyPickItem.getTranslatedKeyMessage(), LittleTilesClient.KEY_MARK
-                .getTranslatedKeyMessage(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage() };
+                .getTranslatedKeyMessage(), LittleTilesClient.KEY_CONFIGURE.getTranslatedKeyMessage(), LittleTilesClient.KEY_BUILDING_MODE.getTranslatedKeyMessage() };
     }
 }
