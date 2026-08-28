@@ -145,8 +145,9 @@ public class LittleRenderChunk implements RenderChunkExtender {
     }
     
     protected double getDistToPlayerSqr() {
-        Camera camera = Minecraft.getInstance().gameRenderer.getMainCamera();
-        Vec3 cam = level().getOrigin().transformPointToFakeWorld(camera.getPosition());
+        var mc = Minecraft.getInstance();
+        Camera camera = mc.gameRenderer.getMainCamera();
+        Vec3 cam = level().getOrigin().pose(mc.getTimer().getGameTimeDeltaPartialTick(false)).transformInverse(camera.getPosition());
         Vec3 center = bb.getCenter();
         double d0 = center.x - cam.x;
         double d1 = center.y - cam.y;

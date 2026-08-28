@@ -1,7 +1,7 @@
 package team.creative.littletiles.common.packet.entity;
 
 import net.minecraft.world.entity.player.Player;
-import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.creativecore.common.util.math.origin.IVecOrigin;
 import team.creative.littletiles.common.entity.LittleEntity;
 
 public class EntityOriginChanged extends LittleEntityPacket {

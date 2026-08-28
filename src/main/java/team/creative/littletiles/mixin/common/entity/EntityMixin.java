@@ -156,7 +156,7 @@ public class EntityMixin {
         Entity entity = asEntity();
         HitResult result = info.getReturnValue();
         double reachDistance = result != null ? pos.distanceTo(result.getLocation()) : (entity instanceof Player p ? PlayerUtils.getReach(p) : 4);
-        LittleHitResult hit = LittleTiles.ANIMATION_HANDLERS.get(entity.level()).getHit(pos, look, reachDistance);
+        LittleHitResult hit = LittleTiles.ANIMATION_HANDLERS.get(entity.level()).getHit(pos, look, reachDistance, partialTicks);
         if (hit != null)
             info.setReturnValue(hit);
     }
@@ -258,7 +258,7 @@ public class EntityMixin {
             if (!entity.checkEntityInside(entity))
                 continue;
             
-            var bb = entity.getOrigin().getOBB(asEntity().getBoundingBox());
+            var bb = entity.getOrigin().pose().transformInverse(asEntity().getBoundingBox());
             var level = entity.getSubLevel();
             
             min.set(Mth.floor(bb.minX + 1.0E-7), Mth.floor(bb.minY + 1.0E-7), Mth.floor(bb.minZ + 1.0E-7));

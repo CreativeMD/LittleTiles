@@ -28,8 +28,8 @@ import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.creativecore.common.util.math.collision.CollisionCoordinator;
-import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
-import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
+import team.creative.creativecore.common.util.math.origin.ChildVecOrigin;
+import team.creative.creativecore.common.util.math.origin.IVecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.type.itr.FilterIterator;
 import team.creative.littletiles.LittleTiles;
@@ -145,12 +145,6 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     @Override
     public void changedLevel(Level oldLevel, Level newLevel) {
         changedLevel = true;
-    }
-    
-    public Vec3 getRealCenter() {
-        if (level() instanceof ISubLevel or)
-            return or.getOrigin().transformPointToWorld(position());
-        return position();
     }
     
     // ================Children================
@@ -280,7 +274,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     @Override
     protected AABB makeBoundingBox() {
-        return origin.getAABB(physic.getOBB()).toVanilla();
+        return origin.pose().transform(physic.getOBB()).toVanilla();
     }
     
     @Override
@@ -325,18 +319,18 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     // ================Hit Result================
     
-    public LittleHitResult rayTrace(Vec3 pos, Vec3 look) {
+    public LittleHitResult rayTrace(Vec3 pos, Vec3 look, float partialTicks) {
         LittleHitResult result = null;
         double distance = 0;
         for (Entity entity : entities()) {
             if (entity instanceof LittleEntity levelEntity) {
                 if (!levelEntity.hasLoaded())
                     continue;
-                Vec3 newPos = levelEntity.origin.transformPointToFakeWorld(pos);
-                Vec3 newLook = levelEntity.origin.transformPointToFakeWorld(look);
+                Vec3 newPos = levelEntity.origin.pose(partialTicks).transformInverse(pos);
+                Vec3 newLook = levelEntity.origin.pose(partialTicks).transformInverse(look);
                 
                 if (levelEntity.physic.getOBB().intersects(newPos, newLook)) {
-                    LittleHitResult tempResult = levelEntity.rayTrace(pos, look);
+                    LittleHitResult tempResult = levelEntity.rayTrace(pos, look, partialTicks);
                     if (tempResult == null)
                         continue;
                     double tempDistance = newPos.distanceTo(tempResult.hit.getLocation());
@@ -346,8 +340,8 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
                     }
                 }
             } else {
-                Vec3 newPos = origin.transformPointToFakeWorld(pos);
-                Vec3 newLook = origin.transformPointToFakeWorld(look);
+                Vec3 newPos = origin.pose(partialTicks).transformInverse(pos);
+                Vec3 newLook = origin.pose(partialTicks).transformInverse(look);
                 if (entity.getBoundingBox().intersects(newPos, newLook)) {
                     LittleHitResult tempResult = new LittleHitResult(this, new EntityHitResult(entity, entity.getBoundingBox().clip(newPos, newLook).get()), subLevel);
                     double tempDistance = newPos.distanceTo(tempResult.hit.getLocation());
@@ -359,8 +353,8 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
             }
         }
         
-        Vec3 newPos = origin.transformPointToFakeWorld(pos);
-        Vec3 newLook = origin.transformPointToFakeWorld(look);
+        Vec3 newPos = origin.pose(partialTicks).transformInverse(pos);
+        Vec3 newLook = origin.pose(partialTicks).transformInverse(look);
         HitResult tempResult = subLevel.clip(new ClipContext(newPos, newLook, ClipContext.Block.OUTLINE, ClipContext.Fluid.NONE, CollisionContext.empty()));
         if (tempResult == null || tempResult.getType() != Type.BLOCK || !(tempResult instanceof BlockHitResult))
             return result;

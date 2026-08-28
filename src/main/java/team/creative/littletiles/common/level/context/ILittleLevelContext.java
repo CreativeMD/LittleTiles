@@ -53,7 +53,17 @@ public interface ILittleLevelContext {
         }
         
         @Override
+        public Vec3 toRealWorld(Vec3 vec, float partialTick) {
+            return vec;
+        }
+        
+        @Override
         public Vec3 toFakeWorld(Vec3 vec) {
+            return vec;
+        }
+        
+        @Override
+        public Vec3 toFakeWorld(Vec3 vec, float partialTick) {
             return vec;
         }
         
@@ -91,7 +101,11 @@ public interface ILittleLevelContext {
     
     public Vec3 toRealWorld(Vec3 vec);
     
+    public Vec3 toRealWorld(Vec3 vec, float partialTick);
+    
     public Vec3 toFakeWorld(Vec3 vec);
+    
+    public Vec3 toFakeWorld(Vec3 vec, float partialTick);
     
     public default boolean isSubLevel() {
         return true;

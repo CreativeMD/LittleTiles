@@ -66,7 +66,7 @@ public class EntitySit extends Entity implements ILevelPositionProvider, INoPush
                 LittleStructure structure = connection.getStructure();
                 if (structure.getStructureLevel() instanceof IOrientatedLevel l) {
                     Vec3d vec = new Vec3d(entityData.get(CHAIRX), entityData.get(CHAIRY), entityData.get(CHAIRZ));
-                    l.getOrigin().transformPointToWorld(vec);
+                    l.getOrigin().pose().transform(vec);
                     setPos(vec.x, vec.y, vec.z);
                 }
             } catch (CorruptedConnectionException | NotYetConnectedException e) {}

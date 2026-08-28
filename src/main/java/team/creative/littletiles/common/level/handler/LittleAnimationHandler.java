@@ -102,7 +102,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
                 continue;
             
             List<ABB> boxes = null;
-            ABB transformedBox = entity.getOrigin().getOBB(box);
+            ABB transformedBox = entity.getOrigin().pose().transformInverse(box);
             for (VoxelShape shape : entity.getSubLevel().getBlockCollisions(colliding, transformedBox.toVanilla()))
                 for (AABB bb : shape.toAabbs())
                     if (transformedBox.intersects(bb)) {
@@ -120,7 +120,7 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         return shapes;
     }
     
-    public LittleHitResult getHit(Vec3 pos, Vec3 look, double reach) {
+    public LittleHitResult getHit(Vec3 pos, Vec3 look, double reach, float partialTick) {
         AABB box = new AABB(pos, look);
         
         LittleHitResult newHit = null;
@@ -128,10 +128,10 @@ public abstract class LittleAnimationHandler extends LevelHandler {
         for (LittleEntity entity : find(box)) {
             if (!entity.hasLoaded())
                 continue;
-            LittleHitResult tempResult = entity.rayTrace(pos, look);
+            LittleHitResult tempResult = entity.rayTrace(pos, look, partialTick);
             if (tempResult == null || !(tempResult.hit instanceof BlockHitResult))
                 continue;
-            double tempDistance = pos.distanceTo(entity.getOrigin().transformPointToWorld(tempResult.hit.getLocation()));
+            double tempDistance = pos.distanceTo(entity.getOrigin().pose(partialTick).transform(tempResult.hit.getLocation()));
             if (tempDistance < distance) {
                 newHit = tempResult;
                 distance = tempDistance;

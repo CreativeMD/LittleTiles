@@ -197,7 +197,7 @@ public class LittleToolWrench extends LittleTool {
             pose.pushPose();
             Vec3 pos = this.pos;
             if (structure.getStructureLevel() instanceof IOrientatedLevel l)
-                pos = l.getOrigin().transformPointToWorld(pos);
+                pos = l.getOrigin().pose().transform(pos);
             pose.translate(pos.x, pos.y, pos.z);
             pose.mulPose(cameraOrientation);
             float scale = 0.005F;

@@ -38,12 +38,12 @@ public class LittleHitResult extends EntityHitResult {
     
     public LittleEntity getHolder() {
         if (level instanceof ISubLevel)
-            return (LittleEntity) ((ISubLevel) level).getHolder();
+            return (LittleEntity) level.getHolder();
         return null;
     }
     
-    public Vec3 getRealLocation() {
-        return level.getOrigin().transformPointToWorld(hit.getLocation());
+    public Vec3 getRealLocation(float partialTick) {
+        return level.getOrigin().pose(partialTick).transform(hit.getLocation());
     }
     
 }

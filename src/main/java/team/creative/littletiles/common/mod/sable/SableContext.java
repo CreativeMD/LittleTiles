@@ -6,8 +6,8 @@ import org.joml.Quaternionf;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
+import dev.ryanhcode.sable.companion.ClientSubLevelAccess;
 import dev.ryanhcode.sable.companion.math.Pose3dc;
-import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -18,15 +18,7 @@ import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
 public class SableContext implements ILittleLevelContext {
     
-    public final SubLevel level;
-    
-    public SableContext(SubLevel level) {
-        this.level = level;
-    }
-    
-    @Override
-    public Matrix4f transform(double x, double y, double z, Vec3 camera, float partialTick) {
-        Pose3dc pose = ((ClientSubLevel) level).renderPose(partialTick);
+    public static Matrix4f transform(Pose3dc pose, double x, double y, double z, Vec3 camera) {
         Vec3 subCamera = pose.transformPositionInverse(camera);
         Matrix4f matrix = new Matrix4f();
         matrix.translate((float) (pose.position().x() - camera.x), (float) (pose.position().y() - camera.y), (float) (pose.position().z() - camera.z));
@@ -37,11 +29,7 @@ public class SableContext implements ILittleLevelContext {
         return matrix;
     }
     
-    @Override
-    @Environment(EnvType.CLIENT)
-    @OnlyIn(Dist.CLIENT)
-    public void transformPose(PoseStack stack, double x, double y, double z, Vec3 camera, float partialTick) {
-        Pose3dc pose = ((ClientSubLevel) level).renderPose(partialTick);
+    public static void transformPose(Pose3dc pose, PoseStack stack, double x, double y, double z, Vec3 camera) {
         Vec3 subCamera = pose.transformPositionInverse(camera);
         stack.translate((float) (pose.position().x() - camera.x), (float) (pose.position().y() - camera.y), (float) (pose.position().z() - camera.z));
         stack.mulPose(new Quaternionf(pose.orientation()));
@@ -50,17 +38,41 @@ public class SableContext implements ILittleLevelContext {
         stack.translate((float) (x - subCamera.x), (float) (y - subCamera.y), (float) (z - subCamera.z));
     }
     
-    @Override
-    @Environment(EnvType.CLIENT)
-    @OnlyIn(Dist.CLIENT)
-    public void transformMatrix(Matrix4fStack matrix, double x, double y, double z, Vec3 camera, float partialTick) {
-        Pose3dc pose = ((ClientSubLevel) level).renderPose(partialTick);
+    public static void transformMatrix(Pose3dc pose, Matrix4fStack matrix, double x, double y, double z, Vec3 camera) {
         Vec3 subCamera = pose.transformPositionInverse(camera);
         matrix.translate((float) (pose.position().x() - camera.x), (float) (pose.position().y() - camera.y), (float) (pose.position().z() - camera.z));
         matrix.rotate(new Quaternionf(pose.orientation()));
         matrix.translate((float) (subCamera.x - pose.rotationPoint().x()), (float) (subCamera.y - pose.rotationPoint().y()), (float) (subCamera.z - pose.rotationPoint().z()));
         matrix.scale((float) pose.scale().x(), (float) pose.scale().y(), (float) pose.scale().z());
         matrix.translate((float) (x - subCamera.x), (float) (y - subCamera.y), (float) (z - subCamera.z));
+    }
+    
+    public final SubLevel level;
+    
+    public SableContext(SubLevel level) {
+        this.level = level;
+    }
+    
+    @Override
+    public Matrix4f transform(double x, double y, double z, Vec3 camera, float partialTick) {
+        Pose3dc pose = ((ClientSubLevelAccess) level).renderPose(partialTick);
+        return transform(pose, x, y, z, camera);
+    }
+    
+    @Override
+    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
+    public void transformPose(PoseStack stack, double x, double y, double z, Vec3 camera, float partialTick) {
+        Pose3dc pose = ((ClientSubLevelAccess) level).renderPose(partialTick);
+        transformPose(pose, stack, x, y, z, camera);
+    }
+    
+    @Override
+    @Environment(EnvType.CLIENT)
+    @OnlyIn(Dist.CLIENT)
+    public void transformMatrix(Matrix4fStack matrix, double x, double y, double z, Vec3 camera, float partialTick) {
+        Pose3dc pose = ((ClientSubLevelAccess) level).renderPose(partialTick);
+        transformMatrix(pose, matrix, x, y, z, camera);
     }
     
     @Override
@@ -74,8 +86,18 @@ public class SableContext implements ILittleLevelContext {
     }
     
     @Override
+    public Vec3 toFakeWorld(Vec3 vec, float partialTick) {
+        return ((ClientSubLevelAccess) level).renderPose(partialTick).transformPositionInverse(vec);
+    }
+    
+    @Override
     public Vec3 toRealWorld(Vec3 vec) {
         return level.logicalPose().transformPosition(vec);
+    }
+    
+    @Override
+    public Vec3 toRealWorld(Vec3 vec, float partialTick) {
+        return ((ClientSubLevelAccess) level).renderPose(partialTick).transformPosition(vec);
     }
     
     @Override

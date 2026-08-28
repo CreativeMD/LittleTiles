@@ -6,9 +6,9 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.LevelEntityGetter;
 import team.creative.creativecore.common.level.IOrientatedLevel;
 import team.creative.creativecore.common.level.ISubLevel;
-import team.creative.creativecore.common.util.math.matrix.ChildVecOrigin;
-import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.creativecore.common.util.math.matrix.VecOrigin;
+import team.creative.creativecore.common.util.math.origin.ChildVecOrigin;
+import team.creative.creativecore.common.util.math.origin.IVecOrigin;
+import team.creative.creativecore.common.util.math.origin.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.littletiles.common.mod.sable.SableManager;
 

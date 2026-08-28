@@ -47,7 +47,7 @@ public class LittleNoClipStructure extends LittleStructure {
         
         var bb = entityIn.getBoundingBox();
         if (level instanceof IOrientatedLevel o)
-            bb = o.getOrigin().getOBB(bb).toVanilla();
+            bb = o.getOrigin().pose().transformInverse(bb).toVanilla();
         
         boolean intersected = false;
         for (LittleTile tile : parent) {

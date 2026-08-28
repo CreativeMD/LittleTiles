@@ -22,8 +22,8 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.scores.Scoreboard;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
-import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.creativecore.common.util.math.matrix.VecOrigin;
+import team.creative.creativecore.common.util.math.origin.IVecOrigin;
+import team.creative.creativecore.common.util.math.origin.VecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 
 @OnlyIn(Dist.CLIENT)

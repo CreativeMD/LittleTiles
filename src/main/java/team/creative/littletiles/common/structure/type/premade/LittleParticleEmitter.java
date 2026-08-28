@@ -98,6 +98,7 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             AABB bb = getSurroundingBox().getAABB();
             Vec3d pos = new Vec3d(0, 0.5, 0);
             Vec3d speed = spread.generate();
+            float partialTick = mc.getTimer().getGameTimeDeltaPartialTick(false);
             
             Rotation rotation = null;
             switch (facing) {
@@ -136,8 +137,9 @@ public class LittleParticleEmitter extends LittleStructurePremade {
             pos.z += (bb.minZ + bb.maxZ) / 2;
             
             if (level instanceof ISubLevel s) {
-                s.getOrigin().transformPointToWorld(pos);
-                s.getOrigin().onlyRotateWithoutCenter(speed);
+                var pose = s.getOrigin().pose(partialTick);
+                pose.transform(pos);
+                pose.rotateWithoutCenter(speed);
                 level = s.getRealLevel();
             }
             

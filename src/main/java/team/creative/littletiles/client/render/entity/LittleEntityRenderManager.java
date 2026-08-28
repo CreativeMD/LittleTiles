@@ -171,7 +171,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     protected void renderBlockEntity(BlockEntity blockentity, PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
         var dispatcher = mc.getBlockEntityRenderDispatcher();
         BlockEntityRenderer renderer = dispatcher.getRenderer(blockentity);
-        if (renderer == null || !frustum.isVisible(entity.getOrigin().getAABB(renderer.getRenderBoundingBox(blockentity)).toVanilla()))
+        if (renderer == null || !frustum.isVisible(entity.getOrigin().pose(frameTime).transform(renderer.getRenderBoundingBox(blockentity)).toVanilla()))
             return;
         BlockPos blockpos4 = blockentity.getBlockPos();
         pose.pushPose();
@@ -182,7 +182,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
     
     public void renderBlockEntitiesAndDestruction(PoseStack pose, Frustum frustum, Vec3 cam, float frameTime, MultiBufferSource bufferSource) {
         pose.pushPose();
-        cam = entity.getOrigin().setupRendering(pose, cam, frameTime);
+        cam = entity.getOrigin().pose(frameTime).setup(pose, cam);
         
         renderAllBlockEntities(pose, frustum, cam, frameTime, bufferSource);
         
@@ -218,7 +218,7 @@ public abstract class LittleEntityRenderManager<T extends LittleEntity> {
                 return;
             
             pose.pushPose();
-            cam = entity.getOrigin().setupRendering(pose, cam, frameTime);
+            cam = entity.getOrigin().pose(frameTime).setup(pose, cam);
             
             for (BlockEntity blockEntity : globalBlockEntities)
                 renderBlockEntity(blockEntity, pose, frustum, cam, frameTime, bufferSource);

@@ -414,7 +414,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
             if (!animation.getRenderManager().shouldRender(false))
                 continue;
             pose.pushPose();
-            var entityCam = animation.getOrigin().setupRendering(pose, cam, partialTicks);
+            var entityCam = animation.getOrigin().pose(partialTicks).setup(pose, cam);
             if (shaderinstance.MODEL_VIEW_MATRIX != null)
                 shaderinstance.MODEL_VIEW_MATRIX.set(pose.last().pose());
             shaderinstance.apply();
@@ -496,7 +496,7 @@ public class LittleAnimationHandlerClient extends LittleAnimationHandler impleme
         BlockState state = result.level.getBlockState(pos);
         VertexConsumer vertexconsumer2 = mc.renderBuffers().bufferSource().getBuffer(RenderType.lines());
         LittleEntity entity = result.getHolder();
-        var cam = entity.getOrigin().setupRendering(pose, mc.gameRenderer.getMainCamera().getPosition(), event.getPartialTick().getGameTimeDeltaPartialTick(false));
+        var cam = entity.getOrigin().pose(event.getPartialTick().getGameTimeDeltaPartialTick(false)).setup(pose, mc.gameRenderer.getMainCamera().getPosition());
         RenderSystem.enableDepthTest();
         
         double x = pos.getX() - cam.x();

@@ -57,36 +57,46 @@ public interface LittleLevel extends IOrientatedLevel, ILittleLevelContext {
     
     @Override
     default Vec3 toFakeWorld(Vec3 vec) {
-        return getOrigin().transformPointToFakeWorld(vec);
+        return getOrigin().pose().transformInverse(vec);
+    }
+    
+    @Override
+    default Vec3 toFakeWorld(Vec3 vec, float partialTick) {
+        return getOrigin().pose(partialTick).transformInverse(vec);
     }
     
     @Override
     default Vec3 toRealWorld(Vec3 vec) {
-        return getOrigin().transformPointToWorld(vec);
+        return getOrigin().pose().transform(vec);
+    }
+    
+    @Override
+    default Vec3 toRealWorld(Vec3 vec, float partialTick) {
+        return getOrigin().pose(partialTick).transform(vec);
     }
     
     @Override
     default Matrix4f transform(double x, double y, double z, Vec3 camera, float partialTick) {
-        Matrix4f matrix = getOrigin().transform(x, y, z, partialTick);
+        Matrix4f matrix = getOrigin().pose(partialTick).transform(x, y, z);
         matrix.translate((float) (x - camera.x), (float) (y - camera.y), (float) (z - camera.z));
         return matrix;
     }
     
     @Override
     default void transformPose(PoseStack pose, double x, double y, double z, Vec3 camera, float partialTick) {
-        getOrigin().setupRendering(pose, camera, partialTick);
+        getOrigin().pose(partialTick).setup(pose, camera);
         pose.translate((float) (x - camera.x), (float) (y - camera.y), (float) (z - camera.z));
     }
     
     @Override
     default void transformMatrix(Matrix4fStack matrix, double x, double y, double z, Vec3 camera, float partialTick) {
-        getOrigin().setupRendering(matrix, camera, partialTick);
+        getOrigin().pose(partialTick).setup(matrix, camera);
         matrix.translate((float) (x - camera.x), (float) (y - camera.y), (float) (z - camera.z));
     }
     
     @Override
     default Matrix4f transformInverse(double x, double y, double z, Vec3 camera, float partialTick) {
-        Matrix4f matrix = getOrigin().transform(x, y, z, partialTick);
+        Matrix4f matrix = getOrigin().pose(partialTick).transformInverse(x, y, z);
         matrix.translate((float) -(x - camera.x), (float) -(y - camera.y), (float) -(z - camera.z));
         return matrix;
     }

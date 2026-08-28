@@ -64,7 +64,7 @@ public abstract class DefaultChunkRendererMixin extends ShaderChunkRenderer impl
                 r.prepare(bindings, vertexFormat);
                 
                 pose.pushPose();
-                var cam = animation.getOrigin().setupRendering(pose, defaultCamera, partialTicks);
+                var cam = animation.getOrigin().pose(partialTicks).setup(pose, defaultCamera);
                 shader.setModelViewMatrix(pose.last().pose());
                 r.renderChunkLayerSodium(((TerrainRenderPassAccessor) renderPass).getRenderType(), pose, cam.x, cam.y, cam.z, matrices.projection(), shader, camera);
                 pose.popPose();

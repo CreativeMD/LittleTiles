@@ -50,10 +50,10 @@ public class LittleTilesServer {
         BlockHitResult result = level.clip(new ClipContext(pos, look, ClipContext.Block.COLLIDER, ClipContext.Fluid.NONE, player));
         double distance = result != null ? pos.distanceTo(result.getLocation()) : 0;
         for (LittleEntity animation : handler.find(box)) {
-            LittleHitResult tempResult = handler.getHit(pos, look, pos.distanceTo(look));
+            LittleHitResult tempResult = handler.getHit(pos, look, pos.distanceTo(look), 1);
             if (!tempResult.isBlock())
                 continue;
-            double tempDistance = pos.distanceTo(animation.getOrigin().transformPointToWorld(tempResult.asBlockHit().getLocation()));
+            double tempDistance = pos.distanceTo(animation.getOrigin().pose().transform(tempResult.asBlockHit().getLocation()));
             if (result == null || tempDistance < distance) {
                 result = tempResult.asBlockHit();
                 distance = tempDistance;

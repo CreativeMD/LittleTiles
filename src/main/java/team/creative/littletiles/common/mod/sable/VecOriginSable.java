@@ -1,16 +1,10 @@
 package team.creative.littletiles.common.mod.sable;
 
-import org.joml.Matrix4f;
-import org.joml.Matrix4fStack;
-import org.joml.Quaternionf;
 import org.joml.Vector3d;
 
-import com.mojang.blaze3d.vertex.PoseStack;
-
-import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.common.util.math.base.Axis;
-import team.creative.creativecore.common.util.math.matrix.IVecOrigin;
-import team.creative.creativecore.common.util.math.matrix.Matrix3;
+import dev.ryanhcode.sable.companion.ClientSubLevelAccess;
+import team.creative.creativecore.common.util.math.origin.IOriginPose;
+import team.creative.creativecore.common.util.math.origin.IVecOrigin;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 
 public class VecOriginSable implements IVecOrigin {
@@ -18,65 +12,35 @@ public class VecOriginSable implements IVecOrigin {
     public final IVecOrigin child;
     public final SableContext context;
     
+    private IOriginPose pose;
+    private IOriginPose renderPose;
+    private float renderPoseTick = -1;
+    
     private Vector3d lastPos;
     private boolean hasChanged;
     
     public VecOriginSable(IVecOrigin child, SableContext context) {
         this.child = child;
         this.context = context;
+        updatePose();
     }
     
     @Override
-    public void onlyRotateWithoutCenter(Vec3d vec) {
-        child.onlyRotateWithoutCenter(vec);
-        Vector3d temp = new Vector3d(vec.x, vec.y, vec.z);
-        context.level.logicalPose().orientation().transform(temp);
-        vec.x = temp.x;
-        vec.y = temp.y;
-        vec.z = temp.z;
+    public IOriginPose pose() {
+        return pose;
     }
     
     @Override
-    public void transformPointToWorld(Vec3d vec) {
-        child.transformPointToWorld(vec);
-        Vector3d temp = new Vector3d(vec.x, vec.y, vec.z);
-        context.level.logicalPose().transformPosition(temp);
-        vec.x = temp.x;
-        vec.y = temp.y;
-        vec.z = temp.z;
-    }
-    
-    @Override
-    public void transformPointToFakeWorld(Vec3d vec) {
-        Vector3d temp = new Vector3d(vec.x, vec.y, vec.z);
-        context.level.logicalPose().transformPositionInverse(temp);
-        vec.x = temp.x;
-        vec.y = temp.y;
-        vec.z = temp.z;
-        child.transformPointToFakeWorld(vec);
-    }
-    
-    @Override
-    public Vec3 setupRenderingInternal(Matrix4fStack matrixStack, Vec3 cam, float partialTicks) {
-        var pose = context.level.logicalPose();
-        matrixStack.rotate(new Quaternionf(pose.orientation()));
-        var fakeCam = context.toFakeWorld(cam);
-        fakeCam = child.setupRenderingInternal(matrixStack, fakeCam, partialTicks);
-        return fakeCam;
-    }
-    
-    @Override
-    public Vec3 setupRenderingInternal(PoseStack matrixStack, Vec3 cam, float partialTicks) {
-        var pose = context.level.logicalPose();
-        matrixStack.mulPose(new Quaternionf(pose.orientation()));
-        var fakeCam = context.toFakeWorld(cam);
-        fakeCam = child.setupRenderingInternal(matrixStack, fakeCam, partialTicks);
-        return fakeCam;
-    }
-    
-    @Override
-    public double translationCombined(Axis axis) {
-        return child.translationCombined(axis) + context.level.logicalPose().position().get(axis.ordinal());
+    public IOriginPose pose(float partialTick) {
+        if (partialTick == renderPoseTick)
+            return renderPose;
+        if (partialTick == 1)
+            return pose;
+        
+        renderPose = new SableOriginPose(((ClientSubLevelAccess) context.level).renderPose(partialTick), child.pose(partialTick));
+        renderPoseTick = partialTick;
+        
+        return renderPose;
     }
     
     @Override
@@ -84,12 +48,19 @@ public class VecOriginSable implements IVecOrigin {
         return hasChanged || child.hasChanged();
     }
     
+    protected void updatePose() {
+        pose = new SableOriginPose(context.level.logicalPose(), child.pose());
+        renderPose = null;
+        renderPoseTick = -1;
+        hasChanged = true;
+    }
+    
     @Override
     public void tick() {
         child.tick();
         Vector3d pos = context.level.logicalPose().position();
-        if (lastPos == null || !lastPos.equals(pos)) {
-            hasChanged = true;
+        if (lastPos == null || !lastPos.equals(pos) || child.hasChanged()) {
+            updatePose();
             lastPos = new Vector3d(pos);
         } else
             hasChanged = false;
@@ -103,20 +74,6 @@ public class VecOriginSable implements IVecOrigin {
     @Override
     public IVecOrigin copy() {
         return new VecOriginSable(child.copy(), context);
-    }
-    
-    @Override
-    public Matrix4f transform(double camX, double camY, double camZ, float partialTicks) {
-        var result = context.transform(0, 0, 0, new Vec3(camX, camY, camZ), partialTicks);
-        result.mul(child.transform(camX, camY, camZ, partialTicks));
-        return result;
-    }
-    
-    @Override
-    public Matrix4f transformInverse(double camX, double camY, double camZ, float partialTicks) {
-        var result = context.transformInverse(0, 0, 0, new Vec3(camX, camY, camZ), partialTicks);
-        result.mul(child.transformInverse(camX, camY, camZ, partialTicks));
-        return result;
     }
     
     @Override
@@ -185,43 +142,16 @@ public class VecOriginSable implements IVecOrigin {
     }
     
     @Override
-    public void offX(double value) {
-        child.offX(value);
+    public void setLast(double offX, double offY, double offZ, double rotX, double rotY, double rotZ) {
+        child.setLast(offX, offY, offZ, rotX, rotY, rotZ);
+        renderPose = null;
+        renderPoseTick = -1;
     }
     
     @Override
-    public void offY(double value) {
-        child.offY(value);
-    }
-    
-    @Override
-    public void offZ(double value) {
-        child.offZ(value);
-    }
-    
-    @Override
-    public void off(double x, double y, double z) {
-        child.off(x, y, z);
-    }
-    
-    @Override
-    public void rotX(double value) {
-        child.rotX(value);
-    }
-    
-    @Override
-    public void rotY(double value) {
-        child.rotY(value);
-    }
-    
-    @Override
-    public void rotZ(double value) {
-        child.rotZ(value);
-    }
-    
-    @Override
-    public void rot(double x, double y, double z) {
-        child.rot(x, y, z);
+    public void set(double offX, double offY, double offZ, double rotX, double rotY, double rotZ) {
+        child.set(offX, offY, offZ, rotX, rotY, rotZ);
+        updatePose();
     }
     
     @Override
@@ -242,21 +172,6 @@ public class VecOriginSable implements IVecOrigin {
     @Override
     public void setCenter(Vec3d vec) {
         child.setCenter(vec);
-    }
-    
-    @Override
-    public Matrix3 rotation() {
-        return child.rotation();
-    }
-    
-    @Override
-    public Matrix3 rotationInv() {
-        return child.rotationInv();
-    }
-    
-    @Override
-    public Vec3d translation() {
-        return child.translation();
     }
     
 }

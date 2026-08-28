@@ -149,7 +149,7 @@ public class LittleLevelRenderManager extends LittleEntityRenderManager<LittleLe
         }
         
         Vec3d cam = new Vec3d(camera.getPosition());
-        entity.getOrigin().transformPointToFakeWorld(cam); // from here on the camera is transformed to the sub level
+        entity.getOrigin().pose(camera.getPartialTickTime()).transformInverse(cam); // from here on the camera is transformed to the sub level
         
         this.camera = cam;
         this.cameraPos.set(cam.x, cam.y, cam.z);

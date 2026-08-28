@@ -72,7 +72,7 @@ public abstract class PlayerBedMixin extends LivingEntity implements ILittleBedP
                 offset.set(bed.direction.axis, bed.direction.offset() * 0.5);
                 vec.add(offset);
                 if (bed.getStructureLevel() instanceof IOrientatedLevel l)
-                    l.getOrigin().transformPointToWorld(vec);
+                    l.getOrigin().pose().transform(vec);
                 this.setPos(vec.x, vec.y, vec.z);
                 return true;
             } catch (CorruptedConnectionException | NotYetConnectedException e) {
