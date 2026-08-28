@@ -109,7 +109,7 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         if (bb == null || parent.getSubLevel() == null)
             return;
         
-        boolean originChanged = parent.getOrigin().hasChanged() || parent.getOrigin().hasChanged();
+        boolean originChanged = parent.getOrigin().hasChanged();
         if (bbChanged || originChanged) {
             if (originChanged)
                 parent.markOriginChange();

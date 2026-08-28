@@ -18,6 +18,9 @@ public class VecOriginSable implements IVecOrigin {
     public final IVecOrigin child;
     public final SableContext context;
     
+    private Vector3d lastPos;
+    private boolean hasChanged;
+    
     public VecOriginSable(IVecOrigin child, SableContext context) {
         this.child = child;
         this.context = context;
@@ -78,7 +81,18 @@ public class VecOriginSable implements IVecOrigin {
     
     @Override
     public boolean hasChanged() {
-        return child.hasChanged();
+        return hasChanged || child.hasChanged();
+    }
+    
+    @Override
+    public void tick() {
+        child.tick();
+        Vector3d pos = context.level.logicalPose().position();
+        if (lastPos == null || !lastPos.equals(pos)) {
+            hasChanged = true;
+            lastPos = new Vector3d(pos);
+        } else
+            hasChanged = false;
     }
     
     @Override
@@ -245,8 +259,4 @@ public class VecOriginSable implements IVecOrigin {
         return child.translation();
     }
     
-    @Override
-    public void tick() {
-        child.tick();
-    }
 }
