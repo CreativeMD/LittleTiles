@@ -1,6 +1,9 @@
 package team.creative.littletiles.client.mod.iris;
 
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
+import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
+
+import net.caffeinemc.mods.sodium.client.render.chunk.compile.pipeline.BlockRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.fml.ModList;
@@ -25,14 +28,32 @@ public class IrisManager {
         return false;
     }
     
-    public static void beginBlock(ChunkBuildBuffers buffers, BlockState state, BlockPos pos) {
+    public static int vertexStride(VertexFormat format) {
         if (INSTALLED)
-            IrisInteractor.beginBlock(buffers, state, pos);
+            return IrisInteractor.vertexStride(format);
+        return format.getVertexSize();
+    }
+
+    public static boolean beginBlock(VertexConsumer consumer, BlockState state, BlockPos localPos) {
+        if (INSTALLED)
+            return IrisInteractor.beginBlock(consumer, state, localPos);
+        return false;
+    }
+
+    public static boolean beginBlock(VertexConsumer consumer, BlockState state, int localX, int localY, int localZ) {
+        if (INSTALLED)
+            return IrisInteractor.beginBlock(consumer, state, localX, localY, localZ);
+        return false;
+    }
+
+    public static void endBlock(VertexConsumer consumer) {
+        if (INSTALLED)
+            IrisInteractor.endBlock(consumer);
     }
     
-    public static void resetBlockContext(ChunkBuildBuffers buffers) {
+    public static void setBlockContext(BlockRenderer renderer, BlockState state, BlockPos pos) {
         if (INSTALLED)
-            IrisInteractor.resetBlockContext(buffers);
+            IrisInteractor.setBlockContext(renderer, state, pos);
     }
     
 }

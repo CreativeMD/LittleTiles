@@ -170,11 +170,9 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     
                     ColorProvider<BlockState> colorizer = null;
                     
-                    if (IrisManager.isShaders()) {
-                        if (state.getBlock() instanceof IFakeRenderingBlock fake)
-                            state = fake.getFakeState(state);
-                        IrisManager.beginBlock(buildBuffers, state, pos);
-                    }
+                    if (IrisManager.isShaders() && state.getBlock() instanceof IFakeRenderingBlock fake)
+                        state = fake.getFakeState(state);
+                    IrisManager.setBlockContext(renderer, state, pos);
                     
                     for (int h = 0; h < Facing.VALUES.length; h++) {
                         Facing facing = Facing.VALUES[h];
@@ -233,8 +231,6 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     }
                     
                     bakedQuadWrapper.setElement(null);
-                    
-                    IrisManager.resetBlockContext(buildBuffers);
                     
                     if (!LittleTiles.CONFIG.rendering.useQuadCache)
                         cube.deleteQuadCache();

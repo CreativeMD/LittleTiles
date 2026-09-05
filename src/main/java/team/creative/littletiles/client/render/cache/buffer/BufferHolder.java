@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.MeshData;
 
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -14,6 +15,8 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.client.render.VertexFormatUtils;
+import team.creative.littletiles.client.mod.iris.IrisManager;
+import team.creative.littletiles.client.mod.sable.render.SableTileMesh;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.mixin.client.render.ByteBufferBuilderResultAccessor;
 import team.creative.littletiles.mixin.client.render.MeshDataAccessor;
@@ -73,8 +76,13 @@ public class BufferHolder implements BufferCache {
         ByteBuffer buffer = byteBuffer();
         if (buffer == null)
             return false;
+        if (SableTileMesh.rejectsCachedVertices(uploader, length, vertexCount)) {
+            invalid = true;
+            return false;
+        }
         uploadIndex = uploader.uploadIndex();
-        uploader.upload(buffer);
+        if (!SableTileMesh.uploadCachedVertices(uploader, buffer, length, vertexCount))
+            uploader.upload(buffer);
         buffer.rewind();
         return true;
     }
@@ -420,7 +428,7 @@ public class BufferHolder implements BufferCache {
         if (buffer == null)
             return;
         int positionOffset = VertexFormatUtils.blockPositionOffset();
-        int formatSize = VertexFormatUtils.blockFormatSize();
+        int formatSize = IrisManager.vertexStride(DefaultVertexFormat.BLOCK);
         buffer = buffer.order(ByteOrder.LITTLE_ENDIAN);
         int i = 0;
         while (i < buffer.limit()) {
