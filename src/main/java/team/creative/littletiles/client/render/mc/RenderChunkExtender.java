@@ -82,7 +82,7 @@ public interface RenderChunkExtender {
         }
         
         var additional = getAdditional();
-        if (additional != null) // If the chunk initiates an update before all additional blocks have received their buffer this ensure they are added either way
+        if (additional != null) // Make sure everything is cleaned up when it is done
             additional.onSectionUploads();
     }
     

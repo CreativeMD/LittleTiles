@@ -115,8 +115,6 @@ public class RenderAdditional {
         public void onSectionUploads() {
             if (deleteAndRemoveIfEmpty())
                 sections.remove(pos.asLong());
-            else
-                appendRenderData(false);
         }
         
         public void markReadyForUpdate() {
