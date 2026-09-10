@@ -1,6 +1,5 @@
 package team.creative.littletiles.client.mod.iris;
 
-import net.caffeinemc.mods.sodium.client.render.chunk.compile.ChunkBuildBuffers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.fml.ModList;
@@ -25,12 +24,12 @@ public class IrisManager {
         return false;
     }
     
-    public static void beginBlock(ChunkBuildBuffers buffers, BlockState state, BlockPos pos) {
+    public static void beginBlock(Object buffers, BlockState state, BlockPos pos) {
         if (INSTALLED)
             IrisInteractor.beginBlock(buffers, state, pos);
     }
     
-    public static void resetBlockContext(ChunkBuildBuffers buffers) {
+    public static void resetBlockContext(Object buffers) {
         if (INSTALLED)
             IrisInteractor.resetBlockContext(buffers);
     }

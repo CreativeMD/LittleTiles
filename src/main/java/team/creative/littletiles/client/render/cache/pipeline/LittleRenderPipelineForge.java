@@ -29,6 +29,8 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.api.client.IFakeRenderingBlock;
+import team.creative.littletiles.client.mod.iris.IrisManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
@@ -96,6 +98,12 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                     ((CreativeQuadLighter) lighter).setState(state);
                     ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
                     
+                    if (IrisManager.isShaders()) {
+                        if (state.getBlock() instanceof IFakeRenderingBlock fake)
+                            state = fake.getFakeState(state);
+                        IrisManager.beginBlock(builder, state, pos);
+                    }
+                    
                     for (int h = 0; h < Facing.VALUES.length; h++) {
                         Facing facing = Facing.VALUES[h];
                         Object quadObject = cube.getQuad(facing);
@@ -113,6 +121,8 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                                 for (BakedQuad quad : quads)
                                     lighter.process(builder, pose.last(), quad, overlay);
                     }
+                    
+                    IrisManager.resetBlockContext(builder);
                     
                     bakedQuadWrapper.setElement(null);
                     

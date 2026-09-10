@@ -173,7 +173,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     if (IrisManager.isShaders()) {
                         if (state.getBlock() instanceof IFakeRenderingBlock fake)
                             state = fake.getFakeState(state);
-                        IrisManager.beginBlock(buildBuffers, state, pos);
+                        IrisManager.beginBlock(renderer, state, pos);
                     }
                     
                     for (int h = 0; h < Facing.VALUES.length; h++) {
@@ -234,7 +234,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     
                     bakedQuadWrapper.setElement(null);
                     
-                    IrisManager.resetBlockContext(buildBuffers);
+                    IrisManager.resetBlockContext(renderer);
                     
                     if (!LittleTiles.CONFIG.rendering.useQuadCache)
                         cube.deleteQuadCache();
