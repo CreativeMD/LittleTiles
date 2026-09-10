@@ -280,7 +280,7 @@ public class BERenderManager {
                     if (!recheck) // Prevent moving it twice, because face.calculateOutsideClient(tile, context) does move it already
                         face.move(facing);
                 }
-                if (toCheck.shouldFaceBeRendered(face, tile))
+                if (toCheck != null && toCheck.shouldFaceBeRendered(face, tile))
                     cube.setFace(facing, new RenderBoxFaceSpecial(face.generateFans(), (float) face.grid.pixelLength));
                 else
                     cube.setFace(facing, RenderBoxFace.NOT_RENDER);
