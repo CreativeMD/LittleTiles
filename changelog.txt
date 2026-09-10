@@ -1,3 +1,14 @@
+1.6.0-pre227
+Added building mode to tooltip
+Adapted to CreativeCore changes and made animations move smoothly when sable structure moves
+Fixed rendering pipeline causing block entities to load which can lead to crashes and other rendering issues
+Fixed shader block support not working (neither for vanilla nor for sodium renderer)
+Fixed several issues with sodium (appeared since the port to the newest version)
+Fixed some issues related to door transitions
+Fixed occasional error (might also cause rendering bugs) when opening door
+Fixed not updating bounding box when sable level moves
+Removed appending render data to section when it updates (this should be done by the buffers anyway)
+
 1.6.0-pre226
 Fixed crash when opening door if sodium is not installed
 
