@@ -222,7 +222,7 @@ public class LittleAnimationRenderManagerSodium extends LittleEntityRenderManage
         private void handleBlockEntity(BETiles entity) {
             long pos = SectionPos.asLong(entity.getBlockPos());
             var c = getCompiled(pos);
-            LittleRenderPipelineType.compileUploaded(pos, entity, x -> c.getOrCreateBuffers(x));
+            LittleRenderPipelineType.compile(pos, entity, null, c::getOrCreateBuffers);
             BlockEntityRenderer blockentityrenderer = Minecraft.getInstance().getBlockEntityRenderDispatcher().getRenderer(entity);
             if (blockentityrenderer != null)
                 if (blockentityrenderer.shouldRenderOffScreen(entity))

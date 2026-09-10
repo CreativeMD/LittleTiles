@@ -301,6 +301,8 @@ public class LittleAnimationRenderManager extends LittleEntityRenderManager<Litt
             for (BETiles block : getLevel())
                 handleBlockEntity(results, block);
             
+            LittleRenderPipelineType.beforeCompileEnds(LittleAnimationRenderManager.this, layer -> (ChunkBufferUploader) builder(layer), layer -> getOrCreateBuffers(layer));
+            
             for (Tuple<RenderType, BufferBuilder> entry : builders.tuples()) {
                 RenderType layer = entry.key;
                 MeshData data = entry.value.build();

@@ -2,7 +2,10 @@ package team.creative.littletiles.client.render.mc;
 
 import java.nio.ByteBuffer;
 import java.util.concurrent.CompletableFuture;
+import java.util.function.Function;
 import java.util.function.Supplier;
+
+import javax.annotation.Nullable;
 
 import org.lwjgl.opengl.GL15;
 import org.lwjgl.opengl.GL15C;
@@ -68,6 +71,12 @@ public interface RenderChunkExtender {
         setLastUploaded(null);
     }
     
+    public default void beforeCompileEnds(@Nullable Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
+        var additional = getAdditional();
+        if (additional != null) // Make sure all buffers that could not be added yet are added now. Also this ensure that everything is cleaned up
+            additional.onSectionUploads(builderSupplier, bufferSupplier);
+    }
+    
     public default void uploaded(RenderType layer, BufferCollection buffers) {
         if (buffers != null) {
             ChunkLayerMap<BufferCollection> uploaded = getLastUploaded();
@@ -80,10 +89,6 @@ public interface RenderChunkExtender {
                     buffers.eraseBuffers();
             }
         }
-        
-        var additional = getAdditional();
-        if (additional != null) // Make sure everything is cleaned up when it is done
-            additional.onSectionUploads();
     }
     
     public default void backToRAM() {

@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.client.event.AddSectionGeometryEvent.AdditionalSectionRenderer;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
+import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
 import team.creative.littletiles.client.render.mc.SectionCompilerResultsExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -45,6 +46,15 @@ public abstract class SectionCompilerMixin {
         if (blockentity instanceof BETiles tiles)
             LittleRenderPipelineType.compile(pos.asLong(), tiles, x -> (ChunkBufferUploader) getOrBeginLayer(map, pack, x), x -> ((SectionCompilerResultsExtender) (Object) results)
                     .getOrCreate(x));
+    }
+    
+    @Inject(method = COMPILE_CALL, at = @At(value = "INVOKE", target = "Ljava/util/Map;entrySet()Ljava/util/Set;"), require = 1, locals = LocalCapture.CAPTURE_FAILHARD)
+    public void compileEnd(SectionPos pos, RenderChunkRegion region, VertexSorting sorting, SectionBufferBuilderPack pack, List<AdditionalSectionRenderer> additionalRenderers,
+            CallbackInfoReturnable<SectionCompiler.Results> info, SectionCompiler.Results results, BlockPos blockpos, BlockPos blockpos1, VisGraph visgraph, PoseStack posestack,
+            Map<RenderType, BufferBuilder> map) {
+        var level = ((RenderChunkRegionAccessor) region).getLevel();
+        LittleRenderPipelineType.beforeCompileEnds(RenderingLevelHandler.of(level, blockpos1).getRenderChunk(level, pos.asLong()), x -> (ChunkBufferUploader) getOrBeginLayer(map,
+            pack, x), x -> ((SectionCompilerResultsExtender) (Object) results).getOrCreate(x));
     }
     
     @Shadow

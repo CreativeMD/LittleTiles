@@ -8,10 +8,6 @@ public interface AdditionalBufferReceiver {
     
     public void additional(UUID uuid, LayeredBufferCache cache);
     
-    public default void additional(AdditionalBuffers buffers) {
-        additional(buffers, null);
-    }
-    
-    public void additional(AdditionalBuffers buffers, Runnable hook);
+    public void additional(AdditionalBuffers buffers, Runnable removedHook, Runnable uploadedHook);
     
 }

@@ -28,12 +28,14 @@ import net.caffeinemc.mods.sodium.client.render.chunk.RenderSection;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionFlags;
 import net.caffeinemc.mods.sodium.client.render.chunk.RenderSectionManager;
 import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataStorage;
+import net.caffeinemc.mods.sodium.client.render.chunk.data.SectionRenderDataUnsafe;
 import net.caffeinemc.mods.sodium.client.render.chunk.region.RenderRegion;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.TerrainRenderPass;
 import net.caffeinemc.mods.sodium.client.render.chunk.terrain.material.DefaultMaterials;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.SortType;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.TranslucentGeometryCollector;
 import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.PresentTranslucentData;
+import net.caffeinemc.mods.sodium.client.render.chunk.translucent_sorting.data.SharedIndexSorter;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -215,6 +217,8 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             return;
         
         Runnable run = () -> {
+            new Exception().printStackTrace();
+            System.out.println("Downloading " + this.sectionIndex);
             SodiumChunkBufferDownloader downloader = new SodiumChunkBufferDownloader();
             GlVertexFormat format = SodiumInteractor.getVertexType().getVertexFormat();
             for (Tuple<RenderType, BufferCollection> tuple : caches.tuples()) {
@@ -232,7 +236,7 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                     continue;
                 }
                 
-                downloader.set(storage.getDataPointer(sectionIndex), format, segment.getOffset(), vertexData);
+                downloader.set(storage.getDataPointer(sectionIndex), format, vertexData);
                 tuple.value.download(downloader);
                 downloader.clear();
             }
@@ -257,6 +261,8 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
         GlVertexFormat format = SodiumInteractor.getVertexType().getVertexFormat();
         SodiumAppendChunkBufferUploader uploader = new SodiumAppendChunkBufferUploader();
         
+        int frame = ((RenderSection) (Object) this).getLastUploadFrame();
+        
         for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
             
             int size = 0;
@@ -269,22 +275,33 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             TerrainRenderPass pass = DefaultMaterials.forRenderLayer(layer).pass;
             SectionRenderDataStorage storage = region.createStorage(pass);
             
+            long dataPointer = storage.getDataPointer(sectionIndex);
             GlBufferSegment segment = getUploadedBuffer(storage);
             ByteBuffer vanillaBuffer = null;
-            if (segment != null)
+            long[] existingCount = new long[ModelQuadFacing.COUNT];
+            if (segment != null) {
+                long total = 0;
+                for (int i = 0; i < existingCount.length; i++) {
+                    existingCount[i] = SectionRenderDataUnsafe.getVertexCount(dataPointer, i);
+                    total += existingCount[i];
+                }
+                
                 vanillaBuffer = downloadSegment(segment, format);
-            
-            if (segment == null) {
-                LittleTiles.LOGGER.error("Failed to download chunk data. chunk: {}, layer: {}", this, layer);
-                continue;
+                if (total != segment.getLength()) {
+                    LittleTiles.LOGGER.error("INVALID CHUNK DATA excepted {} got {} layer {} ", segment.getLength(), total, layer.name);
+                    continue;
+                }
             }
+            
+            if (((RenderSection) (Object) this).getLastUploadFrame() != frame)
+                return false;
             
             int[] extraLengthFacing = new int[ModelQuadFacing.COUNT];
             for (LayeredBufferCache layeredCache : blocks)
                 for (int i = 0; i < extraLengthFacing.length; i++)
                     extraLengthFacing[i] += layeredCache.length(layer, i);
                 
-            uploader.set(storage.getDataPointer(sectionIndex), format, segment.getOffset(), vanillaBuffer, size, extraLengthFacing, null);
+            uploader.set(dataPointer, format, vanillaBuffer, existingCount, size, extraLengthFacing, null);
             if (layer == RenderType.translucent()) {
                 uploader.setTranslucentCollector(new TranslucentGeometryCollector(((RenderSection) (Object) this).getPosition(), ((RenderSectionManagerAccessor) manager)
                         .getSortBehavior()));
@@ -301,6 +318,9 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                     cache.upload(uploader);
             }
             
+            if (((RenderSection) (Object) this).getLastUploadFrame() != frame)
+                return false;
+            
             boolean active = ((GLRenderDeviceAccessor) RenderDevice.INSTANCE).getIsActive();
             if (!active)
                 RenderDevice.enterManagedCode();
@@ -309,10 +329,14 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             
             CommandList commandList = RenderDevice.INSTANCE.createCommandList();
             
+            region.clearCachedBatchFor(pass);
+            
             RenderRegion.DeviceResources resources = region.createResources(commandList);
             
-            if (resources.getGeometryArena().upload(commandList, Stream.of(upload), region.getFillFractionInv()))
+            if (resources.getGeometryArena().upload(commandList, Stream.of(upload), region.getFillFractionInv())) {
                 region.refreshTesselation(commandList);
+                region.clearAllCachedBatches();
+            }
             
             storage.setVertexData(sectionIndex, upload.getResult(), uploader.ranges());
             
@@ -334,17 +358,28 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
                     storage.removeIndexData(sectionIndex);
                 if (data instanceof PresentTranslucentData d) {
                     var sorter = d.getSorter();
-                    sorter.writeIndexBuffer(cam, true);
-                    PendingUpload indexUpload = new PendingUpload(sorter.getIndexBuffer());
-                    
-                    if (resources.getIndexArena().upload(commandList, Stream.of(indexUpload), region.getFillFractionInv()))
-                        region.refreshIndexedTesselation(commandList);
-                    
-                    storage.setIndexData(sectionIndex, indexUpload.getResult());
-                    
-                    ((RenderSectionManagerAccessor) manager).getSortTriggering().integrateTranslucentData(oldData, data, cam.getAbsoluteCameraPos(), manager::scheduleSort);
-                    ((RenderSection) (Object) this).setTranslucentData(data);
-                    sorter.getIndexBuffer().free();
+                    if (sorter instanceof SharedIndexSorter s) {
+                        if (storage.setSharedIndexUsage(sectionIndex, s.quadCount()))
+                            region.clearCachedBatchFor(pass);
+                        
+                        if (storage.updateSharedIndexData(commandList, resources.getIndexArena(), region.getFillFractionInv())) {
+                            region.refreshIndexedTesselation(commandList);
+                            region.clearCachedBatchFor(pass);
+                        }
+                    } else {
+                        sorter.writeIndexBuffer(cam, true);
+                        PendingUpload indexUpload = new PendingUpload(sorter.getIndexBuffer());
+                        
+                        if (resources.getIndexArena().upload(commandList, Stream.of(indexUpload), region.getFillFractionInv()))
+                            region.refreshIndexedTesselation(commandList);
+                        
+                        storage.setIndexData(sectionIndex, indexUpload.getResult());
+                        
+                        ((RenderSectionManagerAccessor) manager).getSortTriggering().integrateTranslucentData(oldData, data, cam.getAbsoluteCameraPos(), manager::scheduleSort);
+                        ((RenderSection) (Object) this).setTranslucentData(data);
+                        sorter.getIndexBuffer().free();
+                        region.clearCachedBatchFor(pass);
+                    }
                 }
             }
             

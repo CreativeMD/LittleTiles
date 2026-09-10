@@ -36,6 +36,8 @@ public class CompiledSodiumSection {
     }
     
     public boolean finish() {
+        LittleRenderPipelineType.beforeCompileEnds(section, null, this::getOrCreateBuffers);
+        
         for (Tuple<RenderType, BufferCollection> layer : caches.tuples())
             buffers.put(layer.key, new RenderedBufferSodium(layer.value));
         

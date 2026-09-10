@@ -247,12 +247,6 @@ public class SodiumBufferCache implements BufferCache {
         return true;
     }
     
-    public void moveInBuffer(int offset) {
-        for (int i = 0; i < buffers.length; i++)
-            if (buffers[i] != null)
-                buffers[i].moveUploadIndex(offset);
-    }
-    
     @Override
     public String toString() {
         return Arrays.toString(buffers);

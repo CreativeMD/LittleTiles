@@ -60,7 +60,7 @@ public class BlockBufferCache implements IBlockBufferCache {
             if (!has(layer))
                 continue;
             
-            var uploader = builderSupplier.apply(layer);
+            var uploader = builderSupplier != null ? builderSupplier.apply(layer) : null;
             var collection = bufferSupplier.apply(layer);
             
             var uploadable = getAndRemoveOriginal(layer);
@@ -71,25 +71,6 @@ public class BlockBufferCache implements IBlockBufferCache {
             
             if (additional != null && additional.has(layer))
                 additional.uploadAdditional(layer, uploader, collection);
-        }
-    }
-    
-    @Override
-    public void markUploaded(Function<RenderType, BufferCollection> bufferSupplier) {
-        for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
-            if (!has(layer))
-                continue;
-            
-            var collection = bufferSupplier.apply(layer);
-            
-            var uploadable = getAndRemoveOriginal(layer);
-            if (uploadable == null)
-                uploaded.remove(layer);
-            else
-                uploaded.put(layer, LittleRenderPipelineType.markUploaded(collection, uploadable));
-            
-            if (additional != null && additional.has(layer))
-                additional.markUploadedAdditional(layer, collection);
         }
     }
     

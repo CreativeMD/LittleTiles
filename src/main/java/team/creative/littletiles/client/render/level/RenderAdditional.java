@@ -6,6 +6,9 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map.Entry;
 import java.util.UUID;
+import java.util.function.Function;
+
+import javax.annotation.Nullable;
 
 import it.unimi.dsi.fastutil.longs.Long2ObjectMap;
 import it.unimi.dsi.fastutil.longs.Long2ObjectOpenHashMap;
@@ -21,6 +24,8 @@ import team.creative.littletiles.client.render.cache.IBlockBufferCache;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.AdditionalBuffers;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
+import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
+import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 import team.creative.littletiles.client.render.cache.build.RenderingLevelHandler;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
@@ -112,9 +117,14 @@ public class RenderAdditional {
                 markReadyForUpdate();
         }
         
-        public void onSectionUploads() {
+        public void onSectionUploads(@Nullable Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
             if (deleteAndRemoveIfEmpty())
                 sections.remove(pos.asLong());
+            else if (LittleTiles.CONFIG.rendering.uploadToVBODirectly) {
+                for (BlockAdditional additional : entries.values())
+                    if (additional.getAndClearUploaded()) // If a buffer has not been added to the section yet it is done afterwards to ensure smooth transition
+                        additional.uploadAdditionalExtra(builderSupplier, bufferSupplier);
+            }
         }
         
         public void markReadyForUpdate() {
@@ -123,7 +133,7 @@ public class RenderAdditional {
         
         private boolean deleteAndRemoveIfEmpty() {
             for (Iterator<Entry<BlockPos, BlockAdditional>> iterator = entries.entrySet().iterator(); iterator.hasNext();)
-                if (iterator.next().getValue().isDone())
+                if (iterator.next().getValue().isRemoved())
                     iterator.remove();
                 
             return removeIfEmpty();
@@ -158,7 +168,8 @@ public class RenderAdditional {
     
     private class BlockAdditional extends AdditionalBuffers {
         
-        private boolean done;
+        private volatile boolean removed;
+        private volatile boolean uploaded;
         
         public void queueNew(UUID uuid, RenderingLevelHandler origin, Level originLevel, BETiles be, SectionPos pos) {
             IBlockBufferCache cache = be.render.buffers();
@@ -177,15 +188,23 @@ public class RenderAdditional {
             
             var target = BlockTile.loadBE(targetLevel, be.getBlockPos());
             if (target != null)
-                target.render.additionalBuffers(x -> x.additional(this, () -> done = true));
+                target.render.additionalBuffers(x -> x.additional(this, () -> removed = true, () -> uploaded = true));
         }
         
-        public boolean isDone() {
-            return done;
+        public boolean isRemoved() {
+            return removed;
+        }
+        
+        public boolean getAndClearUploaded() {
+            if (uploaded) {
+                uploaded = false;
+                return true;
+            }
+            return false;
         }
         
         public void receiveUpdate(BETiles be) {
-            be.render.additionalBuffers(x -> x.additional(this, () -> done = true));
+            be.render.additionalBuffers(x -> x.additional(this, () -> removed = true, () -> uploaded = true));
         }
         
     }

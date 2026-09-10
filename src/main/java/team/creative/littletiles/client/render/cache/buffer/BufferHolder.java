@@ -434,10 +434,6 @@ public class BufferHolder implements BufferCache {
         }
     }
     
-    public void moveUploadIndex(int offset) {
-        uploadIndex += offset;
-    }
-    
     @Override
     public String toString() {
         return "length: " + length + ", indexes: " + Arrays.toString(indexes) + ", uploadIndex: " + uploadIndex;

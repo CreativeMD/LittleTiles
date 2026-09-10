@@ -14,15 +14,21 @@ public class SodiumChunkBufferDownloader implements ChunkBufferDownloader {
     
     public SodiumChunkBufferDownloader() {}
     
-    public void set(long data, GlVertexFormat format, long offset, ByteBuffer buffer) {
-        long currentOffset = SectionRenderDataUnsafe.getBaseVertex(data);
+    public void set(long data, GlVertexFormat format, ByteBuffer buffer) {
+        
+        long facingList = SectionRenderDataUnsafe.getFacingList(data);
+        long currentOffset = 0;
         for (int i = 0; i < buffers.length; i++) {
             long count = SectionRenderDataUnsafe.getVertexCount(data, i);
+            
+            int facing = (int) ((facingList >>> (i * 8)) & 0xFF);
+            int length = (int) (count * format.getStride());
+            
             if (count > 0)
-                buffers[i] = buffer.slice((int) ((currentOffset - offset) * format.getStride()), (int) (count / 6 * 4 * format.getStride()));
+                buffers[facing] = buffer.slice((int) currentOffset, length);
             else
-                buffers[i] = null;
-            currentOffset += count;
+                buffers[facing] = null;
+            currentOffset += length;
         }
     }
     

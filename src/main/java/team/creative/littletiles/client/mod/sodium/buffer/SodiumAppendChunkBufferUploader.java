@@ -19,6 +19,7 @@ import team.creative.littletiles.client.mod.sodium.data.LittleQuadView;
 
 public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
     
+    public static final long ALL_FACINGS = 1694364648734976L;
     private ByteBuffer[] buffers = new ByteBuffer[ModelQuadFacing.COUNT];
     private NativeBuffer buffer;
     private int[] ranges = new int[ModelQuadFacing.COUNT << 1];
@@ -27,30 +28,37 @@ public class SodiumAppendChunkBufferUploader implements SodiumBufferUploader {
     
     public SodiumAppendChunkBufferUploader() {}
     
-    public void set(long data, GlVertexFormat format, long offset, ByteBuffer exisitingData, int extraLength, int[] extraLengthFacing, TextureAtlasSprite[] existing) {
+    public void set(long data, GlVertexFormat format, ByteBuffer exisitingData, long[] existingCount, int extraLength, int[] extraLengthFacing, TextureAtlasSprite[] existing) {
+        
         buffer = new NativeBuffer((exisitingData != null ? exisitingData.limit() : 0) + extraLength);
         ByteBuffer buffer = this.buffer.getDirectBuffer();
         
+        long facingList = exisitingData == null ? ALL_FACINGS : SectionRenderDataUnsafe.getFacingList(data);
+        
+        int stride = format.getStride();
         int currentOffset = 0;
-        long pointerOffset = SectionRenderDataUnsafe.getBaseVertex(data);
+        long pointerOffset = 0;
         for (int i = 0; i < buffers.length; i++) {
-            long dataCount = SectionRenderDataUnsafe.getVertexCount(data, i);
-            int originalStart = (int) ((pointerOffset - offset) * format.getStride());
-            int originalLength = (int) (dataCount / 6 * 4 * format.getStride());
+            long dataCount = existingCount[i];
+            int facing = exisitingData == null ? i : (int) ((facingList >>> (i * 8)) & 0xFF);
+            
+            int originalStart = (int) pointerOffset;
+            int originalLength = (int) (dataCount * stride);
             
             int newStart = originalStart + currentOffset;
-            int newLength = originalLength + extraLengthFacing[i];
+            int newLength = originalLength + extraLengthFacing[facing];
             
-            buffers[i] = buffer.slice(newStart, newLength);
+            buffers[facing] = buffer.slice(newStart, newLength);
             
-            buffers[i].put(0, exisitingData, originalStart, originalLength);
-            buffers[i].position(originalLength);
+            if (exisitingData != null)
+                buffers[facing].put(0, exisitingData, originalStart, originalLength);
+            buffers[facing].position(originalLength);
             
-            currentOffset += extraLengthFacing[i];
-            ranges[i << 1] = newLength / format.getStride();
-            ranges[(i << 1) + 1] = i;
+            currentOffset += extraLengthFacing[facing];
+            ranges[facing << 1] = newLength / stride;
+            ranges[(facing << 1) + 1] = facing;
             
-            pointerOffset += dataCount;
+            pointerOffset += originalLength;
         }
         
         if (existing != null) {
