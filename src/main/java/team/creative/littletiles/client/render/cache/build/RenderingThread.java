@@ -229,7 +229,7 @@ public class RenderingThread extends Thread {
                             LittleTilesProfilerOverlay.finishBuildingCache(System.nanoTime() - duration);
                     } catch (RemovedBlockEntityException e) {
                         finishWithError(data);
-                    } catch (RenderingBlockedException e) {
+                    } catch (RenderingBlockedException | BlockNotYetLoadedException e) {
                         QUEUE.requeue(data);
                         data.proccessed = true;
                     } catch (OutOfMemoryError error) {
@@ -295,6 +295,8 @@ public class RenderingThread extends Thread {
         unqueue(data);
         return true;
     }
+    
+    public static class BlockNotYetLoadedException extends RuntimeException {}
     
     public static class RemovedBlockEntityException extends Exception {
         

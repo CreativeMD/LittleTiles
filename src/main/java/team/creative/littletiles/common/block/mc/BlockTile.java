@@ -50,6 +50,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.BooleanProperty;
+import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.FluidState;
@@ -81,6 +82,8 @@ import team.creative.littletiles.api.common.block.LittlePhysicBlock;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
+import team.creative.littletiles.client.render.cache.build.RenderingThread;
+import team.creative.littletiles.client.render.cache.build.RenderingThread.BlockNotYetLoadedException;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionDestroy;
 import team.creative.littletiles.common.action.source.LittleActionSource;
@@ -110,13 +113,27 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     public static final SoundType SILENT = new DeferredSoundType(-1.0F, 1.0F, () -> SoundEvents.STONE_BREAK, () -> SoundEvents.STONE_STEP, () -> SoundEvents.STONE_PLACE, () -> SoundEvents.STONE_HIT, () -> SoundEvents.STONE_FALL);
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     
+    @OnlyIn(Dist.CLIENT)
+    public static BlockEntity tryGetClient(BlockGetter level, BlockPos pos) {
+        if (Thread.currentThread() instanceof RenderingThread) {
+            var chunk = ((Level) level).getChunkAt(pos);
+            var be = chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
+            if (be == null)
+                throw new BlockNotYetLoadedException();
+            return be;
+        }
+        return level.getBlockEntity(pos);
+    }
+    
     public static BETiles loadBE(BlockGetter level, BlockPos pos) {
         if (level == null)
             return null;
         BlockEntity be = null;
         try {
-            
-            be = level.getBlockEntity(pos);
+            if (level instanceof LevelAccessor l && l.isClientSide())
+                be = tryGetClient(level, pos);
+            else
+                be = level.getBlockEntity(pos);
         } catch (Exception e) {
             return null;
         }
