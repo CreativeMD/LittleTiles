@@ -6,6 +6,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.spongepowered.include.com.google.common.base.Objects;
+
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.Sheets;
@@ -112,19 +114,20 @@ public class ItemRenderCache implements LevelAwareHandler {
         
         public RenderedStack set(ItemStack stack) {
             item = stack.getItem();
+            nbt = null;
             ILittleTool.consumeUnsafeData(stack, x -> nbt = x);
             return this;
         }
         
         @Override
         public int hashCode() {
-            return nbt.hashCode();
+            return nbt == null ? 0 : nbt.hashCode();
         }
         
         @Override
         public boolean equals(Object obj) {
             if (obj instanceof RenderedStack stack)
-                return stack.item == item && stack.nbt.equals(nbt);
+                return stack.item == item && Objects.equal(stack.nbt, nbt);
             return false;
         }
     }
