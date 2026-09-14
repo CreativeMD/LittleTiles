@@ -17,8 +17,8 @@ import team.creative.littletiles.common.placement.shape.config.HollowThicknessCo
 public class CatenaryConfig extends LittleShapeConfig {
 
     public enum Mode {
-        BETWEEN, // minimum between endpoints (U shape)
-        BEYOND   // minimum outside endpoints (J shape, monotonic segment)
+        BETWEEN,
+        BEYOND
     }
 
     @CreativeConfig
