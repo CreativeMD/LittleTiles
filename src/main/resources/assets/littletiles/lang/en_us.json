@@ -442,6 +442,7 @@
     "shape.drag.pillar": "Pillar",
     "shape.drag.wall": "Wall",
     "shape.drag.curve": "Curve",
+    "shape.drag.catenary": "Catenary",
     "shape.drag.curvewall": "Curved Wall",
     "shape.drag.cylinder": "Cylinder",
     "shape.drag.sphere": "Sphere",
@@ -458,6 +459,10 @@
     "shape.config.second_type": "second-type",
     "shape.config.simple": "simple",
     "shape.config.hollow": "hollow",
+    "shape.config.drop": "drop",
+    "shape.config.catenary_mode": "mode",
+    "shape.config.catenary_mode.between": "U-shape (between)",
+    "shape.config.catenary_mode.beyond": "J-shape (monotonic)",
     
     "building.toggle.proportional": "Proportional",
     "building.toggle.measurements": "Measurements",
