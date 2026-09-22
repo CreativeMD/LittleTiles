@@ -8,36 +8,8 @@ import javax.annotation.Nullable;
 import team.creative.creativecore.common.util.registry.ConfigTypeRegistry;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
 import team.creative.creativecore.common.util.type.tree.NamedTree;
-import team.creative.littletiles.common.placement.shape.config.AxisHollowThicknessShapeConfig;
-import team.creative.littletiles.common.placement.shape.config.AxisShapeConfig;
-import team.creative.littletiles.common.placement.shape.config.AxisThicknessShapeConfig;
-import team.creative.littletiles.common.placement.shape.config.BrushSizeShapeConfig;
-import team.creative.littletiles.common.placement.shape.config.CornerShapeConfig;
-import team.creative.littletiles.common.placement.shape.config.FacingShapeConfig;
-import team.creative.littletiles.common.placement.shape.config.HollowThicknessConfig;
-import team.creative.littletiles.common.placement.shape.config.InterpolationAxisThicknessConfig;
-import team.creative.littletiles.common.placement.shape.config.InterpolationThicknessConfig;
-import team.creative.littletiles.common.placement.shape.config.LittleShapeConfig;
-import team.creative.littletiles.common.placement.shape.config.MatrixShapeConfig;
-import team.creative.littletiles.common.placement.shape.config.PillarShapeConfig;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeBlob;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeConnected;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeCube;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeCurve;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeCurveWall;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeCylinder;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeDragBox;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeInnerCorner;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeOuterCorner;
-import team.creative.littletiles.common.placement.shape.type.LittleShapePillar;
-import team.creative.littletiles.common.placement.shape.type.LittleShapePixel;
-import team.creative.littletiles.common.placement.shape.type.LittleShapePolygon;
-import team.creative.littletiles.common.placement.shape.type.LittleShapePyramid;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeSlope;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeSphere;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeTile;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeType;
-import team.creative.littletiles.common.placement.shape.type.LittleShapeWall;
+import team.creative.littletiles.common.placement.shape.config.*;
+import team.creative.littletiles.common.placement.shape.type.*;
 
 public class ShapeRegistry {
     
@@ -100,6 +72,7 @@ public class ShapeRegistry {
         registerConfig("matrix", MatrixShapeConfig.class, MatrixShapeConfig::new);
         registerConfig("pillar", PillarShapeConfig.class, PillarShapeConfig::new);
         registerConfig("size", BrushSizeShapeConfig.class, BrushSizeShapeConfig::new);
+        registerConfig("catenary", CatenaryConfig.class, CatenaryConfig::new);
         
         registerShape("pixel", new LittleShapePixel(), "brush");
         registerShape("blob", new LittleShapeBlob(), BrushSizeShapeConfig.class, "brush");
@@ -110,6 +83,7 @@ public class ShapeRegistry {
         registerShape("wall", new LittleShapeWall(), AxisThicknessShapeConfig.class, "drag");
         registerShape("curve", new LittleShapeCurve(), InterpolationThicknessConfig.class, "drag");
         registerShape("curvewall", new LittleShapeCurveWall(), InterpolationAxisThicknessConfig.class, "drag");
+        registerShape("catenary", new LittleShapeCatenary(), CatenaryConfig.class, "drag");
         
         registerShape("polygon", new LittleShapePolygon(), "drag");
         

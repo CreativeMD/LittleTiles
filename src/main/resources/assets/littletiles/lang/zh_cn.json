@@ -439,6 +439,7 @@
     "shape.drag.pillar": "平滑四棱柱",
     "shape.drag.wall": "平滑墙面",
     "shape.drag.curve": "体素曲线",
+    "shape.drag.catenary": "体素悬链线",
     "shape.drag.curvewall": "体素曲线墙面",
     "shape.drag.cylinder": "体素(椭)圆柱体",
     "shape.drag.sphere": "体素(椭)球体",
@@ -455,6 +456,10 @@
     "shape.config.height": "高度",
     "shape.config.simple": "简易",
     "shape.config.hollow": "空心",
+    "shape.config.drop": "底部高差",
+    "shape.config.catenary_mode": "模式",
+    "shape.config.catenary_mode.between": "U形（最低点在中间）",
+    "shape.config.catenary_mode.beyond": "J形（最低点在端点外）",
 
     "building.toggle.proportional": "保持比例",
     "building.zoom.message": "%sx",
