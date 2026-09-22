@@ -166,7 +166,7 @@ public class VecOriginSable implements IVecOrigin {
     
     @Override
     public Vec3d center() {
-        return child.center();
+        return new Vec3d(context.toRealWorld(child.center().toVanilla()));
     }
     
     @Override
@@ -174,4 +174,13 @@ public class VecOriginSable implements IVecOrigin {
         child.setCenter(vec);
     }
     
+    @Override
+    public int idPose() {
+        return child.idPose();
+    }
+    
+    @Override
+    public IVecOrigin unwrap() {
+        return child;
+    }
 }
