@@ -1,3 +1,8 @@
+1.6.0-pre229
+Fixed child doors on sable ships not working
+Added catenary shape (by Deepseasaltyfish)
+Removed config option useQuadCache as it does no longer work
+
 1.6.0-pre228
 Fixed rendering blueprint content of other blueprints on empty ones
 
