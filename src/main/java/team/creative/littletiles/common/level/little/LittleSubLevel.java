@@ -18,7 +18,7 @@ public interface LittleSubLevel extends ISubLevel, LittleLevel {
         var parent = getParent();
         IVecOrigin origin;
         if (parent instanceof IOrientatedLevel o)
-            origin = new ChildVecOrigin(o.getOrigin(), center);
+            origin = new ChildVecOrigin(o.getUnwrappedOrigin(), center);
         else
             origin = new VecOrigin(center);
         return SableManager.originWrapper(parent, center.toVanilla(), origin);
