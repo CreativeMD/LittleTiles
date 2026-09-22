@@ -28,7 +28,6 @@ import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.mod.iris.IrisManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
@@ -126,8 +125,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                     
                     bakedQuadWrapper.setElement(null);
                     
-                    if (!LittleTiles.CONFIG.rendering.useQuadCache)
-                        cube.deleteQuadCache();
+                    cube.deleteQuadCache();
                 }
                 
                 var indexList = indexes.get(tuple.key);

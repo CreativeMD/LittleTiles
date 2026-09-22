@@ -8,9 +8,6 @@ import team.creative.littletiles.client.render.cache.build.RenderingThread;
 public class LittleConfigRendering implements ICreativeConfig {
     
     @CreativeConfig
-    public boolean useQuadCache = false;
-    
-    @CreativeConfig
     public boolean useCubeCache = true;
     
     @CreativeConfig

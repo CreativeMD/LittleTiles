@@ -62,7 +62,6 @@ import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
-import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.mod.iris.IrisManager;
 import team.creative.littletiles.client.mod.sodium.SodiumInteractor;
@@ -236,8 +235,7 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                     
                     IrisManager.resetBlockContext(renderer);
                     
-                    if (!LittleTiles.CONFIG.rendering.useQuadCache)
-                        cube.deleteQuadCache();
+                    cube.deleteQuadCache();
                 }
             }
             
