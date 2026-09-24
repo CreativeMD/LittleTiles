@@ -132,11 +132,13 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
         BlockPos pos = data.be.getBlockPos();
         
         lightAccess.prepare(renderLevel);
+        // Smooth face data is cached by position, so consecutive rebuilds of the same
+        // block must not share a pipeline after its lighting (or level) has changed.
+        LightPipelineProvider buildLighters = new LightPipelineProvider(lightAccess);
         
         renderer.prepare(buildBuffers, slice, null);
         
-        LightPipeline lighter = lighters.getLighter(Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(),
-            pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT);
+        boolean smooth = Minecraft.useAmbientOcclusion();
         
         ColorProviderRegistry colorProvider = ((BlockRendererExtender) renderer).colorRegistry();
         data.prepareModelOffset(modelOffset, pos);
@@ -164,6 +166,8 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                 
                 for (LittleRenderBox cube : cubes) {
                     BlockState state = cube.state;
+                    // An emitting tile must not disable smooth lighting for the other tiles in this block.
+                    LightPipeline lighter = buildLighters.getLighter(smooth && state.getLightEmission(data.be.getLevel(), pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT);
                     context.update(pos, modelOffset, state, null, 0);
                     cubeCenter.set((cube.maxX + cube.minX) * 0.5, (cube.maxY + cube.minY) * 0.5, (cube.maxZ + cube.minZ) * 0.5);
                     

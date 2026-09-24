@@ -65,10 +65,13 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
         BlockPos pos = data.be.getBlockPos();
         
         ForgeModelBlockRendererAccessor renderer = (ForgeModelBlockRendererAccessor) MC.getBlockRenderer().getModelRenderer();
-        boolean smooth = Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(), pos) == 0;
-        QuadLighter lighter = smooth ? renderer.getSmoothLighter().get() : renderer.getFlatLighter().get();
+        boolean smooth = Minecraft.useAmbientOcclusion();
+        QuadLighter flatLighter = renderer.getFlatLighter().get();
+        QuadLighter smoothLighter = smooth ? renderer.getSmoothLighter().get() : flatLighter;
         
-        lighter.setup(renderLevel, pos, data.state);
+        flatLighter.setup(renderLevel, pos, data.state);
+        if (smooth)
+            smoothLighter.setup(renderLevel, pos, data.state);
         
         int overlay = OverlayTexture.NO_OVERLAY;
         
@@ -93,6 +96,8 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 
                 for (LittleRenderBox cube : cubes) {
                     BlockState state = cube.state;
+                    // An emitting tile must not disable smooth lighting for the other tiles in this block.
+                    QuadLighter lighter = smooth && state.getLightEmission(data.be.getLevel(), pos) == 0 ? smoothLighter : flatLighter;
                     
                     ((CreativeQuadLighter) lighter).setState(state);
                     ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
@@ -144,8 +149,12 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
         }
         
         clearIndexes();
-        ((CreativeQuadLighter) lighter).setCustomTint(-1);
-        lighter.reset();
+        ((CreativeQuadLighter) flatLighter).setCustomTint(-1);
+        flatLighter.reset();
+        if (smooth) {
+            ((CreativeQuadLighter) smoothLighter).setCustomTint(-1);
+            smoothLighter.reset();
+        }
     }
     
     @Override
