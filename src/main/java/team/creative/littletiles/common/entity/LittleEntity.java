@@ -255,6 +255,8 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     @Override
     public void onAddedToLevel() {
         super.onAddedToLevel();
+        if (subLevel != null)
+            entities().forEach(x -> x.onAddedToLevel());
         LittleTiles.ANIMATION_HANDLERS.get(level()).add(this);
     }
     

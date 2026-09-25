@@ -177,6 +177,13 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         return children.getParent();
     }
     
+    public void checkInternalConnections() throws CorruptedConnectionException, NotYetConnectedException {
+        if (mainBlock.isRemoved())
+            throw new RemovedStructureException();
+        for (StructureBlockConnector block : blocks)
+            block.checkConnection();
+    }
+    
     public void checkConnections() throws CorruptedConnectionException, NotYetConnectedException {
         if (mainBlock.isRemoved())
             throw new RemovedStructureException();
@@ -285,7 +292,7 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public Iterable<BETiles> blocks() throws CorruptedConnectionException, NotYetConnectedException {
-        checkConnections();
+        checkInternalConnections();
         return new IterableIterator<BETiles>() {
             
             boolean first = true;
