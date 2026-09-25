@@ -523,7 +523,7 @@ public class Little3dPrinter extends LittleStructurePremade {
                     var previous = parent.getStructure();
                     cached = parent.setStructureNBT(structureNBT, be.getLevel().registryAccess(), true);
                     cached.takeOverBlocks(previous);
-                    cached.children.initAfterPlacing(children.size());
+                    cached.children.initAfterPlacing(countStructureChildren());
                 } catch (CorruptedConnectionException | NotYetConnectedException e) {}
             });
             
@@ -538,12 +538,22 @@ public class Little3dPrinter extends LittleStructurePremade {
             return structureNBT != null;
         }
         
+        public int countStructureChildren() {
+            int count = 0;
+            for (PlacementTracker c : children)
+                if (c.isStructure())
+                    count++;
+            return count;
+        }
+        
         protected void updateRelations() {
+            int index = 0;
             for (int i = 0; i < children.size(); i++) {
                 PlacementTracker child = children.get(i);
                 if (child.isStructure()) {
-                    cached.children.connectToChild(i, child.cached);
-                    child.cached.children.connectToParentAsChild(i, cached);
+                    cached.children.connectToChild(index, child.cached);
+                    child.cached.children.connectToParentAsChild(index, cached);
+                    index++;
                 }
                 
                 child.updateRelations();
