@@ -23,6 +23,8 @@
         "common.item.BlockPlaceContextMixin",
         "common.menu.AbstractContainerMenuMixin",
         "common.network.FriendlyByteBufMixin",
+        "sable.PhysicsBlockPropertyHelperMixin",
+        "sable.SubLevelAssemblyHelperMixin",
         "server.level.ChunkSerializerAccessor",
         "server.level.MinecraftServerAccessor",
         "server.level.ServerChunkCacheMixin",
