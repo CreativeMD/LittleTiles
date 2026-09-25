@@ -1,3 +1,10 @@
+1.6.0-pre230
+Added support for sable mass calculations
+Fixed not rotating blocks properly during disassembly
+Fixed double nested doors not getting readded to animation list when grand parent door changes form
+Fixed placement of structures not working correctly with child relation when child is no structure
+Fixed smooth lighting issue (Thanks to @DraGonFiirE)
+
 1.6.0-pre229
 Fixed child doors on sable ships not working
 Added catenary shape (by Deepseasaltyfish)
