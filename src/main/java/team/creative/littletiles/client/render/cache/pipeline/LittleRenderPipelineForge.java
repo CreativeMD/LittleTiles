@@ -65,10 +65,9 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
         BlockPos pos = data.be.getBlockPos();
         
         ForgeModelBlockRendererAccessor renderer = (ForgeModelBlockRendererAccessor) MC.getBlockRenderer().getModelRenderer();
-        boolean smooth = Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(), pos) == 0;
-        QuadLighter lighter = smooth ? renderer.getSmoothLighter().get() : renderer.getFlatLighter().get();
         
-        lighter.setup(renderLevel, pos, data.state);
+        QuadLighter smoothLighter = null;
+        QuadLighter flatLighter = null;
         
         int overlay = OverlayTexture.NO_OVERLAY;
         
@@ -93,6 +92,21 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 
                 for (LittleRenderBox cube : cubes) {
                     BlockState state = cube.state;
+                    
+                    QuadLighter lighter;
+                    if (Minecraft.useAmbientOcclusion() && state.getLightEmission(data.be.getLevel(), pos) == 0) {
+                        if (smoothLighter == null) {
+                            smoothLighter = renderer.getSmoothLighter().get();
+                            smoothLighter.setup(renderLevel, pos, data.state);
+                        }
+                        lighter = smoothLighter;
+                    } else {
+                        if (flatLighter == null) {
+                            flatLighter = renderer.getFlatLighter().get();
+                            flatLighter.setup(renderLevel, pos, data.state);
+                        }
+                        lighter = flatLighter;
+                    }
                     
                     ((CreativeQuadLighter) lighter).setState(state);
                     ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
@@ -144,8 +158,15 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
         }
         
         clearIndexes();
-        ((CreativeQuadLighter) lighter).setCustomTint(-1);
-        lighter.reset();
+        
+        if (smoothLighter != null) {
+            ((CreativeQuadLighter) smoothLighter).setCustomTint(-1);
+            smoothLighter.reset();
+        }
+        if (flatLighter != null) {
+            ((CreativeQuadLighter) flatLighter).setCustomTint(-1);
+            flatLighter.reset();
+        }
     }
     
     @Override

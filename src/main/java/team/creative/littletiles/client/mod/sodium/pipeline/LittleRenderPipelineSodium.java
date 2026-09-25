@@ -135,9 +135,6 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
         
         renderer.prepare(buildBuffers, slice, null);
         
-        LightPipeline lighter = lighters.getLighter(Minecraft.useAmbientOcclusion() && data.state.getLightEmission(data.be.getLevel(),
-            pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT);
-        
         ColorProviderRegistry colorProvider = ((BlockRendererExtender) renderer).colorRegistry();
         data.prepareModelOffset(modelOffset, pos);
         
@@ -164,6 +161,10 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
                 
                 for (LittleRenderBox cube : cubes) {
                     BlockState state = cube.state;
+                    
+                    LightPipeline lighter = lighters.getLighter(Minecraft.useAmbientOcclusion() && state.getLightEmission(data.be.getLevel(),
+                        pos) == 0 ? LightMode.SMOOTH : LightMode.FLAT);
+                    
                     context.update(pos, modelOffset, state, null, 0);
                     cubeCenter.set((cube.maxX + cube.minX) * 0.5, (cube.maxY + cube.minY) * 0.5, (cube.maxZ + cube.minZ) * 0.5);
                     
