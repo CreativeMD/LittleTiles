@@ -83,6 +83,7 @@ import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.cache.build.RenderingThread;
+import team.creative.littletiles.client.render.block.ImmediateNeighbourFaces;
 import team.creative.littletiles.client.render.cache.build.RenderingThread.BlockNotYetLoadedException;
 import team.creative.littletiles.common.action.LittleActionActivated;
 import team.creative.littletiles.common.action.LittleActionDestroy;
@@ -212,6 +213,8 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     
     @Override
     public BlockState updateShape(BlockState state, Direction direction, BlockState oldState, LevelAccessor level, BlockPos pos, BlockPos neighbor) {
+        if (level.isClientSide())
+            ImmediateNeighbourFaces.shapeChanged(level, pos);
         if (state.getValue(WATERLOGGED))
             level.scheduleTick(pos, Fluids.WATER, Fluids.WATER.getTickDelay(level));
         return state;

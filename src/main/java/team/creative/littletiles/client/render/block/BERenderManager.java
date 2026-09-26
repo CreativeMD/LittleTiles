@@ -102,6 +102,7 @@ public class BERenderManager {
     }
     
     public void tilesChanged() {
+        ImmediateNeighbourFaces.tilesChanged(be);
         requireRenderingBoundingBoxUpdate = true;
         cachedRenderDistance = 0;
         queue(true, false, 0);
