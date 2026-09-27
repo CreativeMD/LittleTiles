@@ -24,7 +24,11 @@ import team.creative.littletiles.common.structure.attribute.LittleStructureAttri
 public non-sealed class LittleServerFace implements ILittleFace {
     
     public static LittleFaceState calculate(BETiles be, Facing facing, ILittleFace face, LittleTile rendered, boolean outside) {
-        return face.unsafeSameGridRestore(be, () -> {
+        LittleGrid originalGrid = face.getGrid();
+        // Face queries must not rescale a shared neighbouring block entity.
+        if (face.getGrid().count < be.getGrid().count)
+            face.convertTo(be.getGrid());
+        try {
             for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
                 if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
                     continue;
@@ -45,7 +49,10 @@ public non-sealed class LittleServerFace implements ILittleFace {
             else if (face.isPartiallyFilled())
                 return LittleFaceState.INSIDE_PARTIALLY_COVERED;
             return LittleFaceState.INSIDE_UNCOVERED;
-        });
+        } finally {
+            if (face.getGrid() != originalGrid)
+                face.convertTo(originalGrid);
+        }
     }
     
     public static BETiles checkforBE(Level level, Direction facing, BlockPos pos) {

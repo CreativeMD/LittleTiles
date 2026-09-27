@@ -404,27 +404,18 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public boolean shouldFaceBeRendered(LittleFace face, LittleTile rendered) {
-        LittleGrid previous = getGrid();
-        if (face.getGrid() != previous)
-            if (previous.count < face.getGrid().count)
-                convertTo(face.getGrid());
-            else
-                face.convertTo(previous);
-            
-        try {
-            for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
-                if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
-                    continue;
-                if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
-                    pair.value.fillFace(pair.key, face, grid);
-            }
-            return !face.isFilled(rendered.isTranslucent());
-        } finally {
-            if (getGrid() != previous)
-                convertTo(previous);
+        // Only the temporary face may change grid. LittleTile.fillFace converts
+        // copies of neighbour boxes when needed, without mutating live geometry.
+        if (face.getGrid().count < getGrid().count)
+            face.convertTo(getGrid());
+        for (Pair<IParentCollection, LittleTile> pair : tiles.allTiles()) {
+            if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
+                continue;
+            if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
+                pair.value.fillFace(pair.key, face, grid);
         }
+        return !face.isFilled(rendered.isTranslucent());
     }
-    
     /** @param box
      * @param cutout
      *            filled with all boxes which are cutout by tiles

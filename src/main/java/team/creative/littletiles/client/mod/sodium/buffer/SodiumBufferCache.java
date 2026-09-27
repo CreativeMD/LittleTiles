@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.lwjgl.system.MemoryUtil;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.impl.CompactChunkVertex;
@@ -22,6 +24,7 @@ import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloade
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 
 public class SodiumBufferCache implements BufferCache {
+
     
     private final BufferHolder[] buffers;
     private List<TextureAtlasSprite> textures;
@@ -202,8 +205,8 @@ public class SodiumBufferCache implements BufferCache {
                     if (buffers[i] == null)
                         continue;
                     
-                    if (!buffers[i].upload(i, uploader))
-                        return false; // Something went wrong
+                    if (!buffers[i].isAvailable())
+                        return false;
                         
                     // Add translucent data by going through the buffers, collecting the quads and adding to the translucent collector
                     ModelQuadFacing facing = ModelQuadFacing.values()[i];
@@ -211,12 +214,54 @@ public class SodiumBufferCache implements BufferCache {
                     long ptr = MemoryUtil.memAddress(buffer);
                     long end = ptr + buffer.remaining();
                     var collector = u.getTranslucentCollector();
+                    IntArrayList rejected = null;
+                    long start = ptr;
                     
                     while (ptr < end) {
                         quad.readVertices(ptr, 0, stride, facing);
-                        collector.appendQuad(quad.getVertices(), facing, quad.getPackedNormal());
+                        if (collector.appendQuad(quad.getVertices(), facing, quad.getPackedNormal())) {
+                            if (rejected == null)
+                                rejected = new IntArrayList();
+                            rejected.add((int) (ptr - start));
+                        }
                         ptr += stride * 4;
                     }
+                    // Sodium's indices address only accepted quads. Keep the vertex buffer
+                    // and LT's structure ranges in the same order as that accepted list.
+                    if (rejected != null) {
+
+                        int quadBytes = stride * 4;
+                        int length = buffer.remaining() - rejected.size() * quadBytes;
+                        if (length == 0) {
+                            buffers[i] = null;
+                            continue;
+                        }
+                        ByteBuffer filtered = ByteBuffer.allocateDirect(length);
+                        int read = 0;
+                        for (int offset : rejected) {
+                            filtered.put(buffer.slice(read, offset - read));
+                            read = offset + quadBytes;
+                        }
+                        filtered.put(buffer.slice(read, buffer.limit() - read));
+                        filtered.flip();
+                        IntArrayList indexes = new IntArrayList();
+                        int removed = 0;
+                        int previousEnd = 0;
+                        int[] oldIndexes = buffers[i].indexes();
+                        for (int j = 0; j < oldIndexes.length; j += 2) {
+                            while (removed < rejected.size() && rejected.getInt(removed) < oldIndexes[j + 1])
+                                removed++;
+                            int newEnd = oldIndexes[j + 1] - removed * quadBytes;
+                            if (newEnd > previousEnd) {
+                                indexes.add(oldIndexes[j]);
+                                indexes.add(newEnd);
+                            }
+                            previousEnd = newEnd;
+                        }
+                        buffers[i] = new BufferHolder(filtered, length, length / stride, indexes.toIntArray());
+                    }
+                    if (!buffers[i].upload(i, uploader))
+                        return false;
                 }
                 return true;
             }
