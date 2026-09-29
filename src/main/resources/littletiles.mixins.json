@@ -77,7 +77,6 @@
         "sodium.ChunkBuilderMeshingTaskMixin",
         "sodium.ChunkMeshBufferBuilderAccessor",
         "sodium.DefaultChunkRendererMixin",
-        "sodium.SodiumWorldRendererAccessor",
         "sodium.GlBufferMixin",
         "sodium.GlBufferSegmentAccessor",
         "sodium.GLRenderDeviceAccessor",
@@ -87,6 +86,8 @@
         "sodium.RenderSectionManagerAccessor",
         "sodium.RenderSectionMixin",
         "sodium.SectionRenderDataStorageAccessor",
+        "sodium.SmoothLightPipelineAccessor",
+        "sodium.SodiumWorldRendererAccessor",
         "sodium.TerrainRenderPassAccessor",
         "sodium.TranslucentGeometryCollectorAccessor"
     ],

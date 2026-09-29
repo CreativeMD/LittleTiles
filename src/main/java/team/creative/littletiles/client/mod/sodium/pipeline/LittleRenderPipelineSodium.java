@@ -80,6 +80,7 @@ import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.mixin.sodium.BlockRenderContextAccessor;
 import team.creative.littletiles.mixin.sodium.ChunkMeshBufferBuilderAccessor;
 import team.creative.littletiles.mixin.sodium.RenderSectionManagerAccessor;
+import team.creative.littletiles.mixin.sodium.SmoothLightPipelineAccessor;
 import team.creative.littletiles.mixin.sodium.SodiumWorldRendererAccessor;
 import team.creative.littletiles.mixin.sodium.TerrainRenderPassAccessor;
 
@@ -132,6 +133,8 @@ public class LittleRenderPipelineSodium extends LittleRenderPipeline {
         BlockPos pos = data.be.getBlockPos();
         
         lightAccess.prepare(renderLevel);
+        if (Minecraft.useAmbientOcclusion())
+            ((SmoothLightPipelineAccessor) lighters.getLighter(LightMode.SMOOTH)).setCachedPos(Long.MIN_VALUE);
         
         renderer.prepare(buildBuffers, slice, null);
         
