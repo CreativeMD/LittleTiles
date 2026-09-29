@@ -65,13 +65,13 @@ public interface GuiAnimationViewerStorage {
         int[][] pixels = makeLightBright();
         
         for (AnimationPreview preview : previewsToRender())
-            renderPreview(pose, projection, preview, mc);
+            renderPreviewInternal(pose, projection, preview, mc);
         
         resetLight(pixels);
     }
     
     @OnlyIn(Dist.CLIENT)
-    public default void renderPreview(PoseStack pose, Matrix4f projection, AnimationPreview preview, Minecraft mc) {
+    public default void renderPreviewInternal(PoseStack pose, Matrix4f projection, AnimationPreview preview, Minecraft mc) {
         preview.setupRendering(pose);
         
         preview.animation.getRenderManager().setupRender(FAKE_CAMERA, null, false, false);
@@ -84,6 +84,13 @@ public interface GuiAnimationViewerStorage {
         renderChunkLayer(preview, RenderType.cutout(), pose, projection);
         
         renderChunkLayer(preview, RenderType.translucent(), pose, projection);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public default void renderPreview(PoseStack pose, Matrix4f projection, AnimationPreview preview, Minecraft mc) {
+        int[][] pixels = makeLightBright();
+        renderPreviewInternal(pose, projection, preview, mc);
+        resetLight(pixels);
     }
     
     public default void renderChunkLayer(AnimationPreview preview, RenderType layer, PoseStack pose, Matrix4f matrix) {
