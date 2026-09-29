@@ -11,8 +11,6 @@ public interface OrientationAwareEntity {
     
     public void parentVecOriginChange(IVecOrigin origin);
     
-    public void markOriginChange();
-    
     public void performTick();
     
     public void transform(CollisionCoordinator coordinator);

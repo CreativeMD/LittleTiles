@@ -22,7 +22,6 @@ import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.entity.OrientationAwareEntity;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.math.location.LocalStructureLocation;
 import team.creative.littletiles.common.packet.entity.animation.LittleAnimationInitPacket;
@@ -106,18 +105,16 @@ public class LittleAnimationEntity extends LittleEntity<LittleAnimationEntityPhy
         this.center = center;
         if (getOrigin() != null)
             getOrigin().setCenter(center.rotationCenter);
-        for (OrientationAwareEntity entity : children())
-            entity.parentVecOriginChange(origin);
+        originReplaced();
     }
     
     public void setParentLevel(Level subLevel) {
         setLevel(subLevel);
         getSubLevel().setParent(subLevel);
         getSubLevel().setOrigin(center.rotationCenter);
-        if (origin != null)
-            getSubLevel().getOrigin().set(origin);
-        this.origin = this.subLevel.getOrigin();
-        hasOriginChanged = true;
+        if (getOrigin() != null)
+            getSubLevel().getOrigin().set(getOrigin());
+        setOrigin(this.subLevel.getOrigin());
     }
     
     public StructureAbsolute getCenter() {

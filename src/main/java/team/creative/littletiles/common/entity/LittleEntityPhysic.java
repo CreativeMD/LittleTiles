@@ -111,11 +111,8 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         
         boolean originChanged = parent.getOrigin().hasChanged();
         if (bbChanged || originChanged) {
-            if (originChanged)
-                parent.markOriginChange();
             parent.setBoundingBox(parent.getOrigin().pose().transform(bb).toVanilla());
-            if (originChanged)
-                parent.resetOriginChange();
+            parent.getOrigin().processedChange();
             
             Vec3d deltaMovement = center != null ? new Vec3d(center) : new Vec3d(parent.getBoundingBox().getCenter());
             center = parent.getBoundingBox().getCenter();
@@ -141,6 +138,8 @@ public abstract class LittleEntityPhysic<T extends LittleEntity<? extends Little
         preventPush = true; // No need to use ignoreCollision here, because it is internal
         var origin = getOrigin();
         origin.set(nbt.getDouble("offX"), nbt.getDouble("offY"), nbt.getDouble("offZ"), nbt.getDouble("rotX"), nbt.getDouble("rotY"), nbt.getDouble("rotZ"));
+        origin.tick();
+        origin.setChanged();
         preventPush = false;
         
         minX = nbt.getDouble("x");

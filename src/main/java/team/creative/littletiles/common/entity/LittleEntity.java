@@ -41,8 +41,7 @@ import team.creative.littletiles.common.math.vec.LittleHitResult;
 public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity implements OrientationAwareEntity, INoPushEntity, LevelTransitionListener {
     
     protected LittleSubLevel subLevel;
-    protected IVecOrigin origin;
-    protected boolean hasOriginChanged = false;
+    private IVecOrigin origin;
     public final T physic = createPhysic();
     private List<Entity> entitiesToAdd;
     protected boolean changedLevel;
@@ -83,15 +82,14 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     // ================Origin================
     
-    @Override
-    public void markOriginChange() {
-        hasOriginChanged = true;
-        for (OrientationAwareEntity child : children())
-            child.markOriginChange();
+    protected void setOrigin(IVecOrigin origin) {
+        this.origin = origin;
+        originReplaced();
     }
     
-    public void resetOriginChange() {
-        hasOriginChanged = false;
+    protected void originReplaced() {
+        for (OrientationAwareEntity entity : children())
+            entity.parentVecOriginChange(origin);
     }
     
     @Override
@@ -134,7 +132,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     @Override
     public void parentVecOriginChange(IVecOrigin origin) {
-        ((ChildVecOrigin) origin).parent = origin;
+        ((ChildVecOrigin) this.origin).setParent(origin);
     }
     
     @Override

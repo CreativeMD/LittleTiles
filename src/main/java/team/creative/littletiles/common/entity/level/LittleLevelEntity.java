@@ -119,6 +119,7 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     
     @Override
     public void syncMovement() {
+        var origin = getOrigin();
         if (!level().isClientSide && (origin.offXLast() != origin.offX() || origin.offYLast() != origin.offY() || origin.offZLast() != origin.offZ() || origin.rotXLast() != origin
                 .rotX() || origin.rotYLast() != origin.rotY() || origin.rotZLast() != origin.rotZ()))
             LittleTiles.NETWORK.sendToClientTracking(new EntityOriginChanged(this), this);
@@ -139,10 +140,9 @@ public class LittleLevelEntity extends LittleEntity<LittleLevelEntityPhysic> {
     public void setParentLevel(Level subLevel) {
         setLevel(subLevel);
         getSubLevel().setParent(subLevel);
-        if (origin != null)
-            getSubLevel().getOrigin().set(origin);
-        this.origin = this.subLevel.getOrigin();
-        hasOriginChanged = true;
+        if (getOrigin() != null)
+            getSubLevel().getOrigin().set(getOrigin());
+        setOrigin(this.subLevel.getOrigin());
     }
     
     @Override

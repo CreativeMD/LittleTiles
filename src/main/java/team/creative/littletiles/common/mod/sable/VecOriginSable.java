@@ -17,7 +17,7 @@ public class VecOriginSable implements IVecOrigin {
     private float renderPoseTick = -1;
     
     private Vector3d lastPos;
-    private boolean hasChanged;
+    private boolean changed;
     
     public VecOriginSable(IVecOrigin child, SableContext context) {
         this.child = child;
@@ -45,25 +45,24 @@ public class VecOriginSable implements IVecOrigin {
     
     @Override
     public boolean hasChanged() {
-        return hasChanged || child.hasChanged();
+        return changed || child.hasChanged();
     }
     
     protected void updatePose() {
         pose = new SableOriginPose(context.level.logicalPose(), child.pose());
         renderPose = null;
         renderPoseTick = -1;
-        hasChanged = true;
+        changed = true;
     }
     
     @Override
     public void tick() {
         child.tick();
         Vector3d pos = context.level.logicalPose().position();
-        if (lastPos == null || !lastPos.equals(pos) || child.hasChanged()) {
+        if (hasChanged() || lastPos == null || !lastPos.equals(pos)) {
             updatePose();
             lastPos = new Vector3d(pos);
-        } else
-            hasChanged = false;
+        }
     }
     
     @Override
@@ -151,7 +150,17 @@ public class VecOriginSable implements IVecOrigin {
     @Override
     public void set(double offX, double offY, double offZ, double rotX, double rotY, double rotZ) {
         child.set(offX, offY, offZ, rotX, rotY, rotZ);
+    }
+    
+    @Override
+    public void setChanged() {
         updatePose();
+        child.setChanged();
+    }
+    
+    @Override
+    public void processedChange() {
+        changed = false;
     }
     
     @Override
