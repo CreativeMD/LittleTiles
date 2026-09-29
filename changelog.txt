@@ -1,3 +1,11 @@
+1.6.0-pre231
+Fixed not being able to handle sodium not accepting translucent quads (causing faces to be invisible)
+Fixed converting block entity for face culling
+Fixed not hiding faces from other blocks when there are fully covered when sodium is installed
+Fixed animation preview not being fully bright
+Fixed double nested children shaking at the start and end of the grandparent transition
+Fixed smooth lighting sometimes not updating properly with sodium installed
+
 1.6.0-pre230
 Added support for sable mass calculations
 Fixed not rotating blocks properly during disassembly
