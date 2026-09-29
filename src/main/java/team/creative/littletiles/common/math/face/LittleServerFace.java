@@ -24,28 +24,28 @@ import team.creative.littletiles.common.structure.attribute.LittleStructureAttri
 public non-sealed class LittleServerFace implements ILittleFace {
     
     public static LittleFaceState calculate(BETiles be, Facing facing, ILittleFace face, LittleTile rendered, boolean outside) {
-        return face.unsafeSameGridRestore(be, () -> {
-            for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
-                if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
-                    continue;
-                if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
-                    pair.value.fillFace(pair.key, face, be.getGrid());
-            }
-            
-            if (outside)
-                if (face.isFilled())
-                    return LittleFaceState.OUTISDE_COVERED;
-                else if (face.isPartiallyFilled())
-                    return LittleFaceState.OUTSIDE_PARTIALLY_COVERED;
-                else
-                    return LittleFaceState.OUTSIDE_UNCOVERED;
-                
+        if (face.getGrid().count < be.getGrid().count)
+            face.convertTo(be.getGrid());
+        for (Pair<IParentCollection, LittleTile> pair : be.allTiles()) {
+            if (pair.key.isStructure() && LittleStructureAttribute.noCollision(pair.key.getAttribute()))
+                continue;
+            if (pair.value.doesProvideSolidFace() || pair.value.canBeRenderCombined(rendered))
+                pair.value.fillFace(pair.key, face);
+        }
+        
+        if (outside)
             if (face.isFilled())
-                return LittleFaceState.INSIDE_COVERED;
+                return LittleFaceState.OUTISDE_COVERED;
             else if (face.isPartiallyFilled())
-                return LittleFaceState.INSIDE_PARTIALLY_COVERED;
-            return LittleFaceState.INSIDE_UNCOVERED;
-        });
+                return LittleFaceState.OUTSIDE_PARTIALLY_COVERED;
+            else
+                return LittleFaceState.OUTSIDE_UNCOVERED;
+            
+        if (face.isFilled())
+            return LittleFaceState.INSIDE_COVERED;
+        else if (face.isPartiallyFilled())
+            return LittleFaceState.INSIDE_PARTIALLY_COVERED;
+        return LittleFaceState.INSIDE_UNCOVERED;
     }
     
     public static BETiles checkforBE(Level level, Direction facing, BlockPos pos) {

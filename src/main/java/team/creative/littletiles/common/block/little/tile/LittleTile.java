@@ -291,7 +291,7 @@ public final class LittleTile extends LittleElement implements Iterable<LittleBo
         return true;
     }
     
-    public void fillFace(IParentCollection parent, ILittleFace face, LittleGrid grid) {
+    public void fillFace(IParentCollection parent, ILittleFace face) {
         for (LittleBox box : boxes) {
             if (box == face.box())
                 continue;
