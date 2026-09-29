@@ -36,8 +36,8 @@ public class BufferHolder implements BufferCache {
     private int vertexCount;
     /** format is structure index followed by the end index. To get the start of a structure the index before has to be considered (if it is the first the start will be 0).
      * Example: [-1, 120, 1, 160]
-     * Structure -1: 0-120
-     * Structure 1: 120-160 */
+     * Structure -1: 0-119
+     * Structure 1: 120-159 */
     private int[] indexes;
     
     private boolean invalid;

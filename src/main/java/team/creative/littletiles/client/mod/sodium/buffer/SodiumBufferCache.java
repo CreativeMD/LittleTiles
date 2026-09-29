@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.lwjgl.system.MemoryUtil;
 
+import it.unimi.dsi.fastutil.ints.IntArrayList;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.ChunkVertexType;
 import net.caffeinemc.mods.sodium.client.render.chunk.vertex.format.impl.CompactChunkVertex;
@@ -202,21 +204,85 @@ public class SodiumBufferCache implements BufferCache {
                     if (buffers[i] == null)
                         continue;
                     
-                    if (!buffers[i].upload(i, uploader))
+                    if (!buffers[i].isAvailable())
                         return false; // Something went wrong
                         
                     // Add translucent data by going through the buffers, collecting the quads and adding to the translucent collector
                     ModelQuadFacing facing = ModelQuadFacing.values()[i];
                     ByteBuffer buffer = buffers[i].byteBuffer();
-                    long ptr = MemoryUtil.memAddress(buffer);
+                    long start = MemoryUtil.memAddress(buffer);
+                    long ptr = start;
                     long end = ptr + buffer.remaining();
                     var collector = u.getTranslucentCollector();
                     
-                    while (ptr < end) {
-                        quad.readVertices(ptr, 0, stride, facing);
-                        collector.appendQuad(quad.getVertices(), facing, quad.getPackedNormal());
+                    ByteBuffer accepted = null; // is only created once the first quad is rejected
+                    IntList acceptedIndexes = null;
+                    int[] indexes = null;
+                    long firstAccepted = 0;
+                    int lastIndex = 0;
+                    boolean rejected = false;
+                    int indexPosition = 0;
+                    
+                    while (ptr < end || accepted != null) {
+                        boolean extraLoop = ptr >= end;
+                        if (!extraLoop)
+                            quad.readVertices(ptr, 0, stride, facing);
+                        if (extraLoop || collector.appendQuad(quad.getVertices(), facing, quad.getPackedNormal())) {
+                            if (accepted == null) {
+                                accepted = ByteBuffer.allocateDirect(buffer.limit());
+                                acceptedIndexes = new IntArrayList();
+                                indexes = buffers[i].indexes();
+                            }
+                            
+                            if (!extraLoop && (rejected || firstAccepted == 0)) { // Skip rejected at the beginning and consecutive ones
+                                ptr += stride * 4;
+                                continue;
+                            }
+                            
+                            // Add data and indexes from the first accepted quad till before the current quad
+                            int position = (int) (firstAccepted - start);
+                            int length = (int) (ptr - firstAccepted);
+                            if (length == 0) // Can only happen if not a single quad was accepted in that case return false
+                                return false;
+                            accepted.put(accepted.position(), buffer, position, length);
+                            accepted.position(accepted.position() + length);
+                            
+                            for (int j = lastIndex; j < indexes.length; j += 2) {
+                                if (indexes[j + 1] > position) { // Ignore all indexes before the current position
+                                    int indexLength = indexes[j + 1] - indexPosition;
+                                    int lengthToAdd = Math.min(indexLength, length);
+                                    if (!acceptedIndexes.isEmpty() && acceptedIndexes.getInt(acceptedIndexes.size() - 2) == indexes[j]) // if parts of the structure where added previously only add the required length
+                                        acceptedIndexes.set(acceptedIndexes.size() - 1, acceptedIndexes.getInt(acceptedIndexes.size() - 1) + lengthToAdd);
+                                    else {
+                                        acceptedIndexes.add(indexes[j]);
+                                        acceptedIndexes.add(indexPosition + lengthToAdd);
+                                    }
+                                    length -= lengthToAdd;
+                                }
+                                
+                                indexPosition = indexes[j + 1]; // This is basically the start index of the next entry
+                                lastIndex = j; // Done to improve performance and only iterate over the necessary part of the indexes
+                                
+                                if (length <= 0) // All indexes have been added, therefore this for-loop should end
+                                    break;
+                            }
+                            
+                            rejected = true;
+                        } else if (rejected || firstAccepted == 0) {
+                            firstAccepted = ptr;
+                            rejected = false;
+                        }
+                        
+                        if (extraLoop) {
+                            int length = acceptedIndexes.getInt(acceptedIndexes.size() - 1);
+                            buffers[i] = new BufferHolder(accepted.slice(0, accepted.position()), length, length / stride, acceptedIndexes.toIntArray());
+                            break;
+                        }
                         ptr += stride * 4;
                     }
+                    
+                    if (!buffers[i].upload(i, uploader))
+                        return false; // Something went wrong
                 }
                 return true;
             }
