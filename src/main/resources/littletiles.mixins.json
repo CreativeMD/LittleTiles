@@ -81,6 +81,7 @@
         "sodium.GlBufferSegmentAccessor",
         "sodium.GLRenderDeviceAccessor",
         "sodium.LevelSliceMixin",
+        "sodium.NeoForgeBlockAccessMixin",
         "sodium.PendingSectionMeshUploadAccessor",
         "sodium.RenderRegionManagerMixin",
         "sodium.RenderSectionManagerAccessor",
