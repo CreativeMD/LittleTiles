@@ -1,3 +1,13 @@
+1.6.0-pre232
+Fixed not being able to handle no translucent quad getting accepted causing a crash
+Fixed blob und cube placement offset
+Fixed blueprint not showing colors correctly
+Fixed animation transition crashing sometimes
+Fixed animation transition translucent blocks darken
+Fixed debug log from downloading sodium chunk render data
+Fixed not hiding faces from other blocks when there are fully covered
+Removed debug log from pillar shape
+
 1.6.0-pre231
 Fixed not being able to handle sodium not accepting translucent quads (causing faces to be invisible)
 Fixed converting block entity for face culling
