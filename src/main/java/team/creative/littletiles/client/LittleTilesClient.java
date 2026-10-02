@@ -239,7 +239,9 @@ public class LittleTilesClient {
         MC.getItemColors().register((stack, layer) -> {
             if (layer == 0)
                 return stack.getOrDefault(LittleTilesRegistry.COLOR, ItemLittleBlueprint.DEFAULT_COLOR);
-            return stack.getOrDefault(LittleTilesRegistry.COLOR_SECONDARY, ItemLittleBlueprint.DEFAULT_COLOR_SECONDARY);
+            if (layer == 1)
+                return stack.getOrDefault(LittleTilesRegistry.COLOR_SECONDARY, ItemLittleBlueprint.DEFAULT_COLOR_SECONDARY);
+            return layer;
         }, LittleTilesRegistry.BLUEPRINT.value());
         
         // overlay.add(new OverlayControl(new GuiAxisIndicatorControl("axis"), OverlayPositionType.CENTER).setShouldRender(() -> PreviewRenderer.marked != null));
