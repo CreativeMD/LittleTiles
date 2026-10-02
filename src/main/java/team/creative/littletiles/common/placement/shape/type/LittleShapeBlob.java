@@ -10,6 +10,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.vec.LittleVec;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.placement.PlacementPosition;
 import team.creative.littletiles.common.placement.shape.LittleShape;
 import team.creative.littletiles.common.placement.shape.ShapeRegistry;
@@ -41,6 +42,8 @@ public class LittleShapeBlob extends LittleShape<BrushSizeShapeConfig> {
     @Override
     protected void build(LittleBoxes boxes, ShapeSelection selection, BrushSizeShapeConfig config) {
         for (ShapePosition pos : selection) {
+            if (pos.ray != null && pos.facing != null && pos.facing.positive && pos.getGrid().isAtEdge(pos.facing.axis.get(pos.ray.getLocation())))
+                pos.box().move(new LittleVecGrid(new LittleVec(pos.facing), pos.getGrid()));
             LittleBoxes shape = get(config);
             for (LittleBox box : shape.all()) {
                 LittleBox toAdd = box.copy();
