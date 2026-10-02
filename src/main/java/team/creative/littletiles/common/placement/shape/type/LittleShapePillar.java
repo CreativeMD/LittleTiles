@@ -102,8 +102,6 @@ public class LittleShapePillar extends LittleShape<PillarShapeConfig> {
             endFacing = axis.facing(facingPositive);
         }
         
-        System.out.println(startFacing + " " + endFacing + " " + simple + " " + facingPositive);
-        
         int width = Math.max(0, config.width - 1);
         int height = Math.max(0, config.height - 1);
         
