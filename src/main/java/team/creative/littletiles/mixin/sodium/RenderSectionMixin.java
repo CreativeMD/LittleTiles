@@ -50,7 +50,7 @@ import team.creative.littletiles.client.mod.sodium.buffer.SodiumChunkBufferDownl
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
-import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
+import team.creative.littletiles.client.render.level.transition.LevelTransition.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 
@@ -217,8 +217,6 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             return;
         
         Runnable run = () -> {
-            new Exception().printStackTrace();
-            System.out.println("Downloading " + this.sectionIndex);
             SodiumChunkBufferDownloader downloader = new SodiumChunkBufferDownloader();
             GlVertexFormat format = SodiumInteractor.getVertexType().getVertexFormat();
             for (Tuple<RenderType, BufferCollection> tuple : caches.tuples()) {
@@ -385,7 +383,6 @@ public abstract class RenderSectionMixin implements RenderChunkExtender {
             
             if (!active)
                 RenderDevice.exitManagedCode();
-            
             uploader.clear();
             
         }
