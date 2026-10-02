@@ -200,7 +200,7 @@ public class SodiumBufferCache implements BufferCache {
                 int stride = type.getVertexFormat().getStride();
                 LittleQuadView quad = new LittleQuadView();
                 
-                for (int i = 0; i < buffers.length; i++) {
+                outer_loop: for (int i = 0; i < buffers.length; i++) {
                     if (buffers[i] == null)
                         continue;
                     
@@ -237,6 +237,11 @@ public class SodiumBufferCache implements BufferCache {
                             if (!extraLoop && (rejected || firstAccepted == 0)) { // Skip rejected at the beginning and consecutive ones
                                 ptr += stride * 4;
                                 continue;
+                            }
+                            
+                            if (extraLoop && firstAccepted == 0) {
+                                buffers[i] = null;
+                                continue outer_loop;
                             }
                             
                             // Add data and indexes from the first accepted quad till before the current quad
@@ -280,7 +285,6 @@ public class SodiumBufferCache implements BufferCache {
                         }
                         ptr += stride * 4;
                     }
-                    
                     if (!buffers[i].upload(i, uploader))
                         return false; // Something went wrong
                 }
