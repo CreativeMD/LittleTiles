@@ -49,7 +49,7 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.entity.LittleLevelRenderManager;
-import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
+import team.creative.littletiles.client.render.level.transition.LevelTransition.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.SectionCompilerResultsExtender;
 import team.creative.littletiles.common.level.little.LittleSubLevel;

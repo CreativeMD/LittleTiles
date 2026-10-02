@@ -13,8 +13,8 @@ import team.creative.creativecore.common.network.CanBeNull;
 import team.creative.creativecore.common.network.CreativePacket;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.render.level.transition.LittleLevelTransitionManagerClient;
 import team.creative.littletiles.common.entity.LittleEntity;
-import team.creative.littletiles.common.level.little.LittleLevelTransitionManager;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
 
 public class LittleEntityTransitionPacket extends CreativePacket {
@@ -45,7 +45,7 @@ public class LittleEntityTransitionPacket extends CreativePacket {
         else
             level = (Level) entity.getSubLevel();
         
-        Entity target = LittleLevelTransitionManager.findEntity(uuid);
+        Entity target = LittleLevelTransitionManagerClient.findEntity(uuid);
         if (target != null)
             LittleTilesClient.ANIMATION_HANDLER.queueEntityForTransition(target, level);
     }

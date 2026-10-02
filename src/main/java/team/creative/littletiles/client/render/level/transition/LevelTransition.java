@@ -1,4 +1,4 @@
-package team.creative.littletiles.client.render.level;
+package team.creative.littletiles.client.render.level.transition;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,14 +31,14 @@ import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.mc.BlockTile;
 
-public class RenderAdditional {
+public class LevelTransition {
     
     public final Level targetLevel;
     public final RenderingLevelHandler target;
     private final Long2ObjectMap<SectionAdditional> sections = new Long2ObjectOpenHashMap<>();
     private int waitTill;
     
-    public RenderAdditional(Level level, BlockPos pos) {
+    public LevelTransition(Level level, BlockPos pos) {
         this.targetLevel = level;
         this.target = RenderingLevelHandler.of(level, pos);
     }
@@ -61,10 +61,9 @@ public class RenderAdditional {
         
         waitTill = LittleTilesClient.ANIMATION_HANDLER.longTickIndex + LittleAnimationHandlerClient.MAX_INTERVALS_WAITING;
         
-        for (Iterator<Long2ObjectMap.Entry<SectionAdditional>> iterator = sections.long2ObjectEntrySet().iterator(); iterator.hasNext();)
-            if (iterator.next().getValue().finishInitial())
-                iterator.remove();
-            
+        for (SectionAdditional section : sections.values())
+            section.finishInitial();
+        
         return sections.isEmpty();
     }
     
@@ -72,16 +71,15 @@ public class RenderAdditional {
         return sections.isEmpty();
     }
     
-    public boolean notifyReceiveClientUpdate(BETiles be) {
-        var pos = SectionPos.asLong(be.getBlockPos());
-        var s = sections.get(pos);
-        if (s != null && s.notifyReceiveClientUpdate(be))
-            sections.remove(pos);
-        return sections.isEmpty();
-    }
-    
     public boolean longTick(int index) {
         return index >= waitTill;
+    }
+    
+    public void delete() {
+        if (sections.isEmpty())
+            return;
+        for (SectionAdditional section : sections.values())
+            section.cleanup();
     }
     
     public class SectionAdditional {
@@ -117,21 +115,20 @@ public class RenderAdditional {
                 markReadyForUpdate();
         }
         
-        public void onSectionUploads(@Nullable Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
+        public synchronized void onSectionUploads(@Nullable Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
             if (deleteAndRemoveIfEmpty())
                 sections.remove(pos.asLong());
-            else if (LittleTiles.CONFIG.rendering.uploadToVBODirectly) {
+            else if (LittleTiles.CONFIG.rendering.uploadToVBODirectly)
                 for (BlockAdditional additional : entries.values())
                     if (additional.getAndClearUploaded()) // If a buffer has not been added to the section yet it is done afterwards to ensure smooth transition
                         additional.uploadAdditionalExtra(builderSupplier, bufferSupplier);
-            }
         }
         
         public void markReadyForUpdate() {
             section.markReadyForUpdate(false);
         }
         
-        private boolean deleteAndRemoveIfEmpty() {
+        private synchronized boolean deleteAndRemoveIfEmpty() {
             for (Iterator<Entry<BlockPos, BlockAdditional>> iterator = entries.entrySet().iterator(); iterator.hasNext();)
                 if (iterator.next().getValue().isRemoved())
                     iterator.remove();
@@ -139,21 +136,11 @@ public class RenderAdditional {
             return removeIfEmpty();
         }
         
-        public boolean finishInitial() {
+        public void finishInitial() {
             if (LittleTiles.CONFIG.rendering.uploadToVBODirectly)
                 appendRenderData(true);
             else
                 markReadyForUpdate();
-            
-            return false;
-        }
-        
-        public boolean notifyReceiveClientUpdate(BETiles be) {
-            // keep blocks which are received while rendering. They will be added separately and done be removed
-            BlockAdditional data = entries.get(be.getBlockPos());
-            if (data != null)
-                data.receiveUpdate(be);
-            return false;
         }
         
         /** For important to be called otherwise it will remain bound to the render section **/
@@ -163,6 +150,20 @@ public class RenderAdditional {
                 return true;
             }
             return false;
+        }
+        
+        public void cleanup() {
+            boolean changed = false;
+            for (Iterator<Entry<BlockPos, BlockAdditional>> iterator = entries.entrySet().iterator(); iterator.hasNext();) {
+                var entry = iterator.next();
+                var target = BlockTile.loadBE(targetLevel, entry.getKey());
+                if (target != null && target.render.hasAdditionalBuffers()) {
+                    target.render.clearAdditional();
+                    changed = true;
+                }
+            }
+            if (changed)
+                markReadyForUpdate();
         }
     }
     
@@ -187,8 +188,13 @@ public class RenderAdditional {
             additional(uuid, layers);
             
             var target = BlockTile.loadBE(targetLevel, be.getBlockPos());
-            if (target != null)
-                target.render.additionalBuffers(x -> x.additional(this, () -> removed = true, () -> uploaded = true));
+            if (target == null) {
+                // Force block on client side
+                targetLevel.setBlock(be.getBlockPos(), BlockTile.getState(be), 0);
+                target = BlockTile.loadBE(targetLevel, be.getBlockPos());
+            }
+            
+            target.render.additionalBuffers(x -> x.additional(this, () -> removed = true, () -> uploaded = true));
         }
         
         public boolean isRemoved() {
@@ -202,11 +208,6 @@ public class RenderAdditional {
             }
             return false;
         }
-        
-        public void receiveUpdate(BETiles be) {
-            be.render.additionalBuffers(x -> x.additional(this, () -> removed = true, () -> uploaded = true));
-        }
-        
     }
     
 }

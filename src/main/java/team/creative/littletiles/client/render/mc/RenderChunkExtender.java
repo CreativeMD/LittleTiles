@@ -28,8 +28,8 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferDownloader.SimpleChunkBufferDownloader;
+import team.creative.littletiles.client.render.level.transition.LevelTransition.SectionAdditional;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
-import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
 
 public interface RenderChunkExtender {
     

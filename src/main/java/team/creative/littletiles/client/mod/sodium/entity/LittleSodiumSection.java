@@ -35,7 +35,7 @@ import team.creative.littletiles.client.mod.sodium.renderer.DefaultChunkRenderer
 import team.creative.littletiles.client.render.cache.LayeredBufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
-import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
+import team.creative.littletiles.client.render.level.transition.LevelTransition.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.client.render.mc.VertexBufferExtender;
 

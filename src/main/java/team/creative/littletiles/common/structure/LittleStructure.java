@@ -564,7 +564,6 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
     }
     
     public void removeStructureSameLevelWithoutCheck(LittleUpdateCollector neighbor) throws CorruptedConnectionException, NotYetConnectedException {
-        //checkConnections();
         structureDestroyed();
         
         for (StructureChildConnection child : children.all())
@@ -693,13 +692,14 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         if (result == null)
             throw new NotEnoughSpaceForStructureException();
         
+        LittleTiles.NETWORK.sendToClientTracking(new StructureEntityToBlockPacket(entity), entity);
+        
         if (level instanceof ServerLevel s)
             result.broadcastChangesImmediately(s);
         
         result.parentStructure.transferChildrenFromAnimation(level);
         if (getParent() != null)
             result.parentStructure.updateConnectionToParent(getParent());
-        LittleTiles.NETWORK.sendToClientTracking(new StructureEntityToBlockPacket(entity), entity);
         
         transferOverFormChange(result.parentStructure);
         

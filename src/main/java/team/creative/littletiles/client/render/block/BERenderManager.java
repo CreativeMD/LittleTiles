@@ -73,6 +73,10 @@ public class BERenderManager {
         return queued || renderState == -1;
     }
     
+    public int renderState() {
+        return renderState;
+    }
+    
     public void sectionUpdate(long pos) {
         synchronized (this) {
             boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
@@ -225,6 +229,10 @@ public class BERenderManager {
     
     public boolean hasAdditionalBuffers() {
         return bufferCache.hasAdditional();
+    }
+    
+    public void clearAdditional() {
+        bufferCache.clearAdditional();
     }
     
     public void beforeBuilding(RenderingBlockContext context) {

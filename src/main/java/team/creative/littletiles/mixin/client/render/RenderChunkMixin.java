@@ -14,7 +14,7 @@ import net.minecraft.client.renderer.chunk.SectionRenderDispatcher.RenderSection
 import net.minecraft.core.BlockPos;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
-import team.creative.littletiles.client.render.level.RenderAdditional.SectionAdditional;
+import team.creative.littletiles.client.render.level.transition.LevelTransition.SectionAdditional;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 @Mixin(RenderSection.class)
