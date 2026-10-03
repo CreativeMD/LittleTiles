@@ -44,7 +44,7 @@ public class BERenderManager {
     private volatile byte requestedIndex = -1;
     private int renderState = -1;
     
-    private boolean queued = false;
+    private volatile boolean queued = false;
     private boolean eraseBoxCache = false;
     
     public boolean hasLightChanged = false;
@@ -160,6 +160,7 @@ public class BERenderManager {
     public void onNeighbourChanged() {
         neighbourChanged = true;
         queue(false, false, 0);
+        NeighbourRenderTransition.naturallyInvalidated(be);
     }
     
     public void queue(boolean eraseBoxCache, boolean hasPos, long pos) {

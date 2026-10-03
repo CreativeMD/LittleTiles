@@ -85,6 +85,7 @@
         "sodium.PendingSectionMeshUploadAccessor",
         "sodium.RenderRegionManagerMixin",
         "sodium.RenderSectionManagerAccessor",
+        "sodium.RenderSectionManagerMixin",
         "sodium.RenderSectionMixin",
         "sodium.SectionRenderDataStorageAccessor",
         "sodium.SmoothLightPipelineAccessor",
