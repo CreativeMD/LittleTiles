@@ -40,6 +40,8 @@ public abstract class RebuildTaskMixin {
             method = "doTask(Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", require = 1)
     private void compileEnd(SectionBufferBuilderPack pack, CallbackInfoReturnable<CompletableFuture> info) {
         LittleRenderPipelineType.endCompile((RenderChunkExtender) this$1);
+        if (team.creative.littletiles.client.render.block.NeighbourRenderTransition.defer(SectionPos.asLong(this$1.getOrigin())))
+            cancel();
     }
     
     @Inject(method = "doTask(Lnet/minecraft/client/renderer/SectionBufferBuilderPack;)Ljava/util/concurrent/CompletableFuture;", at = @At("TAIL"), cancellable = true, require = 1,
@@ -57,4 +59,13 @@ public abstract class RebuildTaskMixin {
         }));
     }
     
+    @Shadow
+    public abstract void cancel();
+
+    @Inject(method = "doTask", at = @At("HEAD"), require = 1)
+    private void deferNeighbourTransition(SectionBufferBuilderPack pack, CallbackInfoReturnable<CompletableFuture> ci) {
+        if (team.creative.littletiles.client.render.block.NeighbourRenderTransition.defer(SectionPos.asLong(this$1.getOrigin())))
+            cancel(); // Vanilla returns CANCELLED without replacing the old GPU mesh.
+    }
+
 }

@@ -83,4 +83,10 @@ public class ClientLevelMixin implements ClientLevelExtender {
             info.cancel();
     }
     
+    @Inject(method = "sendBlockUpdated", at = @At("HEAD"), require = 1)
+    private void neighbourTransition(BlockPos pos, BlockState oldState, BlockState newState, int flags, CallbackInfo ci) {
+        if (oldState != newState)
+            team.creative.littletiles.client.render.block.NeighbourRenderTransition.changed(as(), pos);
+    }
+
 }

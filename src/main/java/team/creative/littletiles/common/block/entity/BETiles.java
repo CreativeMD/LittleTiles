@@ -284,6 +284,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
     }
     
     public void updateTiles(boolean updateNeighbour, boolean rebuildFaces) {
+        if (isClient() && updateNeighbour)
+            team.creative.littletiles.client.render.block.NeighbourRenderTransition.changed(level, getBlockPos());
         tiles.removeEmptyLists();
         notifyStructure();
         

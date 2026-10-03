@@ -51,9 +51,16 @@ public abstract class ChunkBuilderMeshingTaskMixin extends ChunkBuilderTask<Chun
         LittleRenderPipelineType.startCompile((RenderChunkExtender) render);
     }
     
-    @Inject(at = @At("HEAD"), remap = false, require = 1,
+    @Inject(at = @At("HEAD"), remap = false, require = 1, cancellable = true,
             method = "execute(Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lnet/caffeinemc/mods/sodium/client/util/task/CancellationToken;)Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;")
     public void performBuildStart(ChunkBuildContext buildContext, CancellationToken cancellationSource, CallbackInfoReturnable<ChunkBuildOutput> info) {
+        if (team.creative.littletiles.client.render.block.NeighbourRenderTransition.defer(
+                SectionPos.asLong(render.getChunkX(), render.getChunkY(), render.getChunkZ()))) {
+            LittleRenderPipelineType.endCompile((RenderChunkExtender) render);
+            retryDeferredBuild(cancellationSource);
+            info.setReturnValue(null); // Sodium's normal cancelled-result path retains its mesh.
+            return;
+        }
         this.buildContext = buildContext;
     }
     
@@ -86,14 +93,34 @@ public abstract class ChunkBuilderMeshingTaskMixin extends ChunkBuilderTask<Chun
         LittleRenderPipelineType.beforeCompileEnds((RenderChunkExtender) render, this::getOrCreateUploader, this::getOrCreateBuffers);
     }
     
-    @Inject(at = @At("TAIL"), remap = false, require = 1,
+    @Inject(at = @At("TAIL"), remap = false, require = 1, cancellable = true,
             method = "execute(Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildContext;Lnet/caffeinemc/mods/sodium/client/util/task/CancellationToken;)Lnet/caffeinemc/mods/sodium/client/render/chunk/compile/ChunkBuildOutput;")
     public void performBuildEnd(ChunkBuildContext buildContext, CancellationToken cancellationSource, CallbackInfoReturnable<ChunkBuildOutput> info) {
         LittleRenderPipelineType.endCompile((RenderChunkExtender) render);
         this.buildContext = null;
         this.caches = null;
+        if (team.creative.littletiles.client.render.block.NeighbourRenderTransition.defer(
+                SectionPos.asLong(render.getChunkX(), render.getChunkY(), render.getChunkZ()))) {
+            if (info.getReturnValue() != null)
+                info.getReturnValue().destroy();
+            retryDeferredBuild(cancellationSource);
+            info.setReturnValue(null);
+        }
     }
     
+    @Unique
+    private void retryDeferredBuild(CancellationToken cancelledJob) {
+        // A null result never reaches Sodium's upload/completion path. Clear only
+        // this job, not a newer replacement; always enqueue after submission ends.
+        net.minecraft.client.Minecraft.getInstance().tell(() -> {
+            if (render.isDisposed() || render.getRunningJob() != cancelledJob)
+                return;
+            render.setRunningJob(null);
+            if (!team.creative.littletiles.client.render.block.NeighbourRenderTransition.defer(
+                    SectionPos.asLong(render.getChunkX(), render.getChunkY(), render.getChunkZ())))
+                ((RenderChunkExtender) render).markReadyForUpdate(false);
+        });
+    }
     @Unique
     public BufferCollection getOrCreateBuffers(RenderType layer) {
         if (caches == null)

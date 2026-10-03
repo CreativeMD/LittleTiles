@@ -3,6 +3,9 @@ package team.creative.littletiles.mixin.client.render;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.gen.Invoker;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import com.mojang.blaze3d.vertex.MeshData.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
@@ -19,6 +22,12 @@ import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 @Mixin(RenderSection.class)
 public abstract class RenderChunkMixin implements RenderChunkExtender {
+
+    @Inject(method = { "rebuildSectionAsync", "compileSync" }, at = @At("HEAD"), cancellable = true, require = 1)
+    private void deferNeighbourBuild(CallbackInfo ci) {
+        if (team.creative.littletiles.client.render.block.NeighbourRenderTransition.defer(net.minecraft.core.SectionPos.asLong(as().getOrigin())))
+            ci.cancel();
+    }
     
     @Unique
     private SectionAdditional additional;
