@@ -114,13 +114,15 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     public static final BooleanProperty WATERLOGGED = BlockStateProperties.WATERLOGGED;
     
     @OnlyIn(Dist.CLIENT)
-    public static BlockEntity tryGetClient(BlockGetter level, BlockPos pos) {
+    public static BlockEntity tryGetClient(LevelAccessor level, BlockPos pos) {
         if (Thread.currentThread() instanceof RenderingThread) {
-            var chunk = ((Level) level).getChunkAt(pos);
-            var be = chunk.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
-            if (be == null)
-                throw new BlockNotYetLoadedException();
-            return be;
+            var chunk = level.getChunk(pos);
+            if (chunk instanceof LevelChunk c) {
+                var be = c.getBlockEntity(pos, LevelChunk.EntityCreationType.CHECK);
+                if (be == null)
+                    throw new BlockNotYetLoadedException();
+                return be;
+            }
         }
         return level.getBlockEntity(pos);
     }
@@ -131,7 +133,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
         BlockEntity be = null;
         try {
             if (level instanceof LevelAccessor l && l.isClientSide())
-                be = tryGetClient(level, pos);
+                be = tryGetClient(l, pos);
             else
                 be = level.getBlockEntity(pos);
         } catch (Exception e) {
