@@ -44,7 +44,7 @@ public class BERenderManager {
     private volatile byte requestedIndex = -1;
     private int renderState = -1;
     
-    private boolean queued = false;
+    private volatile boolean queued = false;
     private boolean eraseBoxCache = false;
     
     public boolean hasLightChanged = false;
