@@ -1,3 +1,9 @@
+1.6.0-pre233
+Added support for jade (hide overlay to fix performance issue)
+Fixed not hiding faces from other blocks when there are fully covered #2
+Fixed potential race condition when queuing block for rendering
+Fixed connected textures not working caused previous fix
+
 1.6.0-pre232
 Fixed not being able to handle no translucent quad getting accepted causing a crash
 Fixed blob und cube placement offset
