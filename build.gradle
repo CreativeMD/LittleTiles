@@ -100,11 +100,12 @@ modProperties = [
     '    "mixin.entity.collisions" = false'
 ]
 modImplemented = [
-    [ name: "maven.modrinth:iris:KduFYu4t", disabled: true ],
+    [ name: "maven.modrinth:iris:KduFYu4t", disabled: false ],
     [ name: "curse.maven:theoneprobe-245211:5502323", disabled: true ],
     [ name: "net.fabricmc:fabric-loader:${project.fabric_version}", disabled: true ],
     [ name: "org.sinytra.forgified-fabric-api:fabric-api-base:0.4.42+d1308ded19" , disabled: true ],
     [ name: "org.sinytra.forgified-fabric-api:fabric-renderer-api-v1:3.4.0+acb05a3919", disabled: true ],
     [ name: "org.sinytra.forgified-fabric-api:fabric-rendering-data-attachment-v1:0.3.48+73761d2e19", disabled: true ],
     [ name: "org.sinytra.forgified-fabric-api:fabric-block-view-api-v2:1.0.10+9afaaf8c19", disabled: true ],
+    [ name: "maven.modrinth:jade:15.10.6+neoforge", disabled: false ],
 ]
