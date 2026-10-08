@@ -12,6 +12,8 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.VertexFormat;
 
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.mod.iris.IrisManager;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
 
 @Mixin(BufferBuilder.class)
@@ -41,13 +43,29 @@ public abstract class BufferBuilderMixin implements ChunkBufferUploader {
     
     @Override
     public void upload(ByteBuffer buffer) {
+        if (!tryUpload(buffer, buffer.remaining() / vertexSize))
+            LittleTiles.LOGGER.warn("Skipping cached vertex data incompatible with the target vertex stride");
+    }
+
+    @Override
+    public boolean tryUpload(ByteBuffer buffer, int vertexCount) {
+        int length = buffer.remaining();
+        if (vertexCount < 0 || length != (long) vertexCount * vertexSize)
+            return false;
+        if (length == 0)
+            return true;
+
         this.ensureBuilding();
         this.endLastVertex();
-        
-        this.vertices += buffer.limit() / vertexSize;
-        this.vertexPointer = this.buffer.reserve(buffer.capacity());
+
+        if (IrisManager.uploadCachedVertices((BufferBuilder) (Object) this, buffer, format))
+            return true;
+
+        this.vertices += length / vertexSize;
+        this.vertexPointer = this.buffer.reserve(length);
         long address = MemoryUtil.memAddress(buffer);
-        MemoryUtil.memCopy(address, vertexPointer, buffer.capacity());
+        MemoryUtil.memCopy(address, vertexPointer, length);
+        return true;
     }
     
     @Shadow

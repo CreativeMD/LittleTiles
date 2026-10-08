@@ -13,6 +13,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import net.caffeinemc.mods.sodium.client.model.quad.properties.ModelQuadFacing;
 import net.minecraft.world.phys.Vec3;
+import team.creative.littletiles.LittleTiles;
 import team.creative.creativecore.client.render.VertexFormatUtils;
 import team.creative.creativecore.common.util.type.itr.SingleIterator;
 import team.creative.littletiles.mixin.client.render.ByteBufferBuilderResultAccessor;
@@ -74,7 +75,11 @@ public class BufferHolder implements BufferCache {
         if (buffer == null)
             return false;
         uploadIndex = uploader.uploadIndex();
-        uploader.upload(buffer);
+        if (!uploader.tryUpload(buffer, vertexCount)) {
+            LittleTiles.LOGGER.warn("Invalidating cached vertex data incompatible with the target vertex stride");
+            invalidate();
+            return false;
+        }
         buffer.rewind();
         return true;
     }
@@ -417,10 +422,10 @@ public class BufferHolder implements BufferCache {
     public void applyOffset(Vec3 vec, int sectionIndex) {
         // Move render data by offset, easy but a bit hacky method to do it
         ByteBuffer buffer = byteBuffer();
-        if (buffer == null)
+        if (buffer == null || vertexCount == 0)
             return;
         int positionOffset = VertexFormatUtils.blockPositionOffset();
-        int formatSize = VertexFormatUtils.blockFormatSize();
+        int formatSize = length / vertexCount;
         buffer = buffer.order(ByteOrder.LITTLE_ENDIAN);
         int i = 0;
         while (i < buffer.limit()) {
