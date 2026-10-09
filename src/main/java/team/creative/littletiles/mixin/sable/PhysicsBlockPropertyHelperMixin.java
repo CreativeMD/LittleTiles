@@ -5,7 +5,9 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import dev.ryanhcode.sable.mixinterface.block_properties.BlockStateExtension;
 import dev.ryanhcode.sable.physics.config.block_properties.PhysicsBlockPropertyHelper;
+import dev.ryanhcode.sable.physics.config.block_properties.PhysicsBlockPropertyTypes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -27,7 +29,7 @@ public class PhysicsBlockPropertyHelperMixin {
                 var grid = be.getGrid();
                 double mass = 0;
                 for (Pair<IParentCollection, LittleTile> pair : be.allTiles())
-                    mass += PhysicsBlockPropertyHelper.getMass(level, pos, pair.value.getState()) * pair.value.getPercentVolume(grid);
+                    mass += ((BlockStateExtension) pair.value.getState()).sable$getProperty(PhysicsBlockPropertyTypes.MASS.get()) * pair.value.getPercentVolume(grid);
                 info.setReturnValue(mass);
             }
         }
