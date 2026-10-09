@@ -20,7 +20,6 @@ public class BlockBufferCache implements IBlockBufferCache {
     private ChunkLayerMap<BufferCache> uploaded = new ChunkLayerMap<>();
     
     private transient AdditionalBuffers additional = null;
-    private boolean requiresRebuild;
     
     public BlockBufferCache() {}
     
@@ -56,7 +55,7 @@ public class BlockBufferCache implements IBlockBufferCache {
     }
     
     @Override
-    public void upload(Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) {
+    public void upload(Function<RenderType, ChunkBufferUploader> builderSupplier, Function<RenderType, BufferCollection> bufferSupplier) throws VertexFormatMismatchException {
         for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
             if (!has(layer))
                 continue;
@@ -69,10 +68,10 @@ public class BlockBufferCache implements IBlockBufferCache {
                 uploaded.remove(layer);
             else
                 uploaded.put(layer, LittleRenderPipelineType.upload(uploader, collection, uploadable));
-
+            
             // Keep the rebuild request even after an invalid cache is removed.
             if (uploadable != null && uploadable.isInvalid())
-                requiresRebuild = true;
+                throw new VertexFormatMismatchException();
             
             if (additional != null && additional.has(layer))
                 additional.uploadAdditional(layer, uploader, collection);
@@ -124,7 +123,6 @@ public class BlockBufferCache implements IBlockBufferCache {
     }
     
     public synchronized void setEmpty() {
-        requiresRebuild = false;
         queue.clear();
         uploaded.clear();
         clearAdditional();
@@ -135,7 +133,6 @@ public class BlockBufferCache implements IBlockBufferCache {
     }
     
     public synchronized void setBuffers(ChunkLayerMap<BufferCache> buffers) {
-        requiresRebuild = false;
         for (RenderType layer : RenderType.CHUNK_BUFFER_LAYERS) {
             BufferCache buffer = buffers.get(layer);
             if (buffer == null)
@@ -162,13 +159,6 @@ public class BlockBufferCache implements IBlockBufferCache {
     }
     
     public boolean hasInvalidBuffers() {
-        if (requiresRebuild)
-            return true;
-        if (additional != null)
-            for (LayeredBufferCache layers : additional.additionals())
-                for (var entry : layers.tuples())
-                    if (entry.value != null && entry.value.isInvalid())
-                        return true;
         for (Entry<RenderType, BufferCache> entry : uploaded.tuples())
             if ((entry.getValue() != null && (entry.getValue().isInvalid() || !entry.getValue().isAvailable())) && !queue.containsKey(entry.getKey()))
                 return true;

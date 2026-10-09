@@ -79,7 +79,7 @@ public class BERenderManager {
     
     public void sectionUpdate(long pos) {
         synchronized (this) {
-            boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1 || bufferCache.hasInvalidBuffers();
+            boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1;
             if (renderState != RenderingThread.CURRENT_RENDERING_INDEX) {
                 eraseBoxCache = true;
                 doesNeedUpdate = true;

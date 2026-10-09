@@ -147,7 +147,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 
                 var indexList = indexes.get(tuple.key);
                 indexList.add(entry.getIntKey());
-                indexList.add(((BufferBuilderAccessor) builder).getVertices());
+                indexList.add(((BufferBuilderAccessor) builder).getVertices() * format.getVertexSize());
             }
         }
         
@@ -156,14 +156,8 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             if (builder == null)
                 continue;
             var mesh = builder.build();
-            if (mesh != null) {
-                IrisManager.recalculateCacheNormals(mesh);
-                int[] byteIndexes = indexes.get(layer).toIntArray();
-                int vertexStride = mesh.drawState().format().getVertexSize();
-                for (int i = 1; i < byteIndexes.length; i += 2)
-                    byteIndexes[i] *= vertexStride;
-                buffers.put(layer, new BufferHolder(mesh, byteIndexes));
-            }
+            if (mesh != null)
+                buffers.put(layer, new BufferHolder(mesh, indexes.get(layer).toIntArray()));
         }
         
         clearIndexes();

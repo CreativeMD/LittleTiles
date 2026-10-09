@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import javax.annotation.Nullable;
 
 import net.minecraft.client.renderer.RenderType;
+import team.creative.littletiles.client.render.cache.VertexFormatMismatchException;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferCollection;
 import team.creative.littletiles.client.render.cache.buffer.ChunkBufferUploader;
@@ -43,9 +44,11 @@ public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
         be.updateQuadCache(pos);
         
         synchronized (be.render) {
-            be.render.buffers().upload(builderSupplier, bufferSupplier);
-            if (be.render.buffers().hasInvalidBuffers())
-                be.render.queue(true, true, pos);
+            try {
+                be.render.buffers().upload(builderSupplier, bufferSupplier);
+            } catch (VertexFormatMismatchException e) {
+                be.render.queue(false, true, pos);
+            }
         }
     }
     

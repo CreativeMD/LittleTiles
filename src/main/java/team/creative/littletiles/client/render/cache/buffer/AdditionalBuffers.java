@@ -49,7 +49,7 @@ public class AdditionalBuffers implements AdditionalBufferReceiver {
             uploadedHook.run();
         for (AdditionalBuffer a : content) {
             var buffer = a.buffers.get(layer);
-            if (buffer != null)
+            if (buffer != null && !buffer.isInvalid())
                 LittleRenderPipelineType.upload(uploader, collection, buffer);
         }
     }
