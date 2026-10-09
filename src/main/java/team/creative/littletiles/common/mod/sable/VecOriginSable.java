@@ -179,6 +179,11 @@ public class VecOriginSable implements IVecOrigin {
     }
     
     @Override
+    public Vec3d collisionCenterCopy() {
+        return child.center().copy();
+    }
+    
+    @Override
     public void setCenter(Vec3d vec) {
         child.setCenter(vec);
     }
