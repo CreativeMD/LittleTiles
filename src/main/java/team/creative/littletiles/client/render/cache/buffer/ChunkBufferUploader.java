@@ -9,6 +9,11 @@ public interface ChunkBufferUploader {
     public int uploadIndex();
     
     public void upload(ByteBuffer buffer);
+
+    default boolean tryUpload(ByteBuffer buffer, int vertexCount) {
+        upload(buffer);
+        return true;
+    }
     
     public boolean hasFacingSupport();
     

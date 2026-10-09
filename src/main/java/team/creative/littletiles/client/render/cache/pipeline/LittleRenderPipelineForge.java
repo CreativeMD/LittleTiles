@@ -114,7 +114,10 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                     if (IrisManager.isShaders()) {
                         if (state.getBlock() instanceof IFakeRenderingBlock fake)
                             state = fake.getFakeState(state);
-                        IrisManager.beginBlock(builder, state, pos);
+                        // Iris computes at_midBlock from the submitted vertex positions.
+                        // Use their local origin; Sable's large storage positions lose
+                        // sub-block precision when Iris converts them to floats.
+                        IrisManager.beginBlock(builder, state, modelOffset);
                     }
                     
                     for (int h = 0; h < Facing.VALUES.length; h++) {
@@ -144,7 +147,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 
                 var indexList = indexes.get(tuple.key);
                 indexList.add(entry.getIntKey());
-                indexList.add(((BufferBuilderAccessor) builder).getVertices() * format.getVertexSize());
+                indexList.add(((BufferBuilderAccessor) builder).getVertices());
             }
         }
         
@@ -153,8 +156,14 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             if (builder == null)
                 continue;
             var mesh = builder.build();
-            if (mesh != null)
-                buffers.put(layer, new BufferHolder(mesh, indexes.get(layer).toIntArray()));
+            if (mesh != null) {
+                IrisManager.recalculateCacheNormals(mesh);
+                int[] byteIndexes = indexes.get(layer).toIntArray();
+                int vertexStride = mesh.drawState().format().getVertexSize();
+                for (int i = 1; i < byteIndexes.length; i += 2)
+                    byteIndexes[i] *= vertexStride;
+                buffers.put(layer, new BufferHolder(mesh, byteIndexes));
+            }
         }
         
         clearIndexes();

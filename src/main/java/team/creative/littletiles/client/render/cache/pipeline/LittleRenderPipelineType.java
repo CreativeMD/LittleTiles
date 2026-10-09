@@ -44,6 +44,8 @@ public abstract class LittleRenderPipelineType<T extends LittleRenderPipeline> {
         
         synchronized (be.render) {
             be.render.buffers().upload(builderSupplier, bufferSupplier);
+            if (be.render.buffers().hasInvalidBuffers())
+                be.render.queue(true, true, pos);
         }
     }
     
