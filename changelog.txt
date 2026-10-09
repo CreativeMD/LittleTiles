@@ -1,3 +1,9 @@
+1.6.0-pre234
+Fixed not supporting rotation collision on sable origins
+Add Iris shader support for tiles in the world and on Sable structures (by ArchangelDan)
+- previously caused weird shading issues
+Fixed sable mass calculation always be zero (still WIP)
+
 1.6.0-pre233
 Added support for jade (hide overlay to fix performance issue)
 Fixed not hiding faces from other blocks when there are fully covered #2
