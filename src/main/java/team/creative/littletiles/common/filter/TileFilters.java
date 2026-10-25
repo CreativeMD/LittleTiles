@@ -20,6 +20,8 @@ public class TileFilters {
                 .register("n", TileNameFilter.class).register("m", TileMissingFilter.class);
     }
     
+    public static void init() {}
+    
     public static BiFilter<IParentCollection, LittleTile> block(Block block) {
         return new TileBlockFilter(block);
     }

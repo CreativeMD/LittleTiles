@@ -68,6 +68,7 @@ import team.creative.littletiles.common.entity.EntitySizeHandler;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
+import team.creative.littletiles.common.filter.TileFilters;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.ingredient.rules.IngredientRules;
 import team.creative.littletiles.common.item.ItemMultiTiles;
@@ -230,6 +231,7 @@ public class LittleTiles {
         
         LittleTilesGuiRegistry.init();
         LittleBlocks.init();
+        TileFilters.init();
     }
     
     private void reloadListener(AddReloadListenerEvent event) {
