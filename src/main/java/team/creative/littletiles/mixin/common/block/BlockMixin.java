@@ -56,6 +56,6 @@ public class BlockMixin implements LittleBlockProvider {
     private static void shouldRenderFace(BlockState otherState, BlockGetter level, BlockPos otherPos, Direction direction, BlockPos pos, CallbackInfoReturnable<Boolean> info,
             BlockState blockstate) {
         if (blockstate.getBlock() instanceof BlockTile b)
-            info.setReturnValue(!b.hidesNeighborFace(level, pos, blockstate, otherState, direction));
+            info.setReturnValue(!b.hidesNeighborFace(level, pos, blockstate, otherState, direction.getOpposite()));
     }
 }
