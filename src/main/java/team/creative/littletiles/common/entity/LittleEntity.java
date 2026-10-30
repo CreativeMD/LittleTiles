@@ -132,7 +132,7 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
     
     @Override
     public void parentVecOriginChange(IVecOrigin origin) {
-        ((ChildVecOrigin) this.origin).setParent(origin);
+        ((ChildVecOrigin) this.origin.unwrap()).setParent(origin.unwrap());
     }
     
     @Override
