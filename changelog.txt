@@ -1,3 +1,10 @@
+1.6.0-pre235
+Fixed child animations crash when parent changes to block form while placed on sable
+Fixed moving structures in blueprint caused rotation center to be off
+Fixed child animation transition to block form disappearing with sodium
+Fixed culling face mismatch
+Fixed tile filters not getting loaded on server side
+
 1.6.0-pre234
 Fixed not supporting rotation collision on sable origins
 Add Iris shader support for tiles in the world and on Sable structures (by ArchangelDan)
