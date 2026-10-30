@@ -108,6 +108,7 @@ public class GuiBlueprintMove extends GuiLayer {
                 if (item instanceof GuiBlueprintMoveItem move)
                     move.structure.applyOffset();
             closeThisLayer();
+            blueprint.reloadItem();
         }).setTranslate("gui.save"));
         
         tree.updateTree();

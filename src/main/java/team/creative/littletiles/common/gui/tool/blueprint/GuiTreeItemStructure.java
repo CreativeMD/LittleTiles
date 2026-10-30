@@ -68,6 +68,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     
     public PhysicalState physicalState = new PhysicalState();
     private StructureAbsolute center;
+    private StructureAbsolute lastCenter;
     
     public GuiTreeItemStructure(GuiBlueprint blueprint, GuiTree tree, LittleGroup group, int index) {
         super("tree_item", tree);
@@ -411,6 +412,17 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
     
     public void move(LittleVecGrid vec) {
         group.move(vec);
+        if (group.hasStructure()) {
+            this.structure = group.getStructureType().createStructure(null);
+            this.structure.load(group.getStructureTag(), blueprint.provider());
+        }
+        
+        if (hasNewCenter())
+            center.move(vec);
+        else if (lastCenter != null) {
+            lastCenter.move(vec);
+            setNewCenter(lastCenter);
+        }
         refreshAnimation();
         
         for (GuiTreeItem item : items())
@@ -432,6 +444,7 @@ public class GuiTreeItemStructure extends GuiTreeItem implements AnimationContex
         preview.set(physicalState);
         if (hasNewCenter()) {
             preview.setCenter(center);
+            lastCenter = center;
             center = null;
         }
     }

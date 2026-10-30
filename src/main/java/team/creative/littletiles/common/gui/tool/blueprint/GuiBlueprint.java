@@ -113,6 +113,11 @@ public class GuiBlueprint extends GuiConfigure {
         });
     }
     
+    public void reloadItem() {
+        if (tree.selected() != null)
+            ((GuiTreeItemStructure) tree.selected()).load();
+    }
+    
     @Override
     public void becameTopLayer() {
         super.becameTopLayer();
