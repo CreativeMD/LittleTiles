@@ -10,9 +10,6 @@ import org.lwjgl.opengl.GL30C;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.MeshData.SortState;
 import com.mojang.blaze3d.vertex.VertexBuffer;
 import com.mojang.blaze3d.vertex.VertexFormat;
@@ -24,6 +21,7 @@ import net.caffeinemc.mods.sodium.client.gl.attribute.GlVertexFormat;
 import net.caffeinemc.mods.sodium.client.render.chunk.shader.ChunkShaderInterface;
 import net.caffeinemc.mods.sodium.client.render.viewport.CameraTransform;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import team.creative.creativecore.common.util.type.list.Tuple;
@@ -175,26 +173,25 @@ public class LittleSodiumSection implements RenderChunkExtender {
             ByteBuffer vanillaBuffer = null;
             if (!isEmpty(layer))
                 vanillaBuffer = downloadUploadedData((VertexBufferExtender) uploadBuffer, 0, ((VertexBufferExtender) uploadBuffer).getLastUploadedLength());
-            ByteBufferBuilder buffer = new ByteBufferBuilder(((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size + DefaultVertexFormat.BLOCK.getVertexSize()) / 6); // dividing by 6 is risky and could potentially cause issues
             
-            BufferBuilder builder = new BufferBuilder(buffer, VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK);
+            LittleSodiumSectionExtraUploader uploader = new LittleSodiumSectionExtraUploader((vanillaBuffer != null ? vanillaBuffer.limit() : 0) + size);
+            
             if (vanillaBuffer != null)
-                ((ChunkBufferUploader) builder).upload(vanillaBuffer);
+                uploader.upload(vanillaBuffer);
             
             for (LayeredBufferCache data : blocks) {
                 var layerData = data.get(layer);
                 if (layerData != null)
-                    layerData.upload((ChunkBufferUploader) builder);
+                    layerData.upload(uploader);
             }
             
-            var mesh = builder.build();
+            var byteBuffer = uploader.build();
             
-            if (!uploadBuffer.isInvalid() && uploadBuffer instanceof VertexBufferExtender ex && mesh != null) {
+            if (!uploadBuffer.isInvalid() && uploadBuffer instanceof VertexBufferExtender ex && byteBuffer != null) {
                 uploadBuffer.bind();
                 
                 ex.setFormat(null);
                 
-                var byteBuffer = mesh.vertexBuffer();
                 int length = byteBuffer.limit();
                 
                 uploadVertexBuffer(ex, byteBuffer);
@@ -246,6 +243,51 @@ public class LittleSodiumSection implements RenderChunkExtender {
     
     public void unload() {
         this.buffers.forEach(VertexBuffer::close);
+    }
+    
+    public static class LittleSodiumSectionExtraUploader implements ChunkBufferUploader {
+        
+        private ByteBuffer buffer;
+        
+        public LittleSodiumSectionExtraUploader(int size) {
+            buffer = ByteBuffer.allocateDirect(size);
+        }
+        
+        @Override
+        public int uploadIndex() {
+            return buffer.position();
+        }
+        
+        @Override
+        public void upload(ByteBuffer buffer) {
+            this.buffer.put(buffer);
+        }
+        
+        @Override
+        public boolean hasFacingSupport() {
+            return false;
+        }
+        
+        @Override
+        public int uploadIndex(int facing) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public void upload(int facing, ByteBuffer buffer) {
+            throw new UnsupportedOperationException();
+        }
+        
+        @Override
+        public void addTexture(TextureAtlasSprite texture) {}
+        
+        public ByteBuffer build() {
+            var temp = buffer;
+            buffer = null;
+            temp.rewind();
+            return temp;
+        }
+        
     }
     
 }
