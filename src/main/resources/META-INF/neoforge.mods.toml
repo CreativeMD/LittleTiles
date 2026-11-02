@@ -40,3 +40,6 @@ license="LGPL-3.0-only"
 [[mixins]]
    config="littletiles.mixins.json"
 
+[[mixins]]
+   config="littletiles.ao-compat.mixins.json"
+

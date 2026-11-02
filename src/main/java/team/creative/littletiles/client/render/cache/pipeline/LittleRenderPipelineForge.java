@@ -7,6 +7,7 @@ import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -17,10 +18,12 @@ import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.lighting.QuadLighter;
+import net.neoforged.neoforge.common.NeoForgeConfig;
 import team.creative.creativecore.client.render.model.CreativeQuadLighter;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.type.list.SingletonList;
@@ -35,6 +38,7 @@ import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
+import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.mixin.client.render.BufferBuilderAccessor;
 
 @OnlyIn(Dist.CLIENT)
@@ -63,6 +67,9 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             renderLevel = sub.getParent();
         
         BlockPos pos = data.be.getBlockPos();
+        boolean dynamicShade = SableManager.INSTALLED && LittleSableLighting.isDynamic(renderLevel, pos);
+        BlockAndTintGetter lightingLevel = dynamicShade ? new LittleLightingView(renderLevel) : renderLevel;
+        LittleVanillaLighting vanilla = NeoForgeConfig.CLIENT.experimentalForgeLightPipelineEnabled.get() ? null : new LittleVanillaLighting();
         
         ForgeModelBlockRendererAccessor renderer = (ForgeModelBlockRendererAccessor) MC.getBlockRenderer().getModelRenderer();
         
@@ -89,27 +96,32 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 BufferBuilder builder = builders.get(tuple.key);
                 if (builder == null)
                     builders.put(tuple.key, builder = new BufferBuilder(getOrCreate(tuple.key), VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK));
+                VertexConsumer consumer = dynamicShade ? LittleSableLighting.wrap(builder) : builder;
                 
                 for (LittleRenderBox cube : cubes) {
                     BlockState state = cube.state;
                     
-                    QuadLighter lighter;
-                    if (Minecraft.useAmbientOcclusion() && state.getLightEmission(data.be.getLevel(), pos) == 0) {
+                    QuadLighter lighter = null;
+                    if (vanilla != null) {
+                        vanilla.prepare(lightingLevel, pos, state, cube.color, tuple.key);
+                    } else if (Minecraft.useAmbientOcclusion() && state.getLightEmission(data.be.getLevel(), pos) == 0) {
                         if (smoothLighter == null) {
                             smoothLighter = renderer.getSmoothLighter().get();
-                            smoothLighter.setup(renderLevel, pos, data.state);
+                            smoothLighter.setup(lightingLevel, pos, data.state);
                         }
                         lighter = smoothLighter;
                     } else {
                         if (flatLighter == null) {
                             flatLighter = renderer.getFlatLighter().get();
-                            flatLighter.setup(renderLevel, pos, data.state);
+                            flatLighter.setup(lightingLevel, pos, data.state);
                         }
                         lighter = flatLighter;
                     }
                     
-                    ((CreativeQuadLighter) lighter).setState(state);
-                    ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
+                    if (lighter != null) {
+                        ((CreativeQuadLighter) lighter).setState(state);
+                        ((CreativeQuadLighter) lighter).setCustomTint(cube.color);
+                    }
                     
                     if (IrisManager.isShaders()) {
                         if (state.getBlock() instanceof IFakeRenderingBlock fake)
@@ -130,12 +142,13 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                             bakedQuadWrapper.setElement(quad);
                             quads = bakedQuadWrapper;
                         }
-                        if (quads != null && !quads.isEmpty())
-                            if (quads instanceof SingletonList<BakedQuad> single)
-                                lighter.process(builder, pose.last(), single.get(0), overlay);
+                        if (quads != null && !quads.isEmpty()) {
+                            if (vanilla != null)
+                                vanilla.render(lightingLevel, pos, data.state, pose, consumer, quads, tuple.key, overlay);
                             else
                                 for (BakedQuad quad : quads)
-                                    lighter.process(builder, pose.last(), quad, overlay);
+                                    lighter.process(consumer, pose.last(), quad, overlay);
+                        }
                     }
                     
                     IrisManager.resetBlockContext(builder);
