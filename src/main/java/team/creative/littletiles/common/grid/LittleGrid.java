@@ -13,6 +13,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.common.util.text.TextMapBuilder;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.common.math.LittleUtils;
 import team.creative.littletiles.common.math.box.LittleBox;
@@ -34,7 +35,8 @@ public class LittleGrid {
     private static final List<LittleGrid> GRIDS = new ArrayList<>(Arrays.asList(MIN));
     private static final List<String> NAMES = new ArrayList<>(Arrays.asList("1"));
     private static final Int2ObjectMap<LittleGrid> GRID_MAP = new Int2ObjectArrayMap<>(new int[] { 1 }, new LittleGrid[] { MIN });
-    private static List<String> UNMODFIAABLE_NAMES = Collections.unmodifiableList(NAMES);
+    private static List<LittleGrid> UNMODFIABLE_GRIDS = new ArrayList<>(Arrays.asList(MIN));
+    private static List<String> UNMODFIABLE_NAMES = Collections.unmodifiableList(NAMES);
     private static int HIGHEST = 1;
     private static TextMapBuilder<LittleGrid> STANDARD_TEXTMAP;
     
@@ -56,19 +58,21 @@ public class LittleGrid {
         if (highest < 1)
             highest = 1;
         ensure(highest);
+        LittleTiles.LOGGER.info("Setting grid to " + highest);
         
         HIGHEST = highest;
         MAX_INDEX = 0;
         while (MAX_INDEX + 1 < GRIDS.size() && GRIDS.get(MAX_INDEX + 1).count <= HIGHEST)
             MAX_INDEX++;
         MAX = GRIDS.get(MAX_INDEX);
-        UNMODFIAABLE_NAMES = Collections.unmodifiableList(NAMES);
+        UNMODFIABLE_GRIDS = Collections.unmodifiableList(GRIDS.subList(0, MAX_INDEX + 1));
+        UNMODFIABLE_NAMES = Collections.unmodifiableList(NAMES);
         
         STANDARD_TEXTMAP = new TextMapBuilder<LittleGrid>().addComponent(GRIDS, x -> Component.literal("" + x.count));
     }
     
     public static Iterable<LittleGrid> grids() {
-        return GRIDS;
+        return UNMODFIABLE_GRIDS;
     }
     
     public static int gridCount() {
@@ -76,11 +80,11 @@ public class LittleGrid {
     }
     
     public static LittleGrid gridByIndex(int index) {
-        return GRIDS.get(index);
+        return UNMODFIABLE_GRIDS.get(index);
     }
     
     public static List<String> names() {
-        return UNMODFIAABLE_NAMES;
+        return UNMODFIABLE_NAMES;
     }
     
     public static TextMapBuilder<LittleGrid> mapBuilder() {
