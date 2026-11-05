@@ -1,3 +1,6 @@
+1.6.0-pre236
+Fixed still being able to use higher grids on server if there were already loaded
+
 1.6.0-pre235
 Fixed child animations crash when parent changes to block form while placed on sable
 Fixed moving structures in blueprint caused rotation center to be off
