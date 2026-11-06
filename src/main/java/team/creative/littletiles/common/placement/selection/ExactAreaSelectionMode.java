@@ -22,9 +22,11 @@ import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.component.SelectionComponent;
-import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
+import team.creative.littletiles.common.math.box.LittleBoxLevel;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.mod.sable.SableContext;
 import team.creative.littletiles.common.placement.PlacementHelper;
 
 public class ExactAreaSelectionMode extends SelectionMode {
@@ -34,18 +36,16 @@ public class ExactAreaSelectionMode extends SelectionMode {
         SelectionScanResult result = new SelectionScanResult(level);
         
         var nbt = config.getConfig();
-        LittleBoxAbsolute pos1 = null;
-        if (nbt.contains("pos1"))
-            pos1 = LittleBoxAbsolute.of(nbt.getIntArray("pos1"));
-        
-        LittleBoxAbsolute pos2 = null;
-        if (nbt.contains("pos2"))
-            pos2 = LittleBoxAbsolute.of(nbt.getIntArray("pos2"));
+        LittleBoxLevel pos1 = LittleBoxLevel.tryOf(level, nbt.get("pos1"));
+        LittleBoxLevel pos2 = LittleBoxLevel.tryOf(level, nbt.get("pos2"));
         
         if (pos1 == null && pos2 != null)
             pos1 = pos2;
-        else if (pos1 != null && pos2 != null)
+        else if (pos1 != null && pos2 != null) {
+            if (!pos1.context.is(pos2.context))
+                pos2 = pos2.convertTo(pos1.context);
             pos1.include(pos2);
+        }
         
         if (pos1 != null)
             result.addBlocks(pos1);
@@ -55,21 +55,21 @@ public class ExactAreaSelectionMode extends SelectionMode {
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            LittleTileContext context, boolean secondMode) {
+    public SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, ILittleLevelContext level, LittleGrid positionGrid,
+            BlockHitResult hit, LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
-        var pos = PlacementHelper.getPositionInside(source.getActionLevel(), hit, positionGrid);
-        nbt.putIntArray("pos1", pos.box().toArray());
+        var pos = PlacementHelper.getPositionInside(level.asLevel(source.getActionLevel()), hit, positionGrid);
+        nbt.put("pos1", new LittleBoxLevel(level, pos.box()).write());
         return config.withConfig(nbt);
     }
     
     @Override
     @OnlyIn(Dist.CLIENT)
-    public SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            LittleTileContext context, boolean secondMode) {
+    public SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, ILittleLevelContext level, LittleGrid positionGrid,
+            BlockHitResult hit, LittleTileContext context, boolean secondMode) {
         var nbt = config.getConfig();
-        var pos = PlacementHelper.getPositionInside(source.getActionLevel(), hit, positionGrid);
-        nbt.putIntArray("pos2", pos.box().toArray());
+        var pos = PlacementHelper.getPositionInside(level.asLevel(source.getActionLevel()), hit, positionGrid);
+        nbt.put("pos2", new LittleBoxLevel(level, pos.box()).write());
         return config.withConfig(nbt);
     }
     
@@ -86,12 +86,14 @@ public class ExactAreaSelectionMode extends SelectionMode {
         if (marked > 0) {
             var facing = LittleTilesClient.facingFromKeybind(source.asPlayer(), key);
             if (facing != null) {
-                var box = LittleBoxAbsolute.of(nbt.getIntArray("pos" + marked));
-                LittleVecGrid vec = new LittleVecGrid(new LittleVec(facing), positionGrid);
-                vec.getVec().scale(Screen.hasControlDown() ? positionGrid.count : 1);
-                box.sameGrid(vec, () -> box.box.add(vec.getVec()));
-                nbt.putIntArray("pos" + marked, box.toArray());
-                return config.withConfig(nbt);
+                var box = LittleBoxLevel.tryOf(source.getActionLevel(), nbt.get("pos" + marked));
+                if (box != null) {
+                    LittleVecGrid vec = new LittleVecGrid(new LittleVec(facing), positionGrid);
+                    vec.getVec().scale(Screen.hasControlDown() ? positionGrid.count : 1);
+                    box.sameGrid(vec, () -> box.box.add(vec.getVec()));
+                    nbt.put("pos" + marked, box.write());
+                    return config.withConfig(nbt);
+                }
             }
         }
         return super.keyPressed(source, stack, config, positionGrid, secondMode, key);
@@ -100,16 +102,13 @@ public class ExactAreaSelectionMode extends SelectionMode {
     @Override
     public LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack, SelectionComponent config) throws LittleActionException {
         var nbt = config.getConfig();
-        LittleBoxAbsolute pos1 = null;
-        if (nbt.contains("pos1"))
-            pos1 = LittleBoxAbsolute.of(nbt.getIntArray("pos1"));
-        
-        LittleBoxAbsolute pos2 = null;
-        if (nbt.contains("pos2"))
-            pos2 = LittleBoxAbsolute.of(nbt.getIntArray("pos2"));
+        LittleBoxLevel pos1 = LittleBoxLevel.tryOf(level, nbt.get("pos1"));
+        LittleBoxLevel pos2 = LittleBoxLevel.tryOf(level, nbt.get("pos2"));
         
         if (pos1 == null && pos2 != null)
             pos1 = pos2;
+        else if (pos1 != null && pos2 != null && !pos1.context.is(pos2.context))
+            pos2 = pos2.convertTo(pos1.context);
         
         if (pos1 == null)
             return null;
@@ -124,7 +123,12 @@ public class ExactAreaSelectionMode extends SelectionMode {
         if (pos1 != null && pos2 != null)
             pos1.include(pos2);
         
-        AABB bb = pos1.toAABB();
+        level = pos1.context.asLevel(level);
+        AABB bb;
+        if (pos1.context instanceof SableContext)
+            bb = pos1.toAABB();
+        else
+            bb = new AABB(pos1.context.toRealWorld(pos1.getMin().getVec3()), pos1.context.toRealWorld(pos1.getMax().getVec3()));
         
         if (source.isPlayer()) {
             LittlePermissionBuild perm = LittleTiles.CONFIG.build.get(source.asPlayer());
@@ -136,8 +140,9 @@ public class ExactAreaSelectionMode extends SelectionMode {
         search.scanLevel(level, minX, minY, minZ, maxX, maxY, maxZ, pos1);
         
         for (LittleEntity animation : LittleTiles.ANIMATION_HANDLERS.get(level).find(bb))
-            search.scanLevel(animation.getSubLevel(), minX, minY, minZ, maxX, maxY, maxZ, pos1);
-        
+            if (pos1.context.isChildOf(animation.getSubLevel()))
+                search.scanLevel(animation.getSubLevel(), minX, minY, minZ, maxX, maxY, maxZ, pos1);
+            
         return search.build();
     }
     
@@ -146,33 +151,32 @@ public class ExactAreaSelectionMode extends SelectionMode {
     public void buildRender(Level level, ItemStack stack, SelectionComponent config, SelectionRenderQueue queue) {
         var nbt = config.getConfig();
         int marked = nbt.getInt("marked");
-        LittleBoxAbsolute pos1 = null;
-        if (nbt.contains("pos1"))
-            pos1 = LittleBoxAbsolute.of(nbt.getIntArray("pos1"));
         
-        LittleBoxAbsolute pos2 = null;
-        if (nbt.contains("pos2"))
-            pos2 = LittleBoxAbsolute.of(nbt.getIntArray("pos2"));
+        LittleBoxLevel pos1 = LittleBoxLevel.tryOf(level, nbt.get("pos1"));
+        LittleBoxLevel pos2 = LittleBoxLevel.tryOf(level, nbt.get("pos2"));
+        
+        if (pos1 != null && pos2 != null && !pos1.context.is(pos2.context))
+            pos2 = pos2.convertTo(pos1.context);
         
         if (pos1 != null) {
-            var box = pos1.getRenderingBox();
-            if (marked == 1)
-                box.color = ColorUtils.ORANGE;
-            queue.addBox(box, true);
+            queue.setContext(pos1.context);
+            queue.setOrigin(pos1.pos);
+            queue.addBox(pos1.toABB(), true, marked == 1 ? ColorUtils.ORANGE : -1);
         }
         
         if (pos2 != null) {
-            var box = pos2.getRenderingBox();
-            if (marked == 2)
-                box.color = ColorUtils.ORANGE;
-            queue.addBox(box, true);
+            if (pos1 == null) {
+                queue.setContext(pos2.context);
+                queue.setOrigin(pos2.pos);
+            }
+            queue.addBox(pos2.toABB(), true, marked == 2 ? ColorUtils.ORANGE : -1);
         }
         
         if (pos1 != null && pos2 != null) {
             pos1.include(pos2);
-            var box = pos1.getRenderingBox();
-            box.grow(0.01F);
-            queue.addBox(box, false, 100);
+            var box = pos1.toABB();
+            box.inflate(0.01);
+            queue.addBox(box, false, -1, 100);
         }
     }
     

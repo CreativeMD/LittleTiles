@@ -10,12 +10,15 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.Entity.RemovalReason;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.chunk.ChunkAccess;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.IOrientatedLevel;
+import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.littletiles.client.render.entity.LittleEntityRenderManager;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
@@ -66,6 +69,16 @@ public interface LittleLevel extends IOrientatedLevel, ILittleLevelContext {
     }
     
     @Override
+    default AABB toFakeWorld(AABB bb) {
+        return getOrigin().pose().transformInverse(bb).toVanilla();
+    }
+    
+    @Override
+    default AABB toFakeWorld(AABB bb, float partialTick) {
+        return getOrigin().pose(partialTick).transformInverse(bb).toVanilla();
+    }
+    
+    @Override
     default Vec3 toRealWorld(Vec3 vec) {
         return getOrigin().pose().transform(vec);
     }
@@ -73,6 +86,16 @@ public interface LittleLevel extends IOrientatedLevel, ILittleLevelContext {
     @Override
     default Vec3 toRealWorld(Vec3 vec, float partialTick) {
         return getOrigin().pose(partialTick).transform(vec);
+    }
+    
+    @Override
+    default AABB toRealWorld(AABB bb) {
+        return getOrigin().pose().transform(bb).toVanilla();
+    }
+    
+    @Override
+    default AABB toRealWorld(AABB bb, float partialTick) {
+        return getOrigin().pose(partialTick).transform(bb).toVanilla();
     }
     
     @Override
@@ -99,5 +122,39 @@ public interface LittleLevel extends IOrientatedLevel, ILittleLevelContext {
         Matrix4f matrix = getOrigin().pose(partialTick).transformInverse(x, y, z);
         matrix.translate((float) -(x - camera.x), (float) -(y - camera.y), (float) -(z - camera.z));
         return matrix;
+    }
+    
+    @Override
+    default boolean hasId() {
+        return true;
+    }
+    
+    @Override
+    default String getId() {
+        var key = key();
+        return key != null ? key.toString() : "";
+    }
+    
+    @Override
+    default Level asLevel(Level level) {
+        return (Level) this;
+    }
+    
+    @Override
+    default boolean is(ILittleLevelContext context) {
+        return this == context;
+    }
+    
+    @Override
+    default boolean isChildOf(LevelAccessor level) {
+        if (level instanceof ISubLevel s) {
+            level = s.getParent();
+            while (level instanceof ISubLevel sub) {
+                if (level == this)
+                    return true;
+                level = sub.getParent();
+            }
+        }
+        return false;
     }
 }

@@ -7,6 +7,7 @@ import net.minecraft.core.Vec3i;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
@@ -151,6 +152,10 @@ public class LittleVecAbsolute implements IGridBased {
     
     public Vec3d getVec3d() {
         return new Vec3d(getPosX(), getPosY(), getPosZ());
+    }
+    
+    public Vec3 getVec3() {
+        return new Vec3(getPosX(), getPosY(), getPosZ());
     }
     
     public void writeToNBT(String name, CompoundTag nbt) {

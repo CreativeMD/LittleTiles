@@ -21,6 +21,7 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.component.SelectionComponent;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
 public abstract class SelectionMode {
     
@@ -49,13 +50,13 @@ public abstract class SelectionMode {
     
     @Nullable
     @OnlyIn(Dist.CLIENT)
-    public abstract SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            @Nullable LittleTileContext context, boolean secondMode);
+    public abstract SelectionComponent leftClick(LittleActionSource source, ItemStack stack, SelectionComponent config, ILittleLevelContext level, LittleGrid positionGrid,
+            BlockHitResult hit, @Nullable LittleTileContext context, boolean secondMode);
     
     @Nullable
     @OnlyIn(Dist.CLIENT)
-    public abstract SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, LittleGrid positionGrid, BlockHitResult hit,
-            @Nullable LittleTileContext context, boolean secondMode);
+    public abstract SelectionComponent rightClick(LittleActionSource source, ItemStack stack, SelectionComponent config, ILittleLevelContext level, LittleGrid positionGrid,
+            BlockHitResult hit, @Nullable LittleTileContext context, boolean secondMode);
     
     @Nullable
     @OnlyIn(Dist.CLIENT)

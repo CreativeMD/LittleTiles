@@ -1,5 +1,7 @@
 package team.creative.littletiles.client.tool;
 
+import org.joml.Matrix4fStack;
+
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -13,7 +15,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
-import team.creative.creativecore.client.render.box.RenderBox;
+import team.creative.creativecore.common.util.math.box.ABB;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
 import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
@@ -23,13 +25,14 @@ import team.creative.littletiles.client.render.mc.MeshDataExtender;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.item.component.SelectionComponent;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 
 public class LittleToolSelection extends LittleTool {
     
     private final ILittleSelector selector;
     private SelectionComponent cachedSelection;
-    private BlockPos cacheOrigin;
+    private SelectionRenderQueue renderQueue;
     private SelectionRenderResult lineCache;
     private SelectionRenderResult boxCache;
     
@@ -49,7 +52,7 @@ public class LittleToolSelection extends LittleTool {
         cachedSelection = selection;
         SelectionRenderQueue queue = new SelectionRenderQueue(renderer);
         cachedSelection.mode.buildRender(renderer.level(), stack, selector.getSelection(stack), queue);
-        cacheOrigin = queue.origin;
+        renderQueue = queue;
         lineCache = queue.build(true);
         boxCache = queue.build(false);
     }
@@ -60,8 +63,8 @@ public class LittleToolSelection extends LittleTool {
             return false;
         
         var selection = selector.getSelection(stack);
-        var component = selection.mode.rightClick((LittleActionSource) renderer.player(), stack, selection, selector.getSelectorGrid(renderer.player(), stack), result, renderer
-                .selectFocused(result), renderer.isUsingSecondMode());
+        var component = selection.mode.rightClick((LittleActionSource) renderer.player(), stack, selection, renderer.blockHitContext(), selector.getSelectorGrid(renderer.player(),
+            stack), result, renderer.selectFocused(result), renderer.isUsingSecondMode());
         if (component != null)
             LittleTiles.NETWORK.sendToServer(new SelectionModePacket(component));
         return true;
@@ -73,8 +76,8 @@ public class LittleToolSelection extends LittleTool {
             return false;
         
         var selection = selector.getSelection(stack);
-        var component = selection.mode.leftClick((LittleActionSource) renderer.player(), stack, selection, selector.getSelectorGrid(renderer.player(), stack), result, renderer
-                .selectFocused(result), renderer.isUsingSecondMode());
+        var component = selection.mode.leftClick((LittleActionSource) renderer.player(), stack, selection, renderer.blockHitContext(), selector.getSelectorGrid(renderer.player(),
+            stack), result, renderer.selectFocused(result), renderer.isUsingSecondMode());
         if (component != null)
             LittleTiles.NETWORK.sendToServer(new SelectionModePacket(component));
         return true;
@@ -125,7 +128,8 @@ public class LittleToolSelection extends LittleTool {
             renderer.setupPreviewRendererLines(1, 1, 1, 0.4F, (float) LittleTiles.CONFIG.rendering.previewLineThickness);
         else
             renderer.setupPreviewRenderer(lines);
-        matrix.translate((float) (cacheOrigin.getX() - cam.x), (float) (cacheOrigin.getY() - cam.y), (float) (cacheOrigin.getZ() - cam.z));
+        
+        renderQueue.transform(matrix, cam, renderer.partialTickTime());
         RenderSystem.applyModelViewMatrix();
         BufferUploader.drawWithShader(result.data);
         matrix.popMatrix();
@@ -133,7 +137,7 @@ public class LittleToolSelection extends LittleTool {
         
         if (cachedSelection.mode.hasRenderTick(stack, cachedSelection)) {
             pose.pushPose();
-            pose.translate(-cam.x, -cam.y, -cam.z);
+            renderQueue.transform(pose, cam, renderer.partialTickTime());
             cachedSelection.mode.renderTick(renderer, (LittleActionSource) renderer.player(), renderer.level(), stack, cachedSelection, pose, lines);
             pose.popPose();
         }
@@ -152,7 +156,7 @@ public class LittleToolSelection extends LittleTool {
         boxCache = null;
         
         cachedSelection = null;
-        cacheOrigin = null;
+        renderQueue = null;
     }
     
     public class SelectionRenderQueue {
@@ -162,7 +166,8 @@ public class LittleToolSelection extends LittleTool {
         private ByteBufferBuilder boxBuffer;
         private BufferBuilder boxBuilder;
         
-        private BlockPos origin = BlockPos.ZERO;
+        private BlockPos origin;
+        private ILittleLevelContext context;
         
         public final PreviewRenderer renderer;
         
@@ -177,6 +182,10 @@ public class LittleToolSelection extends LittleTool {
         
         public void setOrigin(BlockPos pos) {
             origin = pos;
+        }
+        
+        public void setContext(ILittleLevelContext context) {
+            this.context = context;
         }
         
         public BufferBuilder getBuilder(boolean line) {
@@ -195,17 +204,26 @@ public class LittleToolSelection extends LittleTool {
             return boxBuilder;
         }
         
-        public void addBox(RenderBox box, boolean line) {
-            addBox(box, line, 255);
+        public void addBox(ABB box, boolean line) {
+            addBox(box, line, -1);
         }
         
-        public void addBox(RenderBox box, boolean line, int alpha) {
+        public void addBox(ABB box, boolean line, int color) {
+            addBox(box, line, color, 255);
+        }
+        
+        public void addBox(ABB box, boolean line, int color, int alpha) {
             checkOrigin();
-            renderer.buildBox(PreviewRenderer.EMPTY, box, getBuilder(line), alpha, line);
+            box.move(-origin.getX(), -origin.getY(), -origin.getZ());
+            var b = box.toRenderBox();
+            b.color = color;
+            renderer.buildBox(PreviewRenderer.EMPTY, b, getBuilder(line), alpha, line);
         }
         
         public void addLine(Vec3 start, Vec3 end, int color) {
             checkOrigin();
+            start.subtract(origin.getX(), origin.getY(), origin.getZ());
+            end.subtract(origin.getX(), origin.getY(), origin.getZ());
             int red = ColorUtils.red(color);
             int green = ColorUtils.green(color);
             int blue = ColorUtils.blue(color);
@@ -234,6 +252,15 @@ public class LittleToolSelection extends LittleTool {
             return new SelectionRenderResult(boxBuffer, data);
         }
         
+        public void transform(Matrix4fStack matrix, Vec3 cam, float partialTicks) {
+            if (context != null)
+                context.transformMatrix(matrix, origin.getX(), origin.getY(), origin.getZ(), cam, partialTicks);
+        }
+        
+        public void transform(PoseStack pose, Vec3 cam, float partialTicks) {
+            if (context != null)
+                context.transformPose(pose, origin.getX(), origin.getY(), origin.getZ(), cam, partialTicks);
+        }
     }
     
     public static record SelectionRenderResult(ByteBufferBuilder buffer, MeshData data) {

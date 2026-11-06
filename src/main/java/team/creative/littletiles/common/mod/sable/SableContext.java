@@ -3,6 +3,7 @@ package team.creative.littletiles.common.mod.sable;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fStack;
 import org.joml.Quaternionf;
+import org.joml.Vector3d;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -11,10 +12,17 @@ import dev.ryanhcode.sable.companion.math.Pose3dc;
 import dev.ryanhcode.sable.sublevel.SubLevel;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.world.level.LevelAccessor;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
+import team.creative.creativecore.common.util.math.box.ABB;
+import team.creative.creativecore.common.util.math.box.BoxCorner;
+import team.creative.littletiles.common.entity.LittleEntity;
+import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
+import team.creative.littletiles.common.level.little.LittleLevel;
 
 public class SableContext implements ILittleLevelContext {
     
@@ -91,6 +99,48 @@ public class SableContext implements ILittleLevelContext {
     }
     
     @Override
+    public AABB toFakeWorld(AABB box) {
+        var pose = level.logicalPose();
+        ABB bb = ABB.createEmptyBox();
+        Vector3d vec = new Vector3d();
+        for (int i = 0; i < BoxCorner.values().length; i++) {
+            BoxCorner.values()[i].set(box, vec);
+            
+            pose.transformPositionInverse(vec);
+            
+            bb.minX = Math.min(bb.minX, vec.x);
+            bb.minY = Math.min(bb.minY, vec.y);
+            bb.minZ = Math.min(bb.minZ, vec.z);
+            bb.maxX = Math.max(bb.maxX, vec.x);
+            bb.maxY = Math.max(bb.maxY, vec.y);
+            bb.maxZ = Math.max(bb.maxZ, vec.z);
+        }
+        
+        return bb.toVanilla();
+    }
+    
+    @Override
+    public AABB toFakeWorld(AABB box, float partialTick) {
+        var pose = ((ClientSubLevelAccess) level).renderPose(partialTick);
+        ABB bb = ABB.createEmptyBox();
+        Vector3d vec = new Vector3d();
+        for (int i = 0; i < BoxCorner.values().length; i++) {
+            BoxCorner.values()[i].set(box, vec);
+            
+            pose.transformPositionInverse(vec);
+            
+            bb.minX = Math.min(bb.minX, vec.x);
+            bb.minY = Math.min(bb.minY, vec.y);
+            bb.minZ = Math.min(bb.minZ, vec.z);
+            bb.maxX = Math.max(bb.maxX, vec.x);
+            bb.maxY = Math.max(bb.maxY, vec.y);
+            bb.maxZ = Math.max(bb.maxZ, vec.z);
+        }
+        
+        return bb.toVanilla();
+    }
+    
+    @Override
     public Vec3 toRealWorld(Vec3 vec) {
         return level.logicalPose().transformPosition(vec);
     }
@@ -98,6 +148,48 @@ public class SableContext implements ILittleLevelContext {
     @Override
     public Vec3 toRealWorld(Vec3 vec, float partialTick) {
         return ((ClientSubLevelAccess) level).renderPose(partialTick).transformPosition(vec);
+    }
+    
+    @Override
+    public AABB toRealWorld(AABB box) {
+        var pose = level.logicalPose();
+        ABB bb = ABB.createEmptyBox();
+        Vector3d vec = new Vector3d();
+        for (int i = 0; i < BoxCorner.values().length; i++) {
+            BoxCorner.values()[i].set(box, vec);
+            
+            pose.transformPosition(vec);
+            
+            bb.minX = Math.min(bb.minX, vec.x);
+            bb.minY = Math.min(bb.minY, vec.y);
+            bb.minZ = Math.min(bb.minZ, vec.z);
+            bb.maxX = Math.max(bb.maxX, vec.x);
+            bb.maxY = Math.max(bb.maxY, vec.y);
+            bb.maxZ = Math.max(bb.maxZ, vec.z);
+        }
+        
+        return bb.toVanilla();
+    }
+    
+    @Override
+    public AABB toRealWorld(AABB box, float partialTick) {
+        var pose = ((ClientSubLevelAccess) level).renderPose(partialTick);
+        ABB bb = ABB.createEmptyBox();
+        Vector3d vec = new Vector3d();
+        for (int i = 0; i < BoxCorner.values().length; i++) {
+            BoxCorner.values()[i].set(box, vec);
+            
+            pose.transformPosition(vec);
+            
+            bb.minX = Math.min(bb.minX, vec.x);
+            bb.minY = Math.min(bb.minY, vec.y);
+            bb.minZ = Math.min(bb.minZ, vec.z);
+            bb.maxX = Math.max(bb.maxX, vec.x);
+            bb.maxY = Math.max(bb.maxY, vec.y);
+            bb.maxZ = Math.max(bb.maxZ, vec.z);
+        }
+        
+        return bb.toVanilla();
     }
     
     @Override
@@ -109,6 +201,23 @@ public class SableContext implements ILittleLevelContext {
     public boolean equals(Object obj) {
         if (obj instanceof SableContext c)
             return c.level == level;
+        return false;
+    }
+    
+    @Override
+    public boolean is(ILittleLevelContext context) {
+        if (context instanceof SableContext s)
+            return s.level == level;
+        return false;
+    }
+    
+    @Override
+    public boolean isChildOf(LevelAccessor level) {
+        if (level instanceof LittleLevel l && l.getHolder() instanceof LittleEntity e) {
+            e = e.getTopLevelEntity();
+            if (e instanceof LittleAnimationEntity a)
+                return is(ILittleLevelContext.of(e.level(), a.getCenter().baseOffset));
+        }
         return false;
     }
 }
