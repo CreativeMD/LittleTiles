@@ -39,6 +39,7 @@ final class LittleVanillaLighting {
     void render(BlockAndTintGetter level, BlockPos pos, BlockState containerState, PoseStack pose,
             VertexConsumer consumer, List<BakedQuad> quads, RenderType layer, int overlay) {
         model.quads = quads;
+        boolean previousInsetScope = LittleInsetLighting.begin();
         try {
             // Shape classification must use the actual container, not the full cube
             // material that was cut down to make the tile. Tints use the tile instead.
@@ -47,6 +48,7 @@ final class LittleVanillaLighting {
             else
                 renderer.tesselateWithoutAO(level, model, containerState, pos, pose, consumer, false, random, 0L, overlay, ModelData.EMPTY, layer);
         } finally {
+            LittleInsetLighting.end(previousInsetScope);
             model.quads = List.of();
         }
     }

@@ -3,6 +3,6 @@
   "minVersion": "0.8",
   "package": "team.creative.littletiles.mixin.client.render",
   "compatibilityLevel": "JAVA_21",
-  "client": ["AoModelBlockRendererAccessor", "NeoForgeSableLightingMixin"],
+  "client": ["AoModelBlockRendererAccessor", "NeoForgeSableLightingMixin", "LittleInsetAmbientOcclusionMixin"],
   "injectors": {"defaultRequire": 1}
 }
