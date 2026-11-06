@@ -165,15 +165,18 @@ public class LittleToolTransformer extends LittleTool {
         var builder = renderer.createTesselatorBuilder(lines);
         if (box != null) {
             pose.pushPose();
-            //pose.translate((float) -cam.x, (float) -cam.y, (float) -cam.z);
-            context.transformPose(pose, 0, 0, 0, cam, renderer.partialTickTime());
-            for (int i = 0; i < corners.length; i++)
-                renderer.renderLineBox(pose, corners[i].getBB(), marked == i);
+            pos = box.pos;
+            context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, renderer.partialTickTime());
+            for (int i = 0; i < corners.length; i++) {
+                var bb = corners[i].getBB();
+                bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
+                renderer.renderLineBox(pose, bb, marked == i);
+            }
             pose.popPose();
             
             renderer.buildBox(pose, box.getRenderingBoxWithoutOffset(), builder, 255, lines);
             mesh = builder.build();
-            pos = box.pos;
+            
         } else {
             if (last == null)
                 return;
