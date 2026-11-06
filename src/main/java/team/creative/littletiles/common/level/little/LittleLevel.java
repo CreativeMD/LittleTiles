@@ -84,13 +84,13 @@ public interface LittleLevel extends IOrientatedLevel, ILittleLevelContext {
     
     @Override
     default void transformPose(PoseStack pose, double x, double y, double z, Vec3 camera, float partialTick) {
-        getOrigin().pose(partialTick).setup(pose, camera);
+        camera = getOrigin().pose(partialTick).setup(pose, camera);
         pose.translate((float) (x - camera.x), (float) (y - camera.y), (float) (z - camera.z));
     }
     
     @Override
     default void transformMatrix(Matrix4fStack matrix, double x, double y, double z, Vec3 camera, float partialTick) {
-        getOrigin().pose(partialTick).setup(matrix, camera);
+        camera = getOrigin().pose(partialTick).setup(matrix, camera);
         matrix.translate((float) (x - camera.x), (float) (y - camera.y), (float) (z - camera.z));
     }
     
