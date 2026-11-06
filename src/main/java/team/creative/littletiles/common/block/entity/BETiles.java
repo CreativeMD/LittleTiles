@@ -926,10 +926,12 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         SideState NORTH;
         
         SideState YAXIS;
+        private volatile float shadeBrightness = Float.NaN;
         
         public SideSolidCache() {}
         
         public void load(CompoundTag nbt) {
+            shadeBrightness = Float.NaN;
             EAST = nbt.contains("east") ? SideState.values()[nbt.getInt("east")] : null;
             WEST = nbt.contains("west") ? SideState.values()[nbt.getInt("west")] : null;
             UP = nbt.contains("up") ? SideState.values()[nbt.getInt("up")] : null;
@@ -957,6 +959,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
         }
         
         public void reset() {
+            shadeBrightness = Float.NaN;
             DOWN = null;
             UP = null;
             NORTH = null;
@@ -1073,6 +1076,28 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             }
         }
         
+        /** Block-level AO approximation, cached independently of collision/occlusion flags. */
+        public float getShadeBrightness() {
+            float cached = shadeBrightness;
+            if (!Float.isNaN(cached))
+                return cached;
+            if (tiles == null)
+                return 1.0F;
+
+            double opaqueVolume = 0;
+            for (Pair<IParentCollection, LittleTile> pair : BETiles.this.tiles.allTiles())
+                if (pair.value.doesProvideSolidFace() && !pair.value.noCollision()
+                        && !LittleStructureAttribute.noCollision(pair.key.getAttribute())
+                        && !LittleStructureAttribute.lightEmitter(pair.key.getAttribute()))
+                    opaqueVolume += pair.value.getPercentVolume(grid);
+
+            // A tiny cut should not change a nearly full block's AO from 0.2 to 1.
+            // Clamp because overlapping tile groups can sum to more than one block.
+            cached = (float) (1.0 - 0.8 * Math.clamp(opaqueVolume, 0.0, 1.0));
+            shadeBrightness = cached;
+            return cached;
+        }
+
         public boolean isCollisionFullBlock() {
             for (int i = 0; i < Facing.VALUES.length; i++)
                 if (!get(Facing.VALUES[i]).isFilled())

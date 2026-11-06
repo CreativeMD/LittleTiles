@@ -261,7 +261,7 @@ public class BlockTile extends BaseEntityBlock implements LittlePhysicBlock, Sim
     public float getShadeBrightness(BlockState state, BlockGetter level, BlockPos pos) {
         BETiles be = loadBE(level, pos);
         if (be != null)
-            return be.sideCache.isCollisionFullBlock() ? 0.2F : 1.0F;
+            return be.sideCache.getShadeBrightness();
         return 1;
     }
     
