@@ -38,6 +38,7 @@ import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
 import team.creative.littletiles.common.level.little.LittleSubLevel;
+import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
 import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.mixin.client.render.BufferBuilderAccessor;
 
@@ -67,8 +68,13 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             renderLevel = sub.getParent();
         
         BlockPos pos = data.be.getBlockPos();
-        boolean dynamicShade = SableManager.INSTALLED && LittleSableLighting.isDynamic(renderLevel, pos);
-        BlockAndTintGetter lightingLevel = dynamicShade ? new LittleLightingView(renderLevel) : renderLevel;
+        boolean onSable = SableManager.INSTALLED && SableManager.isSubLevel(renderLevel, pos);
+        boolean animationOnSable = onSable && data.be.getLevel() instanceof LittleAnimationLevel;
+        // LT animation buffers are drawn by LT's chunk shader, not Sable's dynamic shader.
+        boolean dynamicShade = onSable && !animationOnSable && LittleSableLighting.isDynamic(renderLevel, pos);
+        BlockAndTintGetter lightingLevel = animationOnSable
+                ? new LittleAnimationLightingView(data.be.getLevel(), renderLevel)
+                : dynamicShade ? new LittleLightingView(renderLevel) : renderLevel;
         LittleVanillaLighting vanilla = NeoForgeConfig.CLIENT.experimentalForgeLightPipelineEnabled.get() ? null : new LittleVanillaLighting();
         
         ForgeModelBlockRendererAccessor renderer = (ForgeModelBlockRendererAccessor) MC.getBlockRenderer().getModelRenderer();
