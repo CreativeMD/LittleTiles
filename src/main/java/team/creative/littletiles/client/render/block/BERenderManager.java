@@ -79,11 +79,14 @@ public class BERenderManager {
     
     public void sectionUpdate(long pos) {
         synchronized (this) {
+            if (renderState == -1 && hasAdditionalBuffers() && be.isRenderingEmpty())
+                return; // The transition placeholder is waiting for its tile data.
             boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1;
             if (renderState != RenderingThread.CURRENT_RENDERING_INDEX) {
                 eraseBoxCache = true;
                 doesNeedUpdate = true;
-                setBuffersEmpty();
+                if (renderState != -1)
+                    setBuffersEmpty();
             }
             
             hasLightChanged = false;
