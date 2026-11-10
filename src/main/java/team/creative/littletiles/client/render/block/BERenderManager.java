@@ -79,6 +79,9 @@ public class BERenderManager {
     
     public void sectionUpdate(long pos) {
         synchronized (this) {
+            if (renderState == -1 && hasAdditionalBuffers() && be.isEmpty()) // Block has not received its content data
+                return; // Skip section update entirely because block should retain additional buffers
+                
             boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1;
             if (renderState != RenderingThread.CURRENT_RENDERING_INDEX) {
                 eraseBoxCache = true;
