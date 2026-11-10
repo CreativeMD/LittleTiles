@@ -83,7 +83,7 @@ public class BERenderManager {
                 return; // Skip section update entirely because block should retain additional buffers
                 
             boolean doesNeedUpdate = neighbourChanged || hasLightChanged || requestedIndex == -1;
-            if (renderState != RenderingThread.CURRENT_RENDERING_INDEX) {
+            if (renderState != -1 && renderState != RenderingThread.CURRENT_RENDERING_INDEX) { // Skip this for blocks which have never been rendered anyway
                 eraseBoxCache = true;
                 doesNeedUpdate = true;
                 setBuffersEmpty();
