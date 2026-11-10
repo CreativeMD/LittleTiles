@@ -74,6 +74,8 @@ import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.math.vec.LittleVec;
 import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
 import team.creative.littletiles.common.math.vec.LittleVecGrid;
+import team.creative.littletiles.common.packet.entity.animation.LittleAnimationBlocksPacket;
+import team.creative.littletiles.common.packet.entity.animation.LittleBlockChange;
 import team.creative.littletiles.common.packet.structure.StructureBlockToEntityPacket;
 import team.creative.littletiles.common.packet.structure.StructureEntityToBlockPacket;
 import team.creative.littletiles.common.packet.structure.StructureUpdate;
@@ -696,6 +698,9 @@ public abstract class LittleStructure implements ISignalSchedulable, ILevelPosit
         
         if (level instanceof ServerLevel s)
             result.broadcastChangesImmediately(s);
+        else if (level instanceof LittleAnimationLevel sub && sub.getHolder() instanceof LittleAnimationEntity parent)
+            // Send replacement tiles before removing the child, rather than waiting for the parent's next tick.
+            LittleTiles.NETWORK.sendToClientTracking(new LittleAnimationBlocksPacket(parent, result.blocks.stream().map(LittleBlockChange::new).toList()), parent);
         
         result.parentStructure.transferChildrenFromAnimation(level);
         if (getParent() != null)
