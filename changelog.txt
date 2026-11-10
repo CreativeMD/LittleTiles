@@ -1,3 +1,10 @@
+1.6.0-pre238
+Added sublevel support for measurements
+Fixed child animation block transition synchronization (Thanks to DraGonFiirE)
+Fixed unnecessarily setting buffers empty for newly created blocks (Thanks to DraGonFiirE)
+Fixed clearing additional buffers too early (Thanks to DraGonFiirE)
+Fixed glove rendering corners issue on sable structures
+
 1.6.0-pre237
 Added sublevel support for blueprint
 Fixed rendering issues on animation on sable structures
