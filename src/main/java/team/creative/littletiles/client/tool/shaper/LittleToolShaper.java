@@ -36,7 +36,7 @@ import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
 import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
-import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxLevel;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
 import team.creative.littletiles.common.math.measure.LittleMeasurementSimpleBox;
@@ -326,7 +326,7 @@ public class LittleToolShaper extends LittleTool {
     @Override
     public List<LittleMeasurement> measurements() {
         var selection = builtSelection;
-        return Arrays.asList(new LittleMeasurementSimpleBox(new LittleBoxAbsolute(selection.pos, selection.getOverallBox(), selection.grid)));
+        return Arrays.asList(new LittleMeasurementSimpleBox(new LittleBoxLevel(context, selection.pos, selection.getOverallBox(), selection.grid)));
     }
     
     @Override

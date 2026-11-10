@@ -88,4 +88,9 @@ public class LittleBoxLevel extends LittleBoxAbsolute {
         return new LittleBoxLevel(context, pos, new LittleBox((int) minX, (int) minY, (int) minZ, (int) maxX, (int) maxY, (int) maxZ), grid);
     }
     
+    @Override
+    public LittleBoxLevel copy() {
+        return new LittleBoxLevel(context, pos, box.copy(), grid);
+    }
+    
 }

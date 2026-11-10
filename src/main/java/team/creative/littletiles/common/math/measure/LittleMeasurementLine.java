@@ -2,11 +2,13 @@ package team.creative.littletiles.common.math.measure;
 
 import java.util.List;
 
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Mth;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.geo.VectorFan;
@@ -15,7 +17,10 @@ import team.creative.creativecore.common.util.math.vec.Vec3f;
 import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.tool.LittleToolMeasure.RenderMeasurementResult;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxLevel;
 import team.creative.littletiles.common.math.measure.LittleMeasurement.LittleMeasurementSimple;
 
 public class LittleMeasurementLine extends LittleMeasurementSimple {
@@ -26,31 +31,51 @@ public class LittleMeasurementLine extends LittleMeasurementSimple {
     private Vec3d center;
     private double length;
     
-    public LittleMeasurementLine(CompoundTag nbt) {
-        super(nbt);
+    public LittleMeasurementLine(Level level, CompoundTag nbt) throws LittleActionException {
+        super(level, nbt);
     }
     
-    public LittleMeasurementLine(List<LittleBoxAbsolute> positions) {
+    public LittleMeasurementLine(List<LittleBoxLevel> positions) {
         super(positions);
     }
     
     @Override
     public void overlay(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam) {
-        if (!renderer.isVisible(bb))
+        float partialTickTime = renderer.partialTickTime();
+        var pos = first.pos;
+        
+        if (!renderer.isVisible(first.context.toRealWorld(bb.move(pos), partialTickTime)))
             return;
+        
+        var matrix = RenderSystem.getModelViewStack();
+        
+        matrix.pushMatrix();
+        first.context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime);
+        RenderSystem.applyModelViewMatrix();
+        
+        cam = first.context.toFakeWorld(cam, partialTickTime);
+        cam = cam.subtract(cam.x - pos.getX(), cam.y - pos.getY(), cam.z - pos.getZ());
+        
         overlay.renderLabel(cam, center, displayLength(length), ColorUtils.WHITE);
+        
+        matrix.popMatrix();
+        RenderSystem.applyModelViewMatrix();
     }
     
     @Override
     public void changed() {
         super.changed();
         LittleBoxAbsolute combined = this.first.copy();
+        var second = this.second;
+        if (!first.context.is(second.context))
+            second = second.convertTo(first.context);
+        
         combined.include(second);
         
         var minFirst = this.first.getMin().getVec3d();
-        var minSecond = this.second.getMin().getVec3d();
+        var minSecond = second.getMin().getVec3d();
         
-        bb = combined.toAABB();
+        bb = combined.toAABBWithoutOffset();
         
         start = new Vec3d();
         end = new Vec3d();
@@ -83,16 +108,18 @@ public class LittleMeasurementLine extends LittleMeasurementSimple {
             start.y = end.y = Mth.lerp(0.5, bb.minY, bb.maxY);
         if (sizeOriginal.z == size.z)
             start.z = end.z = Mth.lerp(0.5, bb.minZ, bb.maxZ);
-        center = new Vec3d((start.x + end.x) * 0.5, (start.y + end.y) * 0.5, (start.z + end.z) * 0.5);
+        center = new Vec3d((start.x + end.x) * 0.5 + combined.pos.getX(), (start.y + end.y) * 0.5 + combined.pos.getY(), (start.z + end.z) * 0.5 + combined.pos.getZ());
         length = start.distance(end);
     }
     
     @Override
-    public void build(PreviewRenderer renderer, PoseStack pose, BufferBuilder builder) {
+    public RenderMeasurementResult build(PreviewRenderer renderer, PoseStack pose, BufferBuilder builder, Vec3 cam) {
+        var pos = first.pos;
         Vec3f normal = new Vec3f();
         VectorFan.setLineNormal(normal, (float) start.x, (float) start.y, (float) start.z, (float) end.x, (float) end.y, (float) end.z);
         builder.addVertex(pose.last().pose(), (float) start.x, (float) start.y, (float) start.z).setColor(color).setNormal(pose.last(), normal.x, normal.y, normal.z);
         builder.addVertex(pose.last().pose(), (float) end.x, (float) end.y, (float) end.z).setColor(color).setNormal(pose.last(), normal.x, normal.y, normal.z);
+        return new RenderMeasurementResult(first.context, pos, builder);
     }
     
 }

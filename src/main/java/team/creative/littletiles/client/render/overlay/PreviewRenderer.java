@@ -44,6 +44,7 @@ import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxLevel;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 
 public class PreviewRenderer {
@@ -123,6 +124,32 @@ public class PreviewRenderer {
             Optional<Vec3> result = positions.get(i).getBox().clip(pos, look);
             if (result.isPresent()) {
                 double tempDistance = pos.distanceToSqr(result.get());
+                if (tempDistance < distance) {
+                    index = i;
+                    distance = tempDistance;
+                }
+            }
+        }
+        return index;
+    }
+    
+    public int selectBox(List<LittleBoxLevel> positions) {
+        int index = -1;
+        double distance = Double.MAX_VALUE;
+        var player = player();
+        float partialTickTime = partialTickTime();
+        Vec3 pos = player.getEyePosition(partialTickTime);
+        double reach = PlayerUtils.getReach(player);
+        Vec3 view = player.getViewVector(partialTickTime);
+        Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
+        
+        for (int i = 0; i < positions.size(); i++) {
+            var context = positions.get(i).context;
+            var contextPos = context.toFakeWorld(pos);
+            var contextLook = context.toFakeWorld(look);
+            Optional<Vec3> result = positions.get(i).toAABB().clip(contextPos, contextLook);
+            if (result.isPresent()) {
+                double tempDistance = contextPos.distanceToSqr(result.get());
                 if (tempDistance < distance) {
                     index = i;
                     distance = tempDistance;
@@ -226,7 +253,7 @@ public class PreviewRenderer {
     public void renderBoxes(ILittleLevelContext context, Vec3 cam, BlockPos pos, boolean lines, MeshData data, @Nullable Runnable adjustGL) {
         var matrix = RenderSystem.getModelViewStack();
         matrix.pushMatrix();
-        context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, 0);
+        context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
         
         RenderSystem.applyModelViewMatrix();
         
@@ -269,6 +296,21 @@ public class PreviewRenderer {
         pose.popPose();
     }
     
+    public void renderBoxes(PoseStack pose, Vec3 cam, List<LittleBoxLevel> boxes, @Nullable Int2BooleanFunction marked) {
+        
+        for (int i = 0; i < boxes.size(); i++) {
+            pose.pushPose();
+            var box = boxes.get(i);
+            var pos = box.pos;
+            box.context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
+            var bb = boxes.get(i).toABB();
+            bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
+            renderLineBox(pose, bb, marked != null && marked.get(i));
+            pose.popPose();
+        }
+        
+    }
+    
     public void renderBoxes(PoseStack pose, ILittleLevelContext context, BlockPos pos, Vec3 cam, List<LittleBoxAbsolute> boxes, @Nullable Int2BooleanFunction marked) {
         pose.pushPose();
         context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
@@ -280,21 +322,33 @@ public class PreviewRenderer {
         pose.popPose();
     }
     
-    public void renderSeethroughLines(Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color) {
-        renderSeethroughLines(cam, lines, pos, data, color, 0.4F);
+    public void renderSeethroughLines(ILittleLevelContext context, Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color) {
+        renderSeethroughLines(context, cam, lines, pos, data, color, 0.4F);
     }
     
-    public void renderSeethroughLines(Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color, float alpha) {
-        renderBoxes(cam, pos, lines, data, () -> {
-            RenderSystem.enableDepthTest();
-            RenderSystem.setShaderColor(0, 0, 0, alpha);
-            RenderSystem.lineWidth(4);
-        });
-        renderBoxes(cam, pos, lines, data, () -> {
-            RenderSystem.disableDepthTest();
-            RenderSystem.setShaderColor(ColorUtils.redF(color), ColorUtils.greenF(color), ColorUtils.blueF(color), alpha);
-            RenderSystem.lineWidth(2);
-        });
+    public void renderSeethroughLines(ILittleLevelContext context, Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color, float alpha) {
+        var matrix = RenderSystem.getModelViewStack();
+        matrix.pushMatrix();
+        context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
+        
+        RenderSystem.applyModelViewMatrix();
+        
+        setupPreviewRenderer(lines);
+        
+        RenderSystem.enableDepthTest();
+        RenderSystem.setShaderColor(0, 0, 0, alpha);
+        RenderSystem.lineWidth(4);
+        
+        BufferUploader.drawWithShader(data);
+        
+        RenderSystem.disableDepthTest();
+        RenderSystem.setShaderColor(ColorUtils.redF(color), ColorUtils.greenF(color), ColorUtils.blueF(color), alpha);
+        RenderSystem.lineWidth(2);
+        
+        BufferUploader.drawWithShader(data);
+        
+        matrix.popMatrix();
+        RenderSystem.applyModelViewMatrix();
         
         RenderSystem.enableDepthTest();
     }

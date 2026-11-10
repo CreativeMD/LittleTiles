@@ -28,7 +28,7 @@ public class GuiMesaurementTape extends GuiConfigure {
     @Override
     public void create() {
         flow = GuiFlow.STACK_Y;
-        var measurements = ((ILittleMeasure) tool.get().getItem()).getMeasurements(tool.get());
+        var measurements = ((ILittleMeasure) tool.get().getItem()).getMeasurements(getPlayer().level(), tool.get());
         GuiStateButton<LittleMeasurementType> types = new GuiStateButton<>("type", new TextMapBuilder<LittleMeasurementType>().addComponent(LittleMeasurementType.REGISTRY.values(),
             LittleMeasurementType::translatable));
         types.select(tool.get().has(LittleTilesRegistry.MEASUREMENT_TYPE) ? tool.get().get(LittleTilesRegistry.MEASUREMENT_TYPE).type : LittleMeasurementType.REGISTRY

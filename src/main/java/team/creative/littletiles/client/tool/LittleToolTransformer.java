@@ -39,6 +39,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxLevel;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.CornerCache;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
@@ -176,7 +177,6 @@ public class LittleToolTransformer extends LittleTool {
             
             renderer.buildBox(pose, box.getRenderingBoxWithoutOffset(), builder, 255, lines);
             mesh = builder.build();
-            
         } else {
             if (last == null)
                 return;
@@ -317,9 +317,9 @@ public class LittleToolTransformer extends LittleTool {
     
     @Override
     public List<LittleMeasurement> measurements() {
-        if (box == null)
+        if (box == null || context == null)
             return null;
-        return Arrays.asList(new LittleMeasurementSimpleBox(box.copy()));
+        return Arrays.asList(new LittleMeasurementSimpleBox(new LittleBoxLevel(context, box.copy())));
     }
     
     @Override

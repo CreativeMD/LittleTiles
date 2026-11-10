@@ -168,7 +168,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
                 box.growToInclude(last.getRelative(boxes.pos, boxes.grid));
                 boxes.add(box);
                 var result = renderer.buildBoxes(pose, boxes, lines, true);
-                renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color.toInt(), 1);
+                renderer.renderSeethroughLines(ILittleLevelContext.STANDARD, cam, lines, result.pos(), result.data(), color.toInt(), 1);
                 result.close();
             }
         }
@@ -182,7 +182,7 @@ public class BuildingModeAreaRule extends BuildingModeFeature implements Buildin
             result = renderer.buildBoxes(pose, boxes, lines, true);
         
         if (boxes != null && result != null)
-            renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color.toInt(), 1);
+            renderer.renderSeethroughLines(ILittleLevelContext.STANDARD, cam, lines, result.pos(), result.data(), color.toInt(), 1);
         RenderSystem.setShaderColor(1, 1, 1, 1);
         return active; // Disable standard rendering during selection mode.
     }

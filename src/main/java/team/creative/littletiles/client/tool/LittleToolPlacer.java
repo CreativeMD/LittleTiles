@@ -49,6 +49,7 @@ import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.LittleBoxGrid;
+import team.creative.littletiles.common.math.box.LittleBoxLevel;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
 import team.creative.littletiles.common.math.measure.LittleMeasurementSimpleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
@@ -494,7 +495,7 @@ public class LittleToolPlacer extends LittleTool {
             return null;
         var absoluteBox = new LittleBoxAbsolute(placedPosition.getPos(), builtBox.getBox().copy(), builtBox.getGrid());
         absoluteBox.sameGrid(placedPosition, () -> absoluteBox.box.add(placedPosition.box().box.getMinVec()));
-        return Arrays.asList(new LittleMeasurementSimpleBox(absoluteBox));
+        return Arrays.asList(new LittleMeasurementSimpleBox(new LittleBoxLevel(placedContext, absoluteBox)));
     }
     
     public static record LittleGroupResult(LittleGroup group, ByteBufferBuilder buffer, MeshData data) {

@@ -13,6 +13,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
 
@@ -27,49 +28,49 @@ public class MeasurementsComponent {
         return new MeasurementsComponent(measurements);
     }
     
-    public static List<LittleMeasurement> get(ItemStack stack) {
+    public static List<LittleMeasurement> get(Level level, ItemStack stack) {
         var com = stack.get(LittleTilesRegistry.MEASUREMENTS);
         if (com != null)
-            return com.value();
+            return com.value(level);
         return Collections.EMPTY_LIST;
     }
     
-    private final List<LittleMeasurement> measurements;
+    private final CompoundTag nbt;
     
     private MeasurementsComponent(CompoundTag nbt) {
-        ListTag list = nbt.getList("c", Tag.TAG_COMPOUND);
-        this.measurements = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++)
-            this.measurements.add(LittleMeasurement.load(list.getCompound(i)));
+        this.nbt = nbt;
     }
     
     private MeasurementsComponent(List<LittleMeasurement> measurements) {
-        this.measurements = measurements;
+        nbt = new CompoundTag();
+        ListTag list = new ListTag();
+        for (int i = 0; i < measurements.size(); i++)
+            list.add(measurements.get(i).save());
+        nbt.put("c", list);
     }
     
-    public List<LittleMeasurement> value() {
-        return new ArrayList<>(measurements);
+    public List<LittleMeasurement> value(Level level) {
+        ListTag list = nbt.getList("c", Tag.TAG_COMPOUND);
+        List<LittleMeasurement> measurements = new ArrayList<>();
+        for (int i = 0; i < list.size(); i++)
+            measurements.add(LittleMeasurement.load(level, list.getCompound(i)));
+        return measurements;
     }
     
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof MeasurementsComponent s)
-            return Objects.equal(s.measurements, measurements);
+            return Objects.equal(s.nbt, nbt);
         return super.equals(obj);
     }
     
     @Override
     public int hashCode() {
-        return measurements.hashCode();
+        return nbt.hashCode();
     }
     
     public CompoundTag save() {
-        ListTag list = new ListTag();
-        for (int i = 0; i < measurements.size(); i++)
-            list.add(measurements.get(i).save());
-        CompoundTag nbt = new CompoundTag();
-        nbt.put("c", list);
-        return nbt;
+        return nbt.copy();
     }
     
 }

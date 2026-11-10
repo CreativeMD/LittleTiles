@@ -78,8 +78,7 @@ public class OverlayRenderer implements IGuiIntegratedParent, LevelAwareHandler 
     }
     
     private Vec2d projectToScreen(Vec3 cam, Vec3d pos) {
-        Vector3f vec = new Vector3f((float) pos.x, (float) pos.y, (float) pos.z);
-        vec.sub((float) cam.x, (float) cam.y, (float) cam.z);
+        Vector3f vec = new Vector3f((float) (pos.x - cam.x), (float) (pos.y - cam.y), (float) (pos.z - cam.z));
         RenderSystem.getModelViewMatrix().transformPosition(vec);
         RenderSystem.getProjectionMatrix().transformPosition(vec);
         vec.x /= vec.z;

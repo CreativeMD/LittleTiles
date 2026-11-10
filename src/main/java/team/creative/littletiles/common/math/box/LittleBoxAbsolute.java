@@ -282,6 +282,10 @@ public class LittleBoxAbsolute implements IGridBased {
         return box.getBB(grid, pos);
     }
     
+    public AABB toAABBWithoutOffset() {
+        return box.getBB(grid);
+    }
+    
     public LittleBox extractSimple(BlockPos position) {
         int x = (pos.getX() - position.getX()) * grid.count;
         int y = (pos.getY() - position.getY()) * grid.count;

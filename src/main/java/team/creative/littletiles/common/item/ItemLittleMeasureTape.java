@@ -30,8 +30,8 @@ public class ItemLittleMeasureTape extends Item implements ILittleMeasure, IItem
     }
     
     @Override
-    public List<LittleMeasurement> getMeasurements(ItemStack stack) {
-        return MeasurementsComponent.get(stack);
+    public List<LittleMeasurement> getMeasurements(Level level, ItemStack stack) {
+        return MeasurementsComponent.get(level, stack);
     }
     
     @Override

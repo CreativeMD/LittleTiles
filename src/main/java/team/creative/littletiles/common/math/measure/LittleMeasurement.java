@@ -9,14 +9,17 @@ import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.mc.TooltipUtils;
 import team.creative.creativecore.common.util.registry.NamedTypeRegistry;
 import team.creative.creativecore.common.util.registry.exception.RegistryException;
 import team.creative.littletiles.client.render.overlay.OverlayRenderer;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.tool.LittleToolMeasure.RenderMeasurementResult;
+import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
-import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxLevel;
 
 public abstract class LittleMeasurement {
     
@@ -53,12 +56,12 @@ public abstract class LittleMeasurement {
         return text;
     }
     
-    public static final NamedTypeRegistry<LittleMeasurement> REGISTRY = new NamedTypeRegistry<LittleMeasurement>().addConstructorPattern(CompoundTag.class);
+    public static final NamedTypeRegistry<LittleMeasurement> REGISTRY = new NamedTypeRegistry<LittleMeasurement>().addConstructorPattern(Level.class, CompoundTag.class);
     
     @Nullable
-    public static LittleMeasurement load(CompoundTag nbt) {
+    public static LittleMeasurement load(Level level, CompoundTag nbt) {
         try {
-            return REGISTRY.create(nbt.getString("type"), nbt);
+            return REGISTRY.create(nbt.getString("type"), level, nbt);
         } catch (RegistryException e) {
             return null;
         }
@@ -73,17 +76,17 @@ public abstract class LittleMeasurement {
     
     public int color;
     
-    public LittleMeasurement(CompoundTag nbt) {
+    public LittleMeasurement(Level level, CompoundTag nbt) {
         this.color = nbt.getInt("color");
     }
     
     public LittleMeasurement() {}
     
-    public abstract void build(PreviewRenderer renderer, PoseStack pose, BufferBuilder builder);
+    public abstract RenderMeasurementResult build(PreviewRenderer renderer, PoseStack pose, BufferBuilder builder, Vec3 cam);
     
     public abstract void overlay(PreviewRenderer renderer, OverlayRenderer overlay, Vec3 cam);
     
-    public abstract void collectPositions(List<LittleBoxAbsolute> positions);
+    public abstract void collectPositions(List<LittleBoxLevel> positions);
     
     public void changed() {}
     
@@ -99,32 +102,32 @@ public abstract class LittleMeasurement {
     
     public static abstract class LittleMeasurementSimple extends LittleMeasurement {
         
-        protected final LittleBoxAbsolute first;
-        protected final LittleBoxAbsolute second;
+        protected final LittleBoxLevel first;
+        protected final LittleBoxLevel second;
         
-        public LittleMeasurementSimple(CompoundTag nbt) {
-            super(nbt);
-            first = LittleBoxAbsolute.of(nbt.getIntArray("0"));
-            second = LittleBoxAbsolute.of(nbt.getIntArray("1"));
+        public LittleMeasurementSimple(Level level, CompoundTag nbt) throws LittleActionException {
+            super(level, nbt);
+            first = LittleBoxLevel.of(level, nbt.get("0"));
+            second = LittleBoxLevel.of(level, nbt.get("1"));
             changed();
         }
         
-        public LittleMeasurementSimple(List<LittleBoxAbsolute> positions) {
+        public LittleMeasurementSimple(List<LittleBoxLevel> positions) {
             this.first = positions.get(0);
             this.second = positions.get(1);
             changed();
         }
         
         @Override
-        public void collectPositions(List<LittleBoxAbsolute> positions) {
+        public void collectPositions(List<LittleBoxLevel> positions) {
             positions.add(first);
             positions.add(second);
         }
         
         @Override
         protected void saveExtra(CompoundTag nbt) {
-            nbt.putIntArray("0", first.toArray());
-            nbt.putIntArray("1", second.toArray());
+            nbt.put("0", first.write());
+            nbt.put("1", second.write());
         }
         
     }

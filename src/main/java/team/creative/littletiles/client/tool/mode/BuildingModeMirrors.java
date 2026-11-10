@@ -50,6 +50,7 @@ import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActions;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -199,7 +200,7 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
                 box.growToIncludePixel(last.getRelative(boxes.pos));
                 boxes.add(box);
                 var result = renderer.buildBoxes(pose, boxes, lines);
-                renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color);
+                renderer.renderSeethroughLines(ILittleLevelContext.STANDARD, cam, lines, result.pos(), result.data(), color);
                 result.close();
             });
         }
@@ -222,7 +223,7 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
                 pose.popPose();
             }
             
-            renderer.renderSeethroughLines(cam, lines, result.pos(), result.data(), color);
+            renderer.renderSeethroughLines(ILittleLevelContext.STANDARD, cam, lines, result.pos(), result.data(), color);
             
         }
         

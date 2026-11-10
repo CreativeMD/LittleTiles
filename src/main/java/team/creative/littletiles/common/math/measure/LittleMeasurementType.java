@@ -6,9 +6,9 @@ import java.util.function.Function;
 import it.unimi.dsi.fastutil.ints.Int2BooleanFunction;
 import net.minecraft.network.chat.Component;
 import team.creative.creativecore.common.util.registry.NamedHandlerRegistry;
-import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxLevel;
 
-public record LittleMeasurementType(Int2BooleanFunction points, Function<List<LittleBoxAbsolute>, LittleMeasurement> factory) {
+public record LittleMeasurementType(Int2BooleanFunction points, Function<List<LittleBoxLevel>, LittleMeasurement> factory) {
     
     public static final NamedHandlerRegistry<LittleMeasurementType> REGISTRY = new NamedHandlerRegistry<>(null);
     
