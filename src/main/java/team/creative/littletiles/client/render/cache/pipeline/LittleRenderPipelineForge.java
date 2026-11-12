@@ -56,6 +56,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
     private final BitSet shapeFlags = new BitSet(3);
     private ModelBlockRenderer.AmbientOcclusionFace aoFace;
     private ModelBlockRenderer.AmbientOcclusionFace exteriorFace;
+    private final LittleQuadLighting quadLighting = new LittleQuadLighting();
     
     private ByteBufferBuilder getOrCreate(RenderType layer) {
         ByteBufferBuilder buffer = byteBuilder.get(layer);
@@ -99,6 +100,8 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 var cubes = tuple.value;
                 if (cubes.isEmpty())
                     continue;
+                if (!vanillaLighting)
+                    quadLighting.prepare(cubes);
                 
                 BufferBuilder builder = builders.get(tuple.key);
                 if (builder == null)
@@ -146,10 +149,10 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                         }
                         if (quads != null && !quads.isEmpty())
                             if (quads instanceof SingletonList<BakedQuad> single)
-                                processQuad(lighter, vanillaLighting, lighter == smoothLighter, renderLevel, data.state, pos, builder, pose.last(), single.get(0), overlay);
+                                processQuad(lighter, vanillaLighting, lighter == smoothLighter, renderLevel, data.state, pos, builder, pose.last(), single.get(0), overlay, cube);
                             else
                                 for (BakedQuad quad : quads)
-                                    processQuad(lighter, vanillaLighting, lighter == smoothLighter, renderLevel, data.state, pos, builder, pose.last(), quad, overlay);
+                                    processQuad(lighter, vanillaLighting, lighter == smoothLighter, renderLevel, data.state, pos, builder, pose.last(), quad, overlay, cube);
                     }
                     
                     IrisManager.resetBlockContext(builder);
@@ -187,9 +190,14 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
     }
     
     private void processQuad(QuadLighter lighter, boolean vanillaLighting, boolean smooth, BlockAndTintGetter level, BlockState containerState,
-            BlockPos pos, VertexConsumer consumer, PoseStack.Pose pose, BakedQuad quad, int overlay) {
+            BlockPos pos, VertexConsumer consumer, PoseStack.Pose pose, BakedQuad quad, int overlay, LittleRenderBox cube) {
         if (!vanillaLighting) {
-            lighter.process(consumer, pose, quad, overlay);
+            if (smooth && quad.hasAmbientOcclusion() && quadLighting.calculate(lighter, quad, cube)) {
+                int tint = quad.isTinted() ? cube.color != -1 ? cube.color : MC.getBlockColors().getColor(cube.state, level, pos, quad.getTintIndex()) : 0xFFFFFF;
+                consumer.putBulkData(pose, quad, quadLighting.brightness, ((tint >> 16) & 255) / 255F, ((tint >> 8) & 255) / 255F,
+                        (tint & 255) / 255F, 1, quadLighting.lightmap, overlay, true);
+            } else
+                lighter.process(consumer, pose, quad, overlay);
             return;
         }
 
