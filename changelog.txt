@@ -1,3 +1,7 @@
+1.6.0-pre239
+Added selection feature to screwdriver (same as blueprint has)
+Fixed crash when switching selection mode
+
 1.6.0-pre238
 Added sublevel support for measurements
 Fixed child animation block transition synchronization (Thanks to DraGonFiirE)
