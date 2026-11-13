@@ -17,7 +17,6 @@ import team.creative.littletiles.common.action.exception.AreaTooLarge;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -100,7 +99,7 @@ public class ExactAreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack, SelectionComponent config) throws LittleActionException {
+    public SelectionBuilder selectionBuilder(Level level, LittleActionSource source, ItemStack stack, SelectionComponent config) throws LittleActionException {
         var nbt = config.getConfig();
         LittleBoxLevel pos1 = LittleBoxLevel.tryOf(level, nbt.get("pos1"));
         LittleBoxLevel pos2 = LittleBoxLevel.tryOf(level, nbt.get("pos2"));
@@ -136,14 +135,14 @@ public class ExactAreaSelectionMode extends SelectionMode {
                 throw new AreaTooLarge(perm);
         }
         
-        SelectionBuilder search = new SelectionBuilder(selection);
+        SelectionBuilder search = new SelectionBuilder();
         search.scanLevel(level, minX, minY, minZ, maxX, maxY, maxZ, pos1);
         
         for (LittleEntity animation : LittleTiles.ANIMATION_HANDLERS.get(level).find(bb))
             if (pos1.context.isChildOf(animation.getSubLevel()))
                 search.scanLevel(animation.getSubLevel(), minX, minY, minZ, maxX, maxY, maxZ, pos1);
             
-        return search.build();
+        return search;
     }
     
     @Override

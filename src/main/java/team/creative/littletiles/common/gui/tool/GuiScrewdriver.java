@@ -3,13 +3,13 @@ package team.creative.littletiles.common.gui.tool;
 import java.util.ArrayList;
 import java.util.List;
 
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.PatchedDataComponentMap;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
+import team.creative.creativecore.common.gui.control.collection.GuiComboBox;
 import team.creative.creativecore.common.gui.control.collection.GuiStackSelector;
 import team.creative.creativecore.common.gui.control.parent.GuiLeftRightBox;
 import team.creative.creativecore.common.gui.control.simple.GuiButton;
@@ -23,17 +23,20 @@ import team.creative.creativecore.common.gui.flow.GuiSizeRule.GuiSizeRules;
 import team.creative.creativecore.common.util.filter.BiFilter;
 import team.creative.creativecore.common.util.inventory.ContainerSlotView;
 import team.creative.creativecore.common.util.mc.ColorUtils;
+import team.creative.creativecore.common.util.text.TextMapBuilder;
 import team.creative.creativecore.common.util.type.Color;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.client.LittleTilesClient;
+import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.action.LittleActionColorBoxes;
 import team.creative.littletiles.common.action.LittleActionDestroyBoxes;
 import team.creative.littletiles.common.action.LittleActionPlace;
 import team.creative.littletiles.common.action.LittleActionPlace.PlaceAction;
-import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.LittleActions;
+import team.creative.littletiles.common.action.exception.LittleActionException;
+import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
@@ -41,10 +44,11 @@ import team.creative.littletiles.common.block.little.tile.parent.IParentCollecti
 import team.creative.littletiles.common.filter.TileFilters;
 import team.creative.littletiles.common.gui.LittleGuiUtils;
 import team.creative.littletiles.common.gui.control.filter.GuiElementFilter;
-import team.creative.littletiles.common.level.LittleLevelScanner;
+import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
 import team.creative.littletiles.common.placement.PlacementPreview;
 import team.creative.littletiles.common.placement.mode.PlacementMode;
+import team.creative.littletiles.common.placement.selection.SelectionMode;
 
 public class GuiScrewdriver extends GuiConfigure {
     
@@ -63,7 +67,14 @@ public class GuiScrewdriver extends GuiConfigure {
         if (!isClient())
             return;
         
-        //add(new GuiCheckBox("no_structure", lastSelectedFilter instanceof TileNoStructureFilter).setTranslate("gui.no_structure"));
+        var stack = tool.get();
+        SelectionComponent component = SelectionComponent.getOrDefault(stack);
+        
+        GuiComboBox<SelectionMode> box = new GuiComboBox<>("selection_mode", new TextMapBuilder<SelectionMode>().addEntrySet(SelectionMode.REGISTRY.entrySet(), x -> x.getValue()
+                .getTranslation()));
+        box.select(component.mode);
+        add(box.setExpandableX());
+        
         add(new GuiLabel("filter_label").setTranslate("gui.filter"));
         add(filter = (GuiElementFilter) GuiElementFilter.ofGroup(getPlayer(), lastSelectedFilter).setExpandableX().setDim(new GuiSizeRules().prefHeight(100)));
         add(new GuiCheckBox("remove", false).setTranslate("gui.remove"));
@@ -93,30 +104,33 @@ public class GuiScrewdriver extends GuiConfigure {
                 getPlayer().sendSystemMessage(Component.literal(e.getLocalizedMessage()));
             }
         }).setTranslate("gui.redo")).addRight(new GuiButton("run", x -> {
-            LittleAction action = getDesiredAction();
-            if (action != null)
-                if (action.wasSuccessful(LittleTilesClient.ACTION_HANDLER.execute(action)))
-                    playSound(SoundEvents.LEVER_CLICK);
+            try {
+                LittleAction action = getDesiredAction();
+                if (action != null)
+                    if (action.wasSuccessful(LittleTilesClient.ACTION_HANDLER.execute(action)))
+                        playSound(SoundEvents.LEVER_CLICK);
+            } catch (LittleActionException e) {
+                LittleActionHandlerClient.handleException(e);
+            }
+            
         }).setTranslate("gui.run"));
         add(actions);
     }
     
-    public LittleAction getDesiredAction() {
-        BlockPos pos = this.tool.get().get(LittleTilesRegistry.FIRST_POS);
-        if (pos == null)
-            return null;
-        
-        BlockPos pos2 = this.tool.get().get(LittleTilesRegistry.SECOND_POS);
-        if (pos2 == null)
-            return null;
+    public LittleAction getDesiredAction() throws LittleActionException {
+        var stack = tool.get();
+        SelectionComponent component = SelectionComponent.getOrDefault(stack);
         
         BiFilter<IParentCollection, LittleTile> filter = this.filter.get();
         
-        Level level = getPlayer().level();
-        LittleBoxes boxes = LittleLevelScanner.scan(level, pos, pos2, filter);
+        var player = getPlayer();
+        Level level = player.level();
+        var selection = component.mode.selectionBuilder(level, (LittleActionSource) player, stack, component).build(filter);
         
-        if (boxes.isEmpty())
+        if (selection.isEmpty())
             return null;
+        
+        LittleBoxes boxes = LittleBoxes.of(selection);
         
         boolean remove = get("remove", GuiCheckBox.class).value;
         boolean replace = get("replace", GuiCheckBox.class).value;
@@ -138,7 +152,7 @@ public class GuiScrewdriver extends GuiConfigure {
                         return null;
                     }
                     actions.add(new LittleActionDestroyBoxes(level, boxes));
-                    LittleGroupAbsolute previews = new LittleGroupAbsolute(pos);
+                    LittleGroupAbsolute previews = new LittleGroupAbsolute(boxes.pos);
                     previews.add(boxes.grid, new LittleElement(replacementBlock.defaultBlockState(), ColorUtils.WHITE), boxes);
                     
                     actions.add(new LittleActionDestroyBoxes(level, boxes));
@@ -167,6 +181,8 @@ public class GuiScrewdriver extends GuiConfigure {
             lastSelectedFilter = filter.get();
             lastSelectedReplaceStack = ((GuiStackSelector) get("replacement")).getSelected();
         }
-        return false;
+        GuiComboBox<SelectionMode> box = get("selection_mode");
+        data.set(LittleTilesRegistry.SELECTION.get(), SelectionComponent.getOrDefault(tool.get()).withMode(box.selected(SelectionMode.REGISTRY.getDefault())));
+        return true;
     }
 }

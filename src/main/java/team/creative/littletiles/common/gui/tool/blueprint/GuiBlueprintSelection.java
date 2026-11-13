@@ -62,7 +62,7 @@ public class GuiBlueprintSelection extends GuiConfigure {
             previews.removeOffset();
             
             ((ItemLittleBlueprint) tool.get().getItem()).saveTiles(tool.get(), previews);
-            tool.get().remove(LittleTilesRegistry.SELECTION);
+            tool.get().set(LittleTilesRegistry.SELECTION, SelectionComponent.of(mode, new CompoundTag()));
             tool.get().remove(LittleTilesRegistry.MATRIX);
             tool.changed();
             LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
@@ -73,7 +73,8 @@ public class GuiBlueprintSelection extends GuiConfigure {
     });
     
     public final GuiSyncLocal<EndTag> CLEAR_SELECTION = getSyncHolder().register("clear_selection", x -> {
-        tool.get().remove(LittleTilesRegistry.SELECTION);
+        SelectionComponent component = SelectionComponent.getOrDefault(tool.get());
+        tool.get().set(LittleTilesRegistry.SELECTION, SelectionComponent.of(component.mode, new CompoundTag()));
         tool.changed();
         LittleTilesGuiRegistry.OPEN_CONFIG.open(getPlayer());
     });

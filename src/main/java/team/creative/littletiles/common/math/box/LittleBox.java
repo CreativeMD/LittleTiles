@@ -51,6 +51,10 @@ public class LittleBox {
         return new LittleBox(Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MAX_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE, Integer.MIN_VALUE);
     }
     
+    public static LittleBox of(LittleGrid grid) {
+        return new LittleBox(0, 0, 0, grid.count, grid.count, grid.count);
+    }
+    
     // ================Data================
     
     public int minX;

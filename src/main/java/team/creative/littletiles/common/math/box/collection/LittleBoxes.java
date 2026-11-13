@@ -11,6 +11,7 @@ import net.minecraft.nbt.Tag;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.type.map.HashMapList;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
+import team.creative.littletiles.common.block.little.tile.group.LittleGroupAbsolute;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.grid.IGridBased;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -23,6 +24,13 @@ public abstract class LittleBoxes implements IGridBased {
     public static LittleBoxes of(LittleBoxAbsolute box) {
         LittleBoxes boxes = new LittleBoxesSimple(box.pos, box.grid);
         boxes.add(box.box);
+        return boxes;
+    }
+    
+    public static LittleBoxes of(LittleGroupAbsolute group) {
+        LittleBoxes boxes = new LittleBoxesSimple(group.pos, group.getGrid());
+        for (LittleBox box : group.group.allBoxes())
+            boxes.add(box.copy());
         return boxes;
     }
     

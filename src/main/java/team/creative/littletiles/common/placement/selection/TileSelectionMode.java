@@ -22,7 +22,6 @@ import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.block.little.tile.LittleTile;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.block.little.tile.parent.IParentCollection;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.config.LittlePermissionBuild;
@@ -143,7 +142,7 @@ public class TileSelectionMode extends SelectionMode {
     }
     
     @Override
-    public LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack, SelectionComponent config) throws LittleActionException {
+    public SelectionBuilder selectionBuilder(Level level, LittleActionSource source, ItemStack stack, SelectionComponent config) throws LittleActionException {
         var nbt = config.getConfig();
         if (!nbt.contains("boxes"))
             return null;
@@ -167,11 +166,11 @@ public class TileSelectionMode extends SelectionMode {
                 throw new AreaTooLarge(perm);
         }
         
-        SelectionBuilder search = new SelectionBuilder(selection);
+        SelectionBuilder search = new SelectionBuilder();
         for (Entry<BlockPos, ArrayList<LittleBox>> entry : boxes.generateBlockWise().entrySet())
             search.addBoxes(level, entry.getKey(), new LittleBoxesSimple(entry.getKey(), boxes.getGrid(), entry.getValue()));
         
-        return search.build();
+        return search;
     }
     
     @Override

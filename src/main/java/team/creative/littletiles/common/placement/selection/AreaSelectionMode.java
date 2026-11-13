@@ -17,7 +17,6 @@ import team.creative.littletiles.common.action.exception.AreaTooLarge;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.action.source.LittleActionSource;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
-import team.creative.littletiles.common.block.little.tile.group.LittleGroup;
 import team.creative.littletiles.common.config.LittlePermissionBuild;
 import team.creative.littletiles.common.entity.LittleEntity;
 import team.creative.littletiles.common.grid.LittleGrid;
@@ -76,7 +75,7 @@ public class AreaSelectionMode extends SelectionMode {
     }
     
     @Override
-    public LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack, SelectionComponent config) throws LittleActionException {
+    public SelectionBuilder selectionBuilder(Level level, LittleActionSource source, ItemStack stack, SelectionComponent config) throws LittleActionException {
         var nbt = config.getConfig();
         BlockPosLevel pos = BlockPosLevel.tryOf(level, nbt.get("pos1"));
         BlockPosLevel pos2 = BlockPosLevel.tryOf(level, nbt.get("pos2"));
@@ -106,7 +105,7 @@ public class AreaSelectionMode extends SelectionMode {
                 throw new AreaTooLarge(perm);
         }
         
-        SelectionBuilder search = new SelectionBuilder(selection);
+        SelectionBuilder search = new SelectionBuilder();
         search.scanLevel(level, minX, minY, minZ, maxX, maxY, maxZ, null);
         
         BlockPos realMin = BlockPos.containing(pos.context.toRealWorld(pos.pos.getCenter()));
@@ -125,7 +124,7 @@ public class AreaSelectionMode extends SelectionMode {
             if (pos.context.isChildOf(animation.getSubLevel()))
                 search.scanLevel(animation.getSubLevel(), minX, minY, minZ, maxX, maxY, maxZ, null);
             
-        return search.build();
+        return search;
     }
     
     @Override

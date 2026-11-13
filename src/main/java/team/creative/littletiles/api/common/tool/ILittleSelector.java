@@ -9,7 +9,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.placement.setting.PlacementPlayerSetting;
 
-public interface ILittleSelector {
+public interface ILittleSelector extends ILittleTool {
     
     public boolean hasSelection(ItemStack stack);
     

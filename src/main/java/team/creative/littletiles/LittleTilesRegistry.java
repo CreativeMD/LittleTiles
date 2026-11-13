@@ -6,7 +6,6 @@ import com.mojang.serialization.Codec;
 
 import io.netty.buffer.ByteBuf;
 import net.minecraft.Util;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -144,11 +143,6 @@ public class LittleTilesRegistry {
         x -> DataComponentType.<MeasurementsComponent>builder().persistent(MeasurementsComponent.CODEC).networkSynchronized(MeasurementsComponent.STREAM_CODEC).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MeasurementTypeComponent>> MEASUREMENT_TYPE = DATA_COMPONENTS.register("measurement_type",
         x -> DataComponentType.<MeasurementTypeComponent>builder().persistent(MeasurementTypeComponent.CODEC).networkSynchronized(MeasurementTypeComponent.STREAM_CODEC).build());
-    
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockPos>> FIRST_POS = DATA_COMPONENTS.register("pos1", x -> DataComponentType.<BlockPos>builder()
-            .persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC).build());
-    public static final DeferredHolder<DataComponentType<?>, DataComponentType<BlockPos>> SECOND_POS = DATA_COMPONENTS.register("pos2", x -> DataComponentType.<BlockPos>builder()
-            .persistent(BlockPos.CODEC).networkSynchronized(BlockPos.STREAM_CODEC).build());
     
     // BLOCKS
     

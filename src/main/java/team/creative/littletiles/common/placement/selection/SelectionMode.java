@@ -45,8 +45,11 @@ public abstract class SelectionMode {
     
     public abstract SelectionScanResult scan(Level level, ItemStack stack, SelectionComponent config);
     
-    public abstract LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack,
-            SelectionComponent config) throws LittleActionException;
+    public LittleGroup select(Level level, LittleActionSource source, SelectionParameters selection, ItemStack stack, SelectionComponent config) throws LittleActionException {
+        return selectionBuilder(level, source, stack, config).build(selection);
+    }
+    
+    public abstract SelectionBuilder selectionBuilder(Level level, LittleActionSource source, ItemStack stack, SelectionComponent config) throws LittleActionException;
     
     @Nullable
     @OnlyIn(Dist.CLIENT)

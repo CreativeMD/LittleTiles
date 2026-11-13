@@ -60,6 +60,12 @@ public class LittleVec {
         this.z = grid.toGrid(vec.z);
     }
     
+    public LittleVec(LittleGrid grid, int x, int y, int z) {
+        this.x = grid.toGrid(x);
+        this.y = grid.toGrid(y);
+        this.z = grid.toGrid(z);
+    }
+    
     public LittleVec(Facing facing) {
         switch (facing) {
             case EAST -> set(1, 0, 0);

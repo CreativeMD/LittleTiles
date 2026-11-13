@@ -30,6 +30,8 @@ public class LittleBoxLevel extends LittleBoxAbsolute {
             return new LittleBoxLevel(ILittleLevelContext.of(level, box.pos), box);
         }
         if (tag instanceof CompoundTag nbt) {
+            if (!nbt.contains("b") || !nbt.contains("c"))
+                return null;
             int[] array = nbt.getIntArray("b");
             return new LittleBoxLevel(ILittleLevelContext.of(level, nbt.getString("c")), of(array));
         }
