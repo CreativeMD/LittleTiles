@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
+import dev.ryanhcode.sable.sublevel.render.vanilla.VanillaChunkedSubLevelRenderData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -15,6 +16,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.origin.IVecOrigin;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 public class SableInteractor {
     
@@ -53,6 +55,15 @@ public class SableInteractor {
     
     public static boolean isSubLevel(Level level, BlockPos pos) {
         return context(level, pos).isSubLevel();
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static @Nullable RenderChunkExtender getRenderChunk(Level level, long pos) {
+        var context = context(level, SectionPos.of(pos).origin());
+        if (context instanceof SableContext sable && sable.level instanceof ClientSubLevel sub
+                && sub.getRenderData() instanceof VanillaChunkedSubLevelRenderData data)
+            return (RenderChunkExtender) data.getRenderSection(SectionPos.of(pos));
+        return null;
     }
     
     @OnlyIn(Dist.CLIENT)

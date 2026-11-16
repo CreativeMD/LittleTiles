@@ -12,6 +12,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
 import team.creative.creativecore.common.util.math.origin.IVecOrigin;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 
 public class SableManager {
     
@@ -40,6 +41,11 @@ public class SableManager {
         if (INSTALLED)
             return SableInteractor.isSubLevel((Level) level, pos);
         return false;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static @Nullable RenderChunkExtender getRenderChunk(Level level, long pos) {
+        return INSTALLED ? SableInteractor.getRenderChunk(level, pos) : null;
     }
     
     @OnlyIn(Dist.CLIENT)

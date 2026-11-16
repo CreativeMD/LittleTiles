@@ -120,7 +120,7 @@ public class LevelTransition {
                 sections.remove(pos.asLong());
             else if (LittleTiles.CONFIG.rendering.uploadToVBODirectly)
                 for (BlockAdditional additional : entries.values())
-                    if (additional.getAndClearUploaded()) // If a buffer has not been added to the section yet it is done afterwards to ensure smooth transition
+                    if (!additional.getAndClearUploaded()) // If a buffer has not been added to the section yet it is done afterwards to ensure smooth transition
                         additional.uploadAdditionalExtra(builderSupplier, bufferSupplier);
         }
         

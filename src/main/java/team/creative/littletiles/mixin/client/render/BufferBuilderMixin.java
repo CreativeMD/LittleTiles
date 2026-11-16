@@ -38,7 +38,7 @@ public abstract class BufferBuilderMixin implements ChunkBufferUploader {
     
     @Override
     public int uploadIndex() {
-        return ((ByteBufferBuilderAccessor) buffer).getWriteOffset();
+        return vertices * vertexSize;
     }
     
     @Override
