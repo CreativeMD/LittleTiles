@@ -197,6 +197,8 @@ public abstract class LittleEntity<T extends LittleEntityPhysic> extends Entity 
         
         physic.tick();
         origin.tick();
+        // Refresh the cached interpolated pose after advancing its previous-tick values.
+        origin.setLast(origin.offXLast(), origin.offYLast(), origin.offZLast(), origin.rotXLast(), origin.rotYLast(), origin.rotZLast());
         
         Vec3 center = physic.getCenter();
         setPos(center.x, center.y, center.z);
