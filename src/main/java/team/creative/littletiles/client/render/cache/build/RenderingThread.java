@@ -205,7 +205,8 @@ public class RenderingThread extends Thread {
                                         BlockState modelState = cube.state;
                                         rand.setSeed(modelState.getSeed(pos));
                                         BakedModel blockModel = MC.getBlockRenderer().getBlockModel(modelState);
-                                        var modelData = blockModel.getModelData(level, pos, modelState, level.getModelData(pos));
+                                        var modelData = team.creative.creativecore.client.render.model.ModelQuadSource.prepare(
+                                            blockModel.getModelData(level, pos, modelState, level.getModelData(pos)), modelState.getSeed(pos));
                                         BlockPos offset = cube.getOffset();
                                         for (int h = 0; h < Facing.VALUES.length; h++) {
                                             Facing facing = Facing.VALUES[h];

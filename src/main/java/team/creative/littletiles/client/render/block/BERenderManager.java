@@ -330,8 +330,10 @@ public class BERenderManager {
     }
     
     public Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> getRenderingBoxes(RenderingBlockContext context) {
-        if (boxCache != null)
+        if (boxCache != null) {
+            team.creative.littletiles.client.render.material.MaterialStateAdapter.apply(context, boxCache);
             return boxCache;
+        }
         
         boxCache = new Int2ObjectArrayMap<>();
         LittleServerFace serverFace = new LittleServerFace(be);
@@ -373,6 +375,7 @@ public class BERenderManager {
             if (!boxes.isEmpty())
                 boxCache.put(parent instanceof IStructureParentCollection s ? s.getIndex() : -1, boxes);
         }
+        team.creative.littletiles.client.render.material.MaterialStateAdapter.apply(context, boxCache);
         return boxCache;
     }
     
