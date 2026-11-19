@@ -230,6 +230,7 @@ public class LittleTilesClient {
     }
     
     private static void setup(final FMLClientSetupEvent event) {
+        NeoForge.EVENT_BUS.addListener(team.creative.littletiles.client.render.material.BoundaryRefresh::tick);
         MC.getItemColors().register((stack, layer) -> {
             if (layer == 0)
                 return ColorUtils.WHITE;

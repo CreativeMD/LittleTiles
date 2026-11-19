@@ -77,6 +77,16 @@ tasks.register('renderBuildOwnershipRegression', JavaExec) {
     doFirst { args = [tasks.jar.archiveFile.get().asFile.absolutePath] }
 }
 
+tasks.register('boundaryRenderRegression', JavaExec) {
+    group = 'verification'
+    description = 'Checks edit/update interleaving and boundary face refresh without launching Minecraft.'
+    dependsOn tasks.named('regressionClasses'), tasks.named('jar')
+    classpath = sourceSets.regression.runtimeClasspath
+    mainClass = 'BoundaryRenderRegression'
+    jvmArgs '-Xverify:all'
+    doFirst { args = [tasks.jar.archiveFile.get().asFile.absolutePath] }
+}
+
 runs {  
     configureEach {
         workingDirectory project.file('run')

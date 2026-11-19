@@ -120,6 +120,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             for (IStructureParentCollection parent : structures())
                 if (parent.isMain())
                     parent.postLoad();
+        if (isClient())
+            team.creative.littletiles.client.render.material.BoundaryRefresh.request(this);
     }
     
     private void init() {
@@ -303,6 +305,8 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             render.tilesChanged();
         
         customTilesUpdate();
+        if (isClient())
+            team.creative.littletiles.client.render.material.BoundaryRefresh.request(this);
     }
     
     public void updateTiles(Consumer<BlockEntityInteractor> action) {
@@ -483,6 +487,7 @@ public class BETiles extends BlockEntityCreative implements IGridBased, ILittleB
             render.unsetBlocked();
             if (rendering) // Fixes incorrect rendering when receiving an update while render cache is building
                 render.queue(true, false, 0);
+            team.creative.littletiles.client.render.material.BoundaryRefresh.request(this);
         }
     }
     
