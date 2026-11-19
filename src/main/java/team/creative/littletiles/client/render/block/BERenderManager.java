@@ -41,7 +41,7 @@ public class BERenderManager {
     private BETiles be;
     
     private volatile AtomicInteger blocked = new AtomicInteger(0);
-    private volatile byte requestedIndex = -1;
+    private volatile int requestedIndex = -1;
     private int renderState = -1;
     
     private volatile boolean queued = false;
@@ -167,7 +167,7 @@ public class BERenderManager {
     
     public void queue(boolean eraseBoxCache, boolean hasPos, long pos) {
         synchronized (this) {
-            requestedIndex++;
+            requestedIndex = (requestedIndex + 1) & Integer.MAX_VALUE;
             
             this.eraseBoxCache |= eraseBoxCache;
             
@@ -176,13 +176,17 @@ public class BERenderManager {
         }
     }
     
+    public static final int BUILDING_BLOCKED = Integer.MIN_VALUE;
+
     public int startBuildingCache() {
         synchronized (this) {
+            // Checking isBlocked before this call cannot reserve the shared boxes.
+            if (!blocked.compareAndSet(0, 1))
+                return BUILDING_BLOCKED;
             if (eraseBoxCache) {
                 boxCache = null;
                 eraseBoxCache = false;
             }
-            blocked.incrementAndGet();
             return requestedIndex;
         }
         

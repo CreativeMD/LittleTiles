@@ -61,6 +61,22 @@ sourceSets.main.runtimeClasspath += sourceSets.api.output
 
 project.evaluationDependsOn(":CreativeCore")
 
+// Isolated JVM regression tests; their render-layer fixture is never packaged.
+sourceSets.create('regression') {
+    compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+    runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+}
+
+tasks.register('renderBuildOwnershipRegression', JavaExec) {
+    group = 'verification'
+    description = 'Checks exclusive render builders, rejected-task cleanup and empty-entity cache release.'
+    dependsOn tasks.named('regressionClasses'), tasks.named('jar')
+    classpath = sourceSets.regression.runtimeClasspath
+    mainClass = 'RenderBuildOwnershipRegression'
+    jvmArgs '-Xverify:all'
+    doFirst { args = [tasks.jar.archiveFile.get().asFile.absolutePath] }
+}
+
 runs {  
     configureEach {
         workingDirectory project.file('run')
