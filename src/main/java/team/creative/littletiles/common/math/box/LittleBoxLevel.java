@@ -7,6 +7,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 import team.creative.littletiles.common.action.exception.LittleActionException;
 import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
@@ -93,6 +95,11 @@ public class LittleBoxLevel extends LittleBoxAbsolute {
     @Override
     public LittleBoxLevel copy() {
         return new LittleBoxLevel(context, pos, box.copy(), grid);
+    }
+    
+    @Nullable
+    public BlockHitResult rayTrace(Vec3 pos, Vec3 look) {
+        return box.rayTrace(grid, this.pos, pos, look);
     }
     
 }

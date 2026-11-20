@@ -26,4 +26,7 @@ public class BuildingModeFeatures {
     public static final BuildingModeAreaRule INCLUDE = REGISTRY.register("include", new BuildingModeAreaRule(false));
     public static final BuildingModeAreaRule EXCLUDE = REGISTRY.register("exclude", new BuildingModeAreaRule(true));
     public static final BuildingModeMirrors MIRRORS = REGISTRY.register("mirrors", new BuildingModeMirrors());
+    
+    public static final BuildingModeTransformMode CYCLE_TRANSFORM_MODE = REGISTRY.register("cycle_transform_mode",
+        new BuildingModeTransformMode("building.transform.cycle", InputConstants.KEY_T, KeyModifier.NONE));
 }

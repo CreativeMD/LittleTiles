@@ -293,7 +293,7 @@ public class GuiIsoAnimationViewer extends GuiControl {
             RenderBox renderBox = box.getRenderingBox(grid);
             RenderSystem.disableDepthTest();
             RenderSystem.lineWidth(16.0F);
-            renderBox.renderLines(pose, bufferbuilder, colorAlpha);
+            renderBox.buildLines(pose, bufferbuilder, colorAlpha);
             BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
         }
         

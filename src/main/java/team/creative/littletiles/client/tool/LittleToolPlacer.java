@@ -11,7 +11,6 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Objects;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
@@ -327,40 +326,26 @@ public class LittleToolPlacer extends LittleTool {
         if (mesh == null || placedPosition == null)
             return;
         
-        pose.pushPose();
-        pose.translate(-cam.x, -cam.y, -cam.z);
-        
         if (marked != null)
-            renderer.renderLineBox(pose, marked.getBB(), true);
+            renderer.renderLineBox(placedContext, pose, cam, marked.getBB(), marked.getPos(), true);
         
-        var matrix = RenderSystem.getModelViewStack();
-        matrix.pushMatrix();
-        renderer.setupPreviewRenderer(lines);
-        
-        placedContext.transformMatrix(matrix, placedPosition.getMinPosX(), placedPosition.getMinPosY(), placedPosition.getMinPosZ(), cam, renderer.partialTickTime());
-        RenderSystem.applyModelViewMatrix();
-        BufferUploader.drawWithShader(mesh);
-        matrix.popMatrix();
-        RenderSystem.applyModelViewMatrix();
-        
-        if (builtResult != null) {
-            int colorAlpha = 255;
-            if (LittleActionHandlerClient.isUsingSecondMode() != placer.snapToGridByDefault(stack)) {
-                List<RenderBox> cubes = getPositingCubes(placedLevel, aimedPosition.getPos());
-                BufferBuilder builder = renderer.createTesselatorBuilder(lines);
-                if (cubes != null)
-                    for (RenderBox cube : cubes)
-                        renderer.buildBox(pose, cube, builder, colorAlpha, lines);
-                var data = builder.build();
-                if (data != null)
-                    BufferUploader.drawWithShader(data);
+        renderer.wrapPreviewRender(placedContext, placedPosition.getPos(), cam, lines, () -> {
+            BufferUploader.drawWithShader(mesh);
+            
+            if (builtResult != null) {
+                int colorAlpha = 255;
+                if (LittleActionHandlerClient.isUsingSecondMode() != placer.snapToGridByDefault(stack)) {
+                    List<RenderBox> cubes = getPositingCubes(placedLevel, aimedPosition.getPos());
+                    BufferBuilder builder = renderer.createTesselatorBuilder(lines);
+                    if (cubes != null)
+                        for (RenderBox cube : cubes)
+                            renderer.buildBox(pose, cube, builder, colorAlpha, lines);
+                    var data = builder.build();
+                    if (data != null)
+                        BufferUploader.drawWithShader(data);
+                }
             }
-        }
-        
-        pose.popPose();
-        
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        
+        });
     }
     
     private List<RenderBox> getPositingCubes(Level level, BlockPos pos) {

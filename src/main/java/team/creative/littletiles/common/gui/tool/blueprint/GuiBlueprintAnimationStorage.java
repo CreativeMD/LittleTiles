@@ -183,7 +183,7 @@ public class GuiBlueprintAnimationStorage implements Iterable<Entry<GuiTreeItemS
                 pose.pushPose();
                 pose.translate(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ());
                 for (LittleBox box : entry.getValue())
-                    box.getRenderingBox(grid).renderLines(pose, bufferBuilder, colorAlpha);
+                    box.getRenderingBox(grid).buildLines(pose, bufferBuilder, colorAlpha);
                 pose.popPose();
             }
             
@@ -196,7 +196,7 @@ public class GuiBlueprintAnimationStorage implements Iterable<Entry<GuiTreeItemS
                 pose.pushPose();
                 pose.translate(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ());
                 for (LittleBox box : entry.getValue())
-                    box.getRenderingBox(grid).renderLines(pose, bufferBuilder, colorAlpha);
+                    box.getRenderingBox(grid).buildLines(pose, bufferBuilder, colorAlpha);
                 pose.popPose();
             }
             

@@ -474,6 +474,10 @@
     "building.measurement.line": "Line",
     "building.measurement.area": "Area",
     "building.measurement.volume": "Volume",
+    "building.transform.cycle": "Transform: %s (%s)",
+    "building.transform.corner": "Corner",
+    "building.transform.edge": "Edge",
+    "building.transform.face": "Face",
     
     "building.rules": "Extra Building Rules",
     "building.reset": "Reset All",

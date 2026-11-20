@@ -161,9 +161,11 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         if (!lines) {
             pose.pushPose();
             pose.translate(-cam.x, -cam.y, -cam.z);
-            renderer.setupPreviewRenderer(false);
-            for (MirrorOrigin mirror : mirrorOrigins)
-                mirror.renderMirrors(renderer, pose);
+            renderer.wrapPreviewRender(false, () -> {
+                for (MirrorOrigin mirror : mirrorOrigins)
+                    mirror.renderMirrors(renderer, pose);
+            });
+            
             pose.popPose();
             
             RenderSystem.setShaderColor(1, 1, 1, 1);
@@ -187,9 +189,9 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
         pose.pushPose();
         pose.translate(-cam.x, -cam.y, -cam.z);
         if (first != null)
-            renderer.renderLineBox(pose, first.getBB(), false);
+            renderer.drawABB(pose, first.getBB(), false);
         if (last != null)
-            renderer.renderLineBox(pose, last.getBB(), false);
+            renderer.drawABB(pose, last.getBB(), false);
         pose.popPose();
         
         if (first != null && last != null) {
@@ -200,7 +202,7 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
                 box.growToIncludePixel(last.getRelative(boxes.pos));
                 boxes.add(box);
                 var result = renderer.buildBoxes(pose, boxes, lines);
-                renderer.renderSeethroughLines(ILittleLevelContext.STANDARD, cam, lines, result.pos(), result.data(), color);
+                renderer.renderLinesHighlight(ILittleLevelContext.STANDARD, cam, result.pos(), result.data(), color);
                 result.close();
             });
         }
@@ -223,7 +225,7 @@ public class BuildingModeMirrors extends BuildingModeFeature implements Building
                 pose.popPose();
             }
             
-            renderer.renderSeethroughLines(ILittleLevelContext.STANDARD, cam, lines, result.pos(), result.data(), color);
+            renderer.renderLinesHighlight(ILittleLevelContext.STANDARD, cam, result.pos(), result.data(), color);
             
         }
         

@@ -1,7 +1,5 @@
 package team.creative.littletiles.client.tool;
 
-import org.joml.Matrix4fStack;
-
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
@@ -122,25 +120,13 @@ public class LittleToolSelection extends LittleTool {
         if (result == null || result.data == null)
             return;
         
-        var matrix = RenderSystem.getModelViewStack();
-        matrix.pushMatrix();
-        if (lines)
-            renderer.setupPreviewRendererLines(1, 1, 1, 0.4F, (float) LittleTiles.CONFIG.rendering.previewLineThickness);
-        else
-            renderer.setupPreviewRenderer(lines);
-        
-        renderQueue.transform(matrix, cam, renderer.partialTickTime());
-        RenderSystem.applyModelViewMatrix();
-        BufferUploader.drawWithShader(result.data);
-        matrix.popMatrix();
-        RenderSystem.applyModelViewMatrix();
-        
-        if (cachedSelection.mode.hasRenderTick(stack, cachedSelection)) {
-            pose.pushPose();
-            renderQueue.transform(pose, cam, renderer.partialTickTime());
-            cachedSelection.mode.renderTick(renderer, (LittleActionSource) renderer.player(), renderer.level(), stack, cachedSelection, pose, lines);
-            pose.popPose();
-        }
+        renderer.wrapPreviewRender(renderQueue.context, renderQueue.origin, cam, lines, () -> {
+            RenderSystem.setShaderColor(1, 1, 1, LittleTiles.CONFIG.rendering.preview.lineColor.getAlphaDecimal());
+            BufferUploader.drawWithShader(result.data);
+            
+            if (cachedSelection.mode.hasRenderTick(stack, cachedSelection))
+                cachedSelection.mode.renderTick(renderer, (LittleActionSource) renderer.player(), renderer.level(), stack, cachedSelection, pose, lines);
+        });
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
     }
@@ -250,16 +236,6 @@ public class LittleToolSelection extends LittleTool {
             var data = boxBuilder.build();
             ((MeshDataExtender) data).keepAlive(true);
             return new SelectionRenderResult(boxBuffer, data);
-        }
-        
-        public void transform(Matrix4fStack matrix, Vec3 cam, float partialTicks) {
-            if (context != null)
-                context.transformMatrix(matrix, origin.getX(), origin.getY(), origin.getZ(), cam, partialTicks);
-        }
-        
-        public void transform(PoseStack pose, Vec3 cam, float partialTicks) {
-            if (context != null)
-                context.transformPose(pose, origin.getX(), origin.getY(), origin.getZ(), cam, partialTicks);
         }
     }
     

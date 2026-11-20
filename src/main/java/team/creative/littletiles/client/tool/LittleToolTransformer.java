@@ -2,15 +2,9 @@ package team.creative.littletiles.client.tool;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 
 import javax.annotation.Nullable;
 
-import org.spongepowered.include.com.google.common.base.Objects;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.BufferUploader;
-import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.client.KeyMapping;
@@ -20,46 +14,50 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.HitResult.Type;
 import net.minecraft.world.phys.Vec3;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.mc.ColorUtils;
-import team.creative.creativecore.common.util.mc.PlayerUtils;
+import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittleTransformer;
 import team.creative.littletiles.client.LittleTilesClient;
 import team.creative.littletiles.client.action.LittleActionHandlerClient;
 import team.creative.littletiles.client.render.overlay.PreviewRenderer;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeature;
+import team.creative.littletiles.client.tool.mode.BuildingModeFeatures;
 import team.creative.littletiles.client.tool.shaper.ShapePosition;
 import team.creative.littletiles.common.action.LittleAction;
 import team.creative.littletiles.common.block.little.element.LittleElement;
 import team.creative.littletiles.common.block.little.tile.LittleTileContext;
 import team.creative.littletiles.common.block.mc.BlockTile;
 import team.creative.littletiles.common.grid.LittleGrid;
+import team.creative.littletiles.common.item.component.TransformMode;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
+import team.creative.littletiles.common.math.box.LittleBoxGrid;
 import team.creative.littletiles.common.math.box.LittleBoxLevel;
 import team.creative.littletiles.common.math.box.LittleTransformableBox;
 import team.creative.littletiles.common.math.box.LittleTransformableBox.CornerCache;
 import team.creative.littletiles.common.math.measure.LittleMeasurement;
 import team.creative.littletiles.common.math.measure.LittleMeasurementSimpleBox;
 import team.creative.littletiles.common.math.vec.LittleVec;
-import team.creative.littletiles.common.math.vec.LittleVecAbsolute;
+import team.creative.littletiles.common.math.vec.LittleVecGrid;
 import team.creative.littletiles.common.packet.action.ChangedElementPacket;
 import team.creative.littletiles.common.placement.PlacementHelper;
 import team.creative.littletiles.common.placement.PreviewMode;
 
 public class LittleToolTransformer extends LittleTool {
     
-    private ILittleLevelContext context;
-    private Level placeLevel;
+    private LittleBoxLevel first;
     
-    private ShapePosition first;
+    private ILittleLevelContext lastContext;
     private ShapePosition last;
     
-    private LittleBoxAbsolute box = null;
-    private LittleVecAbsolute[] corners = new LittleVecAbsolute[BoxCorner.values().length];
+    private LittleBoxLevel box = null;
+    private LittleBoxAbsolute[] corners = new LittleBoxAbsolute[BoxCorner.values().length];
+    
+    private TransformMode transformMode = TransformMode.DEFAULT;
     private int marked = -1;
     
     private ILittleTransformer transformer;
@@ -67,6 +65,7 @@ public class LittleToolTransformer extends LittleTool {
     public LittleToolTransformer(ItemStack stack) {
         super(stack);
         this.transformer = (ILittleTransformer) stack.getItem();
+        
     }
     
     @Override
@@ -75,52 +74,38 @@ public class LittleToolTransformer extends LittleTool {
         if (blockHit == null)
             return;
         
-        if ((first == null && box == null) || placeLevel == null) {
-            context = renderer.blockHitContext();
-            placeLevel = renderer.blockHitLevel();
-        } else {
-            var newContext = renderer.blockHitContext();
-            if (!Objects.equal(context, newContext)) {
-                // Transform block position to existing context
-                Vec3 newLocation = context.toFakeWorld(newContext.toRealWorld(blockHit.getLocation()));
-                BlockPos blockPos = BlockPos.containing(newLocation);
-                if (blockHit.getType() == Type.MISS)
-                    blockHit = BlockHitResult.miss(newLocation, blockHit.getDirection(), blockPos);
-                else
-                    blockHit = new BlockHitResult(newLocation, blockHit.getDirection(), blockPos, blockHit.isInside());
-            }
-        }
-        
+        var placeLevel = renderer.blockHitLevel();
         var player = renderer.player();
+        lastContext = renderer.blockHitContext();
         last = new ShapePosition(player, placeLevel, PlacementHelper.getPosition(placeLevel, blockHit, transformer.getPositionGrid(player, stack)), blockHit, false, transformer
                 .previewInside(player, stack));
+        transformMode = transformer.transformMode(player, stack);
     }
     
-    protected LittleBoxAbsolute getSelectionBox() {
-        LittleGrid grid;
-        BlockPos pos = last.getPos();
-        LittleBox selectionBox = LittleBox.ofNothing();
-        if (first != null) {
-            grid = first.unsafeSameGridRestore(last, () -> {
-                selectionBox.growToIncludePixel(first.getRelative(pos));
-                selectionBox.growToIncludePixel(last.getRelative(pos));
-                return first.getGrid();
-            });
-        } else {
-            selectionBox.growToIncludePixel(last.getRelative(pos));
-            grid = last.getGrid();
-        }
-        return new LittleBoxAbsolute(pos, selectionBox, grid);
+    protected LittleBoxLevel getLast() {
+        var lastBox = new LittleBoxLevel(lastContext, last.box().copy());
+        if (first != null && !first.context.is(lastContext))
+            lastBox.convertTo(first.context);
+        return lastBox;
+    }
+    
+    protected LittleBoxLevel getSelectionBox() {
+        if (first == null)
+            return new LittleBoxLevel(lastContext, last.box().copy());
+        var box = first.copy();
+        box.include(getLast());
+        return box;
     }
     
     protected void updateBox() {
+        var context = box != null ? box.context : first.context;
         LittleBox overallBox = LittleBox.ofNothing();
-        BlockPos pos = corners[0].getPos();
+        BlockPos pos = corners[0].pos;
         LittleGrid grid = corners[0].getGrid();
         LittleVec[] relativeCorners = new LittleVec[corners.length];
         for (int i = 0; i < corners.length; i++) {
-            LittleVecAbsolute corner = corners[i];
-            LittleVec vec = corner.getRelative(pos);
+            LittleBoxAbsolute corner = corners[i];
+            LittleBoxGrid boxCorner = corner.getRelative(pos);
             
             if (corner.getGrid().count > grid.count) {
                 for (int j = 0; j < i; j++)
@@ -128,17 +113,11 @@ public class LittleToolTransformer extends LittleTool {
                 overallBox.convertTo(grid, corner.getGrid());
                 grid = corner.getGrid();
             } else if (corner.getGrid().count < grid.count)
-                vec.convertTo(corner.getGrid(), grid);
+                boxCorner.convertTo(grid);
             
-            overallBox.growToIncludePixel(vec);
-            BoxCorner c = BoxCorner.values()[i];
-            if (c.x.positive)
-                vec.x += 1;
-            if (c.y.positive)
-                vec.y += 1;
-            if (c.z.positive)
-                vec.z += 1;
-            relativeCorners[i] = vec;
+            var c = BoxCorner.values()[i];
+            overallBox.growToIncludeCorner(boxCorner.getBox(), c);
+            relativeCorners[i] = boxCorner.getBox().get(c);
         }
         
         LittleTransformableBox tBox = new LittleTransformableBox(overallBox, new int[1]);
@@ -149,10 +128,10 @@ public class LittleToolTransformer extends LittleTool {
         
         int[] data = cache.getData();
         if (data.length == 1)
-            box = new LittleBoxAbsolute(pos, overallBox, grid);
+            box = new LittleBoxLevel(context, pos, overallBox, grid);
         else {
             tBox.setData(cache.getData());
-            box = new LittleBoxAbsolute(pos, tBox, grid);
+            box = new LittleBoxLevel(context, pos, tBox, grid);
         }
     }
     
@@ -161,52 +140,23 @@ public class LittleToolTransformer extends LittleTool {
         if ((transformer.previewMode(renderer.player(), stack) == PreviewMode.LINES) != lines)
             return;
         
-        MeshData mesh;
-        BlockPos pos;
-        var builder = renderer.createTesselatorBuilder(lines);
+        var renderBox = box != null ? box : getSelectionBox();
+        var pos = renderBox.pos;
+        
+        renderer.renderLineBoxes(pose, cam, SingletonList.of(renderBox), null);
+        
         if (box != null) {
-            pose.pushPose();
-            pos = box.pos;
-            context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, renderer.partialTickTime());
-            for (int i = 0; i < corners.length; i++) {
-                var bb = corners[i].getBB();
-                bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
-                renderer.renderLineBox(pose, bb, marked == i);
-            }
-            pose.popPose();
-            
-            renderer.buildBox(pose, box.getRenderingBoxWithoutOffset(), builder, 255, lines);
-            mesh = builder.build();
-        } else {
-            if (last == null)
-                return;
-            
-            LittleBoxAbsolute selectionBox = getSelectionBox();
-            renderer.buildBox(pose, selectionBox.getRenderingBoxWithoutOffset(), builder, 255, lines);
-            pos = selectionBox.pos;
-            mesh = builder.build();
+            renderer.wrapPreviewRender(box.context, pos, cam, true, () -> {
+                pose.pushPose();
+                transformMode.render(renderer, pose, pos, marked, box, corners);
+                pose.popPose();
+            });
         }
-        
-        if (mesh != null) {
-            var matrix = RenderSystem.getModelViewStack();
-            matrix.pushMatrix();
-            context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, renderer.partialTickTime());
-            
-            RenderSystem.applyModelViewMatrix();
-            renderer.setupPreviewRenderer(lines);
-            
-            BufferUploader.drawWithShader(mesh);
-            matrix.popMatrix();
-        }
-        
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        
-        RenderSystem.applyModelViewMatrix();
     }
     
     @Override
     public boolean onMouseWheelClickBlock(PreviewRenderer renderer, Level level, BlockHitResult result) {
-        BlockState state = placeLevel.getBlockState(result.getBlockPos());
+        BlockState state = renderer.blockHitLevel().getBlockState(result.getBlockPos());
         if (LittleAction.isBlockValid(state)) {
             LittleTiles.NETWORK.sendToServer(new ChangedElementPacket(new LittleElement(state, ColorUtils.WHITE)));
             return true;
@@ -230,11 +180,11 @@ public class LittleToolTransformer extends LittleTool {
         
         if (box == null) {
             if (first == null) {
-                first = last.copy();
+                first = getLast();
                 return true;
             }
             // Init transformable box mode
-            LittleBoxAbsolute selectionBox = getSelectionBox();
+            LittleBoxLevel selectionBox = getSelectionBox();
             box = selectionBox;
             for (int i = 0; i < corners.length; i++) {
                 BoxCorner corner = BoxCorner.values()[i];
@@ -245,20 +195,18 @@ public class LittleToolTransformer extends LittleTool {
                     vec.y -= 1;
                 if (corner.z.positive)
                     vec.z -= 1;
-                corners[i] = new LittleVecAbsolute(selectionBox.pos, selectionBox.grid, vec);
+                corners[i] = new LittleBoxAbsolute(selectionBox.pos, new LittleBox(vec), selectionBox.grid);
             }
             first = null;
             return true;
         }
         
-        if (marked > -1) {
-            // Move corner
-            corners[marked] = new LittleVecAbsolute(last.getPos(), last.getMin());
+        if (transformMode.move(renderer, marked, last, box, corners)) {
             updateBox();
             return true;
         }
         
-        transformer.boxFinished(placeLevel, renderer.player(), stack, box);
+        transformer.boxFinished(box.context.asLevel(renderer.level()), renderer.player(), stack, box);
         box = null;
         Arrays.fill(corners, null);
         return true;
@@ -267,27 +215,7 @@ public class LittleToolTransformer extends LittleTool {
     @Override
     public boolean onLeftClick(PreviewRenderer renderer, Level level, BlockHitResult hit) {
         if (box != null) {
-            int index = -1;
-            double distance = Double.MAX_VALUE;
-            var player = renderer.player();
-            float partialTickTime = renderer.partialTickTime();
-            Vec3 pos = player.getEyePosition(partialTickTime);
-            double reach = PlayerUtils.getReach(player);
-            Vec3 view = player.getViewVector(partialTickTime);
-            Vec3 look = pos.add(view.x * reach, view.y * reach, view.z * reach);
-            pos = context.toFakeWorld(pos);
-            look = context.toFakeWorld(look);
-            for (int i = 0; i < corners.length; i++) {
-                Optional<Vec3> result = corners[i].getBox().clip(pos, look);
-                if (result.isPresent()) {
-                    double tempDistance = pos.distanceToSqr(result.get());
-                    if (tempDistance < distance) {
-                        index = i;
-                        distance = tempDistance;
-                    }
-                }
-            }
-            marked = index;
+            marked = transformMode.select(renderer, box, corners);
             return true;
         }
         return false;
@@ -304,9 +232,16 @@ public class LittleToolTransformer extends LittleTool {
                 LittleGrid grid = transformer.getPositionGrid(renderer.player(), stack);
                 LittleVec vec = new LittleVec(facing);
                 vec.scale(Screen.hasControlDown() ? grid.count : 1);
-                corners[marked].add(new LittleVecAbsolute(BlockPos.ZERO, grid, vec));
-                if (corners[marked].getGrid().count < grid.count)
-                    corners[marked].convertTo(grid);
+                
+                BoxCorner[] corners = transformMode.corners(marked);
+                if (corners == null)
+                    return false;
+                
+                var offset = new LittleVecGrid(vec, grid);
+                
+                for (int i = 0; i < corners.length; i++)
+                    this.corners[corners[i].ordinal()].move(offset);
+                
                 updateBox();
                 return true;
             }
@@ -317,16 +252,16 @@ public class LittleToolTransformer extends LittleTool {
     
     @Override
     public List<LittleMeasurement> measurements() {
-        if (box == null || context == null)
+        if (box == null)
             return null;
-        return Arrays.asList(new LittleMeasurementSimpleBox(new LittleBoxLevel(context, box.copy())));
+        return Arrays.asList(new LittleMeasurementSimpleBox(box.copy()));
     }
     
     @Override
-    public void remove() {
-        super.remove();
-        placeLevel = null;
-        context = null;
+    public List<BuildingModeFeature> buildingFeatures() {
+        List<BuildingModeFeature> features = super.buildingFeatures();
+        features.add(BuildingModeFeatures.CYCLE_TRANSFORM_MODE);
+        return features;
     }
     
 }
