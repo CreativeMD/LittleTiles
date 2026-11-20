@@ -15,8 +15,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.origin.IVecOrigin;
-import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
 public class SableInteractor {
     
@@ -32,6 +32,17 @@ public class SableInteractor {
     }
     
     public static ILittleLevelContext context(Level level, ChunkPos pos) {
+        if (level == null || pos == null)
+            return ILittleLevelContext.STANDARD;
+        if (level instanceof ISubLevel sub)
+            level = sub.getRealLevel();
+        var subLevel = Sable.HELPER.getContaining(level, pos);
+        if (subLevel != null)
+            return new SableContext(subLevel);
+        return ILittleLevelContext.STANDARD;
+    }
+    
+    public static ILittleLevelContext context(Level level, SectionPos pos) {
         if (level == null || pos == null)
             return ILittleLevelContext.STANDARD;
         if (level instanceof ISubLevel sub)
@@ -59,9 +70,8 @@ public class SableInteractor {
     
     @OnlyIn(Dist.CLIENT)
     public static @Nullable RenderChunkExtender getRenderChunk(Level level, long pos) {
-        var context = context(level, SectionPos.of(pos).origin());
-        if (context instanceof SableContext sable && sable.level instanceof ClientSubLevel sub
-                && sub.getRenderData() instanceof VanillaChunkedSubLevelRenderData data)
+        var context = context(level, SectionPos.of(pos));
+        if (context instanceof SableContext sable && sable.level instanceof ClientSubLevel sub && sub.getRenderData() instanceof VanillaChunkedSubLevelRenderData data)
             return (RenderChunkExtender) data.getRenderSection(SectionPos.of(pos));
         return null;
     }

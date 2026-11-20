@@ -50,6 +50,11 @@ public abstract class RenderingLevelHandler {
         
         @Override
         public RenderChunkExtender getRenderChunk(Level level, long pos) {
+            if (SableManager.INSTALLED) {
+                var c = SableManager.getRenderChunk(level, pos);
+                if (c != null)
+                    return c;
+            }
             return (RenderChunkExtender) ((ViewAreaExtender) ((LevelRendererAccessor) Minecraft.getInstance().levelRenderer).getViewArea()).getSection(pos);
         }
         

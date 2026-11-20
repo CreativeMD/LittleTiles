@@ -19,7 +19,6 @@ import team.creative.littletiles.common.block.entity.BETiles;
 import team.creative.littletiles.common.entity.animation.LittleAnimationEntity;
 import team.creative.littletiles.common.math.location.StructureLocation;
 import team.creative.littletiles.common.structure.LittleStructure;
-import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.common.structure.connection.children.StructureChildConnection;
 
 public class StructureBlockToEntityPacket extends StructurePacket {
@@ -46,10 +45,7 @@ public class StructureBlockToEntityPacket extends StructurePacket {
             var pos = SectionPos.asLong(be.getBlockPos());
             SectionPos section = chunks.get(pos);
             if (section == null) {
-                var sourceSection = SableManager.isSubLevel(be.getLevel(), be.getBlockPos())
-                        ? SableManager.getRenderChunk(be.getLevel(), pos) : origin.getRenderChunk(be.getLevel(), pos);
-                if (sourceSection != null)
-                    sourceSection.backToRAM();
+                origin.getRenderChunk(be.getLevel(), pos).backToRAM();
                 chunks.put(pos, section = SectionPos.of(be.getBlockPos()));
             }
             
