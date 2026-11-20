@@ -230,6 +230,10 @@ public class LittleTilesClient {
     }
     
     private static void setup(final FMLClientSetupEvent event) {
+        NeoForge.EVENT_BUS.addListener(team.creative.littletiles.client.render.material.BoundaryRefresh::tick);
+        if (team.creative.littletiles.mixin.connected.ConnectedTexturesMixinPlugin.present("me.pepperbell.continuity.client.model.CtmBakedModel")
+                && team.creative.littletiles.mixin.connected.ConnectedTexturesMixinPlugin.present("net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel"))
+            team.creative.littletiles.client.mod.continuity.ContinuityBridge.init();
         MC.getItemColors().register((stack, layer) -> {
             if (layer == 0)
                 return ColorUtils.WHITE;

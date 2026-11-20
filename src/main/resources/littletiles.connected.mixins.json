@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "team.creative.littletiles.mixin.connected",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "team.creative.littletiles.mixin.connected.ConnectedTexturesMixinPlugin",
+  "client": [
+    "VanillaRenderViewMixin", "SodiumRenderViewMixin", "ColumnModelFaceMixin", "MarbleEndModelMixin",
+    "BakedModelMixin", "ProcessingContextMixin", "EmissiveBakedModelMixin"
+  ],
+  "injectors": { "defaultRequire": 1 }
+}
