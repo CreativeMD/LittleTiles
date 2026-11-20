@@ -347,7 +347,9 @@ public class PreviewRenderer {
             var pos = box.pos;
             box.context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
             pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
-            drawABB(pose, box.toABB(), false);
+            var buffer = createTesselatorBuilder(true);
+            buildBox(pose, box.getRenderingBoxWithoutOffset(), buffer, 255, true);
+            drawLines(buffer.buildOrThrow(), false);
             pose.popPose();
         });
     }
@@ -356,7 +358,7 @@ public class PreviewRenderer {
         wrapPreviewRender(true, () -> {
             pose.pushPose();
             context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
-            pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
+            bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
             drawABB(pose, bb, false);
             pose.popPose();
         });
@@ -369,9 +371,8 @@ public class PreviewRenderer {
                 var box = boxes.get(i);
                 var pos = box.pos;
                 box.context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
-                pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
                 var buffer = createTesselatorBuilder(true);
-                buildBox(pose, box.getRenderingBox(), buffer, 255, true);
+                buildBox(pose, box.getRenderingBoxWithoutOffset(), buffer, 255, true);
                 drawLines(buffer.buildOrThrow(), marked != null && marked.get(i));
                 pose.popPose();
             }
@@ -382,8 +383,11 @@ public class PreviewRenderer {
         wrapPreviewRender(context, pos, cam, true, () -> {
             pose.pushPose();
             pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
-            for (int i = 0; i < boxes.size(); i++)
-                drawABB(pose, boxes.get(i).toABB(), marked != null && marked.get(i));
+            for (int i = 0; i < boxes.size(); i++) {
+                var bb = boxes.get(i).toABB();
+                bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
+                drawABB(pose, bb, marked != null && marked.get(i));
+            }
             pose.popPose();
         });
     }
@@ -399,11 +403,10 @@ public class PreviewRenderer {
     public void renderPositions(PoseStack pose, ILittleLevelContext context, BlockPos pos, Vec3 cam, List<ShapePosition> positions, @Nullable Int2BooleanFunction marked) {
         wrapPreviewRender(context, pos, cam, true, () -> {
             for (int i = 0; i < positions.size(); i++) {
-                pose.pushPose();
-                pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
+                var bb = positions.get(i).getBB();
+                bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
                 
-                drawABB(pose, positions.get(i).getBB(), marked != null && marked.get(i));
-                pose.popPose();
+                drawABB(pose, bb, marked != null && marked.get(i));
             }
         });
     }

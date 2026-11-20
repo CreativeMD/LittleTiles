@@ -11,6 +11,7 @@ import java.util.concurrent.TimeoutException;
 import javax.annotation.Nullable;
 
 import com.google.common.base.Objects;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
@@ -330,12 +331,23 @@ public class LittleToolPlacer extends LittleTool {
             renderer.renderLineBox(placedContext, pose, cam, marked.getBB(), marked.getPos(), true);
         
         renderer.wrapPreviewRender(placedContext, placedPosition.getPos(), cam, lines, () -> {
+            var matrix = RenderSystem.getModelViewStack();
+            matrix.pushMatrix();
+            var min = placedPosition.getMin();
+            matrix.translate((float) min.getPosX(), (float) min.getPosY(), (float) min.getPosZ());
+            
+            RenderSystem.applyModelViewMatrix();
             BufferUploader.drawWithShader(mesh);
+            
+            matrix.popMatrix();
+            RenderSystem.applyModelViewMatrix();
             
             if (builtResult != null) {
                 int colorAlpha = 255;
                 if (LittleActionHandlerClient.isUsingSecondMode() != placer.snapToGridByDefault(stack)) {
-                    List<RenderBox> cubes = getPositingCubes(placedLevel, aimedPosition.getPos());
+                    pose.pushPose();
+                    pose.translate(-placedPosition.getPos().getX(), -placedPosition.getPos().getY(), -placedPosition.getPos().getZ());
+                    List<RenderBox> cubes = getPositingCubes(placedLevel, placedPosition.getPos());
                     BufferBuilder builder = renderer.createTesselatorBuilder(lines);
                     if (cubes != null)
                         for (RenderBox cube : cubes)
@@ -343,6 +355,7 @@ public class LittleToolPlacer extends LittleTool {
                     var data = builder.build();
                     if (data != null)
                         BufferUploader.drawWithShader(data);
+                    pose.popPose();
                 }
             }
         });
