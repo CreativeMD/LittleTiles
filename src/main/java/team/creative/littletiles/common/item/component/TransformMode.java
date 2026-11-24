@@ -14,6 +14,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
 import net.minecraft.world.phys.Vec3;
+import net.neoforged.api.distmarker.Dist;
+import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.box.BoxEdge;
@@ -35,11 +37,13 @@ public enum TransformMode implements StringRepresentable {
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public int select(PreviewRenderer renderer, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             return renderer.selectBox(box.context, Arrays.asList(corners));
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public boolean move(PreviewRenderer renderer, int marked, ShapePosition position, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             if (marked >= 0 && marked < BoxCorner.values().length) {
                 corners[marked] = position.box().copy();
@@ -49,6 +53,7 @@ public enum TransformMode implements StringRepresentable {
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public void render(PreviewRenderer renderer, PoseStack pose, BlockPos pos, int marked, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
             for (int i = 0; i < corners.length; i++) {
@@ -71,6 +76,7 @@ public enum TransformMode implements StringRepresentable {
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public int select(PreviewRenderer renderer, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             int index = -1;
             double distance = Double.MAX_VALUE;
@@ -98,11 +104,13 @@ public enum TransformMode implements StringRepresentable {
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public boolean move(PreviewRenderer renderer, int marked, ShapePosition position, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             return marked >= 0 && marked < BoxEdge.values().length;
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public void render(PreviewRenderer renderer, PoseStack pose, BlockPos pos, int marked, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
             if (marked >= 0 && marked < BoxEdge.values().length) {
@@ -120,6 +128,7 @@ public enum TransformMode implements StringRepresentable {
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public int select(PreviewRenderer renderer, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             var player = renderer.player();
             float partialTickTime = renderer.partialTickTime();
@@ -138,11 +147,13 @@ public enum TransformMode implements StringRepresentable {
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public boolean move(PreviewRenderer renderer, int marked, ShapePosition position, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             return marked >= 0 && marked < Facing.VALUES.length;
         }
         
         @Override
+        @OnlyIn(Dist.CLIENT)
         public void render(PreviewRenderer renderer, PoseStack pose, BlockPos pos, int marked, LittleBoxLevel box, LittleBoxAbsolute[] corners) {
             var builder = renderer.createTesselatorBuilder(true);
             if (marked >= 0 && marked < Facing.VALUES.length) {
@@ -160,10 +171,13 @@ public enum TransformMode implements StringRepresentable {
     
     public abstract BoxCorner[] corners(int marked);
     
+    @OnlyIn(Dist.CLIENT)
     public abstract int select(PreviewRenderer renderer, LittleBoxLevel box, LittleBoxAbsolute[] corners);
     
+    @OnlyIn(Dist.CLIENT)
     public abstract boolean move(PreviewRenderer renderer, int marked, ShapePosition position, LittleBoxLevel box, LittleBoxAbsolute[] corners);
     
+    @OnlyIn(Dist.CLIENT)
     public abstract void render(PreviewRenderer renderer, PoseStack pose, BlockPos pos, int marked, LittleBoxLevel box, LittleBoxAbsolute[] corners);
     
     @Override
