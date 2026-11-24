@@ -166,8 +166,11 @@ public class SelectionBuilder {
                             box.add(offset);
                             result.add(box);
                         }
-                    else
-                        result.add(LittleBox.of(previews.getGrid()));
+                    else {
+                        var box = LittleBox.of(previews.getGrid());
+                        box.add(offset);
+                        result.add(box);
+                    }
                     previews.add(previews.getGrid(), new LittleElement(state, ColorUtils.WHITE), result);
                 }
             }
