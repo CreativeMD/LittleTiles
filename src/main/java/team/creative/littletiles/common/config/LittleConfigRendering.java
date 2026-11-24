@@ -31,6 +31,9 @@ public class LittleConfigRendering implements ICreativeConfig {
     public boolean showTooltip = true;
     
     @CreativeConfig
+    public boolean itemShowRotation = false;
+    
+    @CreativeConfig
     public int itemCacheDuration = 5000;
     
     @CreativeConfig
