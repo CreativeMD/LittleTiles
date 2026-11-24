@@ -121,7 +121,10 @@ public class SelectionBuilder {
                         be.sameGrid(boxes, extractTiles);
                     else
                         extractTiles.run();
-                } else if (selection.includeCB()) {
+                    return;
+                }
+                
+                if (selection.includeCB()) {
                     final LittleGroup specialPreviews = ChiselsAndBitsManager.getGroup(blockEntity);
                     if (specialPreviews != null) {
                         LittleGroup extractPreviews = new LittleGroup();
@@ -147,9 +150,12 @@ public class SelectionBuilder {
                             extractTiles.run();
                         extractPreviews.move(new LittleVecGrid(new LittleVec(extractPreviews.getGrid(), difX, difY, difZ), extractPreviews.getGrid()));
                         previews.add(extractPreviews);
+                        return;
                     }
                 }
-            } else if (selection.includeVanilla()) {
+            }
+            
+            if (selection.includeVanilla()) {
                 BlockState state = level.getBlockState(pos);
                 if (LittleAction.isBlockValid(state)) {
                     List<LittleBox> result = new ArrayList<>();
