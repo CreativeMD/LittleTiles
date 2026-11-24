@@ -93,7 +93,7 @@ public class SelectionBuilder {
                                         structure = structure.getParent().getStructure();
                                     structure.checkConnections();
                                     if (!structures.contains(structure)) {
-                                        children.add(structure.getPreviews(pos));
+                                        children.add(structure.getPreviews(basePos));
                                         structures.add(structure);
                                     }
                                 } catch (CorruptedConnectionException | NotYetConnectedException e) {
