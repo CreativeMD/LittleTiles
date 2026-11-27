@@ -52,8 +52,11 @@ public class MeasurementsComponent {
     public List<LittleMeasurement> value(Level level) {
         ListTag list = nbt.getList("c", Tag.TAG_COMPOUND);
         List<LittleMeasurement> measurements = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++)
-            measurements.add(LittleMeasurement.load(level, list.getCompound(i)));
+        for (int i = 0; i < list.size(); i++) {
+            var m = LittleMeasurement.load(level, list.getCompound(i));
+            if (m != null)
+                measurements.add(m);
+        }
         return measurements;
     }
     
