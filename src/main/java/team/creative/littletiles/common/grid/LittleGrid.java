@@ -40,6 +40,10 @@ public class LittleGrid {
     private static int HIGHEST = 1;
     private static TextMapBuilder<LittleGrid> STANDARD_TEXTMAP;
     
+    static {
+        configure(512); // Make sure all important grids are available to prevent crash when animation init packets arrive before grid setting
+    }
+    
     private static void ensure(int highest) {
         int exponent = 2;
         int size = GRIDS.get(GRIDS.size() - 1).count * exponent;
