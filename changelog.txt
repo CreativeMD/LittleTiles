@@ -1,3 +1,11 @@
+1.6.0-pre242
+Fixed not being able to load play sound door events
+Fixed not being able to load child door events
+Fixed crash with measuring tape looking at sable structures
+Fixed incorrect shading on sublevels (made by DraGonFiirE)
+Fixed ambient occulsion if sodium is not installed (made by DraGonFiirE)
+Fixed crash when grid is not ready when receiving animation init packet
+
 1.6.0-pre241
 Added option itemShowRotation
 Fixed crash when using middle mouse click on some modded blocks
