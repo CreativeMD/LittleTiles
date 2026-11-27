@@ -8,7 +8,6 @@ import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap.Entry;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
@@ -18,8 +17,6 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
-import net.minecraft.world.level.BlockAndTintGetter;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.api.distmarker.Dist;
@@ -35,12 +32,14 @@ import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.creativecore.mixin.ForgeModelBlockRendererAccessor;
 import team.creative.littletiles.api.client.IFakeRenderingBlock;
 import team.creative.littletiles.client.mod.iris.IrisManager;
+import team.creative.littletiles.client.mod.sable.SableLightingView;
+import team.creative.littletiles.client.mod.sodium.SodiumManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.buffer.BufferHolder;
 import team.creative.littletiles.client.render.cache.build.RenderingBlockContext;
 import team.creative.littletiles.client.render.tile.LittleRenderBox;
-import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.entity.animation.LittleAnimationLevel;
+import team.creative.littletiles.common.level.little.LittleSubLevel;
 import team.creative.littletiles.common.mod.sable.SableManager;
 import team.creative.littletiles.mixin.client.render.BufferBuilderAccessor;
 
@@ -66,15 +65,15 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
     
     @Override
     public void buildCache(PoseStack pose, ChunkLayerMap<BufferCache> buffers, RenderingBlockContext data, VertexFormat format, SingletonList<BakedQuad> bakedQuadWrapper) {
-        Level renderLevel = data.be.getLevel();
+        BlockAndTintGetter renderLevel = data.be.getLevel();
         while (renderLevel instanceof LittleSubLevel sub && !sub.shouldUseLightingForRenderig())
             renderLevel = sub.getParent();
         
         BlockPos pos = data.be.getBlockPos();
         // LT animations use LT's shader and must retain their baked directional shade.
-        boolean dynamicShade = SableManager.INSTALLED && !(data.be.getLevel() instanceof LittleAnimationLevel)
-                && LittleSableLighting.isDynamic(renderLevel, pos);
-        BlockAndTintGetter lightingLevel = dynamicShade ? new SableLightingView(renderLevel) : renderLevel;
+        boolean dynamicShade = !(data.be.getLevel() instanceof LittleAnimationLevel) && SableManager.isDynamic(data.be.getLevel(), pos) && !SodiumManager.installed();
+        if (dynamicShade)
+            renderLevel = new SableLightingView(renderLevel);
         
         ForgeModelBlockRendererAccessor renderer = (ForgeModelBlockRendererAccessor) MC.getBlockRenderer().getModelRenderer();
         
@@ -101,7 +100,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 BufferBuilder builder = builders.get(tuple.key);
                 if (builder == null)
                     builders.put(tuple.key, builder = new BufferBuilder(getOrCreate(tuple.key), VertexFormat.Mode.QUADS, DefaultVertexFormat.BLOCK));
-                VertexConsumer consumer = dynamicShade ? LittleSableLighting.wrap(builder) : builder;
+                VertexConsumer consumer = dynamicShade ? SableManager.wrap(builder) : builder;
                 
                 for (LittleRenderBox cube : cubes) {
                     BlockState state = cube.state;
@@ -111,14 +110,14 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                     if (Minecraft.useAmbientOcclusion() && state.getLightEmission(data.be.getLevel(), pos) == 0) {
                         if (smoothLighter == null) {
                             smoothLighter = renderer.getSmoothLighter().get();
-                            smoothLighter.setup(lightingLevel, pos, data.state);
+                            smoothLighter.setup(renderLevel, pos, data.state);
                         }
                         lighter = smoothLighter;
                         smooth = true;
                     } else {
                         if (flatLighter == null) {
                             flatLighter = renderer.getFlatLighter().get();
-                            flatLighter.setup(lightingLevel, pos, data.state);
+                            flatLighter.setup(renderLevel, pos, data.state);
                         }
                         lighter = flatLighter;
                     }

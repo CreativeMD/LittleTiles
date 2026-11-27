@@ -2,6 +2,8 @@ package team.creative.littletiles.common.mod.sable;
 
 import javax.annotation.Nullable;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.Level;
@@ -11,8 +13,8 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.fml.ModList;
 import team.creative.creativecore.common.util.math.origin.IVecOrigin;
-import team.creative.littletiles.common.level.context.ILittleLevelContext;
 import team.creative.littletiles.client.render.mc.RenderChunkExtender;
+import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
 public class SableManager {
     
@@ -60,4 +62,17 @@ public class SableManager {
         return origin;
     }
     
+    @OnlyIn(Dist.CLIENT)
+    public static boolean isDynamic(Level level, BlockPos pos) {
+        if (INSTALLED)
+            return SableInteractor.isDynamic(level, pos);
+        return false;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static VertexConsumer wrap(VertexConsumer consumer) {
+        if (INSTALLED)
+            return SableInteractor.wrap(consumer);
+        return consumer;
+    }
 }

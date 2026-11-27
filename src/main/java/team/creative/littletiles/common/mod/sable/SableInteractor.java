@@ -2,7 +2,11 @@ package team.creative.littletiles.common.mod.sable;
 
 import javax.annotation.Nullable;
 
+import com.mojang.blaze3d.vertex.VertexConsumer;
+
 import dev.ryanhcode.sable.Sable;
+import dev.ryanhcode.sable.render.dynamic_shade.SableDynamicDirectionalShading;
+import dev.ryanhcode.sable.render.dynamic_shade.SubLevelVertexConsumer;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
 import dev.ryanhcode.sable.sublevel.render.vanilla.VanillaChunkedSubLevelRenderData;
 import net.minecraft.client.Minecraft;
@@ -94,6 +98,17 @@ public class SableInteractor {
         if (c != null && c.isSubLevel())
             return new VecOriginSable(origin, (SableContext) c);
         return origin;
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static boolean isDynamic(Level level, BlockPos pos) {
+        return SableDynamicDirectionalShading.isEnabled() && isSubLevel(level, pos);
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static VertexConsumer wrap(VertexConsumer consumer) {
+        // Match Sable's treatment of explicitly unshaded quads as well as normals.
+        return new SubLevelVertexConsumer(consumer);
     }
     
 }

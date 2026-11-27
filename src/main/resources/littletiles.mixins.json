@@ -49,8 +49,6 @@
         "client.network.ClientPacketListenerAccessor",
         "client.network.ClientPacketListenerMixin",
         "client.render.BufferBuilderAccessor",
-        "client.render.AoModelBlockRendererAccessor",
-        "client.render.NeoForgeSableLightingMixin",
         "client.render.BufferBuilderMixin",
         "client.render.ByteBufferBuilderAccessor",
         "client.render.ByteBufferBuilderResultAccessor",
