@@ -99,6 +99,7 @@ import team.creative.littletiles.common.packet.item.MeasurementTypePacket;
 import team.creative.littletiles.common.packet.item.PlacerMatrixPacket;
 import team.creative.littletiles.common.packet.item.SelectionModePacket;
 import team.creative.littletiles.common.packet.item.ShapeConfigPacket;
+import team.creative.littletiles.common.packet.item.TransformModePacket;
 import team.creative.littletiles.common.packet.item.WrenchReceiveInfoPacket;
 import team.creative.littletiles.common.packet.item.WrenchRequestInfoPacket;
 import team.creative.littletiles.common.packet.structure.BedUpdate;
@@ -174,6 +175,7 @@ public class LittleTiles {
         NETWORK.registerType(PlacerMatrixPacket.class, PlacerMatrixPacket::new);
         NETWORK.registerType(SelectionModePacket.class, SelectionModePacket::new);
         NETWORK.registerType(ShapeConfigPacket.class, ShapeConfigPacket::new);
+        NETWORK.registerType(TransformModePacket.class, TransformModePacket::new);
         NETWORK.registerType(WrenchReceiveInfoPacket.class, WrenchReceiveInfoPacket::new);
         NETWORK.registerType(WrenchRequestInfoPacket.class, WrenchRequestInfoPacket::new);
         

@@ -327,40 +327,38 @@ public class LittleToolPlacer extends LittleTool {
         if (mesh == null || placedPosition == null)
             return;
         
-        pose.pushPose();
-        pose.translate(-cam.x, -cam.y, -cam.z);
-        
         if (marked != null)
-            renderer.renderLineBox(pose, marked.getBB(), true);
+            renderer.renderLineBox(placedContext, pose, cam, marked.getBB(), marked.getPos(), true);
         
-        var matrix = RenderSystem.getModelViewStack();
-        matrix.pushMatrix();
-        renderer.setupPreviewRenderer(lines);
-        
-        placedContext.transformMatrix(matrix, placedPosition.getMinPosX(), placedPosition.getMinPosY(), placedPosition.getMinPosZ(), cam, renderer.partialTickTime());
-        RenderSystem.applyModelViewMatrix();
-        BufferUploader.drawWithShader(mesh);
-        matrix.popMatrix();
-        RenderSystem.applyModelViewMatrix();
-        
-        if (builtResult != null) {
-            int colorAlpha = 255;
-            if (LittleActionHandlerClient.isUsingSecondMode() != placer.snapToGridByDefault(stack)) {
-                List<RenderBox> cubes = getPositingCubes(placedLevel, aimedPosition.getPos());
-                BufferBuilder builder = renderer.createTesselatorBuilder(lines);
-                if (cubes != null)
-                    for (RenderBox cube : cubes)
-                        renderer.buildBox(pose, cube, builder, colorAlpha, lines);
-                var data = builder.build();
-                if (data != null)
-                    BufferUploader.drawWithShader(data);
+        renderer.wrapPreviewRender(placedContext, placedPosition.getPos(), cam, lines, () -> {
+            var matrix = RenderSystem.getModelViewStack();
+            matrix.pushMatrix();
+            var min = placedPosition.getMin();
+            matrix.translate((float) min.getPosX(), (float) min.getPosY(), (float) min.getPosZ());
+            
+            RenderSystem.applyModelViewMatrix();
+            BufferUploader.drawWithShader(mesh);
+            
+            matrix.popMatrix();
+            RenderSystem.applyModelViewMatrix();
+            
+            if (builtResult != null) {
+                int colorAlpha = 255;
+                if (LittleActionHandlerClient.isUsingSecondMode() != placer.snapToGridByDefault(stack)) {
+                    pose.pushPose();
+                    pose.translate(-placedPosition.getPos().getX(), -placedPosition.getPos().getY(), -placedPosition.getPos().getZ());
+                    List<RenderBox> cubes = getPositingCubes(placedLevel, placedPosition.getPos());
+                    BufferBuilder builder = renderer.createTesselatorBuilder(lines);
+                    if (cubes != null)
+                        for (RenderBox cube : cubes)
+                            renderer.buildBox(pose, cube, builder, colorAlpha, lines);
+                    var data = builder.build();
+                    if (data != null)
+                        BufferUploader.drawWithShader(data);
+                    pose.popPose();
+                }
             }
-        }
-        
-        pose.popPose();
-        
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        
+        });
     }
     
     private List<RenderBox> getPositingCubes(Level level, BlockPos pos) {

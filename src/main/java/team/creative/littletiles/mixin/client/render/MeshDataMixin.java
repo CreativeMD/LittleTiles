@@ -23,6 +23,11 @@ public class MeshDataMixin implements MeshDataExtender {
     }
     
     @Override
+    public boolean isKeepAlive() {
+        return keepAlive;
+    }
+    
+    @Override
     public void keepAlive(boolean alive) {
         this.keepAlive = alive;
     }

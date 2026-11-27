@@ -8,7 +8,6 @@ import org.lwjgl.glfw.GLFW;
 
 import com.mojang.blaze3d.Blaze3D;
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.MeshData;
@@ -90,12 +89,9 @@ public class LittleToolMeasure extends LittleTool {
     protected void renderInternal(PreviewRenderer renderer, PoseStack pose, Vec3 cam, boolean lines) {
         if (!lines)
             return;
-        renderer.setupPreviewRenderer(true);
-        RenderSystem.disableCull();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
         
         if (result != null)
-            result.render(renderer, lines, cam);
+            result.render(renderer, cam);
         
         var blockHit = renderer.blockHit();
         var player = renderer.player();
@@ -113,12 +109,7 @@ public class LittleToolMeasure extends LittleTool {
         positions.addAll(selected);
         positions.add(last);
         int markedIndex = positions.indexOf(markedPosition);
-        renderer.renderBoxes(pose, cam, positions, x -> x == markedIndex);
-        
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.enableCull();
-        RenderSystem.applyModelViewMatrix();
-        
+        renderer.renderLineBoxes(pose, cam, positions, x -> x == markedIndex);
     }
     
     @Override
@@ -277,9 +268,9 @@ public class LittleToolMeasure extends LittleTool {
             return new RenderMeasurementResults(buffer, results);
         }
         
-        public void render(PreviewRenderer renderer, boolean lines, Vec3 cam) {
+        public void render(PreviewRenderer renderer, Vec3 cam) {
             for (RenderMeasurementResult render : results)
-                renderer.renderSeethroughLines(render.context, cam, lines, render.pos, render.data, -1);
+                renderer.renderLinesHighlight(render.context, cam, render.pos, render.data, -1);
         }
         
         public void close() {

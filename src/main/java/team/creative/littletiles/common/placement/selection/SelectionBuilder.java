@@ -93,7 +93,7 @@ public class SelectionBuilder {
                                         structure = structure.getParent().getStructure();
                                     structure.checkConnections();
                                     if (!structures.contains(structure)) {
-                                        children.add(structure.getPreviews(pos));
+                                        children.add(structure.getPreviews(basePos));
                                         structures.add(structure);
                                     }
                                 } catch (CorruptedConnectionException | NotYetConnectedException e) {
@@ -121,7 +121,10 @@ public class SelectionBuilder {
                         be.sameGrid(boxes, extractTiles);
                     else
                         extractTiles.run();
-                } else if (selection.includeCB()) {
+                    return;
+                }
+                
+                if (selection.includeCB()) {
                     final LittleGroup specialPreviews = ChiselsAndBitsManager.getGroup(blockEntity);
                     if (specialPreviews != null) {
                         LittleGroup extractPreviews = new LittleGroup();
@@ -147,9 +150,12 @@ public class SelectionBuilder {
                             extractTiles.run();
                         extractPreviews.move(new LittleVecGrid(new LittleVec(extractPreviews.getGrid(), difX, difY, difZ), extractPreviews.getGrid()));
                         previews.add(extractPreviews);
+                        return;
                     }
                 }
-            } else if (selection.includeVanilla()) {
+            }
+            
+            if (selection.includeVanilla()) {
                 BlockState state = level.getBlockState(pos);
                 if (LittleAction.isBlockValid(state)) {
                     List<LittleBox> result = new ArrayList<>();
@@ -160,8 +166,11 @@ public class SelectionBuilder {
                             box.add(offset);
                             result.add(box);
                         }
-                    else
-                        result.add(LittleBox.of(previews.getGrid()));
+                    else {
+                        var box = LittleBox.of(previews.getGrid());
+                        box.add(offset);
+                        result.add(box);
+                    }
                     previews.add(previews.getGrid(), new LittleElement(state, ColorUtils.WHITE), result);
                 }
             }

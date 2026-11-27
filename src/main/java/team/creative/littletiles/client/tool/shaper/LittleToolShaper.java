@@ -11,6 +11,7 @@ import java.util.concurrent.TimeoutException;
 import org.spongepowered.include.com.google.common.base.Objects;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferUploader;
 import com.mojang.blaze3d.vertex.MeshData;
 import com.mojang.blaze3d.vertex.PoseStack;
 
@@ -289,7 +290,7 @@ public class LittleToolShaper extends LittleTool {
         }
         
         if (mesh != null)
-            renderer.renderBoxes(context, cam, pos, lines, mesh, null);
+            renderer.wrapPreviewRender(context, pos, cam, lines, () -> BufferUploader.drawWithShader(mesh));
         
         RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.applyModelViewMatrix();

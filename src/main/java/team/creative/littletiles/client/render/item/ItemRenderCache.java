@@ -25,7 +25,10 @@ import team.creative.creativecore.client.render.model.box.ItemModelBox;
 import team.creative.creativecore.client.render.model.layer.CreativeBakedItemLayer;
 import team.creative.creativecore.client.render.model.layer.CreativeBakedLayerModel;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.math.matrix.IntMatrix3c;
 import team.creative.creativecore.common.util.type.list.Pair;
+import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.LittleTilesRegistry;
 import team.creative.littletiles.api.common.tool.ILittleTool;
 import team.creative.littletiles.client.level.LevelAwareHandler;
 
@@ -111,11 +114,16 @@ public class ItemRenderCache implements LevelAwareHandler {
         
         private Item item;
         private CompoundTag nbt;
+        private IntMatrix3c matrix;
         
         public RenderedStack set(ItemStack stack) {
             item = stack.getItem();
             nbt = null;
             ILittleTool.consumeUnsafeData(stack, x -> nbt = x);
+            if (stack.has(LittleTilesRegistry.MATRIX))
+                matrix = stack.get(LittleTilesRegistry.MATRIX).getMatrix();
+            else
+                matrix = IntMatrix3c.IDENTIY;
             return this;
         }
         
@@ -126,8 +134,8 @@ public class ItemRenderCache implements LevelAwareHandler {
         
         @Override
         public boolean equals(Object obj) {
-            if (obj instanceof RenderedStack stack)
-                return stack.item == item && Objects.equal(stack.nbt, nbt);
+            if (obj instanceof RenderedStack stack && stack.item == item && Objects.equal(stack.nbt, nbt))
+                return LittleTiles.CONFIG.rendering.itemShowRotation ? stack.matrix.equals(matrix) : true;
             return false;
         }
     }

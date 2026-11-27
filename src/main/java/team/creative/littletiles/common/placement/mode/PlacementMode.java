@@ -107,7 +107,7 @@ public abstract class PlacementMode {
     }
     
     public PreviewMode getPreviewMode() {
-        if (LittleTiles.CONFIG.rendering.previewLines)
+        if (LittleTiles.CONFIG.rendering.preview.alwaysUseLines)
             return PreviewMode.LINES;
         return mode;
     }

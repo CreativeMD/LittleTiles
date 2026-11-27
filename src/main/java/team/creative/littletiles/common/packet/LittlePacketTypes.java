@@ -29,6 +29,7 @@ import team.creative.littletiles.common.grid.LittleGrid;
 import team.creative.littletiles.common.item.component.MeasurementTypeComponent;
 import team.creative.littletiles.common.item.component.MeasurementsComponent;
 import team.creative.littletiles.common.item.component.SelectionComponent;
+import team.creative.littletiles.common.item.component.TransformMode;
 import team.creative.littletiles.common.math.box.LittleBox;
 import team.creative.littletiles.common.math.box.LittleBoxAbsolute;
 import team.creative.littletiles.common.math.box.collection.LittleBoxes;
@@ -523,5 +524,6 @@ public class LittlePacketTypes {
         NetworkFieldTypes.register(SelectionComponent.STREAM_CODEC, SelectionComponent.class);
         NetworkFieldTypes.register(MeasurementsComponent.STREAM_CODEC, MeasurementsComponent.class);
         NetworkFieldTypes.register(MeasurementTypeComponent.STREAM_CODEC, MeasurementTypeComponent.class);
+        NetworkFieldTypes.register(TransformMode.STREAM_CODEC, TransformMode.class);
     }
 }

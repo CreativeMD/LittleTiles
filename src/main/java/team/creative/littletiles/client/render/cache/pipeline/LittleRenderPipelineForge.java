@@ -6,6 +6,7 @@ import com.mojang.blaze3d.vertex.BufferBuilder;
 import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 
@@ -17,6 +18,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.OverlayTexture;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockPos.MutableBlockPos;
+import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.BlockAndTintGetter;
 import net.minecraft.world.level.block.state.BlockState;
@@ -25,6 +27,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.model.lighting.QuadLighter;
 import team.creative.creativecore.client.render.model.CreativeQuadLighter;
 import team.creative.creativecore.common.util.math.base.Facing;
+import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.type.list.SingletonList;
 import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
@@ -47,6 +50,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
     private final ChunkLayerMap<ByteBufferBuilder> byteBuilder = new ChunkLayerMap<>();
     private final ChunkLayerMap<IntArrayList> indexes = new ChunkLayerMap<>(layer -> new IntArrayList());
     private final MutableBlockPos modelOffset = new MutableBlockPos();
+    private final LittleQuadLighting quadLighting = new LittleQuadLighting();
     
     private ByteBufferBuilder getOrCreate(RenderType layer) {
         ByteBufferBuilder buffer = byteBuilder.get(layer);
@@ -102,6 +106,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                 for (LittleRenderBox cube : cubes) {
                     BlockState state = cube.state;
                     
+                    boolean smooth = false;
                     QuadLighter lighter;
                     if (Minecraft.useAmbientOcclusion() && state.getLightEmission(data.be.getLevel(), pos) == 0) {
                         if (smoothLighter == null) {
@@ -109,6 +114,7 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                             smoothLighter.setup(lightingLevel, pos, data.state);
                         }
                         lighter = smoothLighter;
+                        smooth = true;
                     } else {
                         if (flatLighter == null) {
                             flatLighter = renderer.getFlatLighter().get();
@@ -141,10 +147,10 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
                         }
                         if (quads != null && !quads.isEmpty())
                             if (quads instanceof SingletonList<BakedQuad> single)
-                                lighter.process(consumer, pose.last(), single.get(0), overlay);
+                                processQuad(lighter, smooth, renderLevel, data.state, pos, consumer, pose.last(), single.get(0), overlay, cube);
                             else
                                 for (BakedQuad quad : quads)
-                                    lighter.process(consumer, pose.last(), quad, overlay);
+                                    processQuad(lighter, smooth, renderLevel, data.state, pos, consumer, pose.last(), quad, overlay, cube);
                     }
                     
                     IrisManager.resetBlockContext(builder);
@@ -179,6 +185,16 @@ public class LittleRenderPipelineForge extends LittleRenderPipeline {
             ((CreativeQuadLighter) flatLighter).setCustomTint(-1);
             flatLighter.reset();
         }
+    }
+    
+    private void processQuad(QuadLighter lighter, boolean smooth, BlockAndTintGetter level, BlockState containerState, BlockPos pos, VertexConsumer consumer, PoseStack.Pose pose,
+            BakedQuad quad, int overlay, LittleRenderBox cube) {
+        if (smooth && quad.hasAmbientOcclusion() && quadLighting.calculate(lighter, quad, cube)) {
+            int tint = quad.isTinted() ? cube.color != -1 ? cube.color : MC.getBlockColors().getColor(cube.state, level, pos, quad.getTintIndex()) : ColorUtils.WHITE;
+            consumer.putBulkData(pose, quad, quadLighting.brightness, ColorUtils.redF(tint), ColorUtils.greenF(tint), ColorUtils.blueF(tint), 1, quadLighting.lightmap, overlay,
+                true);
+        } else
+            lighter.process(consumer, pose, quad, overlay);
     }
     
     @Override

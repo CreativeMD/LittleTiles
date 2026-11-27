@@ -258,7 +258,7 @@ public class PreviewManager implements LevelAwareHandler {
             return;
         BlockHitResult hit = blockHit();
         
-        if (tool.onMouseWheelClickBlock(renderer, blockHitLevel(), hit)) {
+        if (hit != null && tool.onMouseWheelClickBlock(renderer, blockHitLevel(), hit)) {
             event.setCanceled(true);
             return;
         }

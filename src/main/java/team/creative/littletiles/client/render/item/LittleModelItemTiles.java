@@ -7,6 +7,7 @@ import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.world.item.ItemStack;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.client.render.model.box.ItemModelBox;
+import team.creative.littletiles.LittleTiles;
 import team.creative.littletiles.api.common.tool.ILittlePlacer;
 import team.creative.littletiles.client.LittleTilesClient;
 
@@ -17,8 +18,12 @@ public class LittleModelItemTiles extends ItemModelBox {
     @Override
     public List<? extends RenderBox> getBoxes(ItemStack stack, boolean translucent) {
         ILittlePlacer tool = (ILittlePlacer) stack.getItem();
-        if (tool.hasTiles(stack) && tool.shouldRenderInHand(stack))
-            return tool.getTiles(stack).getRenderingBoxes(translucent);
+        if (tool.hasTiles(stack) && tool.shouldRenderInHand(stack)) {
+            var tiles = tool.getTiles(stack);
+            if (LittleTiles.CONFIG.rendering.itemShowRotation)
+                tiles.transform(tool.getMatrix(stack), tiles.getGrid().rotationCenter);
+            return tiles.getRenderingBoxes(translucent);
+        }
         return Collections.EMPTY_LIST;
     }
     

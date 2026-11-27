@@ -1124,6 +1124,18 @@ public class LittleBox {
         maxZ = Math.max(maxZ, box.maxZ);
     }
     
+    public void growToIncludeCorner(LittleBox box, BoxCorner corner) {
+        int x = box.get(corner, Axis.X);
+        int y = box.get(corner, Axis.Y);
+        int z = box.get(corner, Axis.Z);
+        minX = Math.min(minX, x);
+        minY = Math.min(minY, y);
+        minZ = Math.min(minZ, z);
+        maxX = Math.max(maxX, x);
+        maxY = Math.max(maxY, y);
+        maxZ = Math.max(maxZ, z);
+    }
+    
     public void growToIncludePixel(LittleVec vec) {
         minX = Math.min(minX, vec.x);
         minY = Math.min(minY, vec.y);

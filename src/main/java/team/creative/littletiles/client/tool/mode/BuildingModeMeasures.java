@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.mojang.blaze3d.platform.InputConstants;
-import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 
 import net.minecraft.world.item.ItemStack;
@@ -76,25 +75,17 @@ public class BuildingModeMeasures extends BuildingModeToggle implements Building
         if (!lines || !enabled())
             return false;
         
-        renderer.setupPreviewRenderer(true);
-        RenderSystem.disableCull();
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        
         if (result != null)
-            result.render(renderer, lines, cam);
+            result.render(renderer, cam);
         
         toolMeasurements = renderer.manager.tool().measurements();
         if (toolMeasurements != null) {
             var result = RenderMeasurementResults.of(renderer, toolMeasurements);
             if (result != null)
-                result.render(renderer, lines, cam);
+                result.render(renderer, cam);
             result.close();
             result = null;
         }
-        
-        RenderSystem.setShaderColor(1, 1, 1, 1);
-        RenderSystem.enableCull();
-        RenderSystem.applyModelViewMatrix();
         
         return false;
     }

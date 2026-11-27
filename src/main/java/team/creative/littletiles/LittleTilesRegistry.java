@@ -75,6 +75,7 @@ import team.creative.littletiles.common.item.component.MeasurementTypeComponent;
 import team.creative.littletiles.common.item.component.MeasurementsComponent;
 import team.creative.littletiles.common.item.component.SelectionComponent;
 import team.creative.littletiles.common.item.component.TileFilterComponent;
+import team.creative.littletiles.common.item.component.TransformMode;
 import team.creative.littletiles.common.placement.shape.LittleShapeInstance;
 import team.creative.littletiles.common.recipe.PremadeShapedRecipeSerializer;
 import team.creative.littletiles.common.recipe.PremadeShapelessRecipeSerializer;
@@ -143,6 +144,8 @@ public class LittleTilesRegistry {
         x -> DataComponentType.<MeasurementsComponent>builder().persistent(MeasurementsComponent.CODEC).networkSynchronized(MeasurementsComponent.STREAM_CODEC).build());
     public static final DeferredHolder<DataComponentType<?>, DataComponentType<MeasurementTypeComponent>> MEASUREMENT_TYPE = DATA_COMPONENTS.register("measurement_type",
         x -> DataComponentType.<MeasurementTypeComponent>builder().persistent(MeasurementTypeComponent.CODEC).networkSynchronized(MeasurementTypeComponent.STREAM_CODEC).build());
+    public static final DeferredHolder<DataComponentType<?>, DataComponentType<TransformMode>> TRANSFORM_MODE = DATA_COMPONENTS.register("transform_mode", x -> DataComponentType
+            .<TransformMode>builder().persistent(TransformMode.CODEC).networkSynchronized(TransformMode.STREAM_CODEC).build());
     
     // BLOCKS
     

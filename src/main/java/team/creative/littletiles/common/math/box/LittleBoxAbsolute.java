@@ -9,6 +9,7 @@ import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.util.math.base.Axis;
 import team.creative.creativecore.common.util.math.base.Facing;
 import team.creative.creativecore.common.util.math.box.ABB;
+import team.creative.creativecore.common.util.math.box.BoxCorner;
 import team.creative.creativecore.common.util.math.vec.Vec3d;
 import team.creative.creativecore.common.util.math.vec.VectorUtils;
 import team.creative.creativecore.common.util.type.map.HashMapList;
@@ -358,6 +359,21 @@ public class LittleBoxAbsolute implements IGridBased {
             return minX == minX2 && minY == minY2 && minZ == minZ2 && maxX == maxX2 && maxY == maxY2 && maxZ == maxZ2;
         }
         return false;
+    }
+    
+    public LittleBoxGrid getRelative(BlockPos pos) {
+        LittleVec newVec = new LittleVec(getGrid(), this.pos.subtract(pos));
+        LittleBox box = this.box.copy();
+        box.add(newVec);
+        return new LittleBoxGrid(box, grid);
+    }
+    
+    public LittleVecAbsolute getCorner(BoxCorner corner) {
+        return new LittleVecAbsolute(pos, grid, box.get(corner));
+    }
+    
+    public LittleVecGrid getRelativeCorner(BoxCorner corner, BlockPos pos) {
+        return getCorner(corner).getRelative(pos);
     }
     
 }

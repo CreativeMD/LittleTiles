@@ -1,3 +1,16 @@
+1.6.0-pre241
+Added option itemShowRotation
+Fixed crash when using middle mouse click on some modded blocks
+Fixed vanilla blocks not having correct offset when importing with blueprint
+Fixed not importing vanilla blocks with blueprint
+Fixed structure being offset when creating blueprint
+Fixed crash during sever startup
+
+1.6.0-pre240
+Added transform mode to glove to transform corner, edge or face
+Fixed not being able to retrieve render data from sable structures (Thanks to DraGonFiirE)
+Fixed wrong condition which caused additional data to be added when it is already there and not when it is missing (Thanks to DraGonFiirE)
+
 1.6.0-pre239
 Added selection feature to screwdriver (same as blueprint has)
 Fixed crash when switching selection mode

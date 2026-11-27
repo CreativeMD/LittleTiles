@@ -4,4 +4,6 @@ public interface MeshDataExtender {
     
     public void keepAlive(boolean alive);
     
+    public boolean isKeepAlive();
+    
 }

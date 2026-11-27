@@ -4,6 +4,7 @@ import javax.annotation.Nullable;
 
 import dev.ryanhcode.sable.Sable;
 import dev.ryanhcode.sable.sublevel.ClientSubLevel;
+import dev.ryanhcode.sable.sublevel.render.vanilla.VanillaChunkedSubLevelRenderData;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
@@ -14,6 +15,7 @@ import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import team.creative.creativecore.common.level.ISubLevel;
 import team.creative.creativecore.common.util.math.origin.IVecOrigin;
+import team.creative.littletiles.client.render.mc.RenderChunkExtender;
 import team.creative.littletiles.common.level.context.ILittleLevelContext;
 
 public class SableInteractor {
@@ -40,6 +42,17 @@ public class SableInteractor {
         return ILittleLevelContext.STANDARD;
     }
     
+    public static ILittleLevelContext context(Level level, SectionPos pos) {
+        if (level == null || pos == null)
+            return ILittleLevelContext.STANDARD;
+        if (level instanceof ISubLevel sub)
+            level = sub.getRealLevel();
+        var subLevel = Sable.HELPER.getContaining(level, pos);
+        if (subLevel != null)
+            return new SableContext(subLevel);
+        return ILittleLevelContext.STANDARD;
+    }
+    
     public static ILittleLevelContext context(Level level, Vec3 pos) {
         if (level == null || pos == null)
             return ILittleLevelContext.STANDARD;
@@ -53,6 +66,14 @@ public class SableInteractor {
     
     public static boolean isSubLevel(Level level, BlockPos pos) {
         return context(level, pos).isSubLevel();
+    }
+    
+    @OnlyIn(Dist.CLIENT)
+    public static @Nullable RenderChunkExtender getRenderChunk(Level level, long pos) {
+        var context = context(level, SectionPos.of(pos));
+        if (context instanceof SableContext sable && sable.level instanceof ClientSubLevel sub && sub.getRenderData() instanceof VanillaChunkedSubLevelRenderData data)
+            return (RenderChunkExtender) data.getRenderSection(SectionPos.of(pos));
+        return null;
     }
     
     @OnlyIn(Dist.CLIENT)

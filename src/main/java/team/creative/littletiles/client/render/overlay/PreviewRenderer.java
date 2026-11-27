@@ -32,7 +32,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.VoxelShape;
 import team.creative.creativecore.client.render.box.RenderBox;
 import team.creative.creativecore.common.util.math.box.ABB;
-import team.creative.creativecore.common.util.mc.ColorUtils;
 import team.creative.creativecore.common.util.mc.PlayerUtils;
 import team.creative.creativecore.common.util.mc.TickUtils;
 import team.creative.littletiles.LittleTiles;
@@ -185,34 +184,62 @@ public class PreviewRenderer {
         return index;
     }
     
-    public void setupPreviewRendererLines(float red, float green, float blue, float alpha, float lineWidth) {
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
-        RenderSystem.lineWidth(lineWidth);
-        
-        RenderSystem.setShaderColor(red, green, blue, alpha);
-        RenderSystem.enableDepthTest();
+    protected void startPreviewRender(boolean lines) {
+        var config = LittleTiles.CONFIG.rendering.preview;
+        if (lines) {
+            RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+            RenderSystem.lineWidth((float) config.lineThickness);
+            config.lineColor.glColor();
+            RenderSystem.enableDepthTest();
+            RenderSystem.disableCull();
+            RenderSystem.depthMask(true);
+            RenderSystem.enableBlend();
+            RenderSystem.defaultBlendFunc();
+        } else {
+            if (config.darkerBoxShading) {
+                GL14.glBlendColor(0.25F, 0.25F, 0.25F, 0.25F);
+                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.CONSTANT_COLOR, GlStateManager.DestFactor.ONE_MINUS_DST_COLOR, GlStateManager.SourceFactor.ONE,
+                    GlStateManager.DestFactor.ZERO);
+            } else
+                RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
+                    GlStateManager.DestFactor.ZERO);
+            
+            float alpha = (float) (Math.sin(System.nanoTime() / 200000000D) * config.boxAlphaFade);
+            RenderSystem.setShaderColor(config.boxColor.getRedDecimal(), config.boxColor.getGreenDecimal(), config.boxColor.getBlueDecimal(), config.boxColor
+                    .getAlphaDecimal() + alpha);
+            
+            RenderSystem.setShaderTexture(0, PreviewManager.WHITE_TEXTURE);
+            RenderSystem.setShader(GameRenderer::getPositionColorShader);
+            RenderSystem.depthMask(Minecraft.useShaderTransparency());
+            RenderSystem.enableCull();
+        }
     }
     
-    public void setupPreviewRenderer(boolean lines) {
-        if (lines) {
-            setupPreviewRendererLines(0, 0, 0, 0.4F, (float) LittleTiles.CONFIG.rendering.previewLineThickness);
-            return;
-        }
-        if (LittleTiles.CONFIG.rendering.darkerPreviewBoxShading) {
-            GL14.glBlendColor(0.25F, 0.25F, 0.25F, 0.25F);
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.CONSTANT_COLOR, GlStateManager.DestFactor.ONE_MINUS_DST_COLOR, GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO);
-        } else
-            RenderSystem.blendFuncSeparate(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA, GlStateManager.SourceFactor.ONE,
-                GlStateManager.DestFactor.ZERO);
-        
-        double alpha = (float) (Math.sin(System.nanoTime() / 200000000D) * 0.2 + 0.5);
-        RenderSystem.setShaderColor(1, 1, 1, (float) alpha);
-        
-        RenderSystem.setShaderTexture(0, PreviewManager.WHITE_TEXTURE);
-        RenderSystem.setShader(GameRenderer::getPositionColorShader);
-        RenderSystem.depthMask(Minecraft.useShaderTransparency());
+    protected void endPreviewRender() {
+        RenderSystem.setShaderColor(1, 1, 1, 1);
         RenderSystem.enableCull();
+    }
+    
+    public void wrapPreviewRender(ILittleLevelContext context, BlockPos pos, Vec3 cam, boolean lines, Runnable run) {
+        startPreviewRender(lines);
+        
+        var matrix = RenderSystem.getModelViewStack();
+        matrix.pushMatrix();
+        context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
+        RenderSystem.applyModelViewMatrix();
+        
+        run.run();
+        
+        matrix.popMatrix();
+        RenderSystem.applyModelViewMatrix();
+        
+        endPreviewRender();
+    }
+    
+    public void wrapPreviewRender(boolean lines, Runnable run) {
+        startPreviewRender(lines);
+        run.run();
+        endPreviewRender();
     }
     
     public ByteBufferBuilder createBuffer() {
@@ -237,34 +264,9 @@ public class PreviewRenderer {
     
     public void buildBox(PoseStack pose, RenderBox box, BufferBuilder builder, int colorAlpha, boolean lines, boolean forceWhite) {
         if (lines)
-            box.renderLines(pose, builder, colorAlpha, box.getCenter(), 0.001, forceWhite);
+            box.buildLines(pose, builder, colorAlpha, box.getCenter(), 0.001, forceWhite);
         else
-            box.renderPreview(pose, builder, colorAlpha);
-    }
-    
-    public void renderBoxes(Vec3 cam, BlockPos pos, boolean lines, MeshData data) {
-        renderBoxes(cam, pos, lines, data, null);
-    }
-    
-    public void renderBoxes(Vec3 cam, BlockPos pos, boolean lines, MeshData data, @Nullable Runnable adjustGL) {
-        renderBoxes(ILittleLevelContext.STANDARD, cam, pos, lines, data, adjustGL);
-    }
-    
-    public void renderBoxes(ILittleLevelContext context, Vec3 cam, BlockPos pos, boolean lines, MeshData data, @Nullable Runnable adjustGL) {
-        var matrix = RenderSystem.getModelViewStack();
-        matrix.pushMatrix();
-        context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
-        
-        RenderSystem.applyModelViewMatrix();
-        
-        setupPreviewRenderer(lines);
-        
-        if (adjustGL != null)
-            adjustGL.run();
-        
-        BufferUploader.drawWithShader(data);
-        matrix.popMatrix();
-        RenderSystem.applyModelViewMatrix();
+            box.buildBox(pose, builder, colorAlpha);
     }
     
     public BoxRenderResult buildBoxes(PoseStack pose, LittleBoxes boxes, boolean lines) {
@@ -285,103 +287,128 @@ public class PreviewRenderer {
         return new BoxRenderResult(boxes, boxes.pos, buffer, mesh);
     }
     
-    public void renderPositions(PoseStack pose, ILittleLevelContext context, BlockPos pos, Vec3 cam, List<ShapePosition> positions, @Nullable Int2BooleanFunction marked) {
-        pose.pushPose();
-        context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
-        for (int i = 0; i < positions.size(); i++) {
-            var box = positions.get(i).getBB();
-            box.move(-pos.getX(), -pos.getY(), -pos.getZ());
-            renderLineBox(pose, box, marked != null && marked.get(i));
-        }
-        pose.popPose();
+    public void drawLines(MeshData data, boolean highlight) {
+        drawLines(data, LittleTiles.CONFIG.rendering.preview.lineColor.getAlphaDecimal(), highlight);
     }
     
-    public void renderBoxes(PoseStack pose, Vec3 cam, List<LittleBoxLevel> boxes, @Nullable Int2BooleanFunction marked) {
-        
-        for (int i = 0; i < boxes.size(); i++) {
-            pose.pushPose();
-            var box = boxes.get(i);
-            var pos = box.pos;
-            box.context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
-            var bb = boxes.get(i).toABB();
-            bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
-            renderLineBox(pose, bb, marked != null && marked.get(i));
-            pose.popPose();
-        }
-        
-    }
-    
-    public void renderBoxes(PoseStack pose, ILittleLevelContext context, BlockPos pos, Vec3 cam, List<LittleBoxAbsolute> boxes, @Nullable Int2BooleanFunction marked) {
-        pose.pushPose();
-        context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
-        for (int i = 0; i < boxes.size(); i++) {
-            var box = boxes.get(i).toABB();
-            box.move(-pos.getX(), -pos.getY(), -pos.getZ());
-            renderLineBox(pose, box, marked != null && marked.get(i));
-        }
-        pose.popPose();
-    }
-    
-    public void renderSeethroughLines(ILittleLevelContext context, Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color) {
-        renderSeethroughLines(context, cam, lines, pos, data, color, 0.4F);
-    }
-    
-    public void renderSeethroughLines(ILittleLevelContext context, Vec3 cam, boolean lines, BlockPos pos, MeshData data, int color, float alpha) {
-        var matrix = RenderSystem.getModelViewStack();
-        matrix.pushMatrix();
-        context.transformMatrix(matrix, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
-        
-        RenderSystem.applyModelViewMatrix();
-        
-        setupPreviewRenderer(lines);
-        
+    public void drawLines(MeshData data, float alpha, boolean highlight) {
         RenderSystem.enableDepthTest();
-        RenderSystem.setShaderColor(0, 0, 0, alpha);
-        RenderSystem.lineWidth(4);
+        
+        var config = LittleTiles.CONFIG.rendering.preview;
+        RenderSystem.lineWidth((float) config.lineThickness);
+        RenderSystem.setShaderColor(config.lineColor.getRedDecimal(), config.lineColor.getGreenDecimal(), config.lineColor.getBlueDecimal(), alpha);
+        
+        boolean forceClose = false;
+        if (highlight && data instanceof MeshDataExtender e && !e.isKeepAlive()) {
+            e.keepAlive(true);
+            forceClose = true;
+        }
         
         BufferUploader.drawWithShader(data);
         
-        RenderSystem.disableDepthTest();
-        RenderSystem.setShaderColor(ColorUtils.redF(color), ColorUtils.greenF(color), ColorUtils.blueF(color), alpha);
-        RenderSystem.lineWidth(2);
+        if (highlight) {
+            RenderSystem.disableDepthTest();
+            RenderSystem.lineWidth((float) config.hightlightLineThickness);
+            RenderSystem.setShaderColor(config.highlightLineColor.getRedDecimal(), config.highlightLineColor.getGreenDecimal(), config.highlightLineColor.getBlueDecimal(), alpha);
+            
+            BufferUploader.drawWithShader(data);
+            
+            RenderSystem.enableDepthTest();
+        }
         
-        BufferUploader.drawWithShader(data);
-        
-        matrix.popMatrix();
-        RenderSystem.applyModelViewMatrix();
-        
-        RenderSystem.enableDepthTest();
+        if (forceClose && data instanceof MeshDataExtender e) {
+            e.keepAlive(false);
+            data.close();
+        }
     }
     
-    public void renderLineBox(PoseStack pose, ABB box, boolean selected) {
-        Tesselator tesselator = Tesselator.getInstance();
-        BufferBuilder bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-        
-        RenderSystem.depthMask(true);
-        RenderSystem.disableCull();
-        RenderSystem.enableBlend();
-        RenderSystem.defaultBlendFunc();
-        RenderSystem.enableDepthTest();
-        
+    public void drawABB(PoseStack pose, ABB box, boolean highlight) {
         box.inflate(0.002);
         
-        RenderSystem.setShader(GameRenderer::getRendertypeLinesShader);
+        BufferBuilder bufferbuilder = createTesselatorBuilder(true);
+        box.renderLines(pose, bufferbuilder, 1, 1, 1, 1F);
         
-        RenderSystem.lineWidth(4.0F);
-        box.renderLines(pose, bufferbuilder, 0, 0, 0, 1F);
+        drawLines(bufferbuilder.buildOrThrow(), highlight);
+    }
+    
+    public void drawLine(PoseStack pose, Vec3 start, Vec3 end, boolean selected) {
+        Vec3 dir = end.subtract(start).normalize();
         
-        BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-        
-        RenderSystem.disableDepthTest();
-        if (selected) {
-            bufferbuilder = tesselator.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION_COLOR_NORMAL);
-            RenderSystem.lineWidth(1.0F);
-            box.renderLines(pose, bufferbuilder, 1F, 0.3F, 0.0F, 1F);
-            BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-        }
-        
-        RenderSystem.enableDepthTest();
-        RenderSystem.enableCull();
+        var last = pose.last();
+        BufferBuilder bufferbuilder = createTesselatorBuilder(true);
+        bufferbuilder.addVertex(last, (float) start.x, (float) start.y, (float) start.z).setColor(-1).setNormal(last, (float) dir.x, (float) dir.y, (float) dir.z);
+        bufferbuilder.addVertex(last, (float) end.x, (float) end.y, (float) end.z).setColor(-1).setNormal(last, (float) dir.x, (float) dir.y, (float) dir.z);
+        drawLines(bufferbuilder.buildOrThrow(), selected);
+    }
+    
+    public void renderLineBox(PoseStack pose, Vec3 cam, LittleBoxLevel box) {
+        wrapPreviewRender(true, () -> {
+            pose.pushPose();
+            var pos = box.pos;
+            box.context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
+            pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
+            var buffer = createTesselatorBuilder(true);
+            buildBox(pose, box.getRenderingBoxWithoutOffset(), buffer, 255, true);
+            drawLines(buffer.buildOrThrow(), false);
+            pose.popPose();
+        });
+    }
+    
+    public void renderLineBox(ILittleLevelContext context, PoseStack pose, Vec3 cam, ABB bb, BlockPos pos, boolean highlight) {
+        wrapPreviewRender(true, () -> {
+            pose.pushPose();
+            context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
+            bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
+            drawABB(pose, bb, false);
+            pose.popPose();
+        });
+    }
+    
+    public void renderLineBoxes(PoseStack pose, Vec3 cam, List<LittleBoxLevel> boxes, @Nullable Int2BooleanFunction marked) {
+        wrapPreviewRender(true, () -> {
+            for (int i = 0; i < boxes.size(); i++) {
+                pose.pushPose();
+                var box = boxes.get(i);
+                var pos = box.pos;
+                box.context.transformPose(pose, pos.getX(), pos.getY(), pos.getZ(), cam, partialTickTime());
+                var buffer = createTesselatorBuilder(true);
+                buildBox(pose, box.getRenderingBoxWithoutOffset(), buffer, 255, true);
+                drawLines(buffer.buildOrThrow(), marked != null && marked.get(i));
+                pose.popPose();
+            }
+        });
+    }
+    
+    public void renderLineBoxes(PoseStack pose, ILittleLevelContext context, BlockPos pos, Vec3 cam, List<LittleBoxAbsolute> boxes, @Nullable Int2BooleanFunction marked) {
+        wrapPreviewRender(context, pos, cam, true, () -> {
+            pose.pushPose();
+            pose.translate(-pos.getX(), -pos.getY(), -pos.getZ());
+            for (int i = 0; i < boxes.size(); i++) {
+                var bb = boxes.get(i).toABB();
+                bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
+                drawABB(pose, bb, marked != null && marked.get(i));
+            }
+            pose.popPose();
+        });
+    }
+    
+    public void renderLinesHighlight(ILittleLevelContext context, Vec3 cam, BlockPos pos, MeshData data, int color) {
+        wrapPreviewRender(context, pos, cam, true, () -> drawLines(data, true));
+    }
+    
+    public void renderLinesHighlight(ILittleLevelContext context, Vec3 cam, BlockPos pos, MeshData data, int color, float alpha) {
+        wrapPreviewRender(context, pos, cam, true, () -> drawLines(data, alpha, true));
+    }
+    
+    public void renderPositions(PoseStack pose, ILittleLevelContext context, BlockPos pos, Vec3 cam, List<ShapePosition> positions, @Nullable Int2BooleanFunction marked) {
+        wrapPreviewRender(context, pos, cam, true, () -> {
+            for (int i = 0; i < positions.size(); i++) {
+                var bb = positions.get(i).getBB();
+                bb.move(-pos.getX(), -pos.getY(), -pos.getZ());
+                
+                drawABB(pose, bb, marked != null && marked.get(i));
+            }
+        });
     }
     
     public static record BoxRenderResult(LittleBoxes boxes, BlockPos pos, ByteBufferBuilder buffer, MeshData data) {
