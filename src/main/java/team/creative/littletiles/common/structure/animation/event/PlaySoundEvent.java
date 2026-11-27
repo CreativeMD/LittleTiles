@@ -2,6 +2,7 @@ package team.creative.littletiles.common.structure.animation.event;
 
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvent;
 import team.creative.littletiles.common.structure.animation.context.AnimationContext;
@@ -19,10 +20,13 @@ public class PlaySoundEvent extends AnimationEvent<CompoundTag> {
     public float volume;
     public float pitch;
     
-    public PlaySoundEvent(CompoundTag nbt) {
-        sound = get(ResourceLocation.parse(nbt.getString("s")));
-        volume = nbt.getFloat("v");
-        pitch = nbt.getFloat("p");
+    public PlaySoundEvent(Tag tag) {
+        if (tag instanceof CompoundTag nbt) {
+            sound = get(ResourceLocation.parse(nbt.getString("s")));
+            volume = nbt.getFloat("v");
+            pitch = nbt.getFloat("p");
+        } else
+            throw new UnsupportedOperationException();
     }
     
     public PlaySoundEvent(SoundEvent event, float volume, float pitch) {
