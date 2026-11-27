@@ -27,6 +27,7 @@ import team.creative.creativecore.common.util.type.list.Tuple;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMap;
 import team.creative.creativecore.common.util.type.map.ChunkLayerMapList;
 import team.creative.littletiles.LittleTiles;
+import team.creative.littletiles.client.render.block.BERenderManager;
 import team.creative.littletiles.client.render.cache.buffer.BufferCache;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipeline;
 import team.creative.littletiles.client.render.cache.pipeline.LittleRenderPipelineType;
@@ -82,11 +83,21 @@ public class RenderingThread extends Thread {
         
         if (be.isRenderingEmpty()) {
             int index = be.render.startBuildingCache();
-            synchronized (be.render) {
-                be.render.eraseBoxCache();
-                be.render.setBuffersEmpty();
+            if (index == BERenderManager.BUILDING_BLOCKED) {
+                QUEUE.queue(be, hasPos, pos);
+                return true;
             }
-            if (!be.render.finishBuildingCache(index, EMPTY_HOLDERS, CURRENT_RENDERING_INDEX, true))
+            boolean done;
+            try {
+                synchronized (be.render) {
+                    be.render.eraseBoxCache();
+                    be.render.setBuffersEmpty();
+                }
+                done = be.render.finishBuildingCache(index, EMPTY_HOLDERS, CURRENT_RENDERING_INDEX, true);
+            } finally {
+                be.render.unsetBlocked();
+            }
+            if (!done)
                 return queue(be, hasPos, pos);
             return false;
         }
@@ -154,6 +165,7 @@ public class RenderingThread extends Thread {
                     if (data == null)
                         continue;
                     
+                    boolean cacheAcquired = false;
                     try {
                         if (LittleTilesProfilerOverlay.isActive())
                             duration = System.nanoTime();
@@ -162,6 +174,12 @@ public class RenderingThread extends Thread {
                         data.checkLoaded();
                         
                         data.index = data.be.render.startBuildingCache();
+                        if (data.index == BERenderManager.BUILDING_BLOCKED) {
+                            QUEUE.requeue(data);
+                            data.proccessed = true;
+                            continue;
+                        }
+                        cacheAcquired = true;
                         BlockPos pos = data.be.getBlockPos();
                         
                         Int2ObjectMap<ChunkLayerMapList<LittleRenderBox>> cubes;
@@ -241,10 +259,13 @@ public class RenderingThread extends Thread {
                             LittleTiles.LOGGER.catching(e);
                         finishWithError(data);
                     } finally {
-                        buffers.clear();
-                        if (!data.proccessed)
-                            finishWithError(data);
-                        data.unsetBlocked();
+                        try {
+                            buffers.clear();
+                            if (!data.proccessed)
+                                finishWithError(data);
+                        } finally {
+                            releaseCache(data, cacheAcquired);
+                        }
                     }
                     data = null;
                 } else if (level == null || QUEUE.isEmpty())
@@ -261,6 +282,12 @@ public class RenderingThread extends Thread {
         }
     }
     
+    private static void releaseCache(RenderingBlockContext data, boolean cacheAcquired) {
+        // A rejected/requeued iteration never owns another worker's reservation.
+        if (cacheAcquired)
+            data.unsetBlocked();
+    }
+
     public void stopImmediately() {
         synchronized (RenderingThread.class) {
             interrupt();
